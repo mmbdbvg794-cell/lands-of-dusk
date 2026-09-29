@@ -1,0 +1,9 @@
+# Captures of real game traffic (may contain logins)
+*.har
+# Compiled Java classes from the reference client
+client_src_reference/build/
+.DS_Store
+# Screenshots shared while debugging
+/capture*.png
+# Temp file from rebuilding spell data
+*.json.new

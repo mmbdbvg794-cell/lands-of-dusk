@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Dusk</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header id="topbar">
+    <span class="brand">Dusk</span>
+    <span id="status-dot" class="dot off" aria-hidden="true"></span>
+    <span id="status-text" role="status">Disconnected</span>
+    <span class="spacer"></span>
+    <div id="sound-controls">
+      <button type="button" id="mute-btn" aria-pressed="false" title="Sound on (click to mute)" aria-label="Mute">🔊</button>
+      <input class="volume top-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Volume" title="Volume">
+    </div>
+    <details id="settings">
+      <summary>Settings</summary>
+      <div class="settings-menu">
+        <form id="connect-form">
+          <label for="server-url">Bridge address</label>
+          <input id="server-url" type="text" spellcheck="false" autocomplete="off">
+        </form>
+        <label class="toggle"><input id="names" type="checkbox" checked> Show names on the map</label>
+        <div class="toggle-row">
+          <label class="toggle"><input id="minimap-toggle" type="checkbox" checked> Minimap</label>
+          <button type="button" id="minimap-reset" class="ghost small">Move to corner</button>
+        </div>
+        <label class="toggle"><input id="hotbar-toggle" type="checkbox" checked> Hotbar</label>
+        <div class="toggle-row">
+          <label class="toggle"><input id="sound-toggle" type="checkbox" checked> Sound</label>
+          <label class="toggle"><input id="steps-toggle" type="checkbox" checked> Footsteps</label>
+          <input class="volume settings-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Volume">
+        </div>
+        <label class="toggle"><input id="trace" type="checkbox"> Protocol trace in the log</label>
+      </div>
+    </details>
+    <button id="connect-btn" type="submit" form="connect-form" class="primary">Connect</button>
+  </header>
+
+  <div id="play-area">
+    <div id="map-wrap">
+      <div id="hotbar" role="toolbar" aria-label="Hotbar: keys 1 to 9 and 0" hidden></div>
+      <div id="hotbar-picker" class="popover" role="dialog" aria-label="Fill hotbar slot" hidden></div>
+      <!-- Exactly the map's size, so the minimap and menu sit on the map itself. -->
+      <div id="map-stage">
+        <canvas id="map" aria-label="Map view"></canvas>
+        <div id="entity-menu" role="menu" aria-label="Actions" hidden></div>
+        <canvas id="minimap" role="img" aria-label="Minimap of explored area" title="Click to zoom, drag to move"></canvas>
+      </div>
+    </div>
+
+    <aside id="side">
+      <section id="char-card" class="card" hidden>
+        <div class="card-head">
+          <h2 id="char-name">—</h2>
+          <span id="stat-loc" title="Location"></span>
+        </div>
+        <div class="bars">
+          <div id="bar-hp" class="bar hp" role="meter" aria-label="Health" aria-valuemin="0">
+            <span class="bar-label">HP</span><span class="bar-track"><span class="bar-fill"></span></span><span class="bar-num"></span>
+          </div>
+          <div id="bar-mp" class="bar mp" role="meter" aria-label="Mana" aria-valuemin="0">
+            <span class="bar-label">MP</span><span class="bar-track"><span class="bar-fill"></span></span><span class="bar-num"></span>
+          </div>
+          <div id="bar-sp" class="bar sp" role="meter" aria-label="Stamina" aria-valuemin="0" hidden>
+            <span class="bar-label">SP</span><span class="bar-track"><span class="bar-fill"></span></span><span class="bar-num"></span>
+          </div>
+        </div>
+        <div id="target-card" hidden>
+          <div class="target-head">
+            <span class="eyebrow">Target</span>
+            <strong id="target-name"></strong>
+          </div>
+          <div id="bar-target" class="bar target" role="meter" aria-label="Target health" aria-valuemin="0">
+            <span class="bar-track"><span class="bar-fill"></span></span><span class="bar-num"></span>
+          </div>
+          <div class="target-actions">
+            <button type="button" id="target-attack" class="danger">Attack</button>
+            <button type="button" id="target-look">Look</button>
+            <button type="button" id="target-clear" class="ghost">Clear</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel" class="card" hidden>
+        <div id="panel-tabs">
+          <div role="tablist" aria-label="Character">
+            <button type="button" role="tab" data-tab="inv" aria-controls="tab-inv" aria-selected="true">Inventory <span id="tab-inv-count" class="count"></span></button>
+            <button type="button" role="tab" data-tab="equip" aria-controls="tab-equip" aria-selected="false" tabindex="-1">Equipment</button>
+            <button type="button" role="tab" data-tab="book" aria-controls="tab-book" aria-selected="false" tabindex="-1">Spellbook</button>
+            <button type="button" role="tab" data-tab="stats" aria-controls="tab-stats" aria-selected="false" tabindex="-1">Stats</button>
+          </div>
+          <select id="actions" aria-label="Actions" disabled><option value="">Action…</option></select>
+        </div>
+        <div id="tab-inv" class="tab" role="tabpanel">
+          <div id="inv-summary" class="summary" hidden>
+            <span id="inv-gold" class="gold"></span>
+            <span id="inv-exp"></span>
+          </div>
+          <ul id="inv-list" class="rows"></ul>
+          <p id="inv-empty" class="empty">You aren't carrying anything.</p>
+        </div>
+        <div id="tab-equip" class="tab" role="tabpanel" hidden>
+          <ul id="equip-list" class="slots"></ul>
+        </div>
+        <div id="tab-book" class="tab" role="tabpanel" hidden></div>
+        <div id="tab-stats" class="tab" role="tabpanel" hidden>
+          <div id="stats-body"></div>
+          <p id="stats-empty" class="empty">No stats yet.</p>
+        </div>
+      </section>
+
+      <section id="log" class="card">
+        <main id="output" aria-live="polite"></main>
+        <form id="input-form">
+          <input id="input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+                 placeholder="Not connected" disabled aria-label="Command">
+          <button type="submit" id="send-btn" disabled>Send</button>
+        </form>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,586 @@
+{
+ "angel strike": {
+  "caster": [
+   "An angel flies down and attacks {name}. He gets  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "",
+  "group": "white magic group",
+  "needs": 16,
+  "order": 1,
+  "target": []
+ },
+ "armor": {
+  "caster": [
+   "You create a magic shield to surround {name}.",
+   "You do not see them here.",
+   "You surround yourself in a magical shield"
+  ],
+  "description": "Increases a targets armor class",
+  "group": "clerical group",
+  "needs": 50,
+  "order": 2,
+  "target": [
+   "{name}'s magical shield surrounds you."
+  ]
+ },
+ "armour": {
+  "caster": [
+   "This spell isnt scripted yet"
+  ],
+  "description": "",
+  "group": "shifty group",
+  "needs": 20,
+  "order": 1,
+  "target": []
+ },
+ "asteroid": {
+  "caster": [
+   "You call for the heavens to bombard {name} with an asteroid for   damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "causes slight damage to enemy.",
+  "group": "meteo",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
+ "bless": {
+  "caster": [
+   "You call upon the dieties to bless you.",
+   "You call upon the dieties to bless {name}",
+   "You do not see them here."
+  ],
+  "description": "Increases a targets attack bonus",
+  "group": "clerical group",
+  "needs": 75,
+  "order": 3,
+  "target": [
+   "The gods bless you."
+  ]
+ },
+ "bone shards": {
+  "caster": [
+   "Bones of the dead rise from the ground and explode into deadly sharp shards at {name} and do  damage.",
+   "You must be in battle to cast this"
+  ],
+  "description": "",
+  "group": "black magic group",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
+ "camoflauge": {
+  "caster": [
+   "You blend in with your surroundings.",
+   "You do not see them here.",
+   "{name} blends in with their surroundings."
+  ],
+  "description": "hides the caster/target from view",
+  "group": "druidic group",
+  "needs": 75,
+  "order": 3,
+  "target": [
+   "You fade slowly from vision."
+  ]
+ },
+ "comet": {
+  "caster": [
+   "You must be in battle to use this spell.",
+   "You summon the heavenly comets to bombard {name} with a shower of rocks for   damage."
+  ],
+  "description": "causes varying damage to enemy.",
+  "group": "meteo",
+  "needs": 25,
+  "order": 1,
+  "target": []
+ },
+ "corrupt": {
+  "caster": [
+   "' ' is not a living creature.",
+   "Drain who?",
+   "In the process of draining others you have drained yourself and need to recharge.",
+   "You drain some of {name} 's HP and MP.",
+   "You have drained all theyre life",
+   "Your magic 'drain' has been sealed off."
+  ],
+  "description": "",
+  "group": "black magic group",
+  "needs": 75,
+  "order": 3,
+  "target": [
+   "You end up in hell...The domain of Cyril....the god of Chaos!",
+   "{name} has drained some of your HP and MP."
+  ]
+ },
+ "counter poison": {
+  "caster": [
+   "You concentrate on purifying {name}'s blood.",
+   "You do not see them here.",
+   "You focus energy into purifying your blood."
+  ],
+  "description": "Removes poison effects from the target",
+  "group": "clerical group",
+  "needs": 25,
+  "order": 1,
+  "target": [
+   "You feel less sick."
+  ]
+ },
+ "curse": {
+  "caster": [
+   "You become cursed.",
+   "You do not see them here.",
+   "{name}  has reflect.",
+   "{name}  is now cursed."
+  ],
+  "description": "",
+  "group": "black magic group",
+  "needs": 25,
+  "order": 1,
+  "target": [
+   "You become cursed."
+  ]
+ },
+ "detect invis": {
+  "caster": [
+   "You do not see them here.",
+   "Your eyes become sensitive to invisibility.",
+   "{name}'s eyes become sensitive to invisibility."
+  ],
+  "description": "allows the caster to see invisible things",
+  "group": "enchantment group",
+  "needs": 0,
+  "order": 0,
+  "target": [
+   "Your eyes become sensitive to invisibility."
+  ]
+ },
+ "focus": {
+  "caster": [
+   "You do not see them here.",
+   "You focus your energy",
+   "You make {name} focus his energy."
+  ],
+  "description": "Increases a targets armor class",
+  "group": "white magic group",
+  "needs": 0,
+  "order": 0,
+  "target": [
+   "{name} makes you focus your energy."
+  ]
+ },
+ "healing": {
+  "caster": [
+   "You do not have a druidic quarter staff!",
+   "You do not see them here.",
+   "Your quarter staff flares with healing POWER, then vanishes.",
+   "Your quarter staff flares with healing power, then vanishes."
+  ],
+  "description": "Converts a quarterstaff into healing energies",
+  "group": "test group",
+  "needs": 0,
+  "order": 0,
+  "target": [
+   "You feel slightly less wounded."
+  ]
+ },
+ "healing staff": {
+  "caster": [
+   "You do not have a quarter staff!",
+   "you do not see them here."
+  ],
+  "description": "Converts a quarterstaff into healing energies",
+  "group": "druidic group",
+  "needs": 25,
+  "order": 1,
+  "target": [
+   "You feel slightly less wounded."
+  ]
+ },
+ "herbology": {
+  "caster": [
+   "You extract juices from a mandrake to  make an anti-curse potion",
+   "You mix a wolfsbane and mandrake to make a Red Potion",
+   "You mix the Red and Green Potions together and make a rare Blue Potion",
+   "You mix the lavendar and wolfsbane together and make a Green Potion",
+   "You mix the mushroom and some water together and make a rare Blue Potion"
+  ],
+  "description": "Herbology used to convert herbs into healing power.",
+  "group": "alchemy group",
+  "needs": 66,
+  "order": 2,
+  "target": []
+ },
+ "hero's spell": {
+  "caster": [
+   "You do not see them here.",
+   "You feel yourself get an adrenaline rush.",
+   "{name}  begins to glow with a bright aura."
+  ],
+  "description": "gives the caster the qualities of a hero.",
+  "group": "special group",
+  "needs": 0,
+  "order": 0,
+  "target": [
+   "You feel your body reach its full extent in power."
+  ]
+ },
+ "holy": {
+  "caster": [
+   "Holy damage is inflicted upon {name} . He gets  damage.",
+   "The spell deflects!",
+   "You must be in battle to use this spell."
+  ],
+  "description": "",
+  "group": "white magic group",
+  "needs": 83,
+  "order": 5,
+  "target": []
+ },
+ "invis": {
+  "caster": [
+   "You do not see them here.",
+   "You fade slowly from vision.",
+   "{name}  fades slowly from vision."
+  ],
+  "description": "hides the caster/target from view",
+  "group": "enchantment group",
+  "needs": 33,
+  "order": 1,
+  "target": [
+   "You fade slowly from vision."
+  ]
+ },
+ "killer": {
+  "caster": [
+   "You miss the enemy!",
+   "You must be in battle to cast this",
+   "You punch {name}in the arm, fordamage.",
+   "You punch {name}in the chest, fordamage.",
+   "You punch {name}in the face, fordamage.",
+   "You punch {name}in the leg, fordamage.",
+   "You punch {name}in the stomache, fordamage."
+  ],
+  "description": "Attacks the enemy around there body.",
+  "group": "shifty group",
+  "needs": 40,
+  "order": 2,
+  "target": []
+ },
+ "meditation": {
+  "caster": [
+   "You do not see them here.",
+   "You force {name} to meditate.",
+   "You meditate to heal your wounds."
+  ],
+  "description": "",
+  "group": "white magic group",
+  "needs": 50,
+  "order": 3,
+  "target": [
+   "You meditate to heal your wounds."
+  ]
+ },
+ "mend": {
+  "caster": [
+   "You do not see them here.",
+   "You focus energy into mending your wounds.",
+   "You focus on mending {name}'s wounds."
+  ],
+  "description": "Heals someone by caster's intelligence.",
+  "group": "clerical group",
+  "needs": 0,
+  "order": 0,
+  "target": [
+   "You feel slightly less wounded."
+  ]
+ },
+ "meteo": {
+  "caster": [
+   "You must be in battle to use this spell.",
+   "You summon the holy meteor to bombard {name} with a deadly crash for   damage."
+  ],
+  "description": "causes varying damage to enemy.",
+  "group": "meteo",
+  "needs": 75,
+  "order": 3,
+  "target": []
+ },
+ "meteor shield": {
+  "caster": [
+   "You create a hardened shield to surround {name}.",
+   "You do not see them here.",
+   "You surround yourself in a rock shield"
+  ],
+  "description": "Increases a targets armor class",
+  "group": "meteo",
+  "needs": 50,
+  "order": 2,
+  "target": [
+   "{name}'s rock shield surrounds you."
+  ]
+ },
+ "prayer": {
+  "caster": [
+   "You give prayer to the gods to remove all bad effects on your body"
+  ],
+  "description": "",
+  "group": "white magic group",
+  "needs": 33,
+  "order": 2,
+  "target": []
+ },
+ "psychopath": {
+  "caster": [
+   "You hit {name} in the head with tremendous force, for  damage.",
+   "You hit {name}in the arm, for  damage.",
+   "You hit {name}in the chest, for  damage.",
+   "You hit {name}in the head, for  damage.",
+   "You hit {name}in the leg, for  damage.",
+   "You hit {name}in the stomache, for  damage.",
+   "You miss the enemy!",
+   "You must be in battle to cast this"
+  ],
+  "description": "Attacks the enemy multiple times around there body.",
+  "group": "shifty group",
+  "needs": 60,
+  "order": 3,
+  "target": []
+ },
+ "quake": {
+  "caster": [
+   "The ground trembles and quakes and {name} gets hurt. He gets  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "",
+  "group": "black magic group",
+  "needs": 50,
+  "order": 2,
+  "target": []
+ },
+ "quarter staff": {
+  "caster": [
+   "A druidic quarter staff appears in your inventory."
+  ],
+  "description": "summons a quarterstaff for druidic use",
+  "group": "druidic group",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
+ "reflect": {
+  "caster": [
+   "Reflect shield"
+  ],
+  "description": "",
+  "group": "m group",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
+ "regenerate": {
+  "caster": [
+   "You begin to regenerate your health.",
+   "You do not see them here.",
+   "{name}'s health begins to regenerate."
+  ],
+  "description": "Causes the caster to automatically regenerate hit points.",
+  "group": "enchantment group",
+  "needs": 66,
+  "order": 2,
+  "target": [
+   "Your health begins to regenerate."
+  ]
+ },
+ "scan": {
+  "caster": [
+   "' ' is being scanned.",
+   "AC:  (dex counted in)",
+   "Cash:  gp +  exp",
+   "DamMod:",
+   "Dodge:",
+   "Double Attack:",
+   "HP: /(+)  MP: /(+)",
+   "Name: {name} ( cp)  Loc:  /",
+   "Privs lvl:",
+   "Quadruple Attack:",
+   "Stats with all bonuses:",
+   "Triple Attack:",
+   "alchemy group:",
+   "black magic group:",
+   "clerical group:",
+   "con:  +",
+   "dex:  +",
+   "druidic group:",
+   "enchantment group:",
+   "int:  +",
+   "str:  +",
+   "summons group:",
+   "telepathy group:",
+   "white magic group:",
+   "wis:  +"
+  ],
+  "description": "scans the enemie's or allie's stats.",
+  "group": "white magic group",
+  "needs": 66,
+  "order": 4,
+  "target": [
+   "{name} has scanned your stats."
+  ]
+ },
+ "snakes": {
+  "caster": [],
+  "description": "",
+  "group": "summon group",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
+ "steal": {
+  "caster": [
+   "What do you wish to steal?",
+   "Why would you want to steal from yourself.",
+   "You Fail to steal anything",
+   "You steal {name} 's ' ."
+  ],
+  "description": "cast steal <user name> <item name>",
+  "group": "shifty group",
+  "needs": 80,
+  "order": 4,
+  "target": []
+ },
+ "summon bahamut": {
+  "caster": [
+   "The Ruby you have increases Bahamuts power {name} . Bahamuts mega flare does  damage.",
+   "You have no reason to summon him now.",
+   "You summon Bahamut to attack {name} . Bahamuts mega flare does  damage."
+  ],
+  "description": "",
+  "group": "summons group",
+  "needs": 20,
+  "order": 1,
+  "target": []
+ },
+ "summon leviathan": {
+  "caster": [
+   "The Aquamarine increase Levaithans attack power. He attacks {name} and does damage.",
+   "You must be in battle to summon this creature",
+   "You summon the great sea serpent Leviathan.  He attacks {name} and does damage."
+  ],
+  "description": "",
+  "group": "summons group",
+  "needs": 60,
+  "order": 3,
+  "target": []
+ },
+ "summon snakes": {
+  "caster": [
+   "Snakes rise from the ground to attack {name} and do  damage.",
+   "The Emerald you have increases the snakes attack. The snakes attack {name} and do  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "",
+  "group": "summons group",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
+ "summon ultima bahamut": {
+  "caster": [
+   "The great Ultima Bahamut is summoned. He attacks {name}  with Terra Flare and does damage.",
+   "You Must Be In Battle To Summon This Creature",
+   "You Need A diamond To Summon This Creature",
+   "You Need An amethyst To Summon This Creature"
+  ],
+  "description": "",
+  "group": "summons group",
+  "needs": 80,
+  "order": 4,
+  "target": []
+ },
+ "summon wurm": {
+  "caster": [
+   "The Topaz you have increases the Wurms attack power. He attacks {name} and does damage.",
+   "You must be in battle to summon this creature",
+   "You summon a giant Wurm. He attacks {name} and does damage."
+  ],
+  "description": "",
+  "group": "summons group",
+  "needs": 40,
+  "order": 2,
+  "target": []
+ },
+ "telepath": {
+  "caster": [
+   "They are not in this world.",
+   "What do you wish them to know?",
+   "You already know your thoughts.",
+   "{name} knows your thoughts."
+  ],
+  "description": "Sends a telepathic message to someone.",
+  "group": "telepathy group",
+  "needs": 0,
+  "order": 0,
+  "target": [
+   "A voice echoes in your head:"
+  ]
+ },
+ "thorns": {
+  "caster": [
+   "The spell bounces off of him due to Reflect and damages  you for  damage.",
+   "You call upon the lands to sting {name} for  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "causes slight damage to the target",
+  "group": "druidic group",
+  "needs": 50,
+  "order": 2,
+  "target": []
+ },
+ "tire": {
+  "caster": [
+   "If you wish to sleep you may do so on your own will.",
+   "That person is not here.",
+   "{name}   is enchanted. He feels the urge to sleep."
+  ],
+  "description": "For the duration of the casters intelligence, cause a foe to randomly fall asleep",
+  "group": "telepathy group",
+  "needs": 50,
+  "order": 1,
+  "target": [
+   "You become tired."
+  ]
+ },
+ "translate": {
+  "caster": [
+   "You suddenly have the ability to translate the Elysium language."
+  ],
+  "description": "",
+  "group": "alchemy group",
+  "needs": 33,
+  "order": 1,
+  "target": []
+ },
+ "warp": {
+  "caster": [
+   "You have returned to Elysium",
+   "You recall a time in the past....another part of the world...and as you open your eyes you find yourself there."
+  ],
+  "description": "",
+  "group": "alchemy group",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
+ "weapon": {
+  "caster": [
+   "This spell isnt scripted yet."
+  ],
+  "description": "",
+  "group": "shifty group",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ }
+}

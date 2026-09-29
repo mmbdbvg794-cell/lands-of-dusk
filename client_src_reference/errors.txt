@@ -1,0 +1,2022 @@
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+Dusk.java:506: error: cannot find symbol
+        entStore = null;
+        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:507: error: cannot find symbol
+        intStore = 0;
+        ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:508: error: cannot find symbol
+        incoming = 0;
+        ^
+  symbol:   variable incoming
+  location: class Dusk
+Dusk.java:509: error: cannot find symbol
+        blnBreak = false;
+        ^
+  symbol:   variable blnBreak
+  location: class Dusk
+Dusk.java:510: error: cannot find symbol
+        block125: while (incoming != -1) {
+                         ^
+  symbol:   variable incoming
+  location: class Dusk
+Dusk.java:512: error: cannot find symbol
+                incoming = this.stmIn.readByte();
+                ^
+  symbol:   variable incoming
+  location: class Dusk
+Dusk.java:513: error: cannot find symbol
+                switch (incoming) {
+                        ^
+  symbol:   variable incoming
+  location: class Dusk
+Dusk.java:537: error: cannot find symbol
+                        var12_11 = this.vctEntities;
+                        ^
+  symbol:   variable var12_11
+  location: class Dusk
+Dusk.java:538: error: cannot find symbol
+                        synchronized (var12_11) {
+                                      ^
+  symbol:   variable var12_11
+  location: class Dusk
+Dusk.java:539: error: cannot find symbol
+                            changeLocX = Integer.parseInt(this.stmIn.readLine()) - this.LocX;
+                            ^
+  symbol:   variable changeLocX
+  location: class Dusk
+Dusk.java:540: error: cannot find symbol
+                            changeLocY = Integer.parseInt(this.stmIn.readLine()) - this.LocY;
+                            ^
+  symbol:   variable changeLocY
+  location: class Dusk
+Dusk.java:541: error: cannot find symbol
+                            this.LocX += changeLocX;
+                                         ^
+  symbol:   variable changeLocX
+  location: class Dusk
+Dusk.java:542: error: cannot find symbol
+                            this.LocY += changeLocY;
+                                         ^
+  symbol:   variable changeLocY
+  location: class Dusk
+Dusk.java:543: error: cannot find symbol
+                            for (i = 0; i < this.mapSize; ++i) {
+                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:543: error: cannot find symbol
+                            for (i = 0; i < this.mapSize; ++i) {
+                                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:543: error: cannot find symbol
+                            for (i = 0; i < this.mapSize; ++i) {
+                                                            ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:544: error: cannot find symbol
+                                for (i2 = 0; i2 < this.mapSize; ++i2) {
+                                     ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:544: error: cannot find symbol
+                                for (i2 = 0; i2 < this.mapSize; ++i2) {
+                                             ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:544: error: cannot find symbol
+                                for (i2 = 0; i2 < this.mapSize; ++i2) {
+                                                                  ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:545: error: cannot find symbol
+                                    this.shrMap[i][i2] = Short.parseShort(this.stmIn.readLine());
+                                                ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:545: error: cannot find symbol
+                                    this.shrMap[i][i2] = Short.parseShort(this.stmIn.readLine());
+                                                   ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:548: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:548: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:548: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                                                       ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:549: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:549: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                                                              ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:550: error: cannot find symbol
+                                if (!(Math.abs(entStore.intLocX - (double)this.LocX) > (double)this.viewRange) && !(Math.abs(entStore.intLocY - (double)this.LocY) > (double)this.viewRange)) continue;
+                                               ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:550: error: cannot find symbol
+                                if (!(Math.abs(entStore.intLocX - (double)this.LocX) > (double)this.viewRange) && !(Math.abs(entStore.intLocY - (double)this.LocY) > (double)this.viewRange)) continue;
+                                                                                                                             ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:551: error: cannot find symbol
+                                this.vctEntities.removeElementAt(i);
+                                                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:552: error: cannot find symbol
+                                --i;
+                                  ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:556: error: cannot find symbol
+                            for (i = 0; i < this.mapSize; ++i) {
+                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:556: error: cannot find symbol
+                            for (i = 0; i < this.mapSize; ++i) {
+                                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:556: error: cannot find symbol
+                            for (i = 0; i < this.mapSize; ++i) {
+                                                            ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:557: error: cannot find symbol
+                                for (i2 = 0; i2 < this.mapSize; ++i2) {
+                                     ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:557: error: cannot find symbol
+                                for (i2 = 0; i2 < this.mapSize; ++i2) {
+                                             ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:557: error: cannot find symbol
+                                for (i2 = 0; i2 < this.mapSize; ++i2) {
+                                                                  ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:558: error: cannot find symbol
+                                    entStore = this.entBuffer[i][i2];
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:558: error: cannot find symbol
+                                    entStore = this.entBuffer[i][i2];
+                                                              ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:558: error: cannot find symbol
+                                    entStore = this.entBuffer[i][i2];
+                                                                 ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:559: error: cannot find symbol
+                                    if (entStore == null) continue;
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:561: error: cannot find symbol
+                                        this.entEntities[i - changeLocX][i2 - changeLocY] = entStore;
+                                                         ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:561: error: cannot find symbol
+                                        this.entEntities[i - changeLocX][i2 - changeLocY] = entStore;
+                                                             ^
+  symbol:   variable changeLocX
+  location: class Dusk
+Dusk.java:561: error: cannot find symbol
+                                        this.entEntities[i - changeLocX][i2 - changeLocY] = entStore;
+                                                                         ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:561: error: cannot find symbol
+                                        this.entEntities[i - changeLocX][i2 - changeLocY] = entStore;
+                                                                              ^
+  symbol:   variable changeLocY
+  location: class Dusk
+Dusk.java:561: error: cannot find symbol
+                                        this.entEntities[i - changeLocX][i2 - changeLocY] = entStore;
+                                                                                            ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:566: error: cannot find symbol
+                                            this.removeEntityFromBuffer(entStore);
+                                                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:567: error: cannot find symbol
+                                        } while ((entStore = entStore.entNext) != null);
+                                                  ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:567: error: cannot find symbol
+                                        } while ((entStore = entStore.entNext) != null);
+                                                             ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:572: error: cannot find symbol
+                            this.vctMerchantItems = new Vector<E>(0, 5);
+                                                               ^
+  symbol:   class E
+  location: class Dusk
+Dusk.java:586: error: cannot find symbol
+                        var12_12 = this.vctEntities;
+                        ^
+  symbol:   variable var12_12
+  location: class Dusk
+Dusk.java:587: error: cannot find symbol
+                        synchronized (var12_12) {
+                                      ^
+  symbol:   variable var12_12
+  location: class Dusk
+Dusk.java:588: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:589: error: cannot find symbol
+                            intStore = Byte.parseByte(this.stmIn.readLine());
+                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:590: error: cannot find symbol
+                            if (intStore != 0) {
+                                ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:592: error: cannot find symbol
+                                    entStore = new Entity(strStore, Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), -1, intStore, this.stmIn.readLine());
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:592: error: cannot find symbol
+                                    entStore = new Entity(strStore, Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), -1, intStore, this.stmIn.readLine());
+                                                          ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:592: error: cannot find symbol
+                                    entStore = new Entity(strStore, Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), -1, intStore, this.stmIn.readLine());
+                                                                                                                                                                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:593: error: cannot find symbol
+                                    if (entStore.intType == 0 || entStore.intType == 4) {
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:593: error: cannot find symbol
+                                    if (entStore.intType == 0 || entStore.intType == 4) {
+                                                                 ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:594: error: cannot find symbol
+                                        entStore.hp = Integer.parseInt(this.stmIn.readLine());
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:595: error: cannot find symbol
+                                        entStore.maxhp = Integer.parseInt(this.stmIn.readLine());
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:599: error: cannot find symbol
+                                    entStore = null;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:603: error: cannot find symbol
+                                    entStore = new Entity(strStore, Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), intStore, this.stmIn.readLine());
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:603: error: cannot find symbol
+                                    entStore = new Entity(strStore, Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), intStore, this.stmIn.readLine());
+                                                          ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:603: error: cannot find symbol
+                                    entStore = new Entity(strStore, Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), Integer.parseInt(this.stmIn.readLine()), intStore, this.stmIn.readLine());
+                                                                                                                                                                                                                                                                                 ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:604: error: cannot find symbol
+                                    if (entStore.intType == 0 || entStore.intType == 4) {
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:604: error: cannot find symbol
+                                    if (entStore.intType == 0 || entStore.intType == 4) {
+                                                                 ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:605: error: cannot find symbol
+                                        entStore.hp = Integer.parseInt(this.stmIn.readLine());
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:606: error: cannot find symbol
+                                        entStore.maxhp = Integer.parseInt(this.stmIn.readLine());
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:610: error: cannot find symbol
+                                    entStore = null;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:613: error: cannot find symbol
+                            if (entStore != null) {
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:614: error: cannot find symbol
+                                this.addEntity(entStore);
+                                               ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:633: error: cannot find symbol
+                        this.vctChoiceDropItems = new Vector<E>(0, 5);
+                                                             ^
+  symbol:   class E
+  location: class Dusk
+Dusk.java:651: error: cannot find symbol
+                            intStore = Integer.parseInt(this.stmIn.readLine());
+                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:653: error: cannot find symbol
+                                strStore = this.stmIn.readLine();
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:654: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:655: error: cannot find symbol
+                                entStore = new Entity(strStore, intID, intStore);
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:655: error: cannot find symbol
+                                entStore = new Entity(strStore, intID, intStore);
+                                                      ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:655: error: cannot find symbol
+                                entStore = new Entity(strStore, intID, intStore);
+                                                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:655: error: cannot find symbol
+                                entStore = new Entity(strStore, intID, intStore);
+                                                                       ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:656: error: cannot find symbol
+                                this.insertIntoVector(this.vctItems, entStore);
+                                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:657: error: cannot find symbol
+                                switch (intStore) {
+                                        ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:659: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:663: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:664: error: cannot find symbol
+                                        this.frame.frmEquipment.chcWield.addItem(strStore);
+                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:668: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:669: error: cannot find symbol
+                                        this.frame.frmEquipment.chcArms.addItem(strStore);
+                                                                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:673: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:674: error: cannot find symbol
+                                        this.frame.frmEquipment.chcLegs.addItem(strStore);
+                                                                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:678: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:679: error: cannot find symbol
+                                        this.frame.frmEquipment.chcTorso.addItem(strStore);
+                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:683: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:684: error: cannot find symbol
+                                        this.frame.frmEquipment.chcWaist.addItem(strStore);
+                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:688: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:689: error: cannot find symbol
+                                        this.frame.frmEquipment.chcNeck.addItem(strStore);
+                                                                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:693: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:694: error: cannot find symbol
+                                        this.frame.frmEquipment.chcSkull.addItem(strStore);
+                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:698: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:699: error: cannot find symbol
+                                        this.frame.frmEquipment.chcEyes.addItem(strStore);
+                                                                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:703: error: cannot find symbol
+                                        this.vctChoiceDropItems.addElement(strStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:704: error: cannot find symbol
+                                        this.frame.frmEquipment.chcHands.addItem(strStore);
+                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:708: error: cannot find symbol
+                                intStore = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:728: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:729: error: cannot find symbol
+                            if (strStore.equals("none")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:732: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:733: error: cannot find symbol
+                                this.equipArray[0] = entStore = new Entity(strStore, intID, intStore);
+                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:733: error: cannot find symbol
+                                this.equipArray[0] = entStore = new Entity(strStore, intID, intStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:733: error: cannot find symbol
+                                this.equipArray[0] = entStore = new Entity(strStore, intID, intStore);
+                                                                                     ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:733: error: cannot find symbol
+                                this.equipArray[0] = entStore = new Entity(strStore, intID, intStore);
+                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:735: error: cannot find symbol
+                            this.frame.frmEquipment.Label9.setText("Wielded: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                                                    ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:736: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:737: error: cannot find symbol
+                            if (strStore.equals("none")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:740: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:741: error: cannot find symbol
+                                this.equipArray[1] = entStore = new Entity(strStore, intID, intStore);
+                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:741: error: cannot find symbol
+                                this.equipArray[1] = entStore = new Entity(strStore, intID, intStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:741: error: cannot find symbol
+                                this.equipArray[1] = entStore = new Entity(strStore, intID, intStore);
+                                                                                     ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:741: error: cannot find symbol
+                                this.equipArray[1] = entStore = new Entity(strStore, intID, intStore);
+                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:743: error: cannot find symbol
+                            this.frame.frmEquipment.Label2.setText("Arms: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:744: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:745: error: cannot find symbol
+                            if (strStore.equals("none")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:748: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:749: error: cannot find symbol
+                                this.equipArray[2] = entStore = new Entity(strStore, intID, intStore);
+                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:749: error: cannot find symbol
+                                this.equipArray[2] = entStore = new Entity(strStore, intID, intStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:749: error: cannot find symbol
+                                this.equipArray[2] = entStore = new Entity(strStore, intID, intStore);
+                                                                                     ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:749: error: cannot find symbol
+                                this.equipArray[2] = entStore = new Entity(strStore, intID, intStore);
+                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:751: error: cannot find symbol
+                            this.frame.frmEquipment.Label3.setText("Legs: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:752: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:753: error: cannot find symbol
+                            if (strStore.equals("none")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:756: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:757: error: cannot find symbol
+                                this.equipArray[3] = entStore = new Entity(strStore, intID, intStore);
+                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:757: error: cannot find symbol
+                                this.equipArray[3] = entStore = new Entity(strStore, intID, intStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:757: error: cannot find symbol
+                                this.equipArray[3] = entStore = new Entity(strStore, intID, intStore);
+                                                                                     ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:757: error: cannot find symbol
+                                this.equipArray[3] = entStore = new Entity(strStore, intID, intStore);
+                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:759: error: cannot find symbol
+                            this.frame.frmEquipment.Label1.setText("Torso: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                                                  ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:760: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:761: error: cannot find symbol
+                            if (strStore.equals("none")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:764: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:765: error: cannot find symbol
+                                this.equipArray[4] = entStore = new Entity(strStore, intID, intStore);
+                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:765: error: cannot find symbol
+                                this.equipArray[4] = entStore = new Entity(strStore, intID, intStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:765: error: cannot find symbol
+                                this.equipArray[4] = entStore = new Entity(strStore, intID, intStore);
+                                                                                     ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:765: error: cannot find symbol
+                                this.equipArray[4] = entStore = new Entity(strStore, intID, intStore);
+                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:767: error: cannot find symbol
+                            this.frame.frmEquipment.Label6.setText("Waist: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                                                  ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:768: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:769: error: cannot find symbol
+                            if (strStore.equals("none")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:772: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:773: error: cannot find symbol
+                                this.equipArray[5] = entStore = new Entity(strStore, intID, intStore);
+                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:773: error: cannot find symbol
+                                this.equipArray[5] = entStore = new Entity(strStore, intID, intStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:773: error: cannot find symbol
+                                this.equipArray[5] = entStore = new Entity(strStore, intID, intStore);
+                                                                                     ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:773: error: cannot find symbol
+                                this.equipArray[5] = entStore = new Entity(strStore, intID, intStore);
+                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:775: error: cannot find symbol
+                            this.frame.frmEquipment.Label4.setText("Neck: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:776: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:777: error: cannot find symbol
+                            if (strStore.equals("none")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:780: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:781: error: cannot find symbol
+                                this.equipArray[6] = entStore = new Entity(strStore, intID, intStore);
+                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:781: error: cannot find symbol
+                                this.equipArray[6] = entStore = new Entity(strStore, intID, intStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:781: error: cannot find symbol
+                                this.equipArray[6] = entStore = new Entity(strStore, intID, intStore);
+                                                                                     ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:781: error: cannot find symbol
+                                this.equipArray[6] = entStore = new Entity(strStore, intID, intStore);
+                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:783: error: cannot find symbol
+                            this.frame.frmEquipment.lblSkull.setText("Skull: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                                                    ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:784: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:785: error: cannot find symbol
+                            if (strStore.equals("none")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:788: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:789: error: cannot find symbol
+                                this.equipArray[7] = entStore = new Entity(strStore, intID, intStore);
+                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:789: error: cannot find symbol
+                                this.equipArray[7] = entStore = new Entity(strStore, intID, intStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:789: error: cannot find symbol
+                                this.equipArray[7] = entStore = new Entity(strStore, intID, intStore);
+                                                                                     ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:789: error: cannot find symbol
+                                this.equipArray[7] = entStore = new Entity(strStore, intID, intStore);
+                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:791: error: cannot find symbol
+                            this.frame.frmEquipment.Label5.setText("Eyes: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:792: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:793: error: cannot find symbol
+                            if (strStore.equals("none")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:796: error: cannot find symbol
+                                intID = Integer.parseInt(this.stmIn.readLine());
+                                ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:797: error: cannot find symbol
+                                this.equipArray[8] = entStore = new Entity(strStore, intID, intStore);
+                                                     ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:797: error: cannot find symbol
+                                this.equipArray[8] = entStore = new Entity(strStore, intID, intStore);
+                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:797: error: cannot find symbol
+                                this.equipArray[8] = entStore = new Entity(strStore, intID, intStore);
+                                                                                     ^
+  symbol:   variable intID
+  location: class Dusk
+Dusk.java:797: error: cannot find symbol
+                                this.equipArray[8] = entStore = new Entity(strStore, intID, intStore);
+                                                                                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:799: error: cannot find symbol
+                            this.frame.frmEquipment.Label7.setText("Hands: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                                                  ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:808: error: cannot find symbol
+                            strStore2 = "";
+                            ^
+  symbol:   variable strStore2
+  location: class Dusk
+Dusk.java:809: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:810: error: cannot find symbol
+                            while (!strStore.equals(".")) {
+                                    ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:811: error: cannot find symbol
+                                strStore2 = String.valueOf(String.valueOf(strStore2)).concat(String.valueOf(String.valueOf(String.valueOf(String.valueOf(strStore)).concat("\n"))));
+                                ^
+  symbol:   variable strStore2
+  location: class Dusk
+Dusk.java:811: error: cannot find symbol
+                                strStore2 = String.valueOf(String.valueOf(strStore2)).concat(String.valueOf(String.valueOf(String.valueOf(String.valueOf(strStore)).concat("\n"))));
+                                                                          ^
+  symbol:   variable strStore2
+  location: class Dusk
+Dusk.java:811: error: cannot find symbol
+                                strStore2 = String.valueOf(String.valueOf(strStore2)).concat(String.valueOf(String.valueOf(String.valueOf(String.valueOf(strStore)).concat("\n"))));
+                                                                                                                                                         ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:812: error: cannot find symbol
+                                strStore = this.stmIn.readLine();
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:814: error: cannot find symbol
+                            this.frame.txtOther.setText(strStore2);
+                                                        ^
+  symbol:   variable strStore2
+  location: class Dusk
+Dusk.java:826: error: cannot find symbol
+                        strStore = this.stmIn.readLine();
+                        ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:827: error: cannot find symbol
+                        this.vctChoiceActionItems = new Vector<E>(0, 5);
+                                                               ^
+  symbol:   class E
+  location: class Dusk
+Dusk.java:828: error: cannot find symbol
+                        while (!strStore.equals(".")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:829: error: cannot find symbol
+                            this.vctChoiceActionItems.addElement(strStore);
+                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:830: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:842: error: cannot find symbol
+                            for (intStore = 0; intStore < this.intMusicTypes; ++intStore) {
+                                 ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:842: error: cannot find symbol
+                            for (intStore = 0; intStore < this.intMusicTypes; ++intStore) {
+                                               ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:842: error: cannot find symbol
+                            for (intStore = 0; intStore < this.intMusicTypes; ++intStore) {
+                                                                                ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:843: error: cannot find symbol
+                                this.intNumSongs[intStore] = Integer.parseInt(this.stmIn.readLine());
+                                                 ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:844: error: cannot find symbol
+                                this.audMusic[intStore] = new AudioClip[this.intNumSongs[intStore]];
+                                              ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:844: error: cannot find symbol
+                                this.audMusic[intStore] = new AudioClip[this.intNumSongs[intStore]];
+                                                                                         ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:845: error: cannot find symbol
+                                for (intStore2 = 0; intStore2 < this.intNumSongs[intStore]; ++intStore2) {
+                                     ^
+  symbol:   variable intStore2
+  location: class Dusk
+Dusk.java:845: error: cannot find symbol
+                                for (intStore2 = 0; intStore2 < this.intNumSongs[intStore]; ++intStore2) {
+                                                    ^
+  symbol:   variable intStore2
+  location: class Dusk
+Dusk.java:845: error: cannot find symbol
+                                for (intStore2 = 0; intStore2 < this.intNumSongs[intStore]; ++intStore2) {
+                                                                                 ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:845: error: cannot find symbol
+                                for (intStore2 = 0; intStore2 < this.intNumSongs[intStore]; ++intStore2) {
+                                                                                              ^
+  symbol:   variable intStore2
+  location: class Dusk
+Dusk.java:846: error: cannot find symbol
+                                    strStore = this.stmIn.readLine();
+                                    ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:848: error: cannot find symbol
+                                        this.audMusic[intStore][intStore2] = this.appShell.getAudioClip(new URL(strStore));
+                                                      ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:848: error: cannot find symbol
+                                        this.audMusic[intStore][intStore2] = this.appShell.getAudioClip(new URL(strStore));
+                                                                ^
+  symbol:   variable intStore2
+  location: class Dusk
+Dusk.java:848: error: cannot find symbol
+                                        this.audMusic[intStore][intStore2] = this.appShell.getAudioClip(new URL(strStore));
+                                                                                                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:849: error: cannot find symbol
+                                        while (this.audMusic[intStore][intStore2] == null) {
+                                                             ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:849: error: cannot find symbol
+                                        while (this.audMusic[intStore][intStore2] == null) {
+                                                                       ^
+  symbol:   variable intStore2
+  location: class Dusk
+Dusk.java:854: error: cannot find symbol
+                                        System.err.println(String.valueOf(String.valueOf(new StringBuffer("Error while trying to load music file ").append(strStore).append(":").append(e.toString()))));
+                                                                                                                                                           ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:870: error: cannot find symbol
+                            intStore = Integer.parseInt(this.stmIn.readLine());
+                            ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:874: error: cannot find symbol
+                            this.audMusicPlaying = this.audMusic[intStore][(int)(Math.random() * (double)this.intNumSongs[intStore])];
+                                                                 ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:874: error: cannot find symbol
+                            this.audMusicPlaying = this.audMusic[intStore][(int)(Math.random() * (double)this.intNumSongs[intStore])];
+                                                                                                                          ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:898: error: cannot find symbol
+                        e = this.vctEntities;
+                        ^
+  symbol:   variable e
+  location: class Dusk
+Dusk.java:899: error: cannot find symbol
+                        synchronized (e) {
+                                      ^
+  symbol:   variable e
+  location: class Dusk
+Dusk.java:900: error: cannot find symbol
+                            lngStore = Long.valueOf(this.stmIn.readLine());
+                            ^
+  symbol:   variable lngStore
+  location: class Dusk
+Dusk.java:901: error: cannot find symbol
+                            this.removeEntity(lngStore);
+                                              ^
+  symbol:   variable lngStore
+  location: class Dusk
+Dusk.java:910: error: cannot find symbol
+                        strStore = this.stmIn.readLine();
+                        ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:911: error: cannot find symbol
+                        while (!strStore.equals(".")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:912: error: cannot find symbol
+                            this.vctMerchantItems.addElement(strStore);
+                                                             ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:913: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:919: error: cannot find symbol
+                        frmEdit = new EditFrame(this.stmIn.readLine(), this, true);
+                        ^
+  symbol:   variable frmEdit
+  location: class Dusk
+Dusk.java:920: error: cannot find symbol
+                        frmEdit.show();
+                        ^
+  symbol:   variable frmEdit
+  location: class Dusk
+Dusk.java:921: error: cannot find symbol
+                        strStore = this.stmIn.readLine();
+                        ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:922: error: cannot find symbol
+                        while (!strStore.equals("--EOF--")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:923: error: package frmEdit does not exist
+                            frmEdit.txtEdit.append(String.valueOf(String.valueOf(strStore)).concat("\n"));
+                                   ^
+Dusk.java:923: error: cannot find symbol
+                            frmEdit.txtEdit.append(String.valueOf(String.valueOf(strStore)).concat("\n"));
+                                                                                 ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:924: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:929: error: cannot find symbol
+                        frmEdit = this.vctEntities;
+                        ^
+  symbol:   variable frmEdit
+  location: class Dusk
+Dusk.java:930: error: cannot find symbol
+                        synchronized (frmEdit) {
+                                      ^
+  symbol:   variable frmEdit
+  location: class Dusk
+Dusk.java:946: error: cannot find symbol
+                            frmEdit = new EditFrame(this.stmIn.readLine(), this, false);
+                            ^
+  symbol:   variable frmEdit
+  location: class Dusk
+Dusk.java:947: error: cannot find symbol
+                            frmEdit.show();
+                            ^
+  symbol:   variable frmEdit
+  location: class Dusk
+Dusk.java:948: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:949: error: cannot find symbol
+                            while (!strStore.equals("--EOF--")) {
+                                    ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:950: error: package frmEdit does not exist
+                                frmEdit.txtEdit.append(String.valueOf(String.valueOf(strStore)).concat("\n"));
+                                       ^
+Dusk.java:950: error: cannot find symbol
+                                frmEdit.txtEdit.append(String.valueOf(String.valueOf(strStore)).concat("\n"));
+                                                                                     ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:951: error: cannot find symbol
+                                strStore = this.stmIn.readLine();
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:955: error: cannot find symbol
+                        sTitle = this.stmIn.readLine();
+                        ^
+  symbol:   variable sTitle
+  location: class Dusk
+Dusk.java:956: error: cannot find symbol
+                        strStore = this.stmIn.readLine();
+                        ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:960: error: cannot find symbol
+                        while (!strStore.equals("--EOF--")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:962: error: cannot find symbol
+                                this.frame.list.add(strStore);
+                                                    ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:964: error: cannot find symbol
+                                this.frame.chcObject.addItem(strStore);
+                                                             ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:966: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:975: error: cannot find symbol
+                        this.vctMerchantItems = new Vector<E>(0, 5);
+                                                           ^
+  symbol:   class E
+  location: class Dusk
+Dusk.java:976: error: cannot find symbol
+                        this.vctSell = new Vector<E>(0, 5);
+                                                  ^
+  symbol:   class E
+  location: class Dusk
+Dusk.java:980: error: cannot find symbol
+                        this.vctSell = new Vector<E>(0, 5);
+                                                  ^
+  symbol:   class E
+  location: class Dusk
+Dusk.java:981: error: cannot find symbol
+                        strStore = this.stmIn.readLine();
+                        ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:982: error: cannot find symbol
+                        while (!strStore.equals(".")) {
+                                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:983: error: cannot find symbol
+                            this.vctSell.addElement(strStore);
+                                                    ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:984: error: cannot find symbol
+                            strStore = this.stmIn.readLine();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:990: error: cannot find symbol
+                        v4 = this.stmIn.readLine();
+                        ^
+  symbol:   variable v4
+  location: class Dusk
+Dusk.java:991: error: cannot find symbol
+                        strStore = v4;
+                        ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:991: error: cannot find symbol
+                        strStore = v4;
+                                   ^
+  symbol:   variable v4
+  location: class Dusk
+Dusk.java:992: error: cannot find symbol
+                        v5 = this.stmIn.readLine();
+                        ^
+  symbol:   variable v5
+  location: class Dusk
+Dusk.java:993: error: cannot find symbol
+                        strStore = v5;
+                        ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:993: error: cannot find symbol
+                        strStore = v5;
+                                   ^
+  symbol:   variable v5
+  location: class Dusk
+Dusk.java:994: error: cannot find symbol
+                        strStore = this.stmIn.readLine();
+                        ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:995: error: cannot find symbol
+                        this.addText(Integer.parseInt(v4), Integer.parseInt(v5), Integer.parseInt(strStore), String.valueOf(String.valueOf(this.stmIn.readLine())).concat("\n"));
+                                                      ^
+  symbol:   variable v4
+  location: class Dusk
+Dusk.java:995: error: cannot find symbol
+                        this.addText(Integer.parseInt(v4), Integer.parseInt(v5), Integer.parseInt(strStore), String.valueOf(String.valueOf(this.stmIn.readLine())).concat("\n"));
+                                                                            ^
+  symbol:   variable v5
+  location: class Dusk
+Dusk.java:995: error: cannot find symbol
+                        this.addText(Integer.parseInt(v4), Integer.parseInt(v5), Integer.parseInt(strStore), String.valueOf(String.valueOf(this.stmIn.readLine())).concat("\n"));
+                                                                                                  ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:999: error: incompatible types: possible lossy conversion from long to int
+                        ID = this.stmIn.readLong();
+                                                ^
+Dusk.java:1000: error: cannot find symbol
+                        i2 = this.vctEntities;
+                        ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1001: error: cannot find symbol
+                        synchronized (i2) {
+                                      ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1002: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1002: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1002: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                                                       ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1003: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1003: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                                                              ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1004: error: cannot find symbol
+                                if ((long)entStore.ID != ID) continue;
+                                          ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1005: error: cannot find symbol
+                                if (entStore.intMoveDirection != -1) {
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1006: error: cannot find symbol
+                                    this.removeEntity(entStore);
+                                                      ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1007: error: cannot find symbol
+                                    if (entStore.intStep != -1) {
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1008: error: cannot find symbol
+                                        entStore.intStep = 1;
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1010: error: cannot find symbol
+                                    entStore.intLocY -= (double)true;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1010: error: incompatible types: boolean cannot be converted to double
+                                    entStore.intLocY -= (double)true;
+                                                                ^
+Dusk.java:1012: error: cannot find symbol
+                                        this.addEntity(entStore);
+                                                       ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1021: error: cannot find symbol
+                                this.removeEntity(entStore);
+                                                  ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1022: error: cannot find symbol
+                                if (entStore.intStep != -1) {
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1023: error: cannot find symbol
+                                    entStore.intStep = 1;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1025: error: cannot find symbol
+                                entStore.intLocY -= (double)true;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1025: error: incompatible types: boolean cannot be converted to double
+                                entStore.intLocY -= (double)true;
+                                                            ^
+Dusk.java:1027: error: cannot find symbol
+                                    this.addEntity(entStore);
+                                                   ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1033: error: cannot find symbol
+                                entStore.intLocY += 0.5;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1034: error: cannot find symbol
+                                this.thrGraphics.addEntityToMove(entStore, 0);
+                                                                 ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1043: error: incompatible types: possible lossy conversion from long to int
+                        ID = this.stmIn.readLong();
+                                                ^
+Dusk.java:1044: error: cannot find symbol
+                        i2 = this.vctEntities;
+                        ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1045: error: cannot find symbol
+                        synchronized (i2) {
+                                      ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1046: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1046: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1046: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                                                       ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1047: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1047: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                                                              ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1048: error: cannot find symbol
+                                if ((long)entStore.ID != ID) continue;
+                                          ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1049: error: cannot find symbol
+                                if (entStore.intMoveDirection != -1) {
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1050: error: cannot find symbol
+                                    this.removeEntity(entStore);
+                                                      ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1051: error: cannot find symbol
+                                    if (entStore.intStep != -1) {
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1052: error: cannot find symbol
+                                        entStore.intStep = 3;
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1054: error: cannot find symbol
+                                    entStore.intLocY += (double)true;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1054: error: incompatible types: boolean cannot be converted to double
+                                    entStore.intLocY += (double)true;
+                                                                ^
+Dusk.java:1056: error: cannot find symbol
+                                        this.addEntity(entStore);
+                                                       ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1065: error: cannot find symbol
+                                this.removeEntity(entStore);
+                                                  ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1066: error: cannot find symbol
+                                if (entStore.intStep != -1) {
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1067: error: cannot find symbol
+                                    entStore.intStep = 3;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1069: error: cannot find symbol
+                                entStore.intLocY += (double)true;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1069: error: incompatible types: boolean cannot be converted to double
+                                entStore.intLocY += (double)true;
+                                                            ^
+Dusk.java:1071: error: cannot find symbol
+                                    this.addEntity(entStore);
+                                                   ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1077: error: cannot find symbol
+                                entStore.intLocY -= 0.5;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1078: error: cannot find symbol
+                                this.thrGraphics.addEntityToMove(entStore, 1);
+                                                                 ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1087: error: incompatible types: possible lossy conversion from long to int
+                        ID = this.stmIn.readLong();
+                                                ^
+Dusk.java:1088: error: cannot find symbol
+                        i2 = this.vctEntities;
+                        ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1089: error: cannot find symbol
+                        synchronized (i2) {
+                                      ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1090: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1090: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1090: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                                                       ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1091: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1091: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                                                              ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1092: error: cannot find symbol
+                                if ((long)entStore.ID != ID) continue;
+                                          ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1093: error: cannot find symbol
+                                if (entStore.intMoveDirection != -1) {
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1094: error: cannot find symbol
+                                    this.removeEntity(entStore);
+                                                      ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1095: error: cannot find symbol
+                                    if (entStore.intStep != -1) {
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1096: error: cannot find symbol
+                                        entStore.intStep = 5;
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1098: error: cannot find symbol
+                                    entStore.intLocX -= (double)true;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1098: error: incompatible types: boolean cannot be converted to double
+                                    entStore.intLocX -= (double)true;
+                                                                ^
+Dusk.java:1100: error: cannot find symbol
+                                        this.addEntity(entStore);
+                                                       ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1109: error: cannot find symbol
+                                this.removeEntity(entStore);
+                                                  ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1110: error: cannot find symbol
+                                if (entStore.intStep != -1) {
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1111: error: cannot find symbol
+                                    entStore.intStep = 5;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1113: error: cannot find symbol
+                                entStore.intLocX -= (double)true;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1113: error: incompatible types: boolean cannot be converted to double
+                                entStore.intLocX -= (double)true;
+                                                            ^
+Dusk.java:1115: error: cannot find symbol
+                                    this.addEntity(entStore);
+                                                   ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1121: error: cannot find symbol
+                                entStore.intLocX += 0.5;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1122: error: cannot find symbol
+                                this.thrGraphics.addEntityToMove(entStore, 2);
+                                                                 ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1131: error: incompatible types: possible lossy conversion from long to int
+                        ID = this.stmIn.readLong();
+                                                ^
+Dusk.java:1132: error: cannot find symbol
+                        i2 = this.vctEntities;
+                        ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1133: error: cannot find symbol
+                        synchronized (i2) {
+                                      ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1134: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1134: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1134: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                                                       ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1135: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1135: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                                                              ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1136: error: cannot find symbol
+                                if ((long)entStore.ID != ID) continue;
+                                          ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1137: error: cannot find symbol
+                                if (entStore.intMoveDirection != -1) {
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1138: error: cannot find symbol
+                                    this.removeEntity(entStore);
+                                                      ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1139: error: cannot find symbol
+                                    entStore.intLocX += (double)true;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1139: error: incompatible types: boolean cannot be converted to double
+                                    entStore.intLocX += (double)true;
+                                                                ^
+Dusk.java:1140: error: cannot find symbol
+                                    if (entStore.intStep != -1) {
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1141: error: cannot find symbol
+                                        entStore.intStep = 7;
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1144: error: cannot find symbol
+                                        this.addEntity(entStore);
+                                                       ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1153: error: cannot find symbol
+                                this.removeEntity(entStore);
+                                                  ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1154: error: cannot find symbol
+                                if (entStore.intStep != -1) {
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1155: error: cannot find symbol
+                                    entStore.intStep = 7;
+                                    ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1157: error: cannot find symbol
+                                entStore.intLocX += (double)true;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1157: error: incompatible types: boolean cannot be converted to double
+                                entStore.intLocX += (double)true;
+                                                            ^
+Dusk.java:1159: error: cannot find symbol
+                                    this.addEntity(entStore);
+                                                   ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1165: error: cannot find symbol
+                                entStore.intLocX -= 0.5;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1166: error: cannot find symbol
+                                this.thrGraphics.addEntityToMove(entStore, 3);
+                                                                 ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1179: error: cannot find symbol
+                        lngStore = Long.valueOf(this.stmIn.readLine());
+                        ^
+  symbol:   variable lngStore
+  location: class Dusk
+Dusk.java:1180: error: cannot find symbol
+                        intStore = Integer.parseInt(this.stmIn.readLine());
+                        ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:1181: error: incompatible types: Vector cannot be converted to int
+                        ID = this.vctEntities;
+                                 ^
+Dusk.java:1182: error: unexpected type
+                        synchronized (ID) {
+                        ^
+  required: reference
+  found:    int
+Dusk.java:1183: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1183: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1183: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                                                       ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1184: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1184: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                                                              ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1185: error: cannot find symbol
+                                if ((long)entStore.ID != lngStore) continue;
+                                          ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1185: error: cannot find symbol
+                                if ((long)entStore.ID != lngStore) continue;
+                                                         ^
+  symbol:   variable lngStore
+  location: class Dusk
+Dusk.java:1186: error: cannot find symbol
+                                entStore.intFlag = intStore;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1186: error: cannot find symbol
+                                entStore.intFlag = intStore;
+                                                   ^
+  symbol:   variable intStore
+  location: class Dusk
+Dusk.java:1194: error: incompatible types: Vector cannot be converted to int
+                        ID = this.vctEntities;
+                                 ^
+Dusk.java:1195: error: unexpected type
+                        synchronized (ID) {
+                        ^
+  required: reference
+  found:    int
+Dusk.java:1196: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1196: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1196: error: cannot find symbol
+                            for (i = 0; i < this.vctEntities.size(); ++i) {
+                                                                       ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1197: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1197: error: cannot find symbol
+                                entStore = (Entity)this.vctEntities.elementAt(i);
+                                                                              ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1198: error: cannot find symbol
+                                entStore.intFlag = 0;
+                                ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1205: error: cannot find symbol
+                        strStore = this.stmIn.readLine().trim();
+                        ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:1206: error: cannot find symbol
+                        entStore = this.getEntity(Integer.parseInt(strStore));
+                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1206: error: cannot find symbol
+                        entStore = this.getEntity(Integer.parseInt(strStore));
+                                                                   ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:1207: error: cannot find symbol
+                        if (entStore == null) continue block125;
+                            ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1208: error: cannot find symbol
+                        entStore.intImage = Integer.parseInt(this.stmIn.readLine());
+                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1209: error: cannot find symbol
+                        i = (int)(entStore.intLocX - (double)this.LocX + (double)this.viewRange);
+                        ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1209: error: cannot find symbol
+                        i = (int)(entStore.intLocX - (double)this.LocX + (double)this.viewRange);
+                                  ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1210: error: cannot find symbol
+                        i2 = (int)(entStore.intLocY - (double)this.LocY + (double)this.viewRange);
+                        ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1210: error: cannot find symbol
+                        i2 = (int)(entStore.intLocY - (double)this.LocY + (double)this.viewRange);
+                                   ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1212: error: cannot find symbol
+                            this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, this.shrMap[i][i2] * this.intImageSize, 0, (this.shrMap[i][i2] + 1) * this.intImageSize, this.intImageSize, null);
+                                                           ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1212: error: cannot find symbol
+                            this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, this.shrMap[i][i2] * this.intImageSize, 0, (this.shrMap[i][i2] + 1) * this.intImageSize, this.intImageSize, null);
+                                                                                  ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1212: error: cannot find symbol
+                            this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, this.shrMap[i][i2] * this.intImageSize, 0, (this.shrMap[i][i2] + 1) * this.intImageSize, this.intImageSize, null);
+                                                                                                           ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1212: error: cannot find symbol
+                            this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, this.shrMap[i][i2] * this.intImageSize, 0, (this.shrMap[i][i2] + 1) * this.intImageSize, this.intImageSize, null);
+                                                                                                                                        ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1212: error: cannot find symbol
+                            this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, this.shrMap[i][i2] * this.intImageSize, 0, (this.shrMap[i][i2] + 1) * this.intImageSize, this.intImageSize, null);
+                                                                                                                                                                                 ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1212: error: cannot find symbol
+                            this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, this.shrMap[i][i2] * this.intImageSize, 0, (this.shrMap[i][i2] + 1) * this.intImageSize, this.intImageSize, null);
+                                                                                                                                                                                    ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1212: error: cannot find symbol
+                            this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, this.shrMap[i][i2] * this.intImageSize, 0, (this.shrMap[i][i2] + 1) * this.intImageSize, this.intImageSize, null);
+                                                                                                                                                                                                                             ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1212: error: cannot find symbol
+                            this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, this.shrMap[i][i2] * this.intImageSize, 0, (this.shrMap[i][i2] + 1) * this.intImageSize, this.intImageSize, null);
+                                                                                                                                                                                                                                ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1216: error: cannot find symbol
+                                this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, 0, 0, this.intImageSize, this.intImageSize, null);
+                                                               ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1216: error: cannot find symbol
+                                this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, 0, 0, this.intImageSize, this.intImageSize, null);
+                                                                                      ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1216: error: cannot find symbol
+                                this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, 0, 0, this.intImageSize, this.intImageSize, null);
+                                                                                                               ^
+  symbol:   variable i
+  location: class Dusk
+Dusk.java:1216: error: cannot find symbol
+                                this.gD.drawImage(this.imgMap, i * this.intImageSize, i2 * this.intImageSize, (i + 1) * this.intImageSize, (i2 + 1) * this.intImageSize, 0, 0, this.intImageSize, this.intImageSize, null);
+                                                                                                                                            ^
+  symbol:   variable i2
+  location: class Dusk
+Dusk.java:1222: error: cannot find symbol
+                        this.drawEntity(entStore);
+                                        ^
+  symbol:   variable entStore
+  location: class Dusk
+Dusk.java:1227: error: cannot find symbol
+                            strStore = this.stmIn.readLine().trim();
+                            ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:1228: error: cannot find symbol
+                            hp = Integer.parseInt(strStore);
+                            ^
+  symbol:   variable hp
+  location: class Dusk
+Dusk.java:1228: error: cannot find symbol
+                            hp = Integer.parseInt(strStore);
+                                                  ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:1229: error: cannot find symbol
+                            entity = this.getEntity(this.targetID);
+                            ^
+  symbol:   variable entity
+  location: class Dusk
+Dusk.java:1230: error: cannot find symbol
+                            if (entity != null && hp > 0) {
+                                ^
+  symbol:   variable entity
+  location: class Dusk
+Dusk.java:1230: error: cannot find symbol
+                            if (entity != null && hp > 0) {
+                                                  ^
+  symbol:   variable hp
+  location: class Dusk
+Dusk.java:1231: error: cannot find symbol
+                                entity.hp = hp;
+                                ^
+  symbol:   variable entity
+  location: class Dusk
+Dusk.java:1231: error: cannot find symbol
+                                entity.hp = hp;
+                                            ^
+  symbol:   variable hp
+  location: class Dusk
+Dusk.java:1232: error: cannot find symbol
+                                this.frame.lblTarget.setText(String.valueOf(String.valueOf(new StringBuffer("Target: ").append(entity.getDisplayName()).append("    ").append(entity.hp).append("/").append(entity.maxhp))));
+                                                                                                                                                                                                            ^
+  symbol:   variable entity
+  location: class Dusk
+Dusk.java:1232: error: cannot find symbol
+                                this.frame.lblTarget.setText(String.valueOf(String.valueOf(new StringBuffer("Target: ").append(entity.getDisplayName()).append("    ").append(entity.hp).append("/").append(entity.maxhp))));
+                                                                                                                                                                              ^
+  symbol:   variable entity
+  location: class Dusk
+Dusk.java:1232: error: cannot find symbol
+                                this.frame.lblTarget.setText(String.valueOf(String.valueOf(new StringBuffer("Target: ").append(entity.getDisplayName()).append("    ").append(entity.hp).append("/").append(entity.maxhp))));
+                                                                                                                               ^
+  symbol:   variable entity
+  location: class Dusk
+Dusk.java:1244: error: cannot find symbol
+                System.err.println("Lost incoming byte: ".concat(String.valueOf(String.valueOf(incoming))));
+                                                                                               ^
+  symbol:   variable incoming
+  location: class Dusk
+Dusk.java:1245: error: cannot find symbol
+                strStore = this.stmIn.readLine();
+                ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:1246: error: cannot find symbol
+                System.err.println("String: ".concat(String.valueOf(String.valueOf(strStore))));
+                                                                                   ^
+  symbol:   variable strStore
+  location: class Dusk
+Dusk.java:1249: error: cannot find symbol
+                System.err.println(String.valueOf(String.valueOf(new StringBuffer("Error at run() with value ").append(incoming).append(" : ").append(e.toString()))));
+                                                                                                                       ^
+  symbol:   variable incoming
+  location: class Dusk
+Dusk.java:1251: error: cannot find symbol
+                this.addText(String.valueOf(String.valueOf(new StringBuffer("Error at run() with value ").append(incoming).append(" : ").append(e.toString()).append("\n"))));
+                                                                                                                 ^
+  symbol:   variable incoming
+  location: class Dusk
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+409 errors
+3 warnings

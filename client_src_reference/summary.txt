@@ -1,0 +1,9 @@
+Summary for duskclient.jar
+Decompiled with CFR 0.152
+
+
+Dusk
+----------------------------
+
+run()
+  Unable to fully structure code
