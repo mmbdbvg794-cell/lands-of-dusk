@@ -58,6 +58,7 @@ const entityMenu = new EntityMenu(
   (cmd) => runCommand(cmd),
   () => ({ x: world.locX, y: world.locY, range: player.range }),
 );
+entityMenu.onShop = () => panels.openShop();
 const hotbar = new Hotbar($('hotbar'), $('hotbar-picker'), $('map-wrap'), {
   send: (cmd) => runCommand(cmd),
   context: () => ({
@@ -279,6 +280,7 @@ function connect(url) {
   loaded = false;
   targetId = -1;
   player = panels.player = new Player();
+  panels.setOnMerchant(null);
   panels.renderAll();
   saveExplored();
   exploredKey = loginName = null;
@@ -333,6 +335,10 @@ function handle(msg) {
   if (part) {
     panels.update(part);
     if (part === 'status') showPanels();
+  }
+  // On a merchant's square? (Dusk.java enables its Merchant button this way.)
+  if (msg.op === OP.MAP || msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || (msg.op >= OP.MOVE_NORTH && msg.op <= OP.MOVE_EAST)) {
+    panels.setOnMerchant([...world.entities.values()].find((e) => e.type === 2 && e.x === world.locX && e.y === world.locY));
   }
   // The menu's entities may have moved, left, or come into attack range.
   if (entityMenu.open && (msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || msg.op === OP.MAP || msg.op === OP.RANGE ||

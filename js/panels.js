@@ -42,6 +42,14 @@ export class Panels {
       e.target.value = '';
       if (action) this.send(action);
     });
+    // Buying by name, for a merchant whose price list hasn't come.
+    this.$('#shop-manual').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const item = f.item.value.trim();
+      if (item) this.send(buyCommand(item, f.qty.value));
+    });
+    this.onMerchant = null; // the merchant entity on your square, if any
     // Shop rows: Buy/Sell with the quantity from the row's own box.
     for (const list of [this.$('#shop-buy'), this.$('#shop-sell')]) {
       list.addEventListener('click', (e) => {
@@ -221,13 +229,31 @@ export class Panels {
 
   // The Shop tab shows while you stand on a merchant, and opens by itself
   // when you step on one; walking off hides it again.
+  // Standing on a merchant counts too, like Dusk.java's Merchant button,
+  // in case the server never sends the price list.
+  setOnMerchant(ent) {
+    const was = this.onMerchant?.id ?? null;
+    this.onMerchant = ent ?? null;
+    if ((ent?.id ?? null) !== was) this.renderShop();
+  }
+
+  openShop() {
+    const tab = this.tabs.find((t) => t.dataset.tab === 'shop');
+    if (!tab.hidden) this.select(tab, true);
+  }
+
   renderShop() {
     const shop = this.player.shop;
+    const here = shop.open || !!this.onMerchant;
     const tab = this.tabs.find((t) => t.dataset.tab === 'shop');
     const wasOpen = !tab.hidden;
-    tab.hidden = !shop.open;
-    if (shop.open && !wasOpen) this.select(tab, true);
-    if (!shop.open && wasOpen && tab.getAttribute('aria-selected') === 'true') this.selectByName('inv', !this.collapsed);
+    tab.hidden = !here;
+    if (here && !wasOpen) this.select(tab, true);
+    if (!here && wasOpen && tab.getAttribute('aria-selected') === 'true') this.selectByName('inv', !this.collapsed);
+    const waiting = here && shop.wares.length === 0;
+    this.$('#shop-waiting').hidden = !waiting;
+    this.$('#shop-manual').hidden = !waiting;
+    if (this.onMerchant) this.$('#shop-merchant').textContent = this.onMerchant.name.replace(/^(<[^>]*>)+/, '');
 
     // Unknown money (no stats yet) counts as enough, rather than greying
     // everything out.

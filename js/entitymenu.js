@@ -17,7 +17,8 @@ export class EntityMenu {
       const btn = e.target.closest('button[data-cmd]');
       if (!btn || btn.disabled) return;
       this.close();
-      this.send(btn.dataset.cmd);
+      if (btn.dataset.shop) this.onShop?.();
+      else this.send(btn.dataset.cmd);
     });
     el.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -105,7 +106,8 @@ export class EntityMenu {
         for (const act of entityActions(ent, me)) {
           const b = document.createElement('button');
           b.type = 'button';
-          b.dataset.cmd = act.cmd;
+          b.dataset.cmd = act.cmd ?? '';
+          if (act.shop) b.dataset.shop = '1';
           b.disabled = !!act.disabled;
           b.textContent = act.label;
           if (act.hint) {

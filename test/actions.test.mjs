@@ -24,5 +24,7 @@ assert.deepEqual(entityActions({ id: 8, name: 'torch', type: TYPE.ITEM, x: 10, y
 ]);
 assert.deepEqual(entityActions({ id: 9, name: 'door', type: TYPE.DOOR, x: 10, y: 9 }, me)[0], { label: 'Open', cmd: 'opendoor 9' });
 assert.deepEqual(entityActions({ id: 3, name: 'sign', type: TYPE.SIGN, x: 1, y: 1 }, me), [{ label: 'Read', cmd: 'look 3' }]);
-assert.deepEqual(labels(entityActions({ id: 2, name: 'rock', type: TYPE.PROP, x: 1, y: 1 }, me)), ['Look']);
+assert.deepEqual(entityActions({ id: 2, name: 'shopkeeper', type: TYPE.MERCHANT, x: 12, y: 10 }, me)[0], { label: 'Go to shop', cmd: 'goto 12 10' });
+assert.deepEqual(labels(entityActions({ id: 2, name: 'shopkeeper', type: TYPE.MERCHANT, x: 10, y: 10 }, me)), ['Shop', 'Look']);
+assert.deepEqual(labels(entityActions({ id: 7, name: 'rock', type: 9, x: 1, y: 1 }, me)), ['Look'], 'unknown types can still be looked at');
 console.log('ok - entity actions');

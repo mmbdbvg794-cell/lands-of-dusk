@@ -113,6 +113,12 @@
             <span id="shop-gold" class="gold"></span>
             <span id="shop-exp"></span>
           </div>
+          <p id="shop-waiting" class="empty" hidden>You're at <strong id="shop-merchant">a merchant</strong>, but no price list has arrived. You can still buy by name:</p>
+          <form id="shop-manual" class="shop-manual" hidden>
+            <input class="qty" name="qty" type="number" min="1" max="999" value="1" aria-label="Quantity">
+            <input name="item" type="text" autocomplete="off" spellcheck="false" placeholder="item name" aria-label="Item to buy">
+            <button type="submit">Buy</button>
+          </form>
           <h4 class="list-head">For sale</h4>
           <ul id="shop-buy" class="rows shop-list"></ul>
           <p id="shop-buy-empty" class="empty">Nothing for sale here.</p>
