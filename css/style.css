@@ -760,3 +760,75 @@ body:not(.playing) #side { width: 100%; max-width: 820px; margin: 0 auto; }
 .shop-manual .qty { width: 52px; padding: 3px 4px; text-align: right; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; font: inherit; font-size: 13px; }
 [role="tab"][data-tab="shop"] { color: var(--warn); }
 [role="tab"][data-tab="shop"][aria-selected="true"] { border-bottom-color: var(--warn); }
+
+/* ---- login screen ---- */
+
+#login-screen { display: none; }
+body.in-login #login-screen {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+body.in-login #play-area { display: none; }
+.login-card {
+  width: min(380px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px #000a;
+}
+.login-title { margin: 0; font-size: 28px; letter-spacing: 0.06em; color: var(--accent); }
+.login-sub { margin: 0 0 10px; color: var(--muted); }
+.login-card label:not(.toggle) { margin-top: 6px; font-size: 12px; color: var(--muted); }
+.login-card input[type="text"], .login-card input[type="password"] { padding: 9px 10px; }
+.login-card .remember { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; color: var(--muted); font-size: 13px; }
+#login-play { margin-top: 6px; padding: 9px; font-weight: 600; }
+#login-msg { min-height: 1.4em; margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+#login-msg.error { color: var(--bad); }
+.login-new { margin-top: 8px; padding: 10px; border: 1px solid var(--accent-dim); border-radius: 8px; background: var(--panel-2); }
+.login-new p { margin: 0 0 8px; }
+.login-new-acts { display: flex; gap: 8px; }
+.login-server { margin: 10px 0 0; font-size: 11px; color: var(--faint); }
+.login-server code { font-family: var(--mono); color: var(--muted); }
+
+/* ---- connection lost ---- */
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  background: #000b;
+}
+.overlay-card {
+  width: min(340px, calc(100% - 32px));
+  padding: 18px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px #000c;
+}
+.overlay-card h3 { margin: 0 0 6px; }
+#overlay-text { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
+.overlay-acts { display: flex; justify-content: center; gap: 8px; }
+
+/* ---- yes / no questions ---- */
+
+#prompt-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid var(--warn);
+  background: #2a2412;
+}
+#prompt-text { flex: 1; min-width: 0; font-size: 13px; }
+#prompt-bar button { padding: 4px 14px; }

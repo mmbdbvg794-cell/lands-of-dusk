@@ -1,6 +1,7 @@
 import { DuskConnection } from './connection.js';
 import { makeDraggable } from './drag.js';
 import { Hotbar } from './hotbar.js';
+import { LoginFlow, isYesNo } from './login.js';
 import { Sound } from './sound.js';
 import { parseCast, effectKind, isCastFailure, landedOnMe, castCommand, compileMessages } from './spells.js';
 import { Spellbook } from './spellbook.js';
@@ -40,6 +41,10 @@ const SAVE_EXPLORED_MS = 10000;
 // A cast's effect waits this long for a "You don't have enough mp" or
 // similar reply before it plays.
 const CAST_WAIT_MS = 350;
+// How long the login card waits for the server's first question.
+const LOGIN_TIMEOUT_MS = 12000;
+// Lines that explain why the server dropped us, shown on the overlay.
+const DROP_REASONS = [/disconnected for being idle/i, /another logon under this name/i, /^Goodbye/i];
 
 let conn = null;
 let loaded = false;
@@ -194,11 +199,185 @@ const [savedTab, savedOpen] = panelState ? panelState.split(':') : [];
 panels.selectByName(savedTab ?? 'inv', savedOpen ? savedOpen === '1' : window.innerWidth >= 800);
 panels.onToggle = (tab, open) => storage('set', 'dusk.panel', `${tab}:${open ? 1 : 0}`);
 
+// ---- logging in --------------------------------------------------------------
+//
+// The login card answers the server's name and password questions (see
+// js/login.js), then swaps to the game. If the connection drops while
+// playing, an overlay offers Reconnect with the same name and password.
+
+let loginFlow = null; // while logging in
+let loginTimer = null;
+let creds = null; // { name, password } for Reconnect
+let inGame = false; // past "Login Accepted." on this connection
+let quitting = false; // the player pressed Log out
+let dropReason = '';
+
+const LOGIN_KEY = 'dusk.login';
+try {
+  const saved = JSON.parse(storage('get', LOGIN_KEY) ?? 'null');
+  if (saved?.name) {
+    $('login-name').value = saved.name;
+    $('login-pass').value = saved.password ?? '';
+    $('login-remember').checked = !!saved.password;
+  }
+} catch {}
+$('login-server').textContent = serverUrl.value;
+serverUrl.addEventListener('change', () => ($('login-server').textContent = serverUrl.value.trim()));
+
 $('connect-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  if (conn) conn.close();
-  else connect(serverUrl.value.trim());
+  storage('set', 'dusk.server', serverUrl.value.trim());
+  $('login-server').textContent = serverUrl.value.trim();
+  $('settings').open = false;
 });
+
+$('login-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = $('login-name').value.trim();
+  const password = $('login-pass').value;
+  if (!name || !password) return;
+  // Remembered on this device only when ticked; otherwise just the name.
+  storage('set', LOGIN_KEY, JSON.stringify($('login-remember').checked ? { name, password } : { name }));
+  startLogin(name, password);
+});
+$('login-create').addEventListener('click', () => {
+  $('login-new').hidden = true;
+  conn?.send('yes');
+  // A new character may be asked more (a race, say): answer in the game's chat.
+  loginMessage('Creating your character…');
+  enterGame();
+});
+$('login-cancel').addEventListener('click', () => {
+  $('login-new').hidden = true;
+  conn?.send('no');
+  failLogin('Not created. Check the name, or pick another.');
+});
+$('reconnect').addEventListener('click', () => creds && startLogin(creds.name, creds.password, true));
+$('overlay-logout').addEventListener('click', () => showLogin());
+connectBtn.addEventListener('click', () => logOut());
+$('forget-login').addEventListener('click', () => {
+  storage('set', LOGIN_KEY, JSON.stringify({ name: $('login-name').value.trim() }));
+  $('login-pass').value = '';
+  $('login-remember').checked = false;
+  $('forget-login').textContent = 'Forgotten';
+  setTimeout(() => ($('forget-login').textContent = 'Forget saved login'), 1500);
+});
+
+// Yes / No for questions like "Do you want players to be able to see your
+// presence? (yes/no)".
+$('prompt-bar').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-answer]');
+  if (!b) return;
+  runCommand(b.dataset.answer);
+  $('prompt-bar').hidden = true;
+});
+
+function startLogin(name, password, again = false) {
+  creds = { name, password };
+  quitting = false;
+  dropReason = '';
+  $('overlay').hidden = true;
+  $('login-new').hidden = true;
+  $('login-play').disabled = true;
+  loginMessage(again ? 'Reconnecting…' : 'Connecting…');
+  if (again) sysLine('Reconnecting…');
+  if (conn) {
+    conn.close();
+    conn = null;
+  }
+  connect(serverUrl.value.trim());
+  if (!conn) return failLogin('The server address under Settings should start with ws:// or wss://');
+  loginFlow = new LoginFlow(name, password);
+  useExploredFor(name);
+  clearTimeout(loginTimer);
+  loginTimer = setTimeout(() => {
+    if (loginFlow && loginFlow.state === 'name') failLogin('The server didn\'t answer. Is it running?');
+  }, LOGIN_TIMEOUT_MS);
+}
+
+// Feeds a server line to the login; true if it was part of logging in.
+function handleLogin(text) {
+  if (!loginFlow) return false;
+  const r = loginFlow.feed(text);
+  if (!r) return false;
+  if (r.send !== undefined) conn?.send(r.send);
+  else if (r.confirmNew) {
+    $('login-new-name').textContent = r.confirmNew;
+    $('login-new').hidden = false;
+    loginMessage('');
+  } else if (r.failed) failLogin(r.failed);
+  else if (r.done) {
+    clearTimeout(loginTimer);
+    loginFlow = null;
+    enterGame();
+  }
+  return true;
+}
+
+function enterGame() {
+  inGame = true;
+  $('login-play').disabled = false;
+  loginMessage('');
+  setMode('game');
+  input.focus();
+}
+
+function failLogin(message) {
+  clearTimeout(loginTimer);
+  loginFlow = null;
+  inGame = false;
+  quitting = true; // not a dropped game, so no Reconnect overlay
+  conn?.close();
+  showLogin();
+  loginMessage(message, true);
+}
+
+function showLogin() {
+  $('overlay').hidden = true;
+  $('login-play').disabled = false;
+  $('login-new').hidden = true;
+  if (conn) {
+    quitting = true;
+    conn.close();
+  }
+  setMode('login');
+  $('login-pass').focus();
+}
+
+// Log out: "quit" lets the server save and say goodbye before we close.
+function logOut() {
+  quitting = true;
+  if (conn?.connected) {
+    conn.send('quit');
+    const c = conn;
+    setTimeout(() => c.close(), 800);
+  }
+  showLogin();
+  loginMessage('Logged out.');
+}
+
+function loginMessage(text, error = false) {
+  $('login-msg').textContent = text;
+  $('login-msg').classList.toggle('error', error);
+}
+
+// The login screen, or the game.
+function setMode(mode) {
+  document.body.classList.toggle('in-login', mode === 'login');
+  document.body.classList.toggle('playing', mode === 'game');
+  connectBtn.hidden = mode !== 'game';
+  if (mode === 'game') renderer.resize();
+}
+
+// Lost the connection mid-game: offer Reconnect over the map.
+function connectionLost() {
+  if (!inGame || quitting) return;
+  $('overlay-title').textContent = 'Connection lost';
+  $('overlay-text').textContent = dropReason || 'The connection to the server closed.';
+  $('reconnect').hidden = !creds;
+  $('overlay').hidden = false;
+  $('reconnect').focus();
+}
 
 $('input-form').addEventListener('submit', (e) => {
   e.preventDefault();
@@ -267,7 +446,9 @@ $('target-attack').addEventListener('click', () => targetCommand(`a ${targetId}`
 $('target-look').addEventListener('click', () => targetCommand(`look ${targetId}`));
 $('target-clear').addEventListener('click', clearTarget);
 
-sysLine('Press Connect to play. The bridge address is under Settings.');
+setMode('login');
+if ($('login-name').value) $('login-pass').focus();
+else $('login-name').focus();
 
 // ---- connection ------------------------------------------------------------
 
@@ -295,15 +476,19 @@ function connect(url) {
   conn.addEventListener('open', () => {
     setState('on');
     sysLine('Connected. Waiting for the server…');
-    input.focus();
   });
   conn.addEventListener('message', (e) => handle(e.detail));
   conn.addEventListener('error', (e) => errLine(e.detail.message));
+  const c = conn;
   conn.addEventListener('close', (e) => {
+    if (conn !== c) return; // an older connection, replaced by a reconnect
     conn = null;
     saveExplored();
     setState('off');
     sysLine(`Disconnected${e.detail.code && e.detail.code !== 1000 ? ` (code ${e.detail.code})` : ''}.`);
+    if (loginFlow) failLogin('Couldn\'t reach the game. Check the server address under Settings.');
+    else connectionLost();
+    inGame = false;
   });
   conn.connect();
 }
@@ -347,11 +532,11 @@ function handle(msg) {
   switch (msg.op) {
     case OP.TEXT:
       addText(msg.text);
-      handleCastReply(msg.text);
+      serverLine(msg.text);
       break;
     case OP.COLOR_TEXT:
       addText(msg.text, `rgb(${readable(msg.r, msg.g, msg.b).join(',')})`);
-      handleCastReply(msg.text);
+      serverLine(msg.text);
       break;
     case OP.LOADED:
       loaded = true;
@@ -486,6 +671,18 @@ function noteSent(cmd) {
   pendingCasts.push(pending);
 }
 
+// Every line of server text, after it's shown: login, yes/no questions,
+// why we might be about to be dropped, and spell replies.
+function serverLine(text) {
+  if (handleLogin(text)) return;
+  if (isYesNo(text)) {
+    $('prompt-text').textContent = text.trim().replace(/\s*\(yes\/no\)\s*$/i, '');
+    $('prompt-bar').hidden = false;
+  }
+  if (DROP_REASONS.some((re) => re.test(text.trim()))) dropReason = text.trim();
+  handleCastReply(text);
+}
+
 function handleCastReply(text) {
   if (pendingCasts.length && isCastFailure(text)) clearTimeout(pendingCasts.shift().timer);
   else if (pendingCasts.length && spellMessages.castBy(text)) pendingCasts[0].fire();
@@ -515,6 +712,7 @@ function submitInput() {
   if (!secret && !loginName && !world.hasMap && text.trim()) useExploredFor(text.trim());
   conn.send(text);
   echoLine(secret ? '*'.repeat(text.length) : text);
+  $('prompt-bar').hidden = true; // typed an answer instead
   if (!secret) noteSent(text);
   if (!secret && text.trim()) {
     if (history[history.length - 1] !== text) history.push(text);
@@ -557,8 +755,9 @@ function saveExplored() {
 // ---- output ----------------------------------------------------------------
 
 function addText(text, color) {
-  // The server doesn't mark password prompts, so guess from the text.
-  if (!loaded && /password/i.test(text)) input.type = 'password';
+  // The server doesn't mark password prompts, so guess from the text (not
+  // while the login card is answering them).
+  if (!loaded && !loginFlow && /password/i.test(text)) input.type = 'password';
   appendLine(text, null, color);
 }
 
@@ -607,7 +806,6 @@ function setState(state) {
   dot.className = `dot ${state}`;
   $('status-text').textContent = { on: 'Connected', pending: 'Connecting…', off: 'Disconnected' }[state];
   const live = state !== 'off';
-  connectBtn.textContent = live ? 'Disconnect' : 'Connect';
   serverUrl.disabled = live;
   input.disabled = sendBtn.disabled = state !== 'on';
   input.placeholder = state === 'on' ? 'Type a command…' : 'Not connected';
@@ -617,11 +815,11 @@ function setState(state) {
     $('panel').hidden = true;
     $('target-card').hidden = true;
     $('hotbar').hidden = true;
+    $('prompt-bar').hidden = true;
     hotbar.closePicker();
   } else {
     $('settings').open = false;
   }
-  document.body.classList.toggle('playing', live);
 }
 
 // Shown from the first status or map message, i.e. once logged in.

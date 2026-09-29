@@ -47,8 +47,15 @@ you need to serve it over HTTP:
 header, so after a deploy browsers pick up every changed file rather than
 mixing new HTML with an old cached script.
 
-Open http://localhost:8000/ and press Connect. The bridge address
-(default `ws://192.168.4.61:8765`) is under Settings. You can also pass
+Open http://localhost:8000/, enter your character name and password, and
+press Play. The login card answers the server's login questions for you
+(including creating a new character, which it asks you to confirm) and
+then shows the game. "Remember me on this device" keeps the name and
+password in this browser; Settings has "Forget saved login". If the
+connection drops, an overlay offers Reconnect, which logs straight back
+in; Log out (top bar) quits properly. Yes/no questions from the server,
+like whether others can see your presence, get Yes and No buttons. The
+bridge address (default `ws://192.168.4.61:8765`) is under Settings. You can also pass
 `?server=ws://host:port` in the URL, and the last address you used is
 remembered.
 
@@ -115,6 +122,7 @@ Tick "Protocol trace" to see every parsed opcode in the log.
 - `js/hotbar.js`: the hotbar, its slot picker, and docking it to an edge
 - `js/spellbook.js`: the Spellbook tab
 - `js/spellinfo.json`: each spell's school, description, needed skill and chat lines (from `tools/spellinfo.py`)
+- `js/login.js`: answers the server's login prompts and says how it went
 - `js/shop.js`: merchant ware lines, and the buy and sell commands
 - `js/sound.js`: game sounds, generated with Web Audio
 - `js/sprites.js`: loads `map.gif`, `players.gif`, `sprites.gif`
@@ -139,3 +147,4 @@ rebuilds the spell data, runs the tests, copies the page to
     node test/stats.test.mjs
     node test/spells.test.mjs
     node test/shop.test.mjs
+    node test/login.test.mjs

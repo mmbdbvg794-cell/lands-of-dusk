@@ -6,7 +6,7 @@
   <title>Dusk</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="in-login">
   <header id="topbar">
     <span class="brand">Dusk</span>
     <span id="status-dot" class="dot off" aria-hidden="true"></span>
@@ -23,6 +23,7 @@
           <label for="server-url">Bridge address</label>
           <input id="server-url" type="text" spellcheck="false" autocomplete="off">
         </form>
+        <button type="button" id="forget-login" class="ghost small">Forget saved login</button>
         <label class="toggle"><input id="names" type="checkbox" checked> Show names on the map</label>
         <div class="toggle-row">
           <label class="toggle"><input id="minimap-toggle" type="checkbox" checked> Minimap</label>
@@ -37,11 +38,43 @@
         <label class="toggle"><input id="trace" type="checkbox"> Protocol trace in the log</label>
       </div>
     </details>
-    <button id="connect-btn" type="submit" form="connect-form" class="primary">Connect</button>
+    <button id="connect-btn" type="button" hidden>Log out</button>
   </header>
+
+  <section id="login-screen">
+    <form id="login-form" class="login-card" autocomplete="on">
+      <h1 class="login-title">Dusk</h1>
+      <p class="login-sub">Log in to play in your browser.</p>
+      <label for="login-name">Character name</label>
+      <input id="login-name" name="username" type="text" autocomplete="username" spellcheck="false" autocapitalize="off" maxlength="20" required>
+      <label for="login-pass">Password</label>
+      <input id="login-pass" name="password" type="password" autocomplete="current-password" required>
+      <label class="toggle remember"><input id="login-remember" type="checkbox"> Remember me on this device</label>
+      <button id="login-play" type="submit" class="primary">Play</button>
+      <div id="login-new" class="login-new" hidden>
+        <p>There's no character called <strong id="login-new-name"></strong> yet. Create one?</p>
+        <div class="login-new-acts">
+          <button type="button" id="login-create" class="primary">Create character</button>
+          <button type="button" id="login-cancel">Cancel</button>
+        </div>
+      </div>
+      <p id="login-msg" role="status" aria-live="polite"></p>
+      <p class="login-server">Server <code id="login-server"></code> · change it under Settings</p>
+    </form>
+  </section>
 
   <div id="play-area">
     <div id="map-wrap">
+      <div id="overlay" role="alertdialog" aria-labelledby="overlay-title" aria-describedby="overlay-text" hidden>
+        <div class="overlay-card">
+          <h3 id="overlay-title">Connection lost</h3>
+          <p id="overlay-text"></p>
+          <div class="overlay-acts">
+            <button type="button" id="reconnect" class="primary">Reconnect</button>
+            <button type="button" id="overlay-logout">Log out</button>
+          </div>
+        </div>
+      </div>
       <div id="hotbar" role="toolbar" aria-label="Hotbar: keys 1 to 9 and 0" hidden></div>
       <div id="hotbar-picker" class="popover" role="dialog" aria-label="Fill hotbar slot" hidden></div>
       <!-- Exactly the map's size, so the minimap and menu sit on the map itself. -->
@@ -134,6 +167,11 @@
 
       <section id="log" class="card">
         <main id="output" aria-live="polite"></main>
+        <div id="prompt-bar" role="group" aria-labelledby="prompt-text" hidden>
+          <span id="prompt-text"></span>
+          <button type="button" data-answer="yes" class="primary">Yes</button>
+          <button type="button" data-answer="no">No</button>
+        </div>
         <form id="input-form">
           <input id="input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
                  placeholder="Not connected" disabled aria-label="Command">
