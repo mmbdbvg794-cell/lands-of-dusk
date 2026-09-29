@@ -70,7 +70,9 @@ The Spellbook tab lists the spells you know (from the stats' "-Spells-"
 lines) like a book, a chapter per school, with each spell's description
 and the skill it needs, plus buttons to cast it on yourself or your target
 or put it on the hotbar. The descriptions come from `js/spellinfo.json`,
-built from the server's spell files; rebuild it after changing spells:
+built from the server's spell files. It's rebuilt on every deploy, and the
+server also rebuilds its copy every 10 minutes (a cron job for flan), so
+spell changes on the server show up by themselves. By hand:
 
     ssh duskserver 'python3 - /home/flan/DuskRPG' < tools/spellinfo.py > js/spellinfo.json
 
@@ -112,6 +114,14 @@ Tick "Protocol trace" to see every parsed opcode in the log.
 - `js/sprites.js`: loads `map.gif`, `players.gif`, `sprites.gif`
 - `js/renderer.js`: draws the world on the canvas, following Dusk.java's `update()`/`drawEntity()`
 - `js/main.js`: the page UI
+
+## Deploying
+
+    sh tools/deploy.sh
+
+rebuilds the spell data, runs the tests, copies the page to
+`~/dusk-browser-client` on duskserver (served by `dusk-web.service` with
+`serve.py` on http://192.168.4.61:8080/) and checks it's up.
 
 ## Tests
 
