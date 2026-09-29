@@ -324,7 +324,7 @@ function raceButton(race) {
     if (d.elsewhere) {
       const note = document.createElement('span');
       note.className = 'race-note';
-      note.textContent = 'starts elsewhere';
+      note.textContent = d.note;
       b.append(note);
     }
     b.title = d.title;

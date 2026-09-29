@@ -3,6 +3,9 @@
 
 const STAT_NAMES = { STR: 'Strength', DEX: 'Dexterity', INT: 'Intelligence', CON: 'Constitution', WIS: 'Wisdom' };
 const ORDER = ['STR', 'DEX', 'INT', 'CON', 'WIS'];
+// Names for starting points, by "x,y" as in the race files. A race that
+// starts somewhere unnamed just "starts elsewhere".
+export const PLACES = { '110,96': 'the Underdark' };
 
 // For each race: its bonus tags ("+3 DEX"), their total, a note if it
 // starts somewhere other than most races, and a sentence for the tooltip.
@@ -22,13 +25,16 @@ export function describeRaces(info) {
     const bonuses = ORDER.filter((s) => r.bonuses?.[s]).map((s) => ({ stat: s, n: r.bonuses[s] }));
     const tags = bonuses.map(({ stat, n }) => `${n > 0 ? '+' : ''}${n} ${stat}`);
     const total = bonuses.reduce((sum, b) => sum + b.n, 0);
-    const elsewhere = r.start && usual && starts.size > 1 && `${r.start.x},${r.start.y}` !== usual;
+    const at = r.start ? `${r.start.x},${r.start.y}` : null;
+    const elsewhere = at && usual && starts.size > 1 && at !== usual;
+    const place = elsewhere ? PLACES[at] ?? null : null;
+    const note = elsewhere ? (place ? `starts in ${place}` : 'starts elsewhere') : null;
     const words = bonuses.map(({ stat, n }) => `${n > 0 ? '+' : ''}${n} ${STAT_NAMES[stat]}`);
     const title = [
       `${cap(name)}: ${words.length ? words.join(', ') : 'no stat bonuses'}.`,
-      elsewhere ? `Starts somewhere other than the other races (${r.start.x}, ${r.start.y}).` : '',
+      elsewhere ? (place ? `Starts in ${place}.` : `Starts somewhere other than the other races (${r.start.x}, ${r.start.y}).`) : '',
     ].filter(Boolean).join(' ');
-    out[name] = { tags, total, elsewhere: !!elsewhere, image: r.image ?? null, title };
+    out[name] = { tags, total, elsewhere: !!elsewhere, note, image: r.image ?? null, title };
   }
   return out;
 }
