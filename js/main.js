@@ -4,7 +4,7 @@ import { Hotbar } from './hotbar.js';
 import { LoginFlow, isYesNo } from './login.js';
 import { isDeath, parseLoss, lossSentence } from './death.js';
 import { Sound } from './sound.js';
-import { parseCast, effectKind, isCastFailure, landedOnMe, castCommand, compileMessages } from './spells.js';
+import { parseCast, effectKind, isCastFailure, landedOnMe, castCommand, compileMessages, decodeFx } from './spells.js';
 import { Spellbook } from './spellbook.js';
 import { parseStats } from './stats.js';
 import { bareName } from './world.js';
@@ -748,9 +748,13 @@ function handle(msg) {
     case OP.LOADED:
       loaded = true;
       break;
-    case OP.PLAY_SFX:
-      if (Number.isFinite(msg.index)) sound.server(msg.index);
+    case OP.PLAY_SFX: {
+      // Spell scripts send effects as sound numbers (see decodeFx).
+      const fx = decodeFx(msg.index);
+      if (fx) serverEffect(fx);
+      else if (Number.isFinite(msg.index)) sound.server(msg.index);
       break;
+    }
     case OP.NOT_LOADED:
       loaded = false;
       break;
@@ -867,6 +871,9 @@ function noteSent(cmd) {
       clearTimeout(pending.timer);
       const i = pendingCasts.indexOf(pending);
       if (i !== -1) pendingCasts.splice(i, 1);
+      // The server's copy of this effect may have come first.
+      const e = on === 'self' ? world.self() : world.entities.get(on);
+      if (e && world.recentEffect(kind, e.x, e.y, FX_REPEAT_MS)) return;
       world.addEffect(on, kind);
       sound.play(kind);
       renderer.invalidate();
@@ -927,6 +934,16 @@ function serverLine(text) {
   }
   if (DROP_REASONS.some((re) => re.test(text.trim()))) dropReason = text.trim();
   handleCastReply(text);
+}
+
+// A spell effect from the server, seen by everyone near it. Our own casts
+// already drew theirs (and played the sound), so skip a repeat.
+const FX_REPEAT_MS = 2000;
+function serverEffect({ kind, x, y }) {
+  if (world.recentEffect(kind, x, y, FX_REPEAT_MS)) return;
+  world.addEffect({ x, y }, kind);
+  if (world.inView(x, y)) sound.play(kind);
+  renderer.invalidate();
 }
 
 function handleCastReply(text) {

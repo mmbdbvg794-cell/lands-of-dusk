@@ -97,3 +97,33 @@ export function compileMessages(info) {
   };
   return { castBy: (text) => find(caster, text), landedBy: (text) => find(target, text) };
 }
+
+// ---- spell effects everyone nearby sees ----
+//
+// Spell scripts on the server add a line such as
+//   playsound + 110000000 + * target locx 3000 target locy  target locx  target locy
+// DuskEngine.playSound then sends opcode 15 with that number to every
+// player who can see (x, y). Numbers from FX_BASE up aren't sounds: they
+// carry an effect kind and the square it happened on. (The Java client
+// has no sound with such a number, so it ignores them.)
+//   FX_BASE + kind * 10,000,000 + x * 3000 + y
+export const FX_BASE = 100000000;
+export const FX_KINDS = ['', 'heal', 'holy', 'fire', 'earth', 'dark', 'arcane'];
+const FX_SPAN = 10000000;
+const FX_ROW = 3000;
+
+export function encodeFx(kind, x, y) {
+  const k = FX_KINDS.indexOf(kind);
+  if (k < 1 || x < 0 || y < 0 || x >= FX_ROW || y >= FX_ROW) return null;
+  return FX_BASE + k * FX_SPAN + x * FX_ROW + y;
+}
+
+// { kind, x, y } for an effect number, or null for an ordinary sound.
+export function decodeFx(n) {
+  if (!Number.isFinite(n) || n < FX_BASE + FX_SPAN) return null;
+  const v = n - FX_BASE;
+  const kind = FX_KINDS[Math.floor(v / FX_SPAN)];
+  if (!kind) return null;
+  const rest = v % FX_SPAN;
+  return { kind, x: Math.floor(rest / FX_ROW), y: rest % FX_ROW };
+}

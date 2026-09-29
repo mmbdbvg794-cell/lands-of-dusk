@@ -63,7 +63,7 @@ export class World {
     this.prevMap = null; // { x, y, tiles, until }: the view before that step
     this.leaving = new Map(); // id -> { e, until }: sliding out of view
     this.hits = []; // { id, text, kind: 'hit' | 'dodge', start }
-    this.effects = []; // { on: entity ID or 'self', kind, start, seed }: spell effects
+    this.effects = []; // { on: entity ID, 'self' or { x, y }, kind, start, seed }: spell effects
   }
 
   // Returns and clears the IDs waiting to be reported with "rement".
@@ -313,9 +313,23 @@ export class World {
     return false;
   }
 
-  // Starts a spell effect on an entity, or on the player with 'self'.
+  // Starts a spell effect on an entity, on the player with 'self', or on a
+  // map square with { x, y }.
   addEffect(on, kind, now = performance.now()) {
     this.effects.push({ on, kind, start: now, seed: (Math.random() * 2 ** 32) >>> 0 });
+  }
+
+  // True if an effect of this kind started in the last `ms` on this
+  // square (or on whoever stands there), so an effect the server sends
+  // isn't drawn twice over one we already started for our own cast.
+  recentEffect(kind, x, y, ms, now = performance.now()) {
+    const self = this.self();
+    return this.effects.some((fx) => {
+      if (fx.kind !== kind || now - fx.start > ms) return false;
+      if (typeof fx.on === 'object') return fx.on.x === x && fx.on.y === y;
+      const e = fx.on === 'self' ? self : this.entities.get(fx.on);
+      return !!e && e.x === x && e.y === y;
+    });
   }
 
   // The player's own entity: a player standing on the view's centre.

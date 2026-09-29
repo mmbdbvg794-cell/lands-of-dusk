@@ -120,17 +120,18 @@ export class Renderer {
       }
     }
 
-    this.drawEffects(where, now, c, toPx(cam.x, cam.y));
+    this.drawEffects(where, now, c, toPx(cam.x, cam.y), toPx);
     this.drawHits(where, now, c);
     if (world.animating(now)) this.invalidate();
   }
 
   // Spell effects over whoever they're on; 'self' is the player, or the
   // view's centre if their own entity hasn't arrived.
-  drawEffects(where, now, c, centre) {
+  drawEffects(where, now, c, centre, toPx) {
     const self = this.world.self();
     for (const fx of this.world.effects) {
-      const at = fx.on === 'self' ? (self && where.get(self.id)) ?? centre : where.get(fx.on);
+      const at = typeof fx.on === 'object' ? toPx(fx.on.x, fx.on.y)
+        : fx.on === 'self' ? (self && where.get(self.id)) ?? centre : where.get(fx.on);
       if (at) drawEffect(this.ctx, fx, at[0], at[1], c, now, this.world.stepMs === 0);
     }
   }

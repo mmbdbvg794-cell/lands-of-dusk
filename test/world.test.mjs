@@ -141,3 +141,19 @@ b.drawList(10 + 1000);
 assert.equal(b.hits.length, 0, 'numbers expire');
 
 console.log('ok - world state');
+
+// Effects on a square, and spotting a repeat of one already drawn.
+{
+  const w2 = new World();
+  w2.apply({ op: OP.MAP_SIZE, size: 5 });
+  w2.apply({ op: OP.MAP, x: 100, y: 50, tiles: grid(5, () => 0) });
+  w2.apply(ent(7, 'flan', 100, 50, { type: 0, step: 2, hp: 5, maxhp: 9 }));
+  w2.addEffect('self', 'heal', 1000);
+  assert.ok(w2.recentEffect('heal', 100, 50, 2000, 1500), 'our own effect counts, where we stand');
+  assert.ok(!w2.recentEffect('fire', 100, 50, 2000, 1500), 'a different kind does not');
+  assert.ok(!w2.recentEffect('heal', 100, 50, 2000, 4000), 'nor an old one');
+  w2.addEffect({ x: 101, y: 51 }, 'fire', 1000);
+  assert.ok(w2.recentEffect('fire', 101, 51, 2000, 1200), 'effects on a square');
+  assert.ok(!w2.recentEffect('fire', 100, 51, 2000, 1200));
+  console.log('ok - effect repeats');
+}

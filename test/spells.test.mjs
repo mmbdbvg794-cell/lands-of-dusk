@@ -55,3 +55,17 @@ assert.equal(msgs.landedBy('You feel slightly less wounded.'), 'mend');
 assert.equal(msgs.landedBy('You feel thirsty.'), null);
 assert.equal(compileMessages(null).castBy('x'), null);
 console.log('ok - spell messages');
+
+import { encodeFx, decodeFx, FX_BASE } from '../js/spells.js';
+assert.equal(encodeFx('heal', 557, 481), 110000000 + 557 * 3000 + 481);
+assert.deepEqual(decodeFx(encodeFx('heal', 557, 481)), { kind: 'heal', x: 557, y: 481 });
+assert.deepEqual(decodeFx(encodeFx('arcane', 0, 0)), { kind: 'arcane', x: 0, y: 0 });
+assert.deepEqual(decodeFx(encodeFx('fire', 2999, 2999)), { kind: 'fire', x: 2999, y: 2999 });
+assert.equal(decodeFx(0), null, 'real sounds are not effects');
+assert.equal(decodeFx(FX_BASE + 5), null, 'kind 0 is not an effect');
+assert.equal(decodeFx(FX_BASE + 9 * 10000000), null, 'unknown kind');
+assert.equal(encodeFx('nonsense', 1, 1), null);
+assert.equal(encodeFx('heal', 3000, 1), null, 'off the grid');
+// The number the script line computes, as a double, still decodes.
+assert.deepEqual(decodeFx(110000000 + (557 * 3000 + 481)), { kind: 'heal', x: 557, y: 481 });
+console.log('ok - spell effect numbers');
