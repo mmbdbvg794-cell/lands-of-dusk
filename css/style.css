@@ -852,6 +852,49 @@ body.in-login #play-area { display: none; }
 #overlay-text { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
 .overlay-acts { display: flex; justify-content: center; gap: 8px; }
 
+/* ---- death ---- */
+
+#death {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at center, #3a060a88 0%, #1a0003dd 70%, #000000f0 100%);
+  animation: death-in 1.2s ease-out;
+}
+/* The world behind goes grey while you're dead. */
+body.dead #map { filter: grayscale(1) brightness(0.55); transition: filter 1s; }
+#map { transition: filter 0.6s; }
+.death-card {
+  width: min(360px, calc(100% - 32px));
+  padding: 22px 20px 18px;
+  text-align: center;
+  background: #120708ee;
+  border: 1px solid #6b1c22;
+  border-radius: 12px;
+  box-shadow: 0 0 40px #8a141e66, 0 16px 40px #000c;
+}
+#death-title {
+  margin: 0 0 10px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #e0424c;
+  text-shadow: 0 0 18px #b3121e99;
+  animation: death-title 1.6s ease-out;
+}
+#death-loss { margin: 0 0 6px; color: #f0c9c9; }
+#death-loss:empty { display: none; }
+#death-text { margin: 0 0 16px; font-size: 13px; color: var(--muted); }
+@keyframes death-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes death-title { from { opacity: 0; letter-spacing: 0.4em; } to { opacity: 1; letter-spacing: 0.06em; } }
+@media (prefers-reduced-motion: reduce) {
+  #death, #death-title { animation: none; }
+  #map, body.dead #map { transition: none; }
+}
+
 /* ---- yes / no questions ---- */
 
 #prompt-bar {

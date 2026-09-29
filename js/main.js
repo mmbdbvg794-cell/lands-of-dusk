@@ -2,6 +2,7 @@ import { DuskConnection } from './connection.js';
 import { makeDraggable } from './drag.js';
 import { Hotbar } from './hotbar.js';
 import { LoginFlow, isYesNo } from './login.js';
+import { isDeath, parseLoss, lossSentence } from './death.js';
 import { Sound } from './sound.js';
 import { parseCast, effectKind, isCastFailure, landedOnMe, castCommand, compileMessages } from './spells.js';
 import { Spellbook } from './spellbook.js';
@@ -877,10 +878,49 @@ function noteSent(cmd) {
   pendingCasts.push(pending);
 }
 
+// ---- death ---------------------------------------------------------------------
+//
+// "You have died." brings up the death screen; the gold and experience the
+// server takes arrive just after and fill it in. The server revives you
+// itself (conf/onDeath), so Continue only has to close it.
+
+let losses = null; // { gold, exp } while the death screen is up
+
+function showDeath() {
+  losses = {};
+  $('death-loss').textContent = '';
+  $('death').hidden = false;
+  document.body.classList.add('dead');
+  sound.play('death');
+  $('death-ok').focus({ preventScroll: true });
+}
+
+function hideDeath() {
+  if ($('death').hidden) return;
+  $('death').hidden = true;
+  document.body.classList.remove('dead');
+  losses = null;
+  if (finePointer?.matches) input.focus();
+}
+
+$('death-ok').addEventListener('click', hideDeath);
+document.addEventListener('keydown', (e) => {
+  if (!$('death').hidden && (e.key === 'Escape' || (e.key === 'Enter' && e.target !== input))) {
+    e.preventDefault();
+    hideDeath();
+  }
+}, true);
+
 // Every line of server text, after it's shown: login, yes/no questions,
-// why we might be about to be dropped, and spell replies.
+// why we might be about to be dropped, deaths, and spell replies.
 function serverLine(text) {
   if (handleLogin(text)) return;
+  if (isDeath(text)) showDeath();
+  const loss = losses && parseLoss(text);
+  if (loss) {
+    Object.assign(losses, loss);
+    $('death-loss').textContent = lossSentence(losses);
+  }
   if (isYesNo(text)) {
     $('prompt-text').textContent = text.trim().replace(/\s*\(yes\/no\)\s*$/i, '');
     $('prompt-bar').hidden = false;
@@ -1023,6 +1063,7 @@ function setState(state) {
     $('hotbar').hidden = true;
     $('prompt-bar').hidden = true;
     hotbar.closePicker();
+    hideDeath();
   } else {
     $('settings').open = false;
   }

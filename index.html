@@ -83,6 +83,14 @@
           </div>
         </div>
       </div>
+      <div id="death" role="alertdialog" aria-labelledby="death-title" aria-describedby="death-loss death-text" hidden>
+        <div class="death-card">
+          <h2 id="death-title">You have died</h2>
+          <p id="death-loss"></p>
+          <p id="death-text">You'll wake at your bind point with a little health.</p>
+          <button type="button" id="death-ok" class="primary">Continue</button>
+        </div>
+      </div>
       <div id="hotbar" role="toolbar" aria-label="Hotbar: keys 1 to 9 and 0" hidden></div>
       <div id="hotbar-picker" class="popover" role="dialog" aria-label="Fill hotbar slot" hidden></div>
       <!-- Exactly the map's size, so the minimap and menu sit on the map itself. -->

@@ -110,6 +110,12 @@ const SOUNDS = {
   },
   // A hit for 0: a dull tap.
   miss: (s, t) => s.tone(t, { freq: 220, slide: 160, type: 'triangle', dur: 0.08, gain: 0.25 }),
+  // Death: a low bell falling away.
+  death: (s, t) => {
+    s.tone(t, { freq: 196, slide: 98, type: 'triangle', dur: 1.6, gain: 0.35, attack: 0.02 });
+    s.tone(t, { freq: 196 * 2.76, slide: 98 * 2.76, dur: 1.0, gain: 0.08 });
+    s.noise(t, { dur: 1.2, gain: 0.08, filter: 'lowpass', freq: 500, to: 120 });
+  },
   // A soft footstep, alternating feet.
   step: (s, t) => {
     s.foot = !s.foot;

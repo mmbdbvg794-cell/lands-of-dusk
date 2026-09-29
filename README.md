@@ -101,6 +101,11 @@ see your effects. Sounds (hits, dodges, spells, and the server's battle
 sounds, opcode 15, and footsteps when you walk) are made in the browser with Web Audio; Settings has
 Sound and a volume slider.
 
+Dying ("You have died.") brings up a death screen over the greyed-out map
+with a death sound, saying what the server took ("You have lost 12gp",
+"...340exp") and that you wake at your bind point; the server revives you
+itself (conf/onDeath), so Continue (or Enter / Escape) just closes it.
+
 Controls, as in the Java client: arrow keys walk (while the command box
 is empty; with text in it, Up/Down browse history), and so does WASD when
 the command box isn't focused. Enter jumps to the command box. Clicking
@@ -132,6 +137,7 @@ it for pasting.
 - `js/spellbook.js`: the Spellbook tab
 - `js/spellinfo.json`: each spell's school, description, needed skill and chat lines (from `tools/spellinfo.py`)
 - `js/login.js`: answers the server's login prompts and says how it went
+- `js/death.js`: spotting your death and what it cost in the server's text
 - `js/shop.js`: merchant ware lines, and the buy and sell commands
 - `js/sound.js`: game sounds, generated with Web Audio
 - `js/sprites.js`: loads `map.gif`, `players.gif`, `sprites.gif`
@@ -157,3 +163,4 @@ rebuilds the spell data, runs the tests, copies the page to
     node test/spells.test.mjs
     node test/shop.test.mjs
     node test/login.test.mjs
+    node test/death.test.mjs
