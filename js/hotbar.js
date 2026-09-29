@@ -252,6 +252,12 @@ export class Hotbar {
     el.dataset.edge = this.dock.edge;
     const W = area.clientWidth;
     const H = area.clientHeight;
+    // Smaller slots when the bar doesn't fit along its edge (a short map
+    // with the chat across the bottom, say): compact, then tiny.
+    el.classList.remove('compact', 'tiny');
+    const fits = () => (vertical ? el.offsetHeight : el.offsetWidth) <= (vertical ? H : W) - 2 * EDGE_GAP;
+    if (!fits()) el.classList.add('compact');
+    if (!fits()) el.classList.add('tiny');
     const w = el.offsetWidth;
     const h = el.offsetHeight;
     let x;

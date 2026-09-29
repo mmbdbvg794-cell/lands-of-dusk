@@ -24,6 +24,20 @@ assert.deepEqual(f.feed('Enter a new password:'), { send: 'pw' });
 assert.deepEqual(f.feed('Confirm that password:'), { send: 'pw' });
 assert.deepEqual(f.feed('Login Accepted.'), { done: true });
 
+// Race choice for a new character, one line per race.
+f = new LoginFlow('newbie', 'pw');
+f.start();
+f.feed('newbie, Is that correct? (yes/no)');
+f.feed('Enter a new password:');
+f.feed('Confirm that password:');
+assert.deepEqual(f.feed('Choose one of the following races:'), { races: [] });
+assert.deepEqual(f.feed('darkelf'), { races: ['darkelf'] });
+assert.deepEqual(f.feed('human'), { races: ['darkelf', 'human'] });
+assert.deepEqual(f.feed('That is not a valid race, please choose again.'), { raceError: true });
+assert.deepEqual(f.pickRace('human'), { send: 'human' });
+assert.equal(f.feed('elf'), null, 'no longer collecting races once one is picked');
+assert.deepEqual(f.feed('Login Accepted.'), { done: true });
+
 // A refused name, and a ban.
 f = new LoginFlow('b4d', 'pw');
 f.start();

@@ -134,19 +134,25 @@ button.small { padding: 2px 8px; font-size: 12px; }
   .settings-volume { display: block; }
 }
 
-/* ---- play area: map on the left, the side column on the right ---- */
+/* ---- play area: map, side column (cards and tabs) and chat ----
+ *
+ * A grid, so the chat can sit under the side column or run the whole
+ * width along the bottom like the Java client (body.chat-bottom, a switch
+ * in Settings). On a phone everything stacks: map, cards, chat. */
 
 #play-area {
   flex: 1;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "map" "side" "log";
+  grid-template-rows: auto minmax(0, max-content) minmax(140px, 1fr);
 }
 
 /* The renderer fills the largest square that fits in #map-wrap. */
 #map-wrap {
+  grid-area: map;
   display: none;
-  flex: none;
   height: min(100vw, 48vh);
   align-items: center;
   justify-content: center;
@@ -163,25 +169,31 @@ body.playing #map-wrap { display: flex; }
 }
 
 #side {
-  flex: 1;
+  grid-area: side;
   min-height: 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 8px;
+  padding: 8px 8px 0;
   overflow-y: auto;
 }
 
 @media (min-width: 900px) and (min-aspect-ratio: 1/1) {
-  #play-area { flex-direction: row; }
-  #map-wrap { flex: 1 1 0; height: auto; }
-  body.playing #side {
-    flex: none;
-    width: clamp(360px, 30vw, 440px);
-    border-left: 1px solid var(--border);
-    overflow: hidden;
+  #play-area {
+    grid-template-columns: minmax(0, 1fr) clamp(360px, 30vw, 440px);
+    grid-template-areas: "map side" "map log";
+    grid-template-rows: minmax(0, max-content) minmax(200px, 1fr);
   }
+  #map-wrap { height: auto; border-right: 1px solid var(--border); }
+  /* Chat across the bottom: the side column gets the full height. */
+  body.chat-bottom #play-area {
+    grid-template-areas: "map side" "log log";
+    grid-template-rows: minmax(0, 1fr) clamp(150px, 28vh, 320px);
+  }
+  body.chat-bottom #map-wrap { border-bottom: 1px solid var(--border); }
+  body.chat-bottom #side { padding-bottom: 8px; }
+  body.chat-bottom #panel { flex: 1 1 auto; max-height: none; }
 }
 
 .card {
@@ -265,7 +277,7 @@ body.playing #map-wrap { display: flex; }
   display: flex;
   flex-direction: column;
   min-height: 0;
-  max-height: 46%;
+  max-height: 45vh;
   overflow: hidden;
 }
 
@@ -421,8 +433,9 @@ body.playing #map-wrap { display: flex; }
 /* ---- log ---- */
 
 #log {
-  flex: 1 1 auto;
-  min-height: 180px;
+  grid-area: log;
+  min-height: 0;
+  margin: 8px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -530,14 +543,12 @@ body.playing #map-wrap { display: flex; }
   .target-head { flex: 1 1 100%; }
   #bar-target { flex: 1 1 120px; }
   .target-actions button { padding: 3px 10px; }
-  #panel { max-height: 42%; }
-  #log { min-height: 140px; }
+  #panel { max-height: 30vh; }
+  #log { margin: 6px; }
   [role="tab"] { padding: 9px 7px 7px; }
   #actions { max-width: 30%; }
 }
 
-/* Before connecting there's only the log; keep it a readable width. */
-body:not(.playing) #side { width: 100%; max-width: 820px; margin: 0 auto; }
 
 /* ---- hotbar (in the black space beside the map) ---- */
 
@@ -628,6 +639,12 @@ body:not(.playing) #side { width: 100%; max-width: 820px; margin: 0 auto; }
 .popover .custom input { flex: 1; min-width: 0; padding: 4px 6px; font-size: 12px; font-family: var(--mono); }
 .popover .custom button { padding: 3px 8px; font-size: 12px; }
 .popover .hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+
+/* When the bar doesn't fit along its edge (hotbar.js adds these). */
+#hotbar.compact .slot { width: 50px; height: 42px; padding-top: 12px; }
+#hotbar.compact .slot .label { font-size: 9px; }
+#hotbar.tiny .slot { width: 34px; height: 32px; padding-top: 10px; }
+#hotbar.tiny .slot .label { display: none; }
 
 /* Phones: a smaller bar. */
 @media (max-width: 600px) {
@@ -794,6 +811,8 @@ body.in-login #play-area { display: none; }
 .login-new { margin-top: 8px; padding: 10px; border: 1px solid var(--accent-dim); border-radius: 8px; background: var(--panel-2); }
 .login-new p { margin: 0 0 8px; }
 .login-new-acts { display: flex; gap: 8px; }
+.race-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.race-buttons button { flex: 1 1 40%; padding: 8px; text-transform: capitalize; }
 .login-server { margin: 10px 0 0; font-size: 11px; color: var(--faint); }
 .login-server code { font-family: var(--mono); color: var(--muted); }
 
@@ -832,3 +851,31 @@ body.in-login #play-area { display: none; }
 }
 #prompt-text { flex: 1; min-width: 0; font-size: 13px; }
 #prompt-bar button { padding: 4px 14px; }
+
+/* ---- dialogs (bug report) ---- */
+
+dialog {
+  width: min(460px, calc(100vw - 24px));
+  padding: 0;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px #000c;
+}
+dialog::backdrop { background: #000a; }
+#bug-form { display: flex; flex-direction: column; gap: 6px; padding: 18px; }
+#bug-form h2 { margin: 0; font-size: 18px; }
+#bug-form label:not(.toggle) { margin-top: 6px; font-size: 12px; color: var(--muted); }
+#bug-form .toggle { display: flex; align-items: flex-start; gap: 8px; margin-top: 6px; font-size: 13px; color: var(--muted); }
+#bug-form textarea {
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+.dialog-sub { margin: 0; font-size: 13px; color: var(--muted); }
+.dialog-acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }

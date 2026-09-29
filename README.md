@@ -9,6 +9,8 @@ damage numbers from combat lines (`did <n> to`, `dodged ...'s attack`)
 float over whoever was hit. With the system's "reduce motion" setting on,
 everything jumps square to square instead.
 
+The chat runs across the bottom of the window, like the Java client
+(Settings → "Chat across the bottom" puts it back under the side column).
 The map fills the left of the window; the right-hand column has a
 character card (name, location, HP/MP bars, and stamina when the stats
 include it), a target card with Attack / Look / Clear while something is
@@ -49,7 +51,8 @@ mixing new HTML with an old cached script.
 
 Open http://localhost:8000/, enter your character name and password, and
 press Play. The login card answers the server's login questions for you
-(including creating a new character, which it asks you to confirm) and
+(including creating a new character, which it asks you to confirm, with
+buttons for choosing a race) and
 then shows the game. "Remember me on this device" keeps the name and
 password in this browser; Settings has "Forget saved login". If the
 connection drops, an overlay offers Reconnect, which logs straight back
@@ -101,7 +104,11 @@ is empty; with text in it, Up/Down browse history), and so does WASD when
 the command box isn't focused. Enter jumps to the command box. Clicking
 the map walks to an empty square or opens the menu above.
 
-Tick "Protocol trace" to see every parsed opcode in the log.
+Tick "Protocol trace" to see every parsed opcode in the log. Settings →
+"Report a bug…" opens a form that hands a filled-in email to
+duskadmins@gmail.com to your email app (with optional technical details:
+browser, screen, character, position and the last chat lines), or copies
+it for pasting.
 
 ## Layout
 

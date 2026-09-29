@@ -23,13 +23,17 @@
           <label for="server-url">Bridge address</label>
           <input id="server-url" type="text" spellcheck="false" autocomplete="off">
         </form>
-        <button type="button" id="forget-login" class="ghost small">Forget saved login</button>
+        <div class="toggle-row">
+          <button type="button" id="report-bug" class="small">Report a bug…</button>
+          <button type="button" id="forget-login" class="ghost small">Forget saved login</button>
+        </div>
         <label class="toggle"><input id="names" type="checkbox" checked> Show names on the map</label>
         <div class="toggle-row">
           <label class="toggle"><input id="minimap-toggle" type="checkbox" checked> Minimap</label>
           <button type="button" id="minimap-reset" class="ghost small">Move to corner</button>
         </div>
         <label class="toggle"><input id="hotbar-toggle" type="checkbox" checked> Hotbar</label>
+        <label class="toggle"><input id="chat-bottom" type="checkbox" checked> Chat across the bottom</label>
         <div class="toggle-row">
           <label class="toggle"><input id="sound-toggle" type="checkbox" checked> Sound</label>
           <label class="toggle"><input id="steps-toggle" type="checkbox" checked> Footsteps</label>
@@ -57,6 +61,10 @@
           <button type="button" id="login-create" class="primary">Create character</button>
           <button type="button" id="login-cancel">Cancel</button>
         </div>
+      </div>
+      <div id="login-races" class="login-new" hidden>
+        <p>Choose your race:</p>
+        <div id="race-buttons" class="race-buttons"></div>
       </div>
       <p id="login-msg" role="status" aria-live="polite"></p>
       <p class="login-server">Server <code id="login-server"></code> · change it under Settings</p>
@@ -164,22 +172,39 @@
           <p id="stats-empty" class="empty">No stats yet.</p>
         </div>
       </section>
-
-      <section id="log" class="card">
-        <main id="output" aria-live="polite"></main>
-        <div id="prompt-bar" role="group" aria-labelledby="prompt-text" hidden>
-          <span id="prompt-text"></span>
-          <button type="button" data-answer="yes" class="primary">Yes</button>
-          <button type="button" data-answer="no">No</button>
-        </div>
-        <form id="input-form">
-          <input id="input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
-                 placeholder="Not connected" disabled aria-label="Command">
-          <button type="submit" id="send-btn" disabled>Send</button>
-        </form>
-      </section>
     </aside>
+    <section id="log" class="card">
+      <main id="output" aria-live="polite"></main>
+      <div id="prompt-bar" role="group" aria-labelledby="prompt-text" hidden>
+        <span id="prompt-text"></span>
+        <button type="button" data-answer="yes" class="primary">Yes</button>
+        <button type="button" data-answer="no">No</button>
+      </div>
+      <form id="input-form">
+        <input id="input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+               placeholder="Not connected" disabled aria-label="Command">
+        <button type="submit" id="send-btn" disabled>Send</button>
+      </form>
+    </section>
   </div>
+
+  <dialog id="bug-dialog" aria-labelledby="bug-title">
+    <form id="bug-form" method="dialog">
+      <h2 id="bug-title">Report a bug</h2>
+      <p class="dialog-sub">This opens your email app with a message to <strong>duskadmins@gmail.com</strong>, ready to send.</p>
+      <label for="bug-subject">Subject</label>
+      <input id="bug-subject" type="text" maxlength="120" placeholder="e.g. Shop tab doesn't open" required>
+      <label for="bug-text">What happened?</label>
+      <textarea id="bug-text" rows="6" placeholder="What you were doing, what you expected, and what happened instead." required></textarea>
+      <label class="toggle"><input id="bug-details" type="checkbox" checked> Include technical details (browser, screen, character, position, last chat lines)</label>
+      <p id="bug-msg" class="dialog-sub" role="status"></p>
+      <div class="dialog-acts">
+        <button type="button" id="bug-copy" class="ghost">Copy text</button>
+        <button type="button" id="bug-cancel">Cancel</button>
+        <button type="submit" id="bug-send" class="primary">Open email</button>
+      </div>
+    </form>
+  </dialog>
 
   <script type="module" src="js/main.js"></script>
 </body>

@@ -11,11 +11,16 @@
 //   <name>, Is that correct? (yes/no)   -> a new character; the player decides
 //   Enter a new password: / Confirm that password: / Passwords did not match...
 //                                 -> password (setting it for the new character)
+//   Choose one of the following races:  then one line per race
+//                                 -> the player picks; "That is not a valid
+//                                    race, please choose again." if it's wrong
 //   Login Accepted.               -> in; later lines are the game's
 //
 // start() gives the name to send on connecting. feed(text) returns what
 // to do: { send } to answer, { confirmNew } to ask the player about
-// creating a character, { done: true } once in, or { failed: message }.
+// creating a character, { races: [...] } as the race list comes in,
+// { raceError: true } for a refused race, { done: true } once in, or
+// { failed: message }.
 // Lines it doesn't recognise return null.
 
 const IS_THAT_CORRECT = /^(.+), Is that correct\? \(yes\/no\)$/i;
@@ -44,6 +49,17 @@ export class LoginFlow {
   feed(text) {
     const t = text.trim();
     if (this.state === 'in' || this.state === 'failed') return null;
+    if (/^Choose one of the following races:?$/i.test(t)) {
+      this.state = 'race';
+      this.races = [];
+      return { races: [] };
+    }
+    if (/^That is not a valid race/i.test(t)) return { raceError: true };
+    // While choosing, each short one-word line is a race.
+    if (this.state === 'race' && /^[A-Za-z][\w'-]{0,24}$/.test(t)) {
+      if (!this.races.includes(t)) this.races.push(t);
+      return { races: [...this.races] };
+    }
     for (const [re, message] of FAILURES) {
       if (re.test(t)) return this.fail(message);
     }
@@ -70,6 +86,12 @@ export class LoginFlow {
       return { done: true };
     }
     return null;
+  }
+
+  // The player's race; send it, then wait for Login Accepted.
+  pickRace(race) {
+    this.state = 'new';
+    return { send: race };
   }
 
   fail(message) {

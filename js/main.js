@@ -43,6 +43,9 @@ const SAVE_EXPLORED_MS = 10000;
 const CAST_WAIT_MS = 350;
 // How long the login card waits for the server's first question.
 const LOGIN_TIMEOUT_MS = 12000;
+// After "Create character", if the server asks something the card doesn't
+// know, show the game (and its chat) after this long so it can be answered.
+const NEW_CHAR_FALLBACK_MS = 10000;
 // Lines that explain why the server dropped us, shown on the overlay.
 const DROP_REASONS = [/disconnected for being idle/i, /another logon under this name/i, /^Goodbye/i];
 
@@ -172,6 +175,19 @@ $('mute-btn').addEventListener('click', () => {
   if (sound.enabled) sound.play('heal');
 });
 
+// Chat across the bottom (like the Java client) or under the side column.
+$('chat-bottom').checked = storage('get', 'dusk.chatbottom') !== '0';
+document.body.classList.toggle('chat-bottom', $('chat-bottom').checked);
+$('chat-bottom').addEventListener('change', (e) => {
+  document.body.classList.toggle('chat-bottom', e.target.checked);
+  storage('set', 'dusk.chatbottom', e.target.checked ? '1' : '0');
+  output.scrollTop = output.scrollHeight;
+  // Resize right away rather than waiting on the resize observers.
+  renderer.resize();
+  hotbar.place();
+  minimap.invalidate();
+});
+
 stepsBox.checked = storage('get', 'dusk.steps') !== '0';
 stepsBox.addEventListener('change', () => storage('set', 'dusk.steps', stepsBox.checked ? '1' : '0'));
 
@@ -243,10 +259,29 @@ $('login-form').addEventListener('submit', (e) => {
 $('login-create').addEventListener('click', () => {
   $('login-new').hidden = true;
   conn?.send('yes');
-  // A new character may be asked more (a race, say): answer in the game's chat.
   loginMessage('Creating your character…');
-  enterGame();
+  armNewCharFallback();
 });
+$('race-buttons').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-race]');
+  if (!b || !loginFlow) return;
+  const race = b.dataset.race;
+  conn?.send(loginFlow.pickRace(race).send);
+  $('login-races').hidden = true;
+  loginMessage(`Becoming ${/^[aeiou]/i.test(race) ? 'an' : 'a'} ${race}…`);
+  armNewCharFallback();
+});
+
+let newCharTimer = null;
+function armNewCharFallback() {
+  clearTimeout(newCharTimer);
+  newCharTimer = setTimeout(() => {
+    if (loginFlow && !inGame) {
+      sysLine('The server is asking something more; answer it here.');
+      enterGame();
+    }
+  }, NEW_CHAR_FALLBACK_MS);
+}
 $('login-cancel').addEventListener('click', () => {
   $('login-new').hidden = true;
   conn?.send('no');
@@ -263,6 +298,93 @@ $('forget-login').addEventListener('click', () => {
   setTimeout(() => ($('forget-login').textContent = 'Forget saved login'), 1500);
 });
 
+// ---- bug reports -------------------------------------------------------------
+//
+// A web page can't send email by itself, so this fills in a message to the
+// admins and hands it to the player's email app (a mailto: link), with
+// Copy text for when there isn't one.
+
+const BUG_EMAIL = 'duskadmins@gmail.com';
+// Email links much longer than this get cut off by some mail apps.
+const MAILTO_MAX = 1800;
+const bugDialog = $('bug-dialog');
+
+$('report-bug').addEventListener('click', () => {
+  $('settings').open = false;
+  $('bug-msg').textContent = '';
+  bugDialog.showModal();
+  $('bug-subject').focus();
+});
+$('bug-cancel').addEventListener('click', () => bugDialog.close());
+$('bug-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const { subject, body } = bugReport();
+  let link = mailto(subject, body);
+  // Trim the chat lines first if the link is too long.
+  for (let lines = 12; link.length > MAILTO_MAX && lines >= 0; lines -= 3) link = mailto(subject, bugReport(lines).body);
+  location.href = link;
+  $('bug-msg').textContent = `Your email app should open with the message. If nothing happened, use Copy text and send it to ${BUG_EMAIL} yourself.`;
+});
+$('bug-copy').addEventListener('click', async () => {
+  const { subject, body } = bugReport();
+  const ok = await copyText(`To: ${BUG_EMAIL}\nSubject: ${subject}\n\n${body}`);
+  $('bug-msg').textContent = ok
+    ? `Copied. Paste it into an email to ${BUG_EMAIL}.`
+    : `Couldn't copy here; please email ${BUG_EMAIL} yourself.`;
+});
+
+// The clipboard API only works on https pages; this client is served over
+// plain http on the LAN, so fall back to copying from a hidden text box.
+async function copyText(text) {
+  if (window.isSecureContext && navigator.clipboard) {
+    try {
+      // It can wait on a permission prompt; don't wait forever.
+      await Promise.race([
+        navigator.clipboard.writeText(text),
+        new Promise((_, reject) => setTimeout(reject, 1000)),
+      ]);
+      return true;
+    } catch {}
+  }
+  const box = document.createElement('textarea');
+  box.value = text;
+  box.setAttribute('readonly', '');
+  box.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  bugDialog.append(box); // inside the dialog, so the modal lets it take focus
+  box.select();
+  let ok = false;
+  try {
+    ok = document.execCommand('copy');
+  } catch {}
+  box.remove();
+  return ok;
+}
+
+function bugReport(chatLines = 12) {
+  const subject = `[Dusk web] ${$('bug-subject').value.trim() || 'Bug report'}`;
+  let body = $('bug-text').value.trim();
+  if ($('bug-details').checked) {
+    const lines = [...output.querySelectorAll('.line:not(.trace)')].slice(-chatLines).map((l) => l.textContent);
+    body += [
+      '',
+      '',
+      '--- details ---',
+      `Page: ${location.origin}${location.pathname}`,
+      `Browser: ${navigator.userAgent}`,
+      `Screen: ${screen.width}x${screen.height}, window ${innerWidth}x${innerHeight}, scale ${devicePixelRatio}`,
+      `Server: ${serverUrl.value}`,
+      `Character: ${player.name ?? '(not logged in)'} at ${player.x}, ${player.y}, HP ${player.hp}/${player.maxhp}`,
+      `Time: ${new Date().toISOString()}`,
+      ...(lines.length ? ['Last chat lines:', ...lines.map((l) => `  ${l}`)] : []),
+    ].join('\n');
+  }
+  return { subject, body };
+}
+
+function mailto(subject, body) {
+  return `mailto:${BUG_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 // Yes / No for questions like "Do you want players to be able to see your
 // presence? (yes/no)".
 $('prompt-bar').addEventListener('click', (e) => {
@@ -278,6 +400,7 @@ function startLogin(name, password, again = false) {
   dropReason = '';
   $('overlay').hidden = true;
   $('login-new').hidden = true;
+  $('login-races').hidden = true;
   $('login-play').disabled = true;
   loginMessage(again ? 'Reconnecting…' : 'Connecting…');
   if (again) sysLine('Reconnecting…');
@@ -305,9 +428,25 @@ function handleLogin(text) {
     $('login-new-name').textContent = r.confirmNew;
     $('login-new').hidden = false;
     loginMessage('');
+  } else if (r.races) {
+    clearTimeout(newCharTimer);
+    $('race-buttons').replaceChildren(...r.races.map((race) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.race = race;
+      b.textContent = race;
+      return b;
+    }));
+    $('login-races').hidden = false;
+    loginMessage('');
+  } else if (r.raceError) {
+    $('login-races').hidden = false;
+    loginMessage('The server didn\'t accept that race; pick another.', true);
   } else if (r.failed) failLogin(r.failed);
   else if (r.done) {
     clearTimeout(loginTimer);
+    clearTimeout(newCharTimer);
+    $('login-races').hidden = true;
     loginFlow = null;
     enterGame();
   }
@@ -336,6 +475,8 @@ function showLogin() {
   $('overlay').hidden = true;
   $('login-play').disabled = false;
   $('login-new').hidden = true;
+  $('login-races').hidden = true;
+  clearTimeout(newCharTimer);
   if (conn) {
     quitting = true;
     conn.close();
