@@ -43,6 +43,17 @@ assert.equal(p.range, 3);
 assert.equal(p.apply({ op: OP.ACTIONS, actions: ['sit', 'wave'] }), 'actions');
 assert.deepEqual(p.actions, ['sit', 'wave']);
 
+// Shops: 17 opens and replaces, 22 fills the sell side, 21 closes.
+assert.equal(p.shop.open, false);
+assert.equal(p.apply({ op: OP.MERCHANT_WARES, items: ['5gp)apple', '9gp)ale'] }), 'shop');
+assert.equal(p.shop.open, true);
+p.apply({ op: OP.MERCHANT_WARES, items: ['5gp)apple'] });
+assert.deepEqual(p.shop.wares, [{ name: 'apple', price: 5, currency: 'gp' }]);
+p.apply({ op: OP.SELL_LIST, items: ['3gp)dagger'] });
+assert.deepEqual(p.shop.sell.map((w) => w.name), ['dagger']);
+p.apply({ op: OP.CLOSE_MERCHANT });
+assert.deepEqual(p.shop, { open: false, wares: [], sell: [] });
+
 assert.equal(slotForType(0), null);
 assert.equal(slotForType(1), 'wield');
 assert.equal(slotForType(9), 'hands');

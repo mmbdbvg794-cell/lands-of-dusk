@@ -91,6 +91,7 @@
             <button type="button" role="tab" data-tab="inv" aria-controls="tab-inv" aria-selected="true">Inventory <span id="tab-inv-count" class="count"></span></button>
             <button type="button" role="tab" data-tab="equip" aria-controls="tab-equip" aria-selected="false" tabindex="-1">Equipment</button>
             <button type="button" role="tab" data-tab="book" aria-controls="tab-book" aria-selected="false" tabindex="-1">Spellbook</button>
+            <button type="button" role="tab" data-tab="shop" aria-controls="tab-shop" aria-selected="false" tabindex="-1" hidden>Shop</button>
             <button type="button" role="tab" data-tab="stats" aria-controls="tab-stats" aria-selected="false" tabindex="-1">Stats</button>
           </div>
           <select id="actions" aria-label="Actions" disabled><option value="">Action…</option></select>
@@ -107,6 +108,18 @@
           <ul id="equip-list" class="slots"></ul>
         </div>
         <div id="tab-book" class="tab" role="tabpanel" hidden></div>
+        <div id="tab-shop" class="tab" role="tabpanel" hidden>
+          <div id="shop-summary" class="summary">
+            <span id="shop-gold" class="gold"></span>
+            <span id="shop-exp"></span>
+          </div>
+          <h4 class="list-head">For sale</h4>
+          <ul id="shop-buy" class="rows shop-list"></ul>
+          <p id="shop-buy-empty" class="empty">Nothing for sale here.</p>
+          <h4 class="list-head">Sell</h4>
+          <ul id="shop-sell" class="rows shop-list"></ul>
+          <p id="shop-sell-empty" class="empty">Nothing you carry interests this merchant.</p>
+        </div>
         <div id="tab-stats" class="tab" role="tabpanel" hidden>
           <div id="stats-body"></div>
           <p id="stats-empty" class="empty">No stats yet.</p>

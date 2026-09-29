@@ -3,6 +3,7 @@
 // from the DOM so it can be tested in node.
 
 import { OP, EQUIPMENT_SLOTS } from './protocol.js';
+import { parseWares } from './shop.js';
 
 // Inventory slot types, as opcode 6 sends them: 0 is a plain item, 1-9
 // are wearable in EQUIPMENT_SLOTS[type - 1].
@@ -22,11 +23,13 @@ export class Player {
     this.actions = [];
     this.range = 1; // attack range, from opcode 28
     this.name = null; // the name typed at login, for the character card
+    // The merchant you're standing on: open from opcode 17 until 21.
+    this.shop = { open: false, wares: [], sell: [] };
   }
 
   // Returns the name of the part that changed ('status', 'items',
-  // 'equipment', 'stats', 'range', 'actions'), or null if the message
-  // isn't ours.
+  // 'equipment', 'stats', 'range', 'actions', 'shop'), or null if the
+  // message isn't ours.
   apply(msg) {
     switch (msg.op) {
       case OP.STATUS:
@@ -46,6 +49,17 @@ export class Player {
       case OP.STATS:
         this.stats = msg.lines;
         return 'stats';
+      // Each wares message is the whole list, so it replaces the last one
+      // (Java appended, so repeats piled up).
+      case OP.MERCHANT_WARES:
+        this.shop = { ...this.shop, open: true, wares: parseWares(msg.items) };
+        return 'shop';
+      case OP.SELL_LIST:
+        this.shop = { ...this.shop, sell: parseWares(msg.items) };
+        return 'shop';
+      case OP.CLOSE_MERCHANT:
+        this.shop = { open: false, wares: [], sell: [] };
+        return 'shop';
       case OP.RANGE:
         this.range = msg.range;
         return 'range';

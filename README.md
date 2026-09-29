@@ -66,6 +66,11 @@ change or clear it. Spells cast on yourself or at your target (◎), which
 you can switch per slot. Drag the grip to move the bar: it snaps to the
 nearest edge. Slots are saved per character; Settings can hide the bar.
 
+Standing on a merchant opens a Shop tab (opcodes 17, 21, 22): what they
+sell with prices (red if you can't afford it; training costs experience),
+and what you carry that they'd buy, each with a quantity and a Buy / Train
+/ Sell button (`buy <n> <item>`, `sell <n> <item>`). Walking off closes it.
+
 The Spellbook tab lists the spells you know (from the stats' "-Spells-"
 lines) like a book, a chapter per school, with each spell's description
 and the skill it needs, plus buttons to cast it on yourself or your target
@@ -110,6 +115,7 @@ Tick "Protocol trace" to see every parsed opcode in the log.
 - `js/hotbar.js`: the hotbar, its slot picker, and docking it to an edge
 - `js/spellbook.js`: the Spellbook tab
 - `js/spellinfo.json`: each spell's school, description, needed skill and chat lines (from `tools/spellinfo.py`)
+- `js/shop.js`: merchant ware lines, and the buy and sell commands
 - `js/sound.js`: game sounds, generated with Web Audio
 - `js/sprites.js`: loads `map.gif`, `players.gif`, `sprites.gif`
 - `js/renderer.js`: draws the world on the canvas, following Dusk.java's `update()`/`drawEntity()`
@@ -132,3 +138,4 @@ rebuilds the spell data, runs the tests, copies the page to
     node test/actions.test.mjs
     node test/stats.test.mjs
     node test/spells.test.mjs
+    node test/shop.test.mjs

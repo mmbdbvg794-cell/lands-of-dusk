@@ -530,8 +530,10 @@ body.playing #map-wrap { display: flex; }
   .target-head { flex: 1 1 100%; }
   #bar-target { flex: 1 1 120px; }
   .target-actions button { padding: 3px 10px; }
-  #panel { max-height: 50%; }
+  #panel { max-height: 42%; }
   #log { min-height: 140px; }
+  [role="tab"] { padding: 9px 7px 7px; }
+  #actions { max-width: 30%; }
 }
 
 /* Before connecting there's only the log; keep it a readable width. */
@@ -727,3 +729,31 @@ body:not(.playing) #side { width: 100%; max-width: 820px; margin: 0 auto; }
 }
 .spell-acts button:hover:not(:disabled) { background: #fff6de; border-color: #6b2410; }
 .spell-acts button:disabled { opacity: 0.45; }
+
+/* ---- shop ---- */
+
+.list-head {
+  margin: 6px 12px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.shop-list .price { font-size: 12px; font-family: var(--mono); color: var(--warn); white-space: nowrap; }
+.shop-list .price.exp { color: #b69cff; }
+.shop-list .price.short { color: var(--bad); }
+.shop-list .qty {
+  width: 52px;
+  padding: 3px 4px;
+  font: inherit;
+  font-size: 13px;
+  text-align: right;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.shop-list .acts { opacity: 1; }
+[role="tab"][data-tab="shop"] { color: var(--warn); }
+[role="tab"][data-tab="shop"][aria-selected="true"] { border-bottom-color: var(--warn); }
