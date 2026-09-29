@@ -52,7 +52,8 @@ mixing new HTML with an old cached script.
 Open http://localhost:8000/, enter your character name and password, and
 press Play. The login card answers the server's login questions for you
 (including creating a new character, which it asks you to confirm, with
-buttons for choosing a race) and
+buttons for choosing a race, each showing the race's picture and stat
+bonuses, from `js/raceinfo.json`) and
 then shows the game. "Remember me on this device" keeps the name and
 password in this browser; Settings has "Forget saved login". If the
 connection drops, an overlay offers Reconnect, which logs straight back
@@ -85,9 +86,10 @@ The Spellbook tab lists the spells you know (from the stats' "-Spells-"
 lines) like a book, a chapter per school, with each spell's description
 and the skill it needs, plus buttons to cast it on yourself or your target
 or put it on the hotbar. The descriptions come from `js/spellinfo.json`,
-built from the server's spell files. It's rebuilt on every deploy, and the
-server also rebuilds its copy every 10 minutes (a cron job for flan), so
-spell changes on the server show up by themselves. By hand:
+built from the server's spell files. It and `js/raceinfo.json` (from
+`defRaces`) are rebuilt on every deploy, and the server rebuilds its
+copies every 10 minutes (flan's crontab runs `tools/rebuild-data.sh`), so
+spell and race changes on the server show up by themselves. By hand:
 
     ssh duskserver 'python3 - /home/flan/DuskRPG' < tools/spellinfo.py > js/spellinfo.json
 

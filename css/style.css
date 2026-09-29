@@ -812,7 +812,20 @@ body.in-login #play-area { display: none; }
 .login-new p { margin: 0 0 8px; }
 .login-new-acts { display: flex; gap: 8px; }
 .race-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
-.race-buttons button { flex: 1 1 40%; padding: 8px; text-transform: capitalize; }
+.race-buttons { display: grid; grid-template-columns: 1fr; }
+.race-buttons .race {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  grid-template-areas: "pic name" "pic tags" "pic note";
+  align-items: center;
+  column-gap: 10px;
+  padding: 8px 10px;
+  text-align: left;
+}
+.race-pic { grid-area: pic; width: 40px; height: 40px; image-rendering: pixelated; border-radius: 6px; background: #0a0b0e; }
+.race-name { grid-area: name; font-weight: 600; text-transform: capitalize; }
+.race-tags { grid-area: tags; font-family: var(--mono); font-size: 11px; color: var(--ok); white-space: pre-wrap; }
+.race-note { grid-area: note; font-size: 11px; color: var(--warn); font-style: italic; }
 .login-server { margin: 10px 0 0; font-size: 11px; color: var(--faint); }
 .login-server code { font-family: var(--mono); color: var(--muted); }
 

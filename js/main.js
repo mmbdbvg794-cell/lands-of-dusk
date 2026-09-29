@@ -14,7 +14,8 @@ import { Panels, setBar } from './panels.js';
 import { Player } from './player.js';
 import { OP, opName } from './protocol.js';
 import { Renderer } from './renderer.js';
-import { loadSheets } from './sprites.js';
+import { loadSheets, SpriteSheet } from './sprites.js';
+import { describeRaces } from './races.js';
 import { World } from './world.js';
 
 const $ = (id) => document.getElementById(id);
@@ -275,6 +276,67 @@ $('race-buttons').addEventListener('click', (e) => {
   enterGame();
 });
 
+// What each race gives (from js/raceinfo.json), for the race buttons, and
+// players.gif to show what each looks like.
+let raceInfo = {};
+fetch('js/raceinfo.json')
+  .then((r) => (r.ok ? r.json() : null))
+  .then((info) => (raceInfo = describeRaces(info)))
+  .catch(() => {});
+let playerSheet = null;
+
+// players.gif comes from the game's resource server on the bridge's host
+// (the address opcode 1 would give isn't known yet during login).
+function loadPlayerSheet() {
+  if (playerSheet) return Promise.resolve(playerSheet);
+  if (renderer.sheets?.players) return Promise.resolve((playerSheet = renderer.sheets.players));
+  return new Promise((resolve) => {
+    let host = '';
+    try {
+      host = new URL(serverUrl.value.trim().replace(/^ws/, 'http')).hostname;
+    } catch {}
+    const img = new Image();
+    img.onload = () => resolve((playerSheet = new SpriteSheet(img)));
+    img.onerror = () => resolve(null);
+    img.src = `http://${host}:${FALLBACK_RC_PORT}/images/players.gif`;
+  });
+}
+
+function raceButton(race) {
+  const d = raceInfo[race];
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.dataset.race = race;
+  b.className = 'race';
+  const pic = document.createElement('canvas');
+  pic.className = 'race-pic';
+  pic.width = pic.height = 40;
+  pic.setAttribute('aria-hidden', 'true');
+  const name = document.createElement('span');
+  name.className = 'race-name';
+  name.textContent = race;
+  b.append(pic, name);
+  if (d) {
+    const tags = document.createElement('span');
+    tags.className = 'race-tags';
+    tags.textContent = d.tags.join('  ') || 'no bonuses';
+    b.append(tags);
+    if (d.elsewhere) {
+      const note = document.createElement('span');
+      note.className = 'race-note';
+      note.textContent = 'starts elsewhere';
+      b.append(note);
+    }
+    b.title = d.title;
+    b.setAttribute('aria-label', d.title);
+    // Standing, facing south (frame 2 of the race's 8 in players.gif).
+    if (d.image !== null) {
+      loadPlayerSheet().then((sheet) => sheet?.draw(pic.getContext('2d'), d.image * 8 + 2, 0, 0, 40));
+    }
+  }
+  return b;
+}
+
 let newCharTimer = null;
 function armNewCharFallback() {
   clearTimeout(newCharTimer);
@@ -433,13 +495,7 @@ function handleLogin(text) {
     loginMessage('');
   } else if (r.races) {
     clearTimeout(newCharTimer);
-    $('race-buttons').replaceChildren(...r.races.map((race) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.dataset.race = race;
-      b.textContent = race;
-      return b;
-    }));
+    $('race-buttons').replaceChildren(...r.races.map(raceButton));
     $('login-races').hidden = false;
     loginMessage('');
   } else if (r.raceError) {
