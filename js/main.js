@@ -476,6 +476,8 @@ function connect(url) {
   conn.addEventListener('open', () => {
     setState('on');
     sysLine('Connected. Waiting for the server…');
+    // The server waits for the name before saying anything.
+    if (loginFlow) conn?.send(loginFlow.start().send);
   });
   conn.addEventListener('message', (e) => handle(e.detail));
   conn.addEventListener('error', (e) => errLine(e.detail.message));

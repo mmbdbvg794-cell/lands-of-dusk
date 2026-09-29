@@ -2,17 +2,21 @@
 // prompts (Player.class) from what was typed on the login card, and
 // reports how it went. No DOM; tested in node.
 //
-// The server's side of it, as lines of text:
-//   Enter your login name:        -> name   (Then what IS your name? after a bad one)
+// The client speaks first: the name goes as soon as the connection opens
+// (as Dusk.java and the captured login do); the server doesn't ask for it.
+// Then the server's side, as lines of text:
+//   Enter your login name:        -> only after a name it didn't like
+//   Then what IS your name?       -> after answering "no" to a new name
 //   Enter your password:          -> password, then Login Accepted. or Incorrect Password.
 //   <name>, Is that correct? (yes/no)   -> a new character; the player decides
 //   Enter a new password: / Confirm that password: / Passwords did not match...
 //                                 -> password (setting it for the new character)
 //   Login Accepted.               -> in; later lines are the game's
 //
-// feed(text) returns what to do: { send } to answer, { confirmNew } to ask
-// the player about creating a character, { done: true } once in, or
-// { failed: message }. Lines it doesn't recognise return null.
+// start() gives the name to send on connecting. feed(text) returns what
+// to do: { send } to answer, { confirmNew } to ask the player about
+// creating a character, { done: true } once in, or { failed: message }.
+// Lines it doesn't recognise return null.
 
 const IS_THAT_CORRECT = /^(.+), Is that correct\? \(yes\/no\)$/i;
 
@@ -29,6 +33,12 @@ export class LoginFlow {
     this.password = password;
     this.state = 'name'; // name -> password -> (new) -> in | failed
     this.namesSent = 0;
+  }
+
+  // What to send as soon as the connection opens.
+  start() {
+    this.namesSent = 1;
+    return { send: this.name };
   }
 
   feed(text) {
