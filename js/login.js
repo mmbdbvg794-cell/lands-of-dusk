@@ -11,16 +11,19 @@
 //   <name>, Is that correct? (yes/no)   -> a new character; the player decides
 //   Enter a new password: / Confirm that password: / Passwords did not match...
 //                                 -> password (setting it for the new character)
-//   Choose one of the following races:  then one line per race
+//   Login Accepted.               -> in, except for a new character, which
+//                                    is asked its race next:
+//   Choose one of the following races:  then one line per race (every file
+//                                    in defRaces, so skip dotfiles)
 //                                 -> the player picks; "That is not a valid
 //                                    race, please choose again." if it's wrong
-//   Login Accepted.               -> in; later lines are the game's
 //
 // start() gives the name to send on connecting. feed(text) returns what
 // to do: { send } to answer, { confirmNew } to ask the player about
-// creating a character, { races: [...] } as the race list comes in,
-// { raceError: true } for a refused race, { done: true } once in, or
-// { failed: message }.
+// creating a character, { accepted: true } when a new character is
+// accepted and its race is still to come, { races: [...] } as the race
+// list comes in, { raceError: true } for a refused race, { done: true }
+// once in, or { failed: message }.
 // Lines it doesn't recognise return null.
 
 const IS_THAT_CORRECT = /^(.+), Is that correct\? \(yes\/no\)$/i;
@@ -56,7 +59,7 @@ export class LoginFlow {
     }
     if (/^That is not a valid race/i.test(t)) return { raceError: true };
     // While choosing, each short one-word line is a race.
-    if (this.state === 'race' && /^[A-Za-z][\w'-]{0,24}$/.test(t)) {
+    if (this.state === 'race' && /^[A-Za-z][\w'-]{0,24}$/.test(t) && !t.startsWith('.')) {
       if (!this.races.includes(t)) this.races.push(t);
       return { races: [...this.races] };
     }
@@ -77,21 +80,28 @@ export class LoginFlow {
     const m = t.match(IS_THAT_CORRECT);
     if (m) {
       this.state = 'new';
+      this.isNew = true;
       return { confirmNew: m[1] };
     }
     if (/^Enter a new password:?$/i.test(t) || /^Confirm that password:?$/i.test(t)) return { send: this.password };
     if (/^Passwords did not match/i.test(t)) return { send: this.password };
     if (/^Login Accepted\.?$/i.test(t)) {
+      // A new character still has its race to choose.
+      if (this.isNew && !this.racePicked) {
+        this.state = 'accepted';
+        return { accepted: true };
+      }
       this.state = 'in';
       return { done: true };
     }
     return null;
   }
 
-  // The player's race; send it, then wait for Login Accepted.
+  // The player's race: the last step, so the game can start.
   pickRace(race) {
-    this.state = 'new';
-    return { send: race };
+    this.racePicked = true;
+    this.state = 'in';
+    return { send: race, done: true };
   }
 
   fail(message) {

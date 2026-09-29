@@ -267,9 +267,12 @@ $('race-buttons').addEventListener('click', (e) => {
   if (!b || !loginFlow) return;
   const race = b.dataset.race;
   conn?.send(loginFlow.pickRace(race).send);
+  // The race is the last question; the game starts from here.
   $('login-races').hidden = true;
-  loginMessage(`Becoming ${/^[aeiou]/i.test(race) ? 'an' : 'a'} ${race}…`);
-  armNewCharFallback();
+  clearTimeout(loginTimer);
+  clearTimeout(newCharTimer);
+  loginFlow = null;
+  enterGame();
 });
 
 let newCharTimer = null;
@@ -443,7 +446,11 @@ function handleLogin(text) {
     $('login-races').hidden = false;
     loginMessage('The server didn\'t accept that race; pick another.', true);
   } else if (r.failed) failLogin(r.failed);
-  else if (r.done) {
+  else if (r.accepted) {
+    // A new character: its race question is next.
+    loginMessage('Character created. Choosing a race…');
+    armNewCharFallback();
+  } else if (r.done) {
     clearTimeout(loginTimer);
     clearTimeout(newCharTimer);
     $('login-races').hidden = true;

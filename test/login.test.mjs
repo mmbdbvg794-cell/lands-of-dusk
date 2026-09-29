@@ -22,20 +22,23 @@ f.start();
 assert.deepEqual(f.feed('newbie, Is that correct? (yes/no)'), { confirmNew: 'newbie' });
 assert.deepEqual(f.feed('Enter a new password:'), { send: 'pw' });
 assert.deepEqual(f.feed('Confirm that password:'), { send: 'pw' });
-assert.deepEqual(f.feed('Login Accepted.'), { done: true });
 
-// Race choice for a new character, one line per race.
-f = new LoginFlow('newbie', 'pw');
-f.start();
-f.feed('newbie, Is that correct? (yes/no)');
-f.feed('Enter a new password:');
-f.feed('Confirm that password:');
+// ...and, as the live server does it, the race comes after Login Accepted,
+// listing every file in defRaces (so .DS_Store too).
+assert.deepEqual(f.feed('Login Accepted.'), { accepted: true });
+assert.equal(f.feed('This game is running DuskServer v2.7.3.'), null);
 assert.deepEqual(f.feed('Choose one of the following races:'), { races: [] });
-assert.deepEqual(f.feed('darkelf'), { races: ['darkelf'] });
-assert.deepEqual(f.feed('human'), { races: ['darkelf', 'human'] });
+assert.equal(f.feed('.DS_Store'), null, 'dotfiles are not races');
+assert.deepEqual(f.feed('lizardman'), { races: ['lizardman'] });
+assert.deepEqual(f.feed('darkelf'), { races: ['lizardman', 'darkelf'] });
 assert.deepEqual(f.feed('That is not a valid race, please choose again.'), { raceError: true });
-assert.deepEqual(f.pickRace('human'), { send: 'human' });
-assert.equal(f.feed('elf'), null, 'no longer collecting races once one is picked');
+assert.deepEqual(f.pickRace('darkelf'), { send: 'darkelf', done: true });
+assert.equal(f.feed('elf'), null, 'nothing more once in');
+
+// An existing character is in at Login Accepted.
+f = new LoginFlow('flan', 'pw');
+f.start();
+f.feed('Enter your password:');
 assert.deepEqual(f.feed('Login Accepted.'), { done: true });
 
 // A refused name, and a ban.
