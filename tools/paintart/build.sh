@@ -2,7 +2,7 @@
 # Builds the Painted art style from the server's sprite sheets, by running
 # tools/paintart in headless Chrome:
 #   art/painted/map.png      map tiles (painter.js)
-#   art/painted/players.png  characters (figures.js)
+#   art/painted/players.png  characters, drawn fresh (people.js)
 #   art/painted/sprites.png  creatures, items and props (figures.js)
 #
 #   sh tools/paintart/build.sh
@@ -17,7 +17,7 @@ CHROME=${CHROME:-$(ls -d "$HOME"/.cache/ms-playwright/chromium_headless_shell-*/
 
 work=$(mktemp -d)
 trap 'kill $server 2>/dev/null; rm -rf "$work"' EXIT
-cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js "$work/"
+cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js tools/paintart/people.js "$work/"
 for name in map players sprites; do
   curl -s -f -m 20 -o "$work/$name.gif" "$RC/images/$name.gif"
 done

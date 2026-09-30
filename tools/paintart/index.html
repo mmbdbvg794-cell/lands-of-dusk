@@ -2,12 +2,14 @@
 <meta charset="utf-8">
 <title>Paint art</title>
 <!-- Generates the Painted sheets from the server's originals (next to this
-     page): map.gif via painter.js, players.gif and sprites.gif via figures.js.
+     page): map.gif via painter.js, characters drawn fresh by people.js (one
+     look per players.gif image), creatures and items via figures.js.
      Each result is left in <pre id="<name>"> as a data: URL for the caller. -->
 <body style="background:#222">
 <script type="module">
   import { paintSheet } from './painter.js';
   import { paintFigureSheet } from './figures.js';
+  import { paintPeopleSheet } from './people.js';
   const load = (src) => new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
@@ -21,7 +23,8 @@
     document.body.append(pre);
   };
   out('map', paintSheet(await load('map.gif')));
-  out('players', paintFigureSheet(await load('players.gif')));
+  const players = await load('players.gif');
+  out('players', paintPeopleSheet(Math.round(players.naturalWidth / players.naturalHeight / 8)));
   out('sprites', paintFigureSheet(await load('sprites.gif')));
   const done = document.createElement('pre');
   done.id = 'done';
