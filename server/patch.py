@@ -5,6 +5,9 @@ classes so they compile again, and hooks in Storage (server/Storage.java):
   DuskServer()            calls Storage.load before accepting players
   "<prop", "<mob"         find mob and prop files whatever their case
                           (server/CaseFix.java)
+  new DuskEngine()        becomes new FixedEngine(), which fixes garbled
+                          entity messages and IDs freed twice
+                          (server/FixedEngine.java)
 
 Every change is an exact text replacement that must match once (or the
 stated number of times), so a changed server fails loudly here instead of
@@ -85,6 +88,9 @@ patch('Commands.java', [
 ])
 
 patch('DuskServer.java', [
+    # The engine with the addEntity and killDuskObject fixes
+    # (server/FixedEngine.java).
+    ('''DuskEngine engGame = new DuskEngine();''', '''DuskEngine engGame = new FixedEngine();''', 1),
     # CFR leaves a break after the endless accept loop.
     ('''                continue;
             }

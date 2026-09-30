@@ -19,13 +19,13 @@ cd "$GAME"
 if [ "${1:-}" = uninstall ]; then
   [ -f storage-originals/Commands.class ] || { echo "Storage isn't installed (no storage-originals)." >&2; exit 1; }
   cp storage-originals/Commands.class storage-originals/DuskServer.class .
-  rm -f Storage.class CaseFix.class
+  rm -f Storage.class CaseFix.class FixedEngine.class
   echo "Original classes restored; restart the server to take effect."
   echo "(The storage file is kept; reinstalling brings the barrels and chests back.)"
   exit 0
 fi
 
-for c in Storage CaseFix Commands DuskServer; do
+for c in Storage CaseFix FixedEngine Commands DuskServer; do
   [ -f "$OUT/$c.class" ] || { echo "No $OUT/$c.class: run server/build.sh first." >&2; exit 1; }
 done
 if [ ! -f storage-originals/Commands.class ]; then
@@ -36,7 +36,7 @@ fi
 b="backups/classes-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$b"
 cp Commands.class DuskServer.class "$b/"
-for c in Storage CaseFix; do [ -f $c.class ] && cp $c.class "$b/"; done
-cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/Commands.class" "$OUT/DuskServer.class" .
+for c in Storage CaseFix FixedEngine; do [ -f $c.class ] && cp $c.class "$b/"; done
+cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/FixedEngine.class" "$OUT/Commands.class" "$OUT/DuskServer.class" .
 echo "Installed; replaced classes kept in $b"
 echo "Restart the server to turn storage on: sudo systemctl restart duskserver"
