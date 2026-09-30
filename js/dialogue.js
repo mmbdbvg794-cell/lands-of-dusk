@@ -194,21 +194,50 @@ export function toTileScript(rules) {
   return out.join('\n') + '\n';
 }
 
-export const tileFlagsOf = (rules) => flagsOf({ stages: (rules ?? []).map((r) => ({ when: r.when, answers: [{ label: 'x', effects: r.effects }] })) });
+// Who can step onto the square (walk): { kind: 'everyone'|'flag'|'noflag'
+// |'nobody', flag, speaker, says } -> the server's can-move expression
+// (empty for everyone) and what a player who can't is told. Gods walk
+// anywhere regardless.
+export const newWalk = () => ({ kind: 'everyone', flag: '', speaker: '', says: '' });
+export function canMoveExpr(walk) {
+  const f = cleanFlag(walk?.flag);
+  switch (walk?.kind) {
+    case 'flag': return f ? `hasCondition trigger ${f}` : '';
+    case 'noflag': return f ? `! hasCondition trigger ${f}` : '';
+    case 'nobody': return 'false';
+    default: return '';
+  }
+}
+export const blockedText = (walk) => (text(walk?.says) ? `${text(walk.speaker) ? `${text(walk.speaker)} says: ` : ''}${text(walk.says)}` : '');
+
+export function tileFlagsOf(rules, walk) {
+  const flags = new Set(flagsOf({ stages: (rules ?? []).map((r) => ({ when: r.when, answers: [{ label: 'x', effects: r.effects }] })) }));
+  if ((walk?.kind === 'flag' || walk?.kind === 'noflag') && cleanFlag(walk.flag)) flags.add(cleanFlag(walk.flag));
+  return [...flags];
+}
 
 export const TILE_GET = 'tileget';
-export const tileSaveCommand = (rules) => `tileset ${toBase64(JSON.stringify(rules))}|${toBase64(toTileScript(rules))}|${tileFlagsOf(rules).join(',')}`;
+// data: { rules, walk }.
+export function tileSaveCommand({ rules, walk }) {
+  return `tileset ${toBase64(JSON.stringify({ rules, walk }))}|${toBase64(toTileScript(rules))}|${tileFlagsOf(rules, walk).join(',')}|${toBase64(canMoveExpr(walk))}|${toBase64(blockedText(walk))}`;
+}
 
-// The server's answer to TILE_GET: "TileAction: <x>_<y>|<base64 rules>",
-// empty for none, "!" for a script it didn't make. { x, y, rules, other }.
+// The server's answer to TILE_GET: "TileAction: <x>_<y>|<base64 data>",
+// empty for none, "!" for a script it didn't make. { x, y, rules, walk,
+// other }. (Saved before walking rules, the data was just the rules.)
 export function parseTileReply(line) {
   const m = /^TileAction: (-?\d+)_(-?\d+)\|(.*)$/.exec(line.trim());
   if (!m) return null;
   const [, x, y, data] = m;
-  if (data === '!') return { x: Number(x), y: Number(y), rules: [], other: true };
+  if (data === '!') return { x: Number(x), y: Number(y), rules: [], walk: newWalk(), other: true };
   let rules = [newRule()];
+  let walk = newWalk();
   if (data) {
-    try { rules = JSON.parse(fromBase64(data)); } catch { /* start afresh */ }
+    try {
+      const saved = JSON.parse(fromBase64(data));
+      if (Array.isArray(saved)) rules = saved;
+      else { rules = saved.rules ?? rules; walk = saved.walk ?? walk; }
+    } catch { /* start afresh */ }
   }
-  return { x: Number(x), y: Number(y), rules, other: false };
+  return { x: Number(x), y: Number(y), rules, walk, other: false };
 }

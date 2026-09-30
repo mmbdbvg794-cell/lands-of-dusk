@@ -1,6 +1,6 @@
 // Run with: node test/dialogue.test.mjs
 import assert from 'node:assert/strict';
-import { toTileScript, tileFlagsOf, tileSaveCommand, parseTileReply, newRule } from '../js/dialogue.js';
+import { toTileScript, tileFlagsOf, tileSaveCommand, parseTileReply, newRule, newWalk, canMoveExpr, blockedText } from '../js/dialogue.js';
 import { newDialogue, toScript, toGreet, flagsOf, cleanFlag, cleanLabel, saveCommand, loadCommand, parseDialogueReply, toBase64, fromBase64 } from '../js/dialogue.js';
 
 // The wolf-pelt quest: four stages, first that fits wins.
@@ -164,14 +164,26 @@ endscript
 endscript
 `);
 assert.match(toTileScript([{ when: { kind: 'always' }, speaker: '', says: 'A cold wind blows.', effects: [] }]), /^chat trigger "A cold wind blows."$/m);
-assert.deepEqual(tileFlagsOf(door), ['newplayertrain']);
-const [th, tr, ts, tf] = tileSaveCommand(door).split('|');
+assert.deepEqual(tileFlagsOf(door, newWalk()), ['newplayertrain']);
+// The next door: only players with the tutorial flag may step on.
+const gate = { kind: 'flag', flag: 'tutorial', speaker: 'Guard', says: 'Talk to the Recruiter first.' };
+assert.equal(canMoveExpr(gate), 'hasCondition trigger tutorial');
+assert.equal(canMoveExpr({ kind: 'noflag', flag: 'banished' }), '! hasCondition trigger banished');
+assert.equal(canMoveExpr({ kind: 'nobody' }), 'false');
+assert.equal(canMoveExpr(newWalk()), '');
+assert.equal(canMoveExpr({ kind: 'flag', flag: '' }), '');
+assert.equal(blockedText(gate), 'Guard says: Talk to the Recruiter first.');
+assert.equal(blockedText({ says: 'The way is barred.' }), 'The way is barred.');
+const [th, tr, ts, tc, tb] = tileSaveCommand({ rules: door, walk: gate }).split('|');
 assert.ok(th.startsWith('tileset '));
-assert.deepEqual(JSON.parse(fromBase64(th.slice(8))), door);
+assert.deepEqual(JSON.parse(fromBase64(th.slice(8))), { rules: door, walk: gate });
 assert.equal(fromBase64(tr), toTileScript(door));
-assert.equal(ts, 'newplayertrain');
-assert.equal(tf, undefined);
-assert.deepEqual(parseTileReply(`TileAction: 127_372|${toBase64(JSON.stringify(door))}`), { x: 127, y: 372, rules: door, other: false });
-assert.deepEqual(parseTileReply('TileAction: 5_6|'), { x: 5, y: 6, rules: [newRule()], other: false });
+assert.deepEqual(ts.split(',').sort(), ['newplayertrain', 'tutorial']);
+assert.equal(fromBase64(tc), 'hasCondition trigger tutorial');
+assert.equal(fromBase64(tb), 'Guard says: Talk to the Recruiter first.');
+assert.deepEqual(parseTileReply(`TileAction: 127_372|${toBase64(JSON.stringify({ rules: door, walk: gate }))}`), { x: 127, y: 372, rules: door, walk: gate, other: false });
+// Saved before walking rules: just the rules.
+assert.deepEqual(parseTileReply(`TileAction: 127_372|${toBase64(JSON.stringify(door))}`), { x: 127, y: 372, rules: door, walk: newWalk(), other: false });
+assert.deepEqual(parseTileReply('TileAction: 5_6|'), { x: 5, y: 6, rules: [newRule()], walk: newWalk(), other: false });
 assert.equal(parseTileReply('TileAction: 38_32|!').other, true);
 console.log('ok - dialogue');

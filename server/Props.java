@@ -27,7 +27,11 @@
  * rules into the script):
  *   tileget                  "TileAction: <x>_<y>|<base64 of its rules>"
  *                            (empty for none, "!" for another script)
- *   tileset <rules>|<script>|<flag,flag>   (base64) your square's action
+ *   tileset <rules>|<script>|<flag,flag>[|<canmove>|<blocked>]   (base64)
+ *                            your square's action; canmove is who may step
+ *                            onto it (a defCanMoveScripts expression, empty
+ *                            for everyone) and blocked what they're told
+ *                            when they can't
  * The rules are kept in tileactions/<x>_<y>.json for editing again.
  * Only scripts it wrote itself (tile messages and actions) are replaced
  * or removed.
@@ -43,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.Hashtable;
 
 public class Props {
     static final String DIR = "defProps";
@@ -271,7 +276,7 @@ public class Props {
         File script = new File("defMoveActions", key);
         if (script.isFile() && !editorMade(script)) return "This square already has a walk-on script (a teleport, a trap...); it's left alone. Pick the square next to it.";
         String[] parts = args.split("\\|", -1);
-        if (parts.length != 3) return "The tile action didn't arrive whole; try saving again.";
+        if (parts.length != 3 && parts.length != 5) return "The tile action didn't arrive whole; try saving again.";
         java.util.Base64.Decoder b64 = java.util.Base64.getDecoder();
         byte[] rules = b64.decode(parts[0].trim()), code = b64.decode(parts[1].trim());
         new File(ACTIONS_DIR).mkdirs();
@@ -284,8 +289,48 @@ public class Props {
             File cond = new File("defConditions", flag);
             if (!cond.exists()) Talk.write(cond, "nodisplay\n.\n".getBytes("UTF-8"));
         }
+        String note = "";
+        if (parts.length == 5) {
+            String canMove = new String(b64.decode(parts[3].trim()), "UTF-8").trim();
+            String blocked = new String(b64.decode(parts[4].trim()), "UTF-8").trim();
+            File cm = new File("defCanMoveScripts", key);
+            if (cm.isFile() && !firstLine(cm).equals(WALK_MARK)) {
+                if (canMove.length() > 0) note = " (This square already had its own walking rule, so that part was left alone.)";
+            } else if (canMove.length() == 0) {
+                cm.delete();
+            } else {
+                Talk.write(cm, (WALK_MARK + "\n" + canMove + "\n").getBytes("UTF-8"));
+            }
+            new File(cm.getPath() + ".dsko").delete();
+            File block = new File(ACTIONS_DIR, key + ".block");
+            if (blocked.length() > 0 && canMove.length() > 0) Talk.write(block, blocked.getBytes("UTF-8"));
+            else block.delete();
+        }
         Log.logEvent(who.strName + " saved the tile action at " + key.replace('_', ','));
-        return "Saved the action on " + key.replace('_', ',') + ". Step off and back on to try it.";
+        return "Saved the action on " + key.replace('_', ',') + ". Step off and back on to try it (gods walk anywhere, so try walking rules as a player)." + note;
+    }
+
+    static final String WALK_MARK = "#Who can step here, made in the God tab.";
+    static final Hashtable<String, Long> lastBlocked = new Hashtable<String, Long>();
+
+    // A player couldn't step onto (x, y): if a tile action says why, tell
+    // them, when it's a step they tried (not the path-finder looking
+    // around), at most every few seconds.
+    static void blocked(Player who, int x, int y) {
+        try {
+            File block = new File(ACTIONS_DIR, x + "_" + y + ".block");
+            if (!block.isFile()) return;
+            boolean stepping = StackWalker.getInstance().walk(frames -> frames.anyMatch(f -> f.getMethodName().equals("moveTo") || f.getMethodName().equals("changeLoc")));
+            if (!stepping) return;
+            String k = who.strName + "|" + x + "_" + y;
+            long now = System.currentTimeMillis();
+            Long last = lastBlocked.get(k);
+            if (last != null && now - last.longValue() < 3000) return;
+            lastBlocked.put(k, Long.valueOf(now));
+            who.chatMessage(new String(java.nio.file.Files.readAllBytes(block.toPath()), "UTF-8").trim());
+        } catch (Exception e) {
+            Log.logError(e, "Props.blocked", false);
+        }
     }
 
     // A walk-on script made here (a tile message or action), not by hand.
@@ -308,6 +353,9 @@ public class Props {
             f.delete();
             new File(f.getPath() + ".dsko").delete();
             new File(ACTIONS_DIR, who.intLocX + "_" + who.intLocY + ".json").delete();
+            new File(ACTIONS_DIR, who.intLocX + "_" + who.intLocY + ".block").delete();
+            File cm = new File("defCanMoveScripts", who.intLocX + "_" + who.intLocY);
+            if (cm.isFile() && firstLine(cm).equals(WALK_MARK)) { cm.delete(); new File(cm.getPath() + ".dsko").delete(); }
             return "This square's message or action is gone.";
         }
         if (!ours) return "This square already has a walk-on script (a teleport, a trap...); it's left alone. Pick the square next to it.";

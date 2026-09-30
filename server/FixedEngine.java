@@ -53,6 +53,15 @@ public class FixedEngine extends DuskEngine {
         }
     }
 
+    // 4. A square that won't let a player on (a tile action's "who can step
+    //    here") says why, when they try.
+    @Override
+    boolean canMoveTo(int x, int y, LivingThing who) {
+        boolean ok = super.canMoveTo(x, y, who);
+        if (!ok && who instanceof Player) Props.blocked((Player) who, x, y);
+        return ok;
+    }
+
     @Override
     void removeDuskObject(DuskObject duskObject) {
         closing.set(duskObject);

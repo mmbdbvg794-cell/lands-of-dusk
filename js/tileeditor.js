@@ -3,10 +3,11 @@
 // each can say something and do things (set flags, give items...).
 // js/dialogue.js turns them into the square's walk-on script.
 
-import { newRule, tileSaveCommand, TILE_GET } from './dialogue.js';
+import { newRule, newWalk, tileSaveCommand, TILE_GET } from './dialogue.js';
 import { tileClear } from './god.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
+const WALK = [['everyone', 'Everyone (as normal)'], ['flag', 'Only players with flag'], ['noflag', "Only players without flag"], ['nobody', 'Nobody']];
 const EFFECTS = [
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['give', 'Give item'], ['take', 'Take item'],
   ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['teleport', 'Teleport to'],
@@ -46,7 +47,7 @@ export class TileEditor {
     }, 5000);
   }
 
-  loaded({ x, y, rules, other }) {
+  loaded({ x, y, rules, walk, other }) {
     if (!this.open) return;
     clearTimeout(this.timer);
     this.el.querySelector('.de-title').textContent = `Tile action at ${x}, ${y}`;
@@ -58,6 +59,7 @@ export class TileEditor {
       return;
     }
     this.rules = rules.length ? rules : [newRule()];
+    this.walk = walk ?? newWalk();
     this.render();
   }
 
@@ -67,7 +69,7 @@ export class TileEditor {
 
   save() {
     if (!this.rules) return;
-    this.send(tileSaveCommand(this.rules));
+    this.send(tileSaveCommand({ rules: this.rules, walk: this.walk }));
     this.close();
   }
 
@@ -122,7 +124,20 @@ export class TileEditor {
         ...effects,
         h('div', { className: 'de-row' }, button('+ Effect', () => { r.effects.push({ kind: 'flag' }); again(); }, 'de-small')));
     });
+    // Who may step onto the square at all.
+    const w = this.walk;
+    const walk = h('section', { className: 'de-stage' },
+      h('div', { className: 'de-row de-stage-head' }, h('strong', { textContent: 'Who can step onto this square' })),
+      h('div', { className: 'de-row' },
+        select(WALK, w.kind, (v) => { w.kind = v; again(); }),
+        w.kind === 'flag' || w.kind === 'noflag' ? input(w.flag, 'flag name, e.g. tutorial', (v) => { w.flag = v; }) : null),
+      w.kind === 'everyone' ? null : h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'If not' }),
+        input(w.speaker, 'Who says it (optional)', (v) => { w.speaker = v; }, { className: 'de-label' }),
+        input(w.says, 'What they\'re told, e.g. Talk to the Recruiter first.', (v) => { w.says = v; })),
+      w.kind === 'everyone' ? null : h('p', { className: 'de-hint', textContent: 'Gods walk anywhere, so try this as a player.' }));
     this.body.replaceChildren(
+      walk,
+      h('h4', { className: 'list-head', textContent: 'When someone steps here' }),
       h('p', { className: 'de-hint', textContent: 'Runs every time someone steps on this square. Rules are checked from the top; the first whose "When" fits is used, so put "Always" last. Tip: set a flag here (e.g. newplayertrain) for an NPC stage further on to check.' }),
       ...rules,
       h('div', { className: 'de-row' }, button('+ Rule', () => { this.rules.splice(Math.max(0, this.rules.length - (this.rules.at(-1)?.when.kind === 'always' ? 1 : 0)), 0, { ...newRule(), when: { kind: 'noflag', value: '' } }); again(); })),
