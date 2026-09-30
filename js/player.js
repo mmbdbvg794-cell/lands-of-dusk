@@ -85,10 +85,13 @@ export class Player {
 }
 
 // The commands the server's Commands.java expects: drop, wear and unwear
-// take an item ID; use looks the item up by name.
+// take an item ID, and so does use (LivingThing.useItem reads a number,
+// or a name only in quotes: "use Red Potion" fails with a
+// NumberFormatException on the server).
 export const command = {
   wear: (id) => `wear ${id}`,
   unwear: (id) => `unwear ${id}`,
   drop: (id) => `drop ${id}`,
-  use: (name) => `use ${name}`,
+  use: (id) => `use ${id}`,
+  useByName: (name) => `use "${name}"`,
 };

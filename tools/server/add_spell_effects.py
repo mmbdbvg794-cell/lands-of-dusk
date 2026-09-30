@@ -41,21 +41,23 @@ def who_did(line):
     return None
 
 
-def fx_line(indent, code, kind, who):
+def fx_line(indent, code, kind, who, eol):
     base = 100000000 + code * 10000000
     return [
-        f"{indent}{MARK} ({kind}) for everyone nearby: see js/spells.js\n",
-        f"{indent}playsound + {base} + * {who} locx 3000 {who} locy {who} locx {who} locy\n",
+        f"{indent}{MARK} ({kind}) for everyone nearby: see js/spells.js{eol}",
+        f"{indent}playsound + {base} + * {who} locx 3000 {who} locy {who} locx {who} locy{eol}",
     ]
 
 
 def add_effects(text, code, kind):
+    # Keep the file's own line endings (some scripts are Windows CRLF).
+    eol = "\r\n" if "\r\n" in text else "\n"
     lines = text.splitlines(keepends=True)
     out = []
     last_who = None  # who the current run of work lines was done to
     added = 0
     for line in lines:
-        out.append(line if line.endswith("\n") else line + "\n")
+        out.append(line if line.endswith("\n") else line + eol)
         who = who_did(line)
         if who is None:
             # Anything else ends a run (chat lines don't, so a run can
@@ -66,7 +68,7 @@ def add_effects(text, code, kind):
         if who == last_who:
             continue
         indent = re.match(r"[ \t]*", line).group(0)
-        out.extend(fx_line(indent, code, kind, who))
+        out.extend(fx_line(indent, code, kind, who, eol))
         last_who = who
         added += 1
     return "".join(out), added
@@ -79,13 +81,15 @@ def main(kinds_file, folder):
         if not os.path.isfile(path):
             print(f"skip {name}: no such file")
             continue
-        text = open(path, encoding="latin-1").read()
+        with open(path, encoding="latin-1", newline="") as f:
+            text = f.read()
         if "playsound + 1" in text:
             print(f"skip {name}: already has an effect")
             continue
         new, added = add_effects(text, k["code"], k["kind"])
         if added:
-            open(path, "w", encoding="latin-1").write(new)
+            with open(path, "w", encoding="latin-1", newline="") as f:
+                f.write(new)
         print(f"{name} ({k['spell']}, {k['kind']}): {added} effect line(s)")
 
 

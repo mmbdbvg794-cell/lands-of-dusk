@@ -131,8 +131,18 @@ export class Hotbar {
       const target = s.aim === 'target' ? this.context().target : null;
       this.send(castCommand(s.spell, target ? target.name.replace(/^(<[^>]*>)+/, '') : ''));
     } else {
-      this.send(s.cmd);
+      this.send(this.resolveUse(s.cmd));
     }
+  }
+
+  // "use <item name>" slots: the server wants the item's ID, which changes
+  // from copy to copy, so look up one we're carrying now; failing that,
+  // the name in quotes, which it also accepts.
+  resolveUse(cmd) {
+    const m = cmd.match(/^use\s+(?!\d+$)(?!")(.+)$/i);
+    if (!m) return cmd;
+    const id = this.context().itemId?.(m[1].trim());
+    return id != null ? `use ${id}` : `use "${m[1].trim()}"`;
   }
 
   render() {

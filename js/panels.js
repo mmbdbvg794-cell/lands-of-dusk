@@ -102,7 +102,7 @@ export class Panels {
       }
       this.disarmDrop();
     }
-    this.send(cmd === 'use' ? command.use(name) : command[cmd](id));
+    this.send(command[cmd](id));
   }
 
   disarmDrop() {

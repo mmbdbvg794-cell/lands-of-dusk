@@ -75,6 +75,7 @@ const hotbar = new Hotbar($('hotbar'), $('hotbar-picker'), $('map-wrap'), {
     spells: parseStats(player.stats).sections.find((s) => /spell/i.test(s.title))?.items ?? [],
     actions: player.actions,
     items: player.groupedItems().map((g) => g.name),
+    itemId: (name) => player.items.find((i) => i.name.toLowerCase() === name.toLowerCase())?.id ?? null,
     target: world.entities.get(targetId) ?? null,
   }),
   load: (key) => storage('get', key),

@@ -61,5 +61,6 @@ assert.equal(slotForType(10), null);
 assert.equal(command.wear(3), 'wear 3');
 assert.equal(command.unwear(2), 'unwear 2');
 assert.equal(command.drop(7), 'drop 7');
-assert.equal(command.use('apple'), 'use apple');
+assert.equal(command.use(7), 'use 7');
+assert.equal(command.useByName('Red Potion'), 'use "Red Potion"');
 console.log('ok - player state');
