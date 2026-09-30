@@ -16,6 +16,8 @@ import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS } from './god.js';
 import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
 import { GodPanel } from './godpanel.js';
+import { DialogueEditor } from './dialogueeditor.js';
+import { parseDialogueReply } from './dialogue.js';
 import { Minimap } from './minimap.js';
 import { WorldMap } from './worldmap.js';
 import { Panels, setBar } from './panels.js';
@@ -115,11 +117,22 @@ const god = new GodPanel($('tab-god'), {
   note: (t) => sysLine(t),
   tileSheet: () => renderer.sheets?.map ?? null,
   itemArt: () => renderer.items,
+  people: () => renderer.propPeople,
+  onNpcPlaced: (name) => dialogueEditor.edit(name),
   // Popped out, the tab isn't needed; docked, it comes back and opens.
   onFloat: (out) => {
     panels.setTabVisible('god', isGod && !out);
     if (!out && isGod) panels.selectByName('god', true);
   },
+});
+// The dialogue editor (gods): from an NPC's click menu or the God tab.
+const dialogueEditor = new DialogueEditor($('dialogue-editor'), {
+  send: (cmd, opts) => {
+    if (opts?.quiet) { if (conn?.connected) conn.send(cmd); } else runCommand(cmd);
+    // After a save, the new NPC may now have something to say.
+    if (/^talkedit set /.test(cmd) && conn?.connected) conn.send(TALKERS);
+  },
+  items: () => god.lists.items ?? [],
 });
 function setGod(on) {
   isGod = on;
@@ -137,6 +150,7 @@ const entityMenu = new EntityMenu(
   () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id, talkers, looks: renderer.propLooks }),
 );
 // Gods rename signs and change what they say.
+entityMenu.onDialogue = (name) => dialogueEditor.edit(name);
 entityMenu.onSign = (what, id) => {
   const ent = world.entities.get(id);
   const answer = window.prompt(what === 'name' ? `Call this sign (now "${ent ? bareName(ent.name) : 'sign'}"):` : 'What should the sign say?');
@@ -977,6 +991,8 @@ function handle(msg) {
       // The "talk names" answer is for the menu, not the chat.
       const names = parseTalkers(msg.text);
       if (names) { talkers = names; renderer.talkers = names; renderer.invalidate(); break; }
+      const dlgReply = parseDialogueReply(msg.text);
+      if (dlgReply) { dialogueEditor.loaded(dlgReply); break; }
       const looks = parseLooks(msg.text);
       if (looks) { renderer.propLooks = looks; renderer.invalidate(); break; }
       const sp = parseSpeech(msg.text);
@@ -1202,6 +1218,12 @@ function targetCommand(cmd) {
 // typed.
 function runCommand(cmd) {
   if (!conn?.connected) return;
+  // The dialogue editor's save is one long line of base64: don't echo it.
+  if (/^talkedit set /.test(cmd)) {
+    conn.send(cmd);
+    echoLine(`talkedit set ${cmd.slice(13).split('|')[0]} (dialogue)`);
+    return;
+  }
   if (/^talk \d/.test(cmd)) talkHold = Date.now() + 4000;
   answeredSpeech();
   conn.send(cmd);

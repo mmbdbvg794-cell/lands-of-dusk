@@ -48,8 +48,9 @@ export function entityActions(ent, me) {
     acts.unshift(within ? { label: 'Talk', cmd: talkCommand(ent.id) } : { label: `Go talk to ${name}`, cmd: `goto ${ent.x} ${ent.y}` });
   }
   if (!me.god || ent.type === TYPE.PLAYER) return acts;
-  // Signs can be renamed and rewritten.
+  // Signs can be renamed and rewritten; NPCs given something to say.
   if (isSign(ent)) acts.push({ label: 'Rename (god)', sign: 'name', god: true }, { label: 'Edit text (god)', sign: 'text', god: true });
+  else if (!isStorage(ent) && (ent.type === TYPE.SIGN || ent.type === TYPE.MOB || ent.type === TYPE.MERCHANT)) acts.push({ label: 'Edit dialogue (god)', dialogue: name, god: true });
   if (isStorage(ent)) {
     if (ent.x === me.x && ent.y === me.y) acts.push({ label: 'Remove (god)', cmd: 'storage remove', god: true });
     else acts.push({ label: 'Remove (god)', disabled: true, hint: 'stand on it', god: true });

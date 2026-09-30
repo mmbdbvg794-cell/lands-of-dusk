@@ -7,10 +7,10 @@
 import { place, SAVE_MAP, listCommand, search, teleport, wizinvis, addWare, removeWare, SAVED_KINDS, PROP_LOOKS } from './god.js';
 
 const KINDS = [
-  ['item', 'Item'], ['mob', 'Mob'], ['prop', 'Prop'], ['storage', 'Storage'],
+  ['npc', 'NPC'], ['item', 'Item'], ['mob', 'Mob'], ['prop', 'Prop'], ['storage', 'Storage'],
   ['sign', 'Sign'], ['merchant', 'Merchant'], ['tile', 'Tile'],
 ];
-const LISTED = { item: 'items', mob: 'mobs', prop: 'props' };
+const LISTED = { npc: 'props', item: 'items', mob: 'mobs', prop: 'props' };
 const SHOWN = 150; // list rows shown at once; searching narrows the rest
 
 export class GodPanel {
@@ -19,8 +19,12 @@ export class GodPanel {
   // itemArt() is { sheet, index } for items drawn by name, or null.
   // onFloat(out) is told when the panel pops out into its own window (so
   // the tab can hide) or docks back.
-  constructor(tab, { send, note, tileSheet, itemArt, onFloat }) {
+  // people() is the set of props that are people (lower case), for NPC
+  // looks; onNpcPlaced(name) opens the dialogue editor for a new NPC.
+  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced }) {
     this.tab = tab;
+    this.people = people;
+    this.onNpcPlaced = onNpcPlaced;
     this.onFloat = onFloat;
     this.floating = null; // the floating window, while popped out
     this.send = send;
@@ -30,7 +34,7 @@ export class GodPanel {
     this.lists = { items: null, mobs: null, props: null };
     this.requested = new Set();
     this.kind = 'item';
-    this.chosen = { item: null, mob: null, prop: null, tile: null };
+    this.chosen = { npc: null, item: null, mob: null, prop: null, tile: null };
     this.unsaved = 0;
     this.pos = null;
     this.merchant = null;
@@ -156,7 +160,7 @@ export class GodPanel {
 
     this.root = h('div', { className: 'god-root' }, head, $.kinds, $.listBox, $.textBox, $.tiles, placeRow, $.merchant, tools, hint);
     this.tab.replaceChildren(this.root);
-    this.setKind('item');
+    this.setKind('npc');
     this.renderUnsaved();
   }
 
@@ -269,7 +273,9 @@ export class GodPanel {
     const listed = !!LISTED[kind];
     $.listBox.hidden = !listed;
     $.level.hidden = kind !== 'mob';
-    $.propNameRow.hidden = kind !== 'prop';
+    $.propNameRow.hidden = kind !== 'prop' && kind !== 'npc';
+    $.propName.placeholder = kind === 'npc' ? 'Name, e.g. Elder Martha' : 'Name it (optional), e.g. George';
+    $.place.textContent = kind === 'npc' ? 'Place & edit dialogue' : 'Place here';
     $.textBox.hidden = !['sign', 'merchant', 'storage'].includes(kind);
     $.storageKind.hidden = kind !== 'storage';
     $.signName.hidden = kind !== 'sign';
@@ -294,8 +300,10 @@ export class GodPanel {
       $.listNote.hidden = false;
       return;
     }
-    const hits = search(names, $.search.value, SHOWN);
-    const total = $.search.value.trim() ? search(names, $.search.value, Infinity).length : names.length;
+    // NPCs: only the props that are people.
+    const pool = this.kind === 'npc' ? names.filter((n) => this.people?.()?.has(n.toLowerCase())) : names;
+    const hits = search(pool, $.search.value, SHOWN);
+    const total = $.search.value.trim() ? search(pool, $.search.value, Infinity).length : pool.length;
     $.list.replaceChildren(...hits.map((n) => {
       const li = document.createElement('li');
       li.dataset.name = n;
@@ -332,13 +340,14 @@ export class GodPanel {
     const ctx = $.preview.getContext('2d');
     ctx.clearRect(0, 0, 48, 48);
     let label = '';
-    if (LISTED[k]) label = this.chosen[k] ?? `Pick a ${k} from the list`;
+    if (LISTED[k]) label = this.chosen[k] ?? (k === 'npc' ? 'Pick how the NPC looks' : `Pick a ${k} from the list`);
     else if (k === 'tile') label = this.chosen.tile == null ? 'Pick a tile' : `Tile ${this.chosen.tile}`;
     else label = { sign: 'A sign', merchant: 'A merchant', storage: 'Shared storage' }[k];
     $.choice.textContent = label;
     // A picture where the client has one: items drawn by name, and tiles.
     const art = this.itemArt();
-    const i = k === 'item' && this.chosen.item != null ? art?.index.get(this.chosen.item.toLowerCase()) : undefined;
+    const chosen = this.chosen[k];
+    const i = chosen == null ? undefined : k === 'item' ? art?.index.get(chosen.toLowerCase()) : k === 'prop' || k === 'npc' ? art?.index.get(`prop ${chosen.toLowerCase()}`) : undefined;
     if (i !== undefined) art.sheet.draw(ctx, i, 0, 0, 48);
     else if (k === 'tile' && this.chosen.tile != null) this.tileSheet()?.draw(ctx, this.chosen.tile, 0, 0, 48);
     else if (k === 'storage' && art) {
@@ -357,7 +366,8 @@ export class GodPanel {
     if (LISTED[k]) {
       const name = this.chosen[k];
       if (!name) return this.note(`Pick a ${k} from the list first.`);
-      const own = k === 'prop' ? $.propName.value.trim() : '';
+      const own = k === 'prop' || k === 'npc' ? $.propName.value.trim() : '';
+      if (k === 'npc' && !own) return this.note('Give the NPC a name first, so it can have dialogue of its own.');
       cmd = k === 'mob' ? place.mob(name, $.level.value) : own ? place.namedProp(name, own) : place[k](name);
       what = own ? `${own} (a ${name})` : name;
     } else if (k === 'tile') {
@@ -378,13 +388,14 @@ export class GodPanel {
       cmd = place.storage($.storageKind.value, $.text.value.trim());
       what = `a ${$.storageKind.value}`;
     }
-    this.run(cmd, k);
+    this.run(cmd, k === 'npc' ? 'prop' : k);
     // The server says nothing when placing works, so say it here (a named
     // prop and storage answer for themselves).
-    const named = k === 'prop' && $.propName.value.trim();
+    const named = (k === 'prop' || k === 'npc') && $.propName.value.trim();
     if (named) {
       this.send(PROP_LOOKS, { quiet: true }); // so it's drawn right away
       $.propName.value = '';
+      if (k === 'npc') this.onNpcPlaced?.(named);
     } else if (k !== 'storage') this.note(`Placed ${what}${at}.`);
   }
 

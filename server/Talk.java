@@ -21,6 +21,15 @@
  *   talk <id>     talk to the NPC with that ID
  *   talk names    which NPCs have something to say (for the client's menu)
  *
+ * The God tab's dialogue editor (js/dialogue.js) writes these files for
+ * gods, so conversations can be made in the game:
+ *   talkedit get <name>   "Dialogue: <name>|<base64 of its .dlg>" (empty
+ *                         for none, "!" for a hand-written script)
+ *   talkedit set <name>|<dlg>|<script>|<greet>|<flag,flag>   (base64)
+ *     writes talk/<name>.dlg (the editor's own copy), talk/<name> and
+ *     talk/<name>.greet, and a hidden condition file for each flag the
+ *     dialogue uses; a hand-written script it replaces is backed up.
+ *
  * Commands.parseCommand hands commands here after Storage; DuskServer
  * calls Talk.start after the engine starts.
  *
@@ -48,6 +57,7 @@ public class Talk {
     public static String command(LivingThing who, DuskEngine engine, String line) {
         if (line == null) return null;
         String lower = line.trim().toLowerCase();
+        if (lower.startsWith("talkedit ")) return edit(who, line.trim().substring(9).trim());
         if (!(lower.equals("talk") || lower.startsWith("talk "))) return null;
         if (!(who instanceof Player)) return "Only players can talk to people.";
         String arg = lower.substring(4).trim();
@@ -96,11 +106,73 @@ public class Talk {
         return "";
     }
 
+    // ---- the dialogue editor ----
+
+    static final int GOD_PRIVS = 3;
+
+    static String edit(LivingThing who, String args) {
+        if (who.privs < GOD_PRIVS) return "Only gods can edit dialogue.";
+        try {
+            if (args.toLowerCase().startsWith("get ")) {
+                String name = args.substring(4).trim();
+                if (!safeName(name)) return "That isn't a name an NPC can have.";
+                String file = CaseFix.file(DIR, name);
+                File dlg = new File(DIR, file + ".dlg");
+                if (dlg.isFile()) return "Dialogue: " + name + "|" + java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(dlg.toPath()));
+                return "Dialogue: " + name + "|" + (new File(DIR, file).isFile() ? "!" : "");
+            }
+            if (args.toLowerCase().startsWith("set ")) {
+                String[] parts = args.substring(4).split("\\|", -1);
+                if (parts.length != 5) return "The dialogue didn't arrive whole; try saving again.";
+                String name = parts[0].trim();
+                if (!safeName(name)) return "That isn't a name an NPC can have.";
+                java.util.Base64.Decoder b64 = java.util.Base64.getDecoder();
+                byte[] dlg = b64.decode(parts[1].trim()), script = b64.decode(parts[2].trim()), greet = b64.decode(parts[3].trim());
+                new File(DIR).mkdirs();
+                String file = CaseFix.file(DIR, name);
+                File scriptFile = new File(DIR, file), dlgFile = new File(DIR, file + ".dlg");
+                // A script not made by the editor is kept before it's replaced.
+                if (scriptFile.isFile() && !dlgFile.isFile()) {
+                    new File("backups").mkdirs();
+                    java.nio.file.Files.copy(scriptFile.toPath(), new File("backups", "talk-" + file + "-" + System.currentTimeMillis()).toPath());
+                }
+                write(dlgFile, dlg);
+                write(scriptFile, script);
+                File greetFile = new File(DIR, file + ".greet");
+                if (greet.length > 0) write(greetFile, greet);
+                else greetFile.delete();
+                new File(DIR, file + ".dsko").delete();
+                for (String flag : parts[4].split(",")) {
+                    flag = flag.trim().toLowerCase();
+                    if (!flag.matches("[a-z0-9_]{1,40}")) continue;
+                    File cond = new File("defConditions", flag);
+                    if (!cond.exists()) write(cond, "nodisplay\n.\n".getBytes("UTF-8"));
+                }
+                Log.logEvent(who.strName + " saved the dialogue of " + file);
+                return "Saved " + file + "'s dialogue. Talk to them to try it.";
+            }
+        } catch (Exception e) {
+            Log.logError(e, "talkedit by " + who.strName, false);
+            return "The dialogue couldn't be saved.";
+        }
+        return "Usage: talkedit get <name> | talkedit set ...";
+    }
+
+    static boolean safeName(String n) {
+        return n.length() > 0 && n.length() <= 40 && n.indexOf('/') < 0 && n.indexOf('\\') < 0 && !n.startsWith(".") && n.indexOf('|') < 0;
+    }
+
+    static void write(File f, byte[] data) throws Exception {
+        File tmp = new File(f.getPath() + ".new");
+        java.nio.file.Files.write(tmp.toPath(), data);
+        java.nio.file.Files.move(tmp.toPath(), f.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+    }
+
     // The talk/ script for an NPC's name, or null.
     static String scriptFor(String npcName) {
         String name = bare(npcName);
         String file = CaseFix.file(DIR, name);
-        if (file.endsWith(".greet") || file.endsWith(".dsko")) return null;
+        if (file.endsWith(".greet") || file.endsWith(".dsko") || file.endsWith(".dlg")) return null;
         return new File(DIR, file).isFile() ? file : null;
     }
 
@@ -111,7 +183,7 @@ public class Talk {
         if (names == null) return out;
         for (int i = 0; i < names.length; i++) {
             String n = names[i];
-            if (n.startsWith(".") || n.endsWith(".dsko") || n.endsWith(".greet")) continue;
+            if (n.startsWith(".") || n.endsWith(".dsko") || n.endsWith(".greet") || n.endsWith(".dlg") || n.endsWith(".new")) continue;
             out.addElement(n);
         }
         return out;
