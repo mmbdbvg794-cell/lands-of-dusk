@@ -2,7 +2,7 @@
 # Builds the Painted art style from the server's sprite sheets, by running
 # tools/paintart in headless Chrome:
 #   art/painted/map.png      map tiles (painter.js)
-#   art/painted/players.png  characters, drawn fresh (people.js)
+#   art/painted/players.png  characters, drawn fresh (js/figure.js)
 #   art/painted/sprites.png  creatures, items and props: the most common
 #                            drawn fresh (creatures.js), the rest filtered
 #                            (figures.js)
@@ -21,7 +21,7 @@ CHROME=${CHROME:-$(ls -d "$HOME"/.cache/ms-playwright/chromium_headless_shell-*/
 
 work=$(mktemp -d)
 trap 'kill $server 2>/dev/null; rm -rf "$work"' EXIT
-cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js tools/paintart/people.js tools/paintart/creatures.js tools/paintart/bestiary.js "$work/"
+cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js js/figure.js tools/paintart/creatures.js tools/paintart/bestiary.js "$work/"
 # The server's creature names, for the named sheet.
 ssh -o BatchMode=yes duskserver 'cd ~/DuskRPG && python3 -c "import os, json; print(json.dumps(sorted(m for m in os.listdir(\"defMobs\") if not m.endswith(\".dsko\"))))"' > "$work/mobnames.json"
 for name in map players sprites; do

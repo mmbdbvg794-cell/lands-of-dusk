@@ -10,6 +10,7 @@ import { parseStats } from './stats.js';
 import { bareName } from './world.js';
 import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
+import { gearFromEquipment } from './gear.js';
 import { Minimap } from './minimap.js';
 import { Panels, setBar } from './panels.js';
 import { Player } from './player.js';
@@ -738,6 +739,7 @@ function handle(msg) {
   if (part) {
     panels.update(part);
     if (part === 'status') showPanels();
+    if (part === 'equipment') dressSelf();
   }
   // On a merchant's square? (Dusk.java enables its Merchant button this way.)
   if (msg.op === OP.MAP || msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || (msg.op >= OP.MOVE_NORTH && msg.op <= OP.MOVE_EAST)) {
@@ -849,6 +851,11 @@ $('art-toggle').addEventListener('click', (e) => {
 $('art-style').value = artStyle;
 for (const b of document.querySelectorAll('#art-toggle [data-art]')) b.setAttribute('aria-checked', String(b.dataset.art === artStyle));
 
+// In the Painted style your own character wears what you have equipped.
+function dressSelf() {
+  renderer.setGear(artStyle === 'painted' ? gearFromEquipment(player.equipment) : null);
+}
+
 async function applyArt() {
   let sheets = pixelSheets;
   if (artStyle === 'painted' && pixelSheets) {
@@ -878,6 +885,7 @@ async function applyArt() {
   } else {
     renderer.named = null;
   }
+  dressSelf();
   renderer.setSheets(sheets);
   minimap.setSheet(sheets.map);
   if (sheets.players) playerSheet = sheets.players;

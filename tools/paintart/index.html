@@ -2,14 +2,14 @@
 <meta charset="utf-8">
 <title>Paint art</title>
 <!-- Generates the Painted sheets from the server's originals (next to this
-     page): map.gif via painter.js, characters drawn fresh by people.js (one
+     page): map.gif via painter.js, characters drawn fresh by figure.js (one
      look per players.gif image), creatures and items via figures.js.
      Each result is left in <pre id="<name>"> as a data: URL for the caller. -->
 <body style="background:#222">
 <script type="module">
   import { paintSheet } from './painter.js';
   import { paintFigureSheet } from './figures.js';
-  import { paintPeopleSheet } from './people.js';
+  import { paintPeopleSheet } from './figure.js';
   import { paintCreatures } from './creatures.js';
   import { paintNamedSheet } from './bestiary.js';
   const load = (src) => new Promise((resolve, reject) => {

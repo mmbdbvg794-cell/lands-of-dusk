@@ -7,7 +7,7 @@
 // "named" sheet, plus an index from name to frame. Names with no family
 // keep their picture's art.
 
-import { paintPerson } from './people.js';
+import { paintPerson } from './figure.js';
 
 const OUT = 256;
 
@@ -310,15 +310,20 @@ const ARMOURS = [
 ];
 function person(ctx, name) {
   let look = CIVILIAN[Math.floor(hash(name) * CIVILIAN.length)];
+  let gear = {};
   for (const [re, [metal, trim]] of ARMOURS) {
-    if (re.test(name)) { look = { skin: '#c89468', top: metal, trim, legs: metal, boots: '#1a1818', style: 'armour', helm: metal }; break; }
+    if (re.test(name)) {
+      look = { skin: '#c89468', top: metal, trim, legs: metal, boots: '#1a1818', style: 'armour', helm: metal };
+      gear = { weapon: { kind: /gladiator/.test(name) ? 'spear' : 'sword', colour: '#c8ccd4' }, shield: { colour: trim } };
+      break;
+    }
   }
-  if (/hunter/.test(name)) look = { ...CIVILIAN[1], top: '#4a6a2a', trim: '#6a4a24' };
-  if (/thief|stalker|assassin/.test(name)) look = { ...CIVILIAN[3], top: '#2a2a2e', trim: '#1a1a1e', legs: '#1e1e22', hair: '#1a1a1a' };
+  if (/hunter/.test(name)) { look = { ...CIVILIAN[1], top: '#4a6a2a', trim: '#6a4a24' }; gear = { weapon: { kind: 'bow', colour: '#74502c' } }; }
+  if (/thief|stalker|assassin/.test(name)) { look = { ...CIVILIAN[3], top: '#2a2a2e', trim: '#1a1a1e', legs: '#1e1e22', hair: '#1a1a1a' }; gear = { weapon: { kind: 'dagger', colour: '#c8ccd4' } }; }
   ctx.save();
   ctx.translate(OUT * 0.5 - 144 * 0.85, OUT - 144 * 1.7 - 4);
   ctx.scale(1.7, 1.7);
-  paintPerson(ctx, look, 's', false);
+  paintPerson(ctx, look, 's', false, gear);
   ctx.restore();
 }
 

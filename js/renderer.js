@@ -4,6 +4,8 @@
 
 import { HIT_MS, bareName } from './world.js';
 import { drawEffect } from './effects.js';
+import { LOOKS, OUT, paintFigureStrip } from './figure.js';
+import { gearKey } from './gear.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
 
@@ -20,6 +22,10 @@ export class Renderer {
     // Painted style only: creature art by name ({ sheet, index: Map }),
     // for creatures that share a picture with others (see bestiary.js).
     this.named = null;
+    // Painted style only: what the player is wearing (gear.js), drawn on
+    // their own character; null draws them from the players sheet.
+    this.gear = null;
+    this.outfit = null; // { key, strip }: the last dressed figure
     this.cell = 0;
     this.pending = false;
     new ResizeObserver(() => this.resize()).observe(box);
@@ -95,6 +101,7 @@ export class Renderer {
     ctx.font = `${fontPx}px system-ui, sans-serif`;
     ctx.textBaseline = 'alphabetic';
     const where = new Map();
+    const self = this.gear ? world.self() : null;
     for (const e of list) {
       const pos = world.visualPos(e, now);
       const [px, py] = toPx(pos.x, pos.y);
@@ -111,6 +118,7 @@ export class Renderer {
       const byName = step === -1 && e.type === 4 && this.named?.index.get(bareName(e.name).toLowerCase());
       if (byName !== undefined && byName !== false) this.named.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
+      else if (e === self) this.drawDressed(e.image, step, px, py, c);
       else players?.draw(ctx, e.image * 8 + step, px, py, c);
 
       if (names && !e.hideName) {
@@ -128,6 +136,21 @@ export class Renderer {
     this.drawEffects(where, now, c, toPx(cam.x, cam.y), toPx);
     this.drawHits(where, now, c);
     if (world.animating(now)) this.invalidate();
+  }
+
+  // The player's own figure wearing their gear, painted once per change of
+  // gear (8 frames) and kept.
+  drawDressed(image, step, px, py, c) {
+    const key = `${image} ${gearKey(this.gear)}`;
+    if (this.outfit?.key !== key) this.outfit = { key, strip: paintFigureStrip(LOOKS[image] ?? LOOKS[0], this.gear) };
+    this.ctx.imageSmoothingEnabled = true;
+    this.ctx.imageSmoothingQuality = 'high';
+    this.ctx.drawImage(this.outfit.strip, step * OUT, 0, OUT, OUT, px, py, c, c);
+  }
+
+  setGear(gear) {
+    this.gear = gear;
+    this.invalidate();
   }
 
   // Spell effects over whoever they're on; 'self' is the player, or the
