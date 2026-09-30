@@ -38,6 +38,18 @@ The sprite sheets load from the address the server sends in opcode 1
 (`rcaddress` in the server's `conf/prefs`). If that fails, the client tries
 the game server's own ResourceServer on the bridge's host, port 8000.
 
+## Playing
+
+- From anywhere: https://duskserver.tailaee0f2.ts.net/play/ (public, via
+  Tailscale Funnel; the page connects to the bridge at
+  wss://duskserver.tailaee0f2.ts.net/ws by itself).
+- On the LAN: http://192.168.4.61:8080/
+
+Funnel routes on duskserver (change them with `sudo tailscale funnel`,
+not `tailscale serve`, which turns Funnel off for the whole address):
+`/` → 127.0.0.1:8000 (the game's ResourceServer), `/play` →
+192.168.4.61:8080 (serve.py), `/ws` → 127.0.0.1:8765 (dusk_bridge.py).
+
 ## Running
 
 The page uses ES modules, which browsers won't load from `file://`, so
