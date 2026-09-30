@@ -1,0 +1,49 @@
+#The Bank Teller (see server/Talk.java): balance, deposits and withdrawals
+#with the bank's own commands (commands/balance, deposit, withdraw), so
+#it's the same gold as the bank. Those only work at the bank
+#(atCoLBank), so the teller opens it for the visit and closes it after.
+chat trigger "Bank Teller says: Welcome to the bank! What can I do for you? (balance/deposit/withdraw/nothing)"
+input trigger answer
+if strequals answer "nothing"
+	chat trigger "Bank Teller says: Very well. Come again!"
+	endscript
+end
+if ! strequals answer "balance"
+	if ! strequals answer "deposit"
+		if ! strequals answer "withdraw"
+			chat trigger "Bank Teller says: I'm sorry, I didn't catch that. Talk to me again whenever you're ready."
+			endscript
+		end
+	end
+end
+number wasAtBank 0
+if hasCondition trigger atCoLBank
+	number wasAtBank 1
+end
+addCondition trigger atCoLBank
+if strequals answer "balance"
+	runScriptWithVariables "../commands/balance"
+end
+if strequals answer "deposit"
+	number carrying trigger cash
+	chat trigger concat concat "Bank Teller asks: How much would you like to deposit? You're carrying " carrying " gp. (10/100/1000/all)"
+	input trigger amount
+	if strequals amount "all"
+		string amount "2147483647"
+	end
+	string param0 amount
+	runScriptWithVariables "../commands/deposit"
+end
+if strequals answer "withdraw"
+	chat trigger "Bank Teller asks: How much would you like to withdraw? (10/100/1000/all)"
+	input trigger amount
+	if strequals amount "all"
+		string amount "2147483647"
+	end
+	string param0 amount
+	runScriptWithVariables "../commands/withdraw"
+end
+if ! > wasAtBank 0
+	removeCondition trigger atCoLBank
+end
+endscript

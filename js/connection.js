@@ -75,7 +75,11 @@ export class DuskConnection extends EventTarget {
         this.send('applicationimages');
         break;
       case OP.NOT_DEAD:
-        this.send('notdead');
+        // Not while an NPC's script is reading answers: its "input" takes
+        // the next line, whatever it is, and the server pings right after
+        // each answer (Script's stillThere). The server ignores "notdead"
+        // anyway; it only keeps a quiet connection busy.
+        if (!this.holdNotDead?.()) this.send('notdead');
         break;
     }
   }

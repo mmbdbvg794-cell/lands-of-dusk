@@ -1100,3 +1100,4 @@ dialog::backdrop { background: #000a; }
 #speech-choices button { text-transform: capitalize; }
 #speech.nudge { animation: speech-nudge 0.4s; }
 @keyframes speech-nudge { 25% { transform: translateX(calc(-50% - 6px)); } 75% { transform: translateX(calc(-50% + 6px)); } }
+.speech-note { margin: -2px 0 8px; font-style: italic; color: var(--muted); }

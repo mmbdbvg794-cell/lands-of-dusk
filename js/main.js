@@ -139,6 +139,8 @@ entityMenu.onStorage = (action, id) => (action === 'open' ? openStorage(id) : pa
 let talkers = new Set(); // lower-case names of NPCs with something to say
 let speechAwaiting = false;
 let speechTimer = null;
+let speechFollow = 0; // until when replies to an answer join the box
+let talkHold = 0; // until when keep-alive replies wait (see connection.js)
 
 function showSpeech(sp) {
   clearTimeout(speechTimer);
@@ -165,6 +167,7 @@ function showSpeech(sp) {
     }
   }
   choices.replaceChildren(...buttons);
+  for (const n of $('speech').querySelectorAll('.speech-note')) n.remove();
   speechAwaiting = sp.choices.length > 0;
   $('speech').hidden = false;
   speechTimer = setTimeout(hideSpeech, speechAwaiting ? 120000 : 12000);
@@ -176,6 +179,28 @@ function hideSpeech() {
   speechAwaiting = false;
 }
 $('speech-close').addEventListener('click', hideSpeech);
+
+// Something that came back from an answer ("50 gp have been deposited."),
+// shown under what the NPC said.
+function noteSpeech(text) {
+  const p = document.createElement('p');
+  p.className = 'speech-note';
+  p.textContent = text;
+  $('speech-choices').before(p);
+  clearTimeout(speechTimer);
+  speechTimer = setTimeout(hideSpeech, 8000);
+}
+
+// Anything sent answers an NPC that was waiting.
+function answeredSpeech() {
+  if (!speechAwaiting) return;
+  speechAwaiting = false;
+  talkHold = Date.now() + 4000;
+  speechFollow = Date.now() + 4000;
+  $('speech-choices').replaceChildren();
+  clearTimeout(speechTimer);
+  speechTimer = setTimeout(hideSpeech, 6000);
+}
 
 // The closest entity with this name, for answering a shout.
 function nearestNamed(name) {
@@ -832,6 +857,7 @@ function connect(url) {
   sysLine(`Connecting to ${url}…`);
 
   conn = new DuskConnection(url);
+  conn.holdNotDead = () => speechAwaiting || Date.now() < talkHold;
   conn.addEventListener('open', () => {
     setState('on');
     sysLine('Connected. Waiting for the server…');
@@ -907,6 +933,7 @@ function handle(msg) {
       if (names) { talkers = names; break; }
       const sp = parseSpeech(msg.text);
       if (sp) showSpeech(sp);
+      else if (Date.now() < speechFollow && !$('speech').hidden && msg.text.trim()) noteSpeech(msg.text.trim());
       const st = panels.storage ? storageReader.feed(msg.text) : null;
       if (st?.listing) panels.setStorageListing(st.listing);
       if (!st?.hide && !(isGod && god.expecting(msg.text))) addText(msg.text);
@@ -1121,13 +1148,8 @@ function targetCommand(cmd) {
 // typed.
 function runCommand(cmd) {
   if (!conn?.connected) return;
-  // Anything sent answers an NPC that was waiting.
-  if (speechAwaiting) {
-    speechAwaiting = false;
-    $('speech-choices').replaceChildren();
-    clearTimeout(speechTimer);
-    speechTimer = setTimeout(hideSpeech, 6000);
-  }
+  if (/^talk \d/.test(cmd)) talkHold = Date.now() + 4000;
+  answeredSpeech();
   conn.send(cmd);
   echoLine(cmd);
   noteSent(cmd);
@@ -1259,7 +1281,7 @@ function submitInput() {
   conn.send(text);
   echoLine(secret ? '*'.repeat(text.length) : text);
   $('prompt-bar').hidden = true; // typed an answer instead
-  if (speechAwaiting) { speechAwaiting = false; $('speech-choices').replaceChildren(); }
+  answeredSpeech();
   if (!secret) noteSent(text);
   if (!secret && text.trim()) {
     if (history[history.length - 1] !== text) history.push(text);

@@ -339,3 +339,4 @@ body.classic #speech button {
 }
 body.classic #speech button:hover:not(:disabled) { background: #fff6de; border-color: var(--ink-red); filter: none; }
 body.classic #speech #speech-close { background: none; border: none; }
+body.classic .speech-note { color: var(--ink-soft); }
