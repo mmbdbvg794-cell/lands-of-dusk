@@ -2,8 +2,6 @@
 # Rebuilds the client's game data from the server's files, in place:
 #   js/spellinfo.json  (tools/spellinfo.py, from defSpells / defSpellGroups)
 #   js/raceinfo.json   (tools/raceinfo.py, from defRaces)
-#   art/smooth/*.png   (tools/smoothart.py, the Smooth art style, from
-#                       rc/images; only sheets whose source changed)
 # A file is only replaced when it changed, and never with an empty one.
 #
 # On duskserver, flan's crontab runs this every 10 minutes from
@@ -22,4 +20,3 @@ for name in spellinfo raceinfo; do
   rm -f "$out.new"
 done
 
-python3 tools/smoothart.py "$GAME/rc/images" art/smooth

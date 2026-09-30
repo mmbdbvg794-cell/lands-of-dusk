@@ -7,5 +7,5 @@ client_src_reference/build/
 /capture*.png
 # Temp file from rebuilding spell data
 *.json.new
-# The Smooth art style, generated on the server by tools/smoothart.py
+# The Painted map, built by tools/paintart/build.sh at deploy time
 /art/

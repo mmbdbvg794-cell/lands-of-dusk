@@ -15,7 +15,7 @@ import { Panels, setBar } from './panels.js';
 import { Player } from './player.js';
 import { OP, opName } from './protocol.js';
 import { Renderer } from './renderer.js';
-import { loadSheets, SpriteSheet } from './sprites.js';
+import { loadSheets, loadSheet, SpriteSheet } from './sprites.js';
 import { describeRaces } from './races.js';
 import { World } from './world.js';
 
@@ -821,14 +821,15 @@ async function loadGraphics(address) {
 
 // ---- art style ---------------------------------------------------------------
 //
-// Pixel is the server's own sheets. Smooth is the same art redrawn at 4x
-// with a pixel-art smoothing filter (tools/smoothart.py, run on the server
-// into art/smooth/ next to this page), loaded the first time it's picked.
+// Pixel is the server's own sheets. Painted repaints the map tiles in a new
+// style (tools/paintart/painter.js, built into art/painted/map.png next to
+// this page), loaded the first time it's picked; characters and creatures
+// keep the original art for now.
 
 let pixelSheets = null;
-let smoothSheets = null;
-let artStyle = storage('get', 'dusk.art') === 'smooth' ? 'smooth' : 'pixel';
-// Two switches, kept in step: Pixel | Smooth in the top bar, and a menu in
+let paintedMap = null;
+let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
+// Two switches, kept in step: Pixel | Painted in the top bar, and a menu in
 // Settings (shown instead on phones).
 function setArt(style) {
   artStyle = style;
@@ -847,13 +848,10 @@ for (const b of document.querySelectorAll('#art-toggle [data-art]')) b.setAttrib
 
 async function applyArt() {
   let sheets = pixelSheets;
-  if (artStyle === 'smooth') {
-    if (!smoothSheets) {
-      const loaded = await loadSheets('art/smooth/', { path: '', ext: 'png' });
-      if (loaded.errors.length === 0) smoothSheets = loaded;
-      else errLine('The Smooth art isn\'t available on this server yet; showing Pixel.');
-    }
-    sheets = smoothSheets ?? pixelSheets;
+  if (artStyle === 'painted' && pixelSheets) {
+    paintedMap ??= await loadSheet('art/painted/map.png');
+    if (paintedMap) sheets = { ...pixelSheets, map: paintedMap };
+    else errLine('The Painted art isn\'t available on this server yet; showing Pixel.');
   }
   if (!sheets) return;
   renderer.setSheets(sheets);

@@ -50,6 +50,12 @@ export async function loadSheets(baseUrl, { path = 'images/', ext = 'gif' } = {}
   return sheets;
 }
 
+// One sheet on its own (the Painted style's map), or null if it failed.
+export async function loadSheet(url) {
+  const r = await loadImage(url);
+  return r.img ? new SpriteSheet(r.img) : null;
+}
+
 function loadImage(url) {
   return new Promise((resolve) => {
     const img = new Image();

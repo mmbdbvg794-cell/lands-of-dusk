@@ -1,0 +1,20 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Paint art</title>
+<!-- Generates the Painted map sheet from map.gif (next to this page, or ?src=).
+     The result is left in <pre id="png"> as a data: URL for the caller to save. -->
+<body style="background:#222">
+<script type="module">
+  import { paintSheet } from './painter.js';
+  const src = new URLSearchParams(location.search).get('src') || 'map.gif';
+  const img = new Image();
+  img.onload = () => {
+    const sheet = paintSheet(img);
+    const pre = document.createElement('pre');
+    pre.id = 'png';
+    pre.textContent = sheet.toDataURL('image/png');
+    document.body.append(pre);
+  };
+  img.src = src;
+</script>
+</body>
