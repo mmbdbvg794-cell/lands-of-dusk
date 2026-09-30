@@ -264,7 +264,7 @@ addEventListener('pagehide', saveExplored);
 const panelState = storage('get', 'dusk.panel');
 const [savedTab, savedOpen] = panelState ? panelState.split(':') : [];
 // Tabs that come and go (God, Shop, Storage) aren't reopened from last time.
-const steadyTab = ['inv', 'book', 'stats'].includes(savedTab) ? savedTab : 'inv';
+const steadyTab = ['inv', 'equip', 'book', 'stats'].includes(savedTab) ? savedTab : 'inv';
 panels.selectByName(steadyTab, savedOpen ? savedOpen === '1' : window.innerWidth >= 800);
 panels.onToggle = (tab, open) => {
   storage('set', 'dusk.panel', `${tab}:${open ? 1 : 0}`);

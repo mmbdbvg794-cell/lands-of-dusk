@@ -154,7 +154,8 @@
       <section id="panel" class="card" hidden>
         <div id="panel-tabs">
           <div role="tablist" aria-label="Character">
-            <button type="button" role="tab" data-tab="inv" aria-controls="tab-inv" aria-selected="true">Inventory <span id="tab-inv-count" class="count"></span></button>
+            <button type="button" role="tab" data-tab="inv" aria-controls="tab-inv" aria-selected="true">Backpack <span id="tab-inv-count" class="count"></span></button>
+            <button type="button" role="tab" data-tab="equip" aria-controls="tab-equip" aria-selected="false" tabindex="-1">Equipped</button>
             <button type="button" role="tab" data-tab="book" aria-controls="tab-book" aria-selected="false" tabindex="-1">Spellbook</button>
             <button type="button" role="tab" data-tab="shop" aria-controls="tab-shop" aria-selected="false" tabindex="-1" hidden>Shop</button>
             <button type="button" role="tab" data-tab="store" aria-controls="tab-store" aria-selected="false" tabindex="-1" hidden>Storage</button>
@@ -168,6 +169,10 @@
             <span id="inv-gold" class="gold"></span>
             <span id="inv-exp"></span>
           </div>
+          <ul id="inv-list" class="rows"></ul>
+          <p id="inv-empty" class="empty">You aren't carrying anything.</p>
+        </div>
+        <div id="tab-equip" class="tab" role="tabpanel" hidden>
           <!-- What you're wearing, laid out on a body: head at the top,
                weapon and gloves at the hands, and so on. -->
           <div class="doll-wrap">
@@ -181,9 +186,6 @@
             </svg>
             <div id="equip-list" class="doll" role="list" aria-label="Equipment"></div>
           </div>
-          <h4 class="list-head">Carried</h4>
-          <ul id="inv-list" class="rows"></ul>
-          <p id="inv-empty" class="empty">You aren't carrying anything.</p>
         </div>
         <div id="tab-book" class="tab" role="tabpanel" hidden></div>
         <div id="tab-shop" class="tab" role="tabpanel" hidden>
