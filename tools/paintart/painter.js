@@ -89,12 +89,13 @@ const PAINT = {
     return c;
   },
   water(u, v) {
-    // Depth from broad noise; glints along the ridges of finer noise, so
-    // the light catches in short wavy lines rather than stripes.
-    const n = fbm(u, v, 3, 3);
-    const ridge = 1 - Math.abs(2 * fbm(u, v, 5, 4, 3) - 1);
-    let c = mix([20, 58, 142], [44, 104, 188], n);
-    if (ridge > 0.93) c = mix(c, [160, 204, 238], Math.min(1, (ridge - 0.93) * 10) * 0.55);
+    // Every open-water square is this same tile, so anything distinctive
+    // repeats across a lake in a grid: only gentle, fine shading here, and
+    // a few faint sparkles. The shoreline foam gives the water its shape.
+    const n = fbm(u, v, 3, 6, 3);
+    let c = mix([28, 70, 156], [40, 92, 178], n);
+    const sp = hash(Math.floor(u * 128), Math.floor(v * 128), 13);
+    if (sp > 0.996) c = mix(c, [190, 220, 245], 0.45);
     return c;
   },
   pond(u, v) {
@@ -353,6 +354,342 @@ function paintPalm(ctx, R) {
   }
 }
 
+// ---- surfaces: stone, brick, wood, floors, lava, ice ----
+//
+// Each draws a whole OUT x OUT frame. Like the ground, the patterns repeat
+// exactly once per frame, so neighbouring tiles line up.
+
+// Cellular noise that wraps once per frame: the distance to the nearest
+// and second-nearest of n x n jittered points, and which point is nearest.
+function worley(u, v, n, seed) {
+  const x = u * n, y = v * n, cx = Math.floor(x), cy = Math.floor(y);
+  let d1 = 9, d2 = 9, id = 0;
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const gx = cx + dx, gy = cy + dy;
+      const wx = ((gx % n) + n) % n, wy = ((gy % n) + n) % n;
+      const px = gx + 0.15 + hash(wx, wy, seed) * 0.7, py = gy + 0.15 + hash(wx, wy, seed + 1) * 0.7;
+      const d = Math.hypot(x - px, y - py);
+      if (d < d1) { d2 = d1; d1 = d; id = wx * 97 + wy; } else if (d < d2) d2 = d;
+    }
+  }
+  return { d1, d2, id };
+}
+
+function drawPixels(ctx, fn) {
+  const img = ctx.createImageData(OUT, OUT);
+  for (let Y = 0; Y < OUT; Y++) {
+    for (let X = 0; X < OUT; X++) {
+      const c = fn(X / OUT, Y / OUT, X, Y);
+      const o = (Y * OUT + X) * 4;
+      img.data[o] = clamp(c[0]); img.data[o + 1] = clamp(c[1]); img.data[o + 2] = clamp(c[2]); img.data[o + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+// Rounded stones set in mortar: each cell shaded like a pebble, lit from
+// the upper left, darker in the gaps.
+function stones(cells, seed, palette, mortar, gap = 0.12) {
+  return (u, v) => {
+    const w = worley(u, v, cells, seed);
+    const e = w.d2 - w.d1;
+    const pick = hash(w.id, seed, 5);
+    const base = mix(palette[0], palette[1], pick);
+    // Light: sample slightly up-left; nearer that cell's centre is brighter.
+    const wl = worley(u - 0.012, v - 0.012, cells, seed);
+    const lit = wl.id === w.id ? Math.max(0, 0.35 - wl.d1) * 1.2 : 0;
+    let c = mix(base, [255, 250, 235], lit * 0.5);
+    c = mix(c, [0, 0, 0], Math.min(0.45, w.d1 * 0.5));
+    c = mix(c, c.map((x) => x * (0.85 + fbm(u, v, seed + 3, 16, 2) * 0.3)), 1);
+    if (e < gap) c = mix(mortar, c, e / gap);
+    return c;
+  };
+}
+const cobble = stones(5, 21, [[150, 128, 98], [196, 176, 140]], [70, 56, 40]);
+const flagstone = stones(3, 23, [[108, 108, 106], [150, 150, 146]], [52, 52, 50], 0.08);
+const paleFlagstone = stones(3, 27, [[170, 170, 166], [212, 212, 206]], [80, 80, 76], 0.08);
+const crackedEarth = stones(4, 29, [[150, 78, 30], [184, 104, 44]], [70, 34, 12], 0.05);
+
+function brick(u, v, dark) {
+  const rows = 8, row = Math.floor(v * rows), bw = 1 / 4;
+  const off = row % 2 ? bw / 2 : 0;
+  const col = Math.floor((u + off) / bw);
+  const fy = v * rows - row, fx = ((u + off) / bw) - col;
+  const id = row * 13 + ((col % 4) + 4) % 4;
+  let c = mix(dark ? [120, 40, 36] : [168, 70, 56], dark ? [150, 56, 48] : [196, 98, 80], hash(id, 3, 7));
+  c = mix(c, c.map((x) => x * (0.8 + fbm(u, v, 31, 16, 2) * 0.4)), 1);
+  if (fy < 0.18) c = mix(c, [255, 220, 200], 0.18);
+  if (fy > 0.82) c = mix(c, [0, 0, 0], 0.25);
+  if (fy < 0.08 || fx < 0.04) c = [196, 184, 168].map((x) => x * (0.75 + hash(id, 9, 2) * 0.1));
+  return c;
+}
+
+function planks(u, v, { across = false, count = 4, colours, gapDark = [36, 20, 10], seed = 41 }) {
+  const a = across ? v : u, b = across ? u : v;
+  const i = Math.floor(a * count), f = a * count - i;
+  const tone = hash(i, seed, 3);
+  let c = mix(colours[0], colours[1], tone);
+  // Grain: noise stretched along the board.
+  const g = fbm(across ? b : i * 0.37 + a, across ? i * 0.37 + a : b, seed + i, across ? 3 : 2, 3);
+  const grain = fbm(across ? u * 0.25 : u * 3, across ? v * 3 : v * 0.25, seed + 1, 8, 3);
+  c = c.map((x) => x * (0.82 + g * 0.2 + (grain - 0.5) * 0.25));
+  if (f < 0.06 || f > 0.94) c = mix(c, gapDark, 0.8);
+  else if (f < 0.14) c = mix(c, [255, 230, 190], 0.12);
+  return c;
+}
+
+function checker(u, v, dark, light, startDark) {
+  const n = 3, x = Math.floor(u * n), y = Math.floor(v * n);
+  const isDark = ((x + y) % 2 === 0) === startDark;
+  const fx = u * n - x, fy = v * n - y;
+  let c = isDark ? marble(u, v, dark, 51) : marble(u, v, light, 53);
+  if (fx < 0.03 || fy < 0.03) c = mix(c, [40, 40, 40], 0.5);
+  return c;
+}
+
+function marble(u, v, [a, b], seed = 47) {
+  const n = fbm(u, v, seed, 3, 4);
+  const vein = Math.abs(Math.sin((u * 2 + v * 3 + fbm(u, v, seed + 2, 3, 4) * 3) * Math.PI));
+  let c = mix(a, b, n);
+  if (vein < 0.06) c = mix(c, [255, 255, 255], 0.35 * (1 - vein / 0.06));
+  return c;
+}
+
+function floorTiles(u, v) {
+  const n = 3, fx = (u * n) % 1, fy = (v * n) % 1, id = Math.floor(u * n) * 7 + Math.floor(v * n);
+  let c = marble(u, v, [[210, 190, 160], [236, 222, 196]], 61 + (id % 3));
+  if (fx < 0.05 || fy < 0.05) c = [120, 104, 84];
+  else if (fx > 0.93 || fy > 0.93) c = mix(c, [0, 0, 0], 0.18);
+  else if (fx < 0.12 || fy < 0.12) c = mix(c, [255, 255, 255], 0.2);
+  return c;
+}
+
+function lava(u, v, crusty) {
+  // Molten rock: the flow is noise warped by more noise; crust floats where
+  // it's coolest, glowing at its edges; the hottest streaks run yellow.
+  const wu = u + (fbm(u, v, 75, 3, 3) - 0.5) * 0.25, wv = v + (fbm(u, v, 77, 3, 3) - 0.5) * 0.25;
+  const heat = fbm(wu, wv, 73, 4, 5);
+  const cool = crusty ? 0.5 : 0.4;
+  if (heat < cool) {
+    const crust = mix([34, 16, 12], [74, 34, 22], fbm(u, v, 79, 12, 2));
+    return mix(crust, [210, 70, 20], Math.max(0, heat - (cool - 0.05)) * 12);
+  }
+  const t = (heat - cool) / (1 - cool);
+  let c = mix([200, 50, 10], [255, 150, 30], Math.min(1, t * 1.6));
+  if (t > 0.55) c = mix(c, [255, 236, 140], (t - 0.55) * 2);
+  return c;
+}
+
+function ice(u, v) {
+  const w = worley(u, v, 4, 81);
+  let c = mix([120, 214, 240], [196, 244, 255], fbm(u, v, 83, 3, 4));
+  const e = w.d2 - w.d1;
+  if (e < 0.03) c = mix(c, [255, 255, 255], 0.8);
+  else if (e < 0.07) c = mix(c, [70, 150, 190], 0.35);
+  return c;
+}
+
+function crystal(u, v) {
+  const cx = u - 0.5, cy = v - 0.5, r = Math.hypot(cx, cy), a = Math.atan2(cy, cx);
+  const swirl = Math.sin(a * 3 + r * 18 + fbm(u, v, 91, 3, 3) * 4);
+  let c = mix([10, 30, 120], [40, 110, 230], fbm(u, v, 93, 4, 4));
+  if (swirl > 0.75) c = mix(c, [140, 220, 255], (swirl - 0.75) * 3);
+  if (hash(Math.floor(u * 64), Math.floor(v * 64), 95) > 0.985) c = [230, 250, 255];
+  return c;
+}
+
+function mosaic(u, v) {
+  const w = worley(u, v, 7, 101);
+  const tones = [[74, 116, 188], [210, 176, 70], [96, 170, 150], [220, 220, 210], [180, 120, 70]];
+  let c = tones[Math.floor(hash(w.id, 3, 3) * tones.length)];
+  c = mix(c, [255, 255, 255], Math.max(0, 0.3 - w.d1) * 0.8);
+  if (w.d2 - w.d1 < 0.12) c = [90, 84, 78];
+  return c;
+}
+
+function ornateStone(u, v) {
+  const cx = u - 0.5, cy = v - 0.5, r = Math.hypot(cx, cy), a = Math.atan2(cy, cx);
+  let c = marble(u, v, [[196, 196, 192], [236, 236, 232]], 111);
+  const petal = Math.cos(a * 8) * 0.06 + 0.26;
+  if (Math.abs(r - petal) < 0.018 || Math.abs(r - 0.1) < 0.014) c = mix(c, [110, 108, 104], 0.7);
+  const edge = Math.min(u, v, 1 - u, 1 - v);
+  if (edge < 0.04) c = mix(c, [120, 118, 112], 0.6);
+  return c;
+}
+
+// Loose rocks: the ground repainted, then each rock in the original drawn
+// as a shaded stone of about the same size and shape.
+function isRock(r, g, b) {
+  const lum = (r + g + b) / 3;
+  return Math.max(r, g, b) - Math.min(r, g, b) < 40 && lum > 70 && lum < 232;
+}
+
+function paintRocks(ctx, px, groundFill) {
+  const rock = new Uint8Array(32 * 32);
+  for (let i = 0; i < 32 * 32; i++) rock[i] = isRock(px[i * 4], px[i * 4 + 1], px[i * 4 + 2]) ? 1 : 0;
+  // Ground first: either a given texture, or the tile's own materials with
+  // the rocks' squares given to the commonest material around them.
+  if (groundFill) drawPixels(ctx, groundFill);
+  else {
+    const labels = classify(px);
+    const counts = new Map();
+    labels.forEach((l, i) => { if (!rock[i]) counts.set(l, (counts.get(l) ?? 0) + 1); });
+    const common = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? labels[0];
+    paintGround(ctx, labels.map((l, i) => (rock[i] ? common : l)));
+  }
+  // Each separate rock: its size, centre and lean from its pixels.
+  const seen = new Uint8Array(32 * 32);
+  const rocks = [];
+  for (let s = 0; s < 32 * 32; s++) {
+    if (!rock[s] || seen[s]) continue;
+    const stack = [s], cells = [];
+    seen[s] = 1;
+    while (stack.length) {
+      const k = stack.pop(); cells.push(k);
+      const x = k % 32, y = (k / 32) | 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy, n = ny * 32 + nx;
+        if (nx >= 0 && ny >= 0 && nx < 32 && ny < 32 && rock[n] && !seen[n]) { seen[n] = 1; stack.push(n); }
+      }
+    }
+    if (cells.length < 4) continue;
+    let mx = 0, my = 0;
+    for (const k of cells) { mx += k % 32; my += (k / 32) | 0; }
+    mx /= cells.length; my /= cells.length;
+    let sxx = 0, syy = 0, sxy = 0;
+    for (const k of cells) { const dx = (k % 32) - mx, dy = ((k / 32) | 0) - my; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; }
+    sxx /= cells.length; syy /= cells.length; sxy /= cells.length;
+    const tr = sxx + syy, det = sxx * syy - sxy * sxy, disc = Math.sqrt(Math.max(0, tr * tr / 4 - det));
+    const l1 = tr / 2 + disc, l2 = Math.max(0.3, tr / 2 - disc);
+    rocks.push({ x: (mx + 0.5) * 4, y: (my + 0.5) * 4, rx: Math.sqrt(l1) * 2 * 4 + 1, ry: Math.sqrt(l2) * 2 * 4 + 1, a: 0.5 * Math.atan2(2 * sxy, sxx - syy) });
+  }
+  for (const r of rocks.sort((p, q) => p.y - q.y)) {
+    ctx.save();
+    ctx.translate(r.x, r.y);
+    ctx.rotate(r.a);
+    ctx.fillStyle = 'rgba(20, 20, 16, 0.35)';
+    ctx.beginPath(); ctx.ellipse(2.5, 3.5, r.rx, r.ry, 0, 0, Math.PI * 2); ctx.fill();
+    const g = ctx.createRadialGradient(-r.rx * 0.35, -r.ry * 0.45, 1, 0, 0, Math.max(r.rx, r.ry) * 1.1);
+    g.addColorStop(0, '#dcdad2'); g.addColorStop(0.55, '#a4a29a'); g.addColorStop(1, '#5e5c56');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.ellipse(0, 0, r.rx, r.ry, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(40, 40, 36, 0.5)'; ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// Which surface each remaining tile gets. Tiles not listed here, in TREES
+// or in GROUND keep the original art for now.
+const SURFACES = {
+  38: (ctx) => fillMaterial(ctx, 'sand'),
+  40: (ctx) => drawPixels(ctx, crackedEarth),
+  49: (ctx) => drawPixels(ctx, cobble),
+  58: (ctx) => drawPixels(ctx, flagstone),
+  97: (ctx) => drawPixels(ctx, flagstone),
+  59: (ctx) => drawPixels(ctx, paleFlagstone),
+  98: (ctx) => drawPixels(ctx, paleFlagstone),
+  60: (ctx) => drawPixels(ctx, (u, v) => brick(u, v, false)),
+  61: (ctx) => drawPixels(ctx, (u, v) => brick(u, v, false)),
+  100: (ctx) => drawPixels(ctx, (u, v) => brick(u, v, false)),
+  99: (ctx) => drawPixels(ctx, (u, v) => brick(u, v, true)),
+  62: (ctx) => drawPixels(ctx, (u, v) => planks(u, v, { colours: [[92, 42, 22], [124, 60, 32]] })),
+  101: (ctx) => drawPixels(ctx, (u, v) => planks(u, v, { colours: [[80, 38, 20], [110, 52, 28]], seed: 43 })),
+  63: (ctx) => drawPixels(ctx, (u, v) => planks(u, v, { count: 3, colours: [[140, 88, 60], [168, 110, 76]], seed: 45 })),
+  149: (ctx) => drawPixels(ctx, (u, v) => framed(u, v, planks(u, v, { across: true, colours: [[124, 84, 50], [150, 104, 64]], seed: 47 }))),
+  150: (ctx) => drawPixels(ctx, (u, v) => hatch(u, v, framed(u, v, planks(u, v, { across: true, colours: [[124, 84, 50], [150, 104, 64]], seed: 47 })))),
+  41: (ctx) => drawPixels(ctx, floorTiles),
+  42: (ctx) => drawPixels(ctx, (u, v) => marble(u, v, [[70, 70, 72], [120, 118, 118]])),
+  43: (ctx) => drawPixels(ctx, (u, v) => marble(u, v, [[28, 92, 96], [70, 146, 146]], 49)),
+  45: (ctx) => drawPixels(ctx, (u, v) => checker(u, v, [[50, 50, 52], [96, 94, 94]], [[220, 220, 216], [248, 248, 244]], true)),
+  46: (ctx) => drawPixels(ctx, (u, v) => checker(u, v, [[50, 50, 52], [96, 94, 94]], [[220, 220, 216], [248, 248, 244]], false)),
+  47: (ctx) => drawPixels(ctx, (u, v) => checker(u, v, [[28, 92, 96], [70, 146, 146]], [[220, 220, 216], [248, 248, 244]], true)),
+  48: (ctx) => drawPixels(ctx, (u, v) => checker(u, v, [[28, 92, 96], [70, 146, 146]], [[220, 220, 216], [248, 248, 244]], false)),
+  105: (ctx) => drawPixels(ctx, mosaic),
+  127: (ctx) => drawPixels(ctx, ornateStone),
+  35: (ctx) => drawPixels(ctx, (u, v) => lava(u, v, false)),
+  130: (ctx) => drawPixels(ctx, (u, v) => lava(u, v, false)),
+  108: (ctx) => drawPixels(ctx, (u, v) => lava(u, v, true)),
+  44: (ctx) => drawPixels(ctx, ice),
+  129: (ctx) => drawPixels(ctx, ice),
+  96: (ctx) => drawPixels(ctx, crystal),
+  128: (ctx) => drawPixels(ctx, crystal),
+  37: (ctx, px) => paintRocks(ctx, px),
+  39: (ctx, px) => paintRocks(ctx, px),
+  90: (ctx, px) => paintRocks(ctx, px),
+  91: (ctx, px) => paintRocks(ctx, px),
+  92: (ctx, px) => paintRocks(ctx, px),
+  93: (ctx, px) => paintRocks(ctx, px),
+  94: (ctx, px) => paintRocks(ctx, px),
+  122: (ctx, px) => paintRocks(ctx, px),
+  95: (ctx, px) => paintRocks(ctx, px, cobble),
+  104: (ctx, px) => paintRocks(ctx, px, cobble),
+};
+// Cobbles meeting grass or sand along a diagonal (50-57): the textured
+// half is cobble, told apart from the smooth half by how busy it is.
+for (const i of range(50, 57)) SURFACES[i] = (ctx, px) => paintCobbleEdge(ctx, px);
+
+function framed(u, v, c) {
+  const e = Math.min(u, v, 1 - u, 1 - v);
+  if (e < 0.05) return mix(c, [48, 30, 16], 0.85);
+  if (e < 0.07) return mix(c, [255, 230, 190], 0.15);
+  return c;
+}
+
+function hatch(u, v, c) {
+  if (u > 0.34 && u < 0.62 && v > 0.74 && v < 0.93) {
+    const e = Math.min(u - 0.34, 0.62 - u, v - 0.74, 0.93 - v);
+    return e < 0.02 ? [40, 24, 12] : mix(c, [60, 36, 18], 0.35);
+  }
+  return c;
+}
+
+function paintCobbleEdge(ctx, px) {
+  // Local busyness: how much each pixel differs from its neighbours.
+  const lum = (i) => px[i * 4] + px[i * 4 + 1] + px[i * 4 + 2];
+  const busy = new Float32Array(32 * 32);
+  for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
+    let d = 0;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [0, 2]]) {
+      const xx = Math.min(31, Math.max(0, x + dx)), yy = Math.min(31, Math.max(0, y + dy));
+      d += Math.abs(lum(y * 32 + x) - lum(yy * 32 + xx));
+    }
+    busy[y * 32 + x] = d;
+  }
+  // Smooth it, and call the busier side cobble.
+  const labels = classify(px);
+  const isCobble = new Uint8Array(32 * 32);
+  for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
+    let s = 0, n = 0;
+    for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+      const xx = x + dx, yy = y + dy;
+      if (xx >= 0 && yy >= 0 && xx < 32 && yy < 32) { s += busy[yy * 32 + xx]; n++; }
+    }
+    isCobble[y * 32 + x] = s / n > 150 ? 1 : 0;
+  }
+  const counts = new Map();
+  labels.forEach((l, i) => { if (!isCobble[i]) counts.set(l, (counts.get(l) ?? 0) + 1); });
+  const other = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? NAMES.indexOf('grass');
+  paintGround(ctx, labels.map(() => other));
+  const ground = ctx.getImageData(0, 0, OUT, OUT);
+  const img = ctx.createImageData(OUT, OUT);
+  for (let Y = 0; Y < OUT; Y++) for (let X = 0; X < OUT; X++) {
+    const x = Math.min(31, X >> 2), y = Math.min(31, Y >> 2), o = (Y * OUT + X) * 4;
+    // A soft edge: average the cobble flag over a small neighbourhood.
+    let s = 0, n = 0;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const xx = Math.min(31, Math.max(0, x + dx)), yy = Math.min(31, Math.max(0, y + dy));
+      s += isCobble[yy * 32 + xx]; n++;
+    }
+    const t = s / n;
+    const c = t > 0.5 ? cobble(X / OUT, Y / OUT) : [ground.data[o], ground.data[o + 1], ground.data[o + 2]];
+    const shade = Math.abs(t - 0.5) < 0.2 ? 0.7 : 1;
+    img.data[o] = clamp(c[0] * shade); img.data[o + 1] = clamp(c[1] * shade); img.data[o + 2] = clamp(c[2] * shade); img.data[o + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
 // ---- the sheet ----
 
 // `source` is the original map.gif as an Image. Returns a canvas holding
@@ -377,6 +714,8 @@ export function paintSheet(source) {
     if (TREES[i]) {
       fillMaterial(fctx, TREES[i][1]);
       paintTree(fctx, TREES[i][0], i);
+    } else if (SURFACES[i] && size === 32) {
+      SURFACES[i](fctx, rctx.getImageData(0, 0, 32, 32).data);
     } else if (GROUND.has(i) && size === 32) {
       paintGround(fctx, classify(rctx.getImageData(0, 0, 32, 32).data));
     } else {
