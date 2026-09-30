@@ -92,3 +92,15 @@ export const removeWare = (name) => `mremove ${name}`;
 // props. Items on the ground are never saved (they're gone after a
 // restart), and storage saves itself.
 export const SAVED_KINDS = new Set(['mob', 'prop', 'sign', 'merchant', 'tile', 'ware', 'remove']);
+
+// A player's flags (conditions), for gods testing quests (server/Props.java).
+export const flagsCommand = (id) => `flags ${id}`;
+export const flagAdd = (id, flag) => `flagadd ${id}|${flag}`;
+export const flagRemove = (id, flag) => `flagremove ${id}|${flag}`;
+// "Flags: <id>|<name>|<flag>,<flag>" -> { id, name, flags }; a name that's
+// empty means the player isn't there any more.
+export function parseFlags(line) {
+  const m = /^Flags: (\d+)\|([^|]*)\|(.*)$/.exec(line.trim());
+  if (!m) return null;
+  return { id: Number(m[1]), name: m[2], flags: m[3].split(',').map((f) => f.trim()).filter(Boolean) };
+}

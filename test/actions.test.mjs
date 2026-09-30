@@ -31,7 +31,7 @@ assert.deepEqual(labels(entityActions({ id: 7, name: 'rock', type: 9, x: 1, y: 1
 const god = { ...me, god: true };
 assert.deepEqual(entityActions(slimer, god).at(-1), { label: 'Remove (god)', cmd: 'unset 77', god: true });
 assert.deepEqual(labels(entityActions({ id: 3, name: 'sign', type: TYPE.SIGN, x: 1, y: 1 }, god)), ['Read', 'Rename (god)', 'Edit text (god)', 'Remove (god)']);
-assert.deepEqual(labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 12, y: 10 }, god)), ['Look']);
+assert.deepEqual(labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 12, y: 10 }, god)), ['Look', 'Flags (god)']);
 assert.deepEqual(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 10, y: 10 }, god).at(-1), { label: 'Remove (god)', cmd: 'storage remove', god: true });
 assert.deepEqual(labels(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 11, y: 10 }, god)), ['Open', 'Remove (god) (stand on it)']);
 assert.equal(entityActions(slimer, me).some((a) => a.god), false, 'not for players');
@@ -48,6 +48,7 @@ assert.deepEqual(entityActions(sarge, { ...me, talkers })[0], { label: 'Talk', c
 assert.deepEqual(entityActions({ ...sarge, x: 14 }, { ...me, talkers })[0], { label: 'Go talk to Drill Sergeant', cmd: 'goto 14 10' });
 assert.equal(entityActions(sarge, me).some((a) => a.label === 'Talk'), false);
 assert.equal(entityActions({ id: 5, name: 'drill sergeant', type: TYPE.PLAYER, x: 11, y: 10 }, { ...me, talkers }).some((a) => a.label === 'Talk'), false, 'not players');
+assert.equal(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 11, y: 10 }, me).some((a) => a.flags), false, 'flags are for gods');
 assert.deepEqual(entityActions(sarge, me), [{ label: 'Look', cmd: 'look 30' }], 'props are looked at, signs read');
 // Tellers from five squares, named ones too; named props talk like their look.
 const looks = new Map([['gringotts', 'bank teller'], ['george', 'villager man']]);

@@ -327,6 +327,22 @@
     </div>
   </section>
 
+  <!-- A player's flags, for gods (flagsdialog.js). -->
+  <section id="flags-dialog" class="editor-dialog fl-dialog" role="dialog" aria-label="Player flags" hidden>
+    <div class="de-bar">
+      <strong class="de-title">Flags</strong>
+      <button type="button" data-fl="close" class="ghost" aria-label="Close">×</button>
+    </div>
+    <div class="de-body">
+      <p class="de-hint">Quest flags (and other conditions) this player has. Remove one, or give one to test a quest step.</p>
+      <div class="fl-list"></div>
+      <form class="fl-form de-row">
+        <input class="fl-new" type="text" placeholder="flag to give, e.g. tutorial" autocomplete="off" spellcheck="false">
+        <button type="submit" class="primary">Give flag</button>
+      </form>
+    </div>
+  </section>
+
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

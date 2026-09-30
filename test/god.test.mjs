@@ -1,6 +1,6 @@
 // Run with: node test/god.test.mjs
 import assert from 'node:assert/strict';
-import { parseLooks, PROP_LOOKS, tileMessage, tileClear } from '../js/god.js';
+import { parseLooks, PROP_LOOKS, tileMessage, tileClear, flagsCommand, flagAdd, flagRemove, parseFlags } from '../js/god.js';
 import { GOD_PROMPT, listKind, cleanList, search, place, SAVE_MAP, unset, teleport, wizinvis, addWare, removeWare, SAVED_KINDS } from '../js/god.js';
 
 assert.ok(GOD_PROMPT.test('Do you want players to be able to see your presence? (yes/no)'));
@@ -46,4 +46,11 @@ assert.equal(place.namedSign('Bank', 'Deposits and withdrawals'), 'namesign Bank
 assert.equal(tileMessage('Bank Teller', 'Stand here to talk to me.'), 'tilemsg Bank Teller|Stand here to talk to me.');
 assert.equal(tileMessage('', 'Beware!'), 'tilemsg |Beware!');
 assert.equal(tileClear(), 'tilemsg clear');
+assert.equal(flagsCommand(12), 'flags 12');
+assert.equal(flagAdd(12, 'tutorial'), 'flagadd 12|tutorial');
+assert.equal(flagRemove(12, 'tutorial'), 'flagremove 12|tutorial');
+assert.deepEqual(parseFlags('Flags: 2073|testerthree|nothirst,tutorial'), { id: 2073, name: 'testerthree', flags: ['nothirst', 'tutorial'] });
+assert.deepEqual(parseFlags('Flags: 5|bob|'), { id: 5, name: 'bob', flags: [] });
+assert.deepEqual(parseFlags('Flags: 5||'), { id: 5, name: '', flags: [] });
+assert.equal(parseFlags('Talkers: a'), null);
 console.log('god tests passed');

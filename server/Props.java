@@ -36,6 +36,11 @@
  * Only scripts it wrote itself (tile messages and actions) are replaced
  * or removed.
  *
+ * A player's flags (conditions), for gods testing quests:
+ *   flags <id>               "Flags: <id>|<name>|<flag>,<flag>,..."
+ *   flagadd <id>|<flag>      give the player a flag (made if it's new)
+ *   flagremove <id>|<flag>   take one away
+ *
  * Bank tellers (a name, or the look of a named prop, with "teller" in it)
  * can be used from TELLER_REACH squares, since they stand behind counters.
  *
@@ -60,6 +65,9 @@ public class Props {
         try {
             if (lower.equals("prop looks")) return "Looks: " + looks();
             if (lower.startsWith("worn ")) return worn(who, engine, trimmed.substring(5).trim());
+            if (lower.startsWith("flags ")) return flags(who, engine, trimmed.substring(6).trim(), null, null);
+            if (lower.startsWith("flagadd ")) return flagEdit(who, engine, trimmed.substring(8).trim(), true);
+            if (lower.startsWith("flagremove ")) return flagEdit(who, engine, trimmed.substring(11).trim(), false);
             if (lower.startsWith("nameprop ")) return nameProp(who, engine, trimmed.substring(9).trim());
             if (lower.startsWith("namesign ")) return nameSign(who, engine, trimmed.substring(9).trim());
             if (lower.startsWith("signname ")) return editSign(who, engine, trimmed.substring(9).trim(), true);
@@ -228,6 +236,58 @@ public class Props {
             first = false;
         }
         return b.toString();
+    }
+
+    // ---- a player's flags ----
+
+    static LivingThing player(DuskEngine engine, String id) {
+        if (!Storage.isNumber(id)) return null;
+        try {
+            DuskObject o = engine.getDuskObject(Integer.parseInt(id));
+            return o instanceof Player ? (LivingThing) o : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // The list line; a message (if any) goes out first, on its own line.
+    static String flags(LivingThing who, DuskEngine engine, String id, LivingThing target, String message) {
+        if (who.privs < GOD_PRIVS) return "Only gods can look at flags.";
+        if (target == null) target = player(engine, id);
+        if (target == null) return "Flags: " + id + "||";
+        if (message != null) who.chatMessage(message);
+        StringBuffer b = new StringBuffer("Flags: " + target.ID + "|" + target.strName + "|");
+        Object[] conds = target.vctConditions.toArray();
+        for (int i = 0; i < conds.length; i++) b.append(i > 0 ? "," : "").append(((Condition) conds[i]).strName);
+        return b.toString();
+    }
+
+    static String flagEdit(LivingThing who, DuskEngine engine, String args, boolean add) throws Exception {
+        if (who.privs < GOD_PRIVS) return "Only gods can change flags.";
+        int bar = args.indexOf('|');
+        if (bar < 0) return add ? "Usage: flagadd <id>|<flag>" : "Usage: flagremove <id>|<flag>";
+        String id = args.substring(0, bar).trim();
+        String flag = args.substring(bar + 1).trim();
+        LivingThing target = player(engine, id);
+        if (target == null) return "That player isn't here.";
+        if (!flag.matches("[A-Za-z0-9_]{1,40}")) return "Flags are letters, numbers and _ (up to 40).";
+        String message;
+        if (add) {
+            // A new flag gets a hidden condition file, as the editors make.
+            File cond = new File("defConditions", flag.toLowerCase());
+            if (!cond.exists()) Talk.write(cond, "nodisplay\n.\n".getBytes("UTF-8"));
+            Condition c = engine.getCondition(flag);
+            if (c == null) return "That flag couldn't be made.";
+            target.addCondition(c);
+            message = "Gave " + target.strName + " the flag " + flag + ".";
+        } else {
+            if (!target.hasCondition(flag)) return flags(who, engine, id, target, target.strName + " doesn't have " + flag + ".");
+            target.removeCondition(flag);
+            message = "Took " + flag + " from " + target.strName + ".";
+        }
+        target.savePlayer();
+        Log.logEvent(who.strName + ": " + message);
+        return flags(who, engine, id, target, message);
     }
 
     // ---- descriptions ----

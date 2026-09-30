@@ -47,6 +47,8 @@ export function entityActions(ent, me) {
   if (ent.type !== TYPE.PLAYER && (me.talkers?.has(name.toLowerCase()) || (look && me.talkers?.has(look)))) {
     acts.unshift(within ? { label: 'Talk', cmd: talkCommand(ent.id) } : { label: `Go talk to ${name}`, cmd: `goto ${ent.x} ${ent.y}` });
   }
+  // Gods can look at and change a player's flags (quest testing).
+  if (me.god && ent.type === TYPE.PLAYER) acts.push({ label: 'Flags (god)', flags: true, god: true });
   if (!me.god || ent.type === TYPE.PLAYER) return acts;
   // Signs can be renamed and rewritten; NPCs given something to say.
   if (isSign(ent)) acts.push({ label: 'Rename (god)', sign: 'name', god: true }, { label: 'Edit text (god)', sign: 'text', god: true });

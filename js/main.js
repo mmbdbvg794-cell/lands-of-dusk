@@ -13,11 +13,12 @@ import { Explored } from './explored.js';
 import { gearFromEquipment, parseWorn, wornCommand } from './gear.js';
 import { StorageReader, isStorage, lookCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
-import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS } from './god.js';
+import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS, parseFlags } from './god.js';
 import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
 import { GodPanel } from './godpanel.js';
 import { DialogueEditor } from './dialogueeditor.js';
 import { TileEditor } from './tileeditor.js';
+import { FlagsDialog } from './flagsdialog.js';
 import { parseDialogueReply, parseTileReply } from './dialogue.js';
 import { Minimap } from './minimap.js';
 import { WorldMap } from './worldmap.js';
@@ -148,6 +149,12 @@ const tileEditor = new TileEditor($('tile-editor'), {
   },
   items: () => god.lists.items ?? [],
 });
+// A player's flags (gods): from the player's click menu.
+const flagsDialog = new FlagsDialog($('flags-dialog'), {
+  send: (cmd, opts) => {
+    if (opts?.quiet) { if (conn?.connected) conn.send(cmd); } else runCommand(cmd);
+  },
+});
 function setGod(on) {
   isGod = on;
   panels.isGod = on;
@@ -165,6 +172,10 @@ const entityMenu = new EntityMenu(
 );
 // Gods rename signs and change what they say.
 entityMenu.onDialogue = (name) => dialogueEditor.edit(name);
+entityMenu.onFlags = (id) => {
+  const ent = world.entities.get(id);
+  flagsDialog.edit(id, ent ? bareName(ent.name) : 'player');
+};
 entityMenu.onDescribe = (id) => {
   const ent = world.entities.get(id);
   const text = window.prompt(`What should "Look" say about ${ent ? bareName(ent.name) : 'this'}?`);
@@ -1016,6 +1027,8 @@ function handle(msg) {
       if (worn) { if (worn.id != null) renderer.setOtherGear(worn.id, gearFromEquipment(worn.equipment)); break; }
       const dlgReply = parseDialogueReply(msg.text);
       if (dlgReply) { dialogueEditor.loaded(dlgReply); break; }
+      const flagsReply = parseFlags(msg.text);
+      if (flagsReply) { flagsDialog.loaded(flagsReply); break; }
       const tileReply = parseTileReply(msg.text);
       if (tileReply) { tileEditor.loaded(tileReply); break; }
       const looks = parseLooks(msg.text);

@@ -1180,3 +1180,10 @@ dialog::backdrop { background: #000a; }
 .god-cmd-desc { grid-area: desc; font-size: 12px; color: var(--muted); }
 .god-cmd-level { grid-area: level; font-size: 10px; color: var(--warn); white-space: nowrap; }
 .god-sec summary { cursor: pointer; margin: 8px 12px 2px; }
+
+.fl-dialog { width: min(420px, calc(100vw - 16px)); top: 12vh; }
+.fl-row { justify-content: space-between; padding: 3px 6px; border-bottom: 1px solid #2a2f39; }
+.fl-row code { font-family: var(--mono); font-size: 13px; color: #9ecbff; }
+.fl-everyday code { color: #858c99; }
+.fl-form { margin-top: 10px; }
+.fl-form input { flex: 1; }
