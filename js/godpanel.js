@@ -17,8 +17,12 @@ export class GodPanel {
   // tab: the #tab-god panel. opts: send(cmd) runs a command; note(text)
   // prints a line to the log; tileSheet() is the map SpriteSheet or null;
   // itemArt() is { sheet, index } for items drawn by name, or null.
-  constructor(tab, { send, note, tileSheet, itemArt }) {
+  // onFloat(out) is told when the panel pops out into its own window (so
+  // the tab can hide) or docks back.
+  constructor(tab, { send, note, tileSheet, itemArt, onFloat }) {
     this.tab = tab;
+    this.onFloat = onFloat;
+    this.floating = null; // the floating window, while popped out
     this.send = send;
     this.note = note;
     this.tileSheet = tileSheet;
@@ -52,7 +56,9 @@ export class GodPanel {
       this.renderUnsaved();
       this.note('Map saved: mobs, props, signs, merchants and tiles are kept.');
     });
-    const head = h('div', { className: 'god-head' }, $.where, $.unsaved, $.save);
+    $.pop = h('button', { type: 'button', className: 'ghost god-pop', textContent: '⇱', title: 'Pop out into its own window' });
+    $.pop.addEventListener('click', () => (this.floating ? this.dock() : this.popOut()));
+    const head = h('div', { className: 'god-head' }, $.where, $.unsaved, $.save, $.pop);
 
     $.kinds = h('div', { className: 'god-kinds', role: 'radiogroup', ariaLabel: 'What to place' });
     for (const [k, label] of KINDS) {
@@ -142,9 +148,51 @@ export class GodPanel {
       'Things are placed on your square. Click something on the map for Remove. ' +
       'Save map keeps mobs, props, signs, merchants and tiles after a restart; items on the ground are never kept, and storage keeps itself.' });
 
-    this.tab.replaceChildren(head, $.kinds, $.listBox, $.textBox, $.tiles, placeRow, $.merchant, tools, hint);
+    this.root = h('div', { className: 'god-root' }, head, $.kinds, $.listBox, $.textBox, $.tiles, placeRow, $.merchant, tools, hint);
+    this.tab.replaceChildren(this.root);
     this.setKind('item');
     this.renderUnsaved();
+  }
+
+  // Pops the panel out into a window of its own, which is dragged by its
+  // title bar and remembers where it was.
+  popOut() {
+    if (this.floating) return;
+    const win = document.createElement('section');
+    win.className = 'god-float card';
+    win.setAttribute('role', 'dialog');
+    win.setAttribute('aria-label', 'God tools');
+    const bar = document.createElement('div');
+    bar.className = 'god-float-bar';
+    const title = document.createElement('span');
+    title.textContent = 'God';
+    const dock = document.createElement('button');
+    dock.type = 'button';
+    dock.className = 'ghost';
+    dock.textContent = 'Dock';
+    dock.title = 'Put back with the other tabs';
+    dock.addEventListener('click', () => this.dock());
+    bar.append(title, dock);
+    win.append(bar, this.root);
+    document.body.append(win);
+    const saved = readPos();
+    placeWindow(win, saved?.x ?? window.innerWidth - win.offsetWidth - 24, saved?.y ?? 80);
+    dragBy(bar, win);
+    this.floating = win;
+    this.$.pop.textContent = '⇲';
+    this.$.pop.title = 'Dock back with the other tabs';
+    this.onFloat?.(true);
+    this.opened();
+  }
+
+  dock() {
+    if (!this.floating) return;
+    this.tab.replaceChildren(this.root);
+    this.floating.remove();
+    this.floating = null;
+    this.$.pop.textContent = '⇱';
+    this.$.pop.title = 'Pop out into its own window';
+    this.onFloat?.(false);
   }
 
   // Runs a command, counting what "Save map" would keep.
@@ -329,4 +377,44 @@ export class GodPanel {
     this.$.unsaved.textContent = n ? `${n} unsaved change${n === 1 ? '' : 's'}` : 'All saved';
     this.$.unsaved.classList.toggle('dirty', n > 0);
   }
+}
+
+// ---- the floating window's position ----
+
+const POS_KEY = 'dusk.godfloat';
+
+function readPos() {
+  try {
+    return JSON.parse(localStorage.getItem(POS_KEY));
+  } catch {
+    return null;
+  }
+}
+
+// Keeps the window on screen.
+function placeWindow(win, x, y) {
+  const maxX = Math.max(0, window.innerWidth - win.offsetWidth - 8);
+  const maxY = Math.max(0, window.innerHeight - 40);
+  win.style.left = `${Math.min(Math.max(8, x), maxX)}px`;
+  win.style.top = `${Math.min(Math.max(8, y), maxY)}px`;
+}
+
+function dragBy(handle, win) {
+  let press = null;
+  handle.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 || e.target.closest('button')) return;
+    press = { id: e.pointerId, dx: e.clientX - win.offsetLeft, dy: e.clientY - win.offsetTop };
+    try { handle.setPointerCapture(e.pointerId); } catch {}
+    e.preventDefault();
+  });
+  handle.addEventListener('pointermove', (e) => {
+    if (press?.id === e.pointerId) placeWindow(win, e.clientX - press.dx, e.clientY - press.dy);
+  });
+  const end = (e) => {
+    if (press?.id !== e.pointerId) return;
+    press = null;
+    try { localStorage.setItem(POS_KEY, JSON.stringify({ x: win.offsetLeft, y: win.offsetTop })); } catch {}
+  };
+  handle.addEventListener('pointerup', end);
+  handle.addEventListener('pointercancel', end);
 }

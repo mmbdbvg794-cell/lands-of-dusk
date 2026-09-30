@@ -35,4 +35,10 @@ assert.deepEqual(labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x
 assert.deepEqual(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 10, y: 10 }, god).at(-1), { label: 'Remove (god)', cmd: 'storage remove', god: true });
 assert.deepEqual(labels(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 11, y: 10 }, god)), ['Open', 'Remove (god) (stand on it)']);
 assert.equal(entityActions(slimer, me).some((a) => a.god), false, 'not for players');
+
+// Storage opens and closes by hand, from next to it.
+const barrel = { id: 4, name: 'Water barrel', type: TYPE.SIGN, x: 11, y: 10 };
+assert.deepEqual(entityActions(barrel, me), [{ label: 'Open', storage: 'open' }]);
+assert.deepEqual(entityActions(barrel, { ...me, storageOpen: 4 }), [{ label: 'Close', storage: 'close' }]);
+assert.deepEqual(entityActions({ ...barrel, x: 14 }, me), [{ label: 'Go to the barrel', cmd: 'goto 14 10' }]);
 console.log('ok - entity actions');

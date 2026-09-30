@@ -18,6 +18,7 @@ export class EntityMenu {
       if (!btn || btn.disabled) return;
       this.close();
       if (btn.dataset.shop) this.onShop?.();
+      else if (btn.dataset.storage) this.onStorage?.(btn.dataset.storage, Number(btn.dataset.ent));
       else this.send(btn.dataset.cmd);
     });
     el.addEventListener('keydown', (e) => {
@@ -108,6 +109,10 @@ export class EntityMenu {
           b.type = 'button';
           b.dataset.cmd = act.cmd ?? '';
           if (act.shop) b.dataset.shop = '1';
+          if (act.storage) {
+            b.dataset.storage = act.storage;
+            b.dataset.ent = String(ent.id);
+          }
           b.disabled = !!act.disabled;
           b.textContent = act.label;
           if (act.hint) {

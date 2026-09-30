@@ -11,7 +11,8 @@ import { bareName } from './world.js';
 import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
 import { gearFromEquipment } from './gear.js';
-import { StorageReader, nearStorage, LOOK as STORAGE_LOOK } from './storage.js';
+import { StorageReader, isStorage, lookCommand } from './storage.js';
+import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList } from './god.js';
 import { GodPanel } from './godpanel.js';
 import { Minimap } from './minimap.js';
@@ -81,10 +82,16 @@ const god = new GodPanel($('tab-god'), {
   note: (t) => sysLine(t),
   tileSheet: () => renderer.sheets?.map ?? null,
   itemArt: () => renderer.items,
+  // Popped out, the tab isn't needed; docked, it comes back and opens.
+  onFloat: (out) => {
+    panels.setTabVisible('god', isGod && !out);
+    if (!out && isGod) panels.selectByName('god', true);
+  },
 });
 function setGod(on) {
   isGod = on;
-  panels.setTabVisible('god', on);
+  if (!on) god.dock();
+  panels.setTabVisible('god', on && !god.floating);
 }
 const entityMenu = new EntityMenu(
   $('entity-menu'),
@@ -92,8 +99,16 @@ const entityMenu = new EntityMenu(
     runCommand(cmd);
     if (/^unset \d/.test(cmd)) god.removed();
   },
-  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod }),
+  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id }),
 );
+entityMenu.onStorage = (action, id) => (action === 'open' ? openStorage(id) : panels.setStorage(null));
+
+// Opens a barrel or chest you can reach, and asks what's in it.
+function openStorage(id) {
+  const ent = world.entities.get(id);
+  if (!ent || !storageReach(ent, { x: world.locX, y: world.locY })) return;
+  if (panels.setStorage(ent)) conn?.send(lookCommand(ent.id));
+}
 entityMenu.onShop = () => panels.openShop();
 const hotbar = new Hotbar($('hotbar'), $('hotbar-picker'), $('map-wrap'), {
   send: (cmd) => runCommand(cmd),
@@ -676,6 +691,14 @@ $('map').addEventListener('click', (e) => {
     conn.send(`goto ${vx + world.locX - world.viewRange} ${vy + world.locY - world.viewRange}`);
     return;
   }
+  // A barrel or chest in reach, with nothing else there but you, opens or
+  // closes with the click itself (gods get the menu, for Remove).
+  const others = here.filter((ent) => !(ent.type === 0 && ent.x === world.locX && ent.y === world.locY));
+  if (!isGod && others.length === 1 && isStorage(others[0]) && storageReach(others[0], { x: world.locX, y: world.locY })) {
+    if (panels.storage?.entity.id === others[0].id) panels.setStorage(null);
+    else openStorage(others[0].id);
+    return;
+  }
   const target = here.find((ent) => ent.type === 0 || ent.type === 4);
   if (target) targetEntity(target);
   const box = $('map-stage').getBoundingClientRect();
@@ -770,8 +793,9 @@ function handle(msg) {
   // On a merchant's square? (Dusk.java enables its Merchant button this way.)
   if (msg.op === OP.MAP || msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || (msg.op >= OP.MOVE_NORTH && msg.op <= OP.MOVE_EAST)) {
     panels.setOnMerchant([...world.entities.values()].find((e) => e.type === 2 && e.x === world.locX && e.y === world.locY));
-    // Next to a barrel or chest? Look inside when you reach one.
-    if (panels.setStorage(nearStorage(world.entities.values(), world.locX, world.locY))) conn?.send(STORAGE_LOOK);
+    // An open barrel or chest closes once it's out of reach.
+    const open = panels.storage && world.entities.get(panels.storage.entity.id);
+    if (panels.storage && !(open && storageReach(open, { x: world.locX, y: world.locY }))) panels.setStorage(null);
     if (isGod) {
       god.setPos(world.locX, world.locY);
       god.setMerchant(panels.onMerchant, player.shop.wares);

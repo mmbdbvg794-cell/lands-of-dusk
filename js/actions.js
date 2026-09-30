@@ -17,7 +17,11 @@ export function distance(ent, x, y) {
   return Math.max(Math.abs(ent.x - x), Math.abs(ent.y - y));
 }
 
-// Returns [{ label, cmd, disabled?, hint?, god? }] for `ent`. `me` is
+// Whether storage is within reach: on your square or next to it.
+export const storageReach = (ent, me) => Math.abs(ent.x - me.x) <= 1 && Math.abs(ent.y - me.y) <= 1;
+
+// Returns [{ label, cmd?, storage?, disabled?, hint?, god? }] for `ent`
+// (storage: 'open' or 'close' the Storage tab, instead of a command). `me` is
 // { x, y, range, god }: where the player stands, their attack range
 // (opcode 28; 1 until the server says), and whether they're a god, who
 // can also remove things ("unset", or "storage remove" standing on it).
@@ -36,10 +40,11 @@ export function entityActions(ent, me) {
 function playerActions(ent, me) {
   const look = { label: 'Look', cmd: `look ${ent.id}` };
   const self = ent.type === TYPE.PLAYER && ent.x === me.x && ent.y === me.y;
-  // Shared storage opens from next to it (the Storage tab lists it).
+  // Shared storage opens (and closes) from next to it; the Storage tab
+  // lists it. me.storageOpen is the ID of the one that's open.
   if (isStorage(ent)) {
-    const near = Math.abs(ent.x - me.x) <= 1 && Math.abs(ent.y - me.y) <= 1;
-    return near ? [{ label: 'Open', cmd: 'storage' }] : [{ label: `Go to the ${storageKind(ent.name)}`, cmd: `goto ${ent.x} ${ent.y}` }];
+    if (!storageReach(ent, me)) return [{ label: `Go to the ${storageKind(ent.name)}`, cmd: `goto ${ent.x} ${ent.y}` }];
+    return me.storageOpen === ent.id ? [{ label: 'Close', storage: 'close' }] : [{ label: 'Open', storage: 'open' }];
   }
   switch (ent.type) {
     case TYPE.MOB: {

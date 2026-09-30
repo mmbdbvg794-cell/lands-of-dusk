@@ -5,6 +5,8 @@
  * file "storage" after every change, so they survive restarts.
  *
  *   storage                    what's in the storage next to you
+ *   storage #<id> [put|take …] the same for one storage by its ID (the
+ *                              client uses this for the one clicked on)
  *   storage put <item>         put an item in (inventory ID or name)
  *   storage take <item>        take an item out (by name)
  *   storage place barrel|chest [label]   (gods) place one here
@@ -89,7 +91,19 @@ public class Storage extends Prop {
         if (lower.equals("remove")) return remove(who, engine);
         if (lower.equals("list")) return list(who);
 
-        Storage s = near(who);
+        // "#<id>" first picks which storage (the one clicked on in the
+        // client); without it, the one here or next to you.
+        Storage s;
+        if (lower.startsWith("#")) {
+            int sp = args.indexOf(' ');
+            String id = sp < 0 ? args.substring(1) : args.substring(1, sp);
+            args = sp < 0 ? "" : args.substring(sp + 1).trim();
+            lower = args.toLowerCase();
+            s = isNumber(id) ? byId(Integer.parseInt(id)) : null;
+            if (s != null && !(Math.abs(s.intLocX - who.intLocX) <= 1 && Math.abs(s.intLocY - who.intLocY) <= 1)) return "The " + s.strName + " is too far away.";
+        } else {
+            s = near(who);
+        }
         if (s == null) return "There's no storage here.";
         if (lower.length() == 0 || lower.equals("look")) return s.listing();
         if (lower.startsWith("put ")) return s.put(who, args.substring(4).trim());
@@ -107,6 +121,14 @@ public class Storage extends Prop {
             if (dx <= 1 && dy <= 1 && best == null) best = s;
         }
         return best;
+    }
+
+    static Storage byId(int id) {
+        for (int i = 0; i < all.size(); i++) {
+            Storage s = (Storage) all.elementAt(i);
+            if (s.ID == id) return s;
+        }
+        return null;
     }
 
     static Storage at(int x, int y) {

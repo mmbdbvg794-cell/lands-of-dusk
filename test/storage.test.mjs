@@ -1,6 +1,6 @@
 // Run with: node test/storage.test.mjs
 import assert from 'node:assert/strict';
-import { StorageReader, nearStorage, isStorage, groupContents, putCommand, takeCommand, storageKind } from '../js/storage.js';
+import { StorageReader, nearStorage, isStorage, groupContents, putCommand, takeCommand, lookCommand, storageKind } from '../js/storage.js';
 
 const r = new StorageReader();
 assert.equal(r.feed('You feel hungry.'), null);
@@ -34,6 +34,7 @@ assert.equal(storageKind('Guild chest'), 'chest');
 assert.equal(storageKind('barrel'), 'barrel');
 
 assert.deepEqual(groupContents(['apple', 'sword', 'apple']), [{ name: 'apple', count: 2 }, { name: 'sword', count: 1 }]);
-assert.equal(putCommand(42), 'storage put 42');
-assert.equal(takeCommand('red potion'), 'storage take red potion');
+assert.equal(lookCommand(7), 'storage #7');
+assert.equal(putCommand(42, 7), 'storage #7 put 42');
+assert.equal(takeCommand('red potion', 7), 'storage #7 take red potion');
 console.log('storage tests passed');

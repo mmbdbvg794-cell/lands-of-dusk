@@ -11,9 +11,11 @@
 
 import { bareName } from './world.js';
 
-export const LOOK = 'storage';
-export const putCommand = (id) => `storage put ${id}`;
-export const takeCommand = (name) => `storage take ${name}`;
+// Each names the storage by its entity ID ("#<id>"), so it's the one that
+// was clicked even with two in reach.
+export const lookCommand = (sid) => `storage #${sid}`;
+export const putCommand = (itemId, sid) => `storage #${sid} put ${itemId}`;
+export const takeCommand = (name, sid) => `storage #${sid} take ${name}`;
 
 export const isStorage = (e) => e?.type === 3 && /(^|\s)(barrel|chest)$/i.test(bareName(e.name ?? ''));
 export const storageKind = (name) => (/chest$/i.test(name) ? 'chest' : 'barrel');

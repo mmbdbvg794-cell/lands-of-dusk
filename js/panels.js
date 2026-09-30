@@ -54,10 +54,13 @@ export class Panels {
     // Storage you're next to ({ entity, listing }), if any: listing is the
     // last { name, items } the server sent, null until it comes.
     this.storage = null;
+    this.$('#store-close').addEventListener('click', () => this.setStorage(null));
     this.$('#tab-store').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-store]');
       if (!btn) return;
-      this.send(btn.dataset.store === 'take' ? takeCommand(btn.dataset.name) : putCommand(btn.dataset.id));
+      const sid = this.storage?.entity.id;
+      if (sid == null) return;
+      this.send(btn.dataset.store === 'take' ? takeCommand(btn.dataset.name, sid) : putCommand(btn.dataset.id, sid));
     });
     // Shop rows: Buy/Sell with the quantity from the row's own box.
     for (const list of [this.$('#shop-buy'), this.$('#shop-sell')]) {
@@ -224,6 +227,8 @@ export class Panels {
     this.$('#bar-sp').hidden = !stamina;
     if (stamina) setBar(this.$('#bar-sp'), stamina.value, stamina.max);
 
+    this.renderCharStats(s);
+
     const secs = [];
     if (s.attributes.length) {
       secs.push(section('Attributes', table(s.attributes.map((a) => {
@@ -245,6 +250,50 @@ export class Panels {
     }
     if (s.other.length) secs.push(section('Other', text('div', 'plain', s.other.join('\n'))));
     this.$('#stats-body').replaceChildren(...secs);
+  }
+
+  // The short version under the HP/MP bars: attributes, the combat
+  // numbers, money and experience, and what you're affected by.
+  renderCharStats(s) {
+    const box = this.$('#char-stats');
+    box.hidden = !s.attributes.length && s.gold === null;
+    if (box.hidden) return;
+    const abbr = { str: 'STR', int: 'INT', dex: 'DEX', con: 'CON', wis: 'WIS' };
+    const attrs = document.createElement('div');
+    attrs.className = 'cs-attrs';
+    for (const a of s.attributes) {
+      const cell = document.createElement('span');
+      cell.className = 'cs-attr';
+      cell.title = `${a.label}: ${a.base}${a.bonus ? ` ${a.bonus > 0 ? '+' : ''}${a.bonus} from gear and effects` : ''}`;
+      const k = text('span', 'cs-key', abbr[a.key] ?? a.key.toUpperCase());
+      const v = text('span', 'cs-val', String(a.base + a.bonus));
+      cell.append(k, v);
+      if (a.bonus) cell.append(text('span', `cs-bonus ${a.bonus > 0 ? 'up' : 'down'}`, a.bonus > 0 ? `+${a.bonus}` : String(a.bonus)));
+      attrs.append(cell);
+    }
+    const facts = document.createElement('div');
+    facts.className = 'cs-facts';
+    const fact = (label, value, cls = '') => {
+      const f = text('span', `cs-fact ${cls}`, '');
+      f.append(text('span', 'cs-key', label), ' ', text('span', 'cs-val', value));
+      return f;
+    };
+    const val = (re) => s.values.find((v) => re.test(v.label))?.value;
+    const ac = val(/armour|^ac$/i), dam = val(/damage/i), range = val(/^range$/i);
+    if (ac != null) facts.append(fact('AC', ac));
+    if (dam != null) facts.append(fact('Dmg', dam));
+    if (range != null) facts.append(fact('Range', range));
+    if (s.gold !== null) facts.append(fact('', `${s.gold} gp`, 'gold'));
+    if (s.exp !== null) facts.append(fact('', `${s.exp} exp`, 'exp'));
+    const kids = [attrs, facts];
+    const affected = s.sections.find((sec) => /affected/i.test(sec.title));
+    if (affected?.items.length) {
+      const conds = document.createElement('div');
+      conds.className = 'cs-conds';
+      conds.append(...affected.items.map((c) => text('span', 'cs-cond', c)));
+      kids.push(conds);
+    }
+    box.replaceChildren(...kids);
   }
 
   // The Shop tab shows while you stand on a merchant, and opens by itself
@@ -297,8 +346,10 @@ export class Panels {
     this.renderShopSummary();
   }
 
-  // The Storage tab shows while you're next to a barrel or chest, and
-  // opens by itself when you reach one. entity: the storage prop, or null.
+  // The Storage tab shows while a barrel or chest is open: you open one by
+  // clicking it, and close it by clicking it again, with Close, or by
+  // walking away. entity: the storage prop, or null to close. Returns
+  // whether one was just opened (so its contents can be asked for).
   setStorage(entity) {
     const was = this.storage?.entity.id ?? null;
     if ((entity?.id ?? null) === was) return false;
