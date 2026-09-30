@@ -1,0 +1,313 @@
+/* The Classic look: the game's own art, as on the website
+ * (duskserver/web): a stone background, the login screen's stone frame
+ * with sapphire corners around every panel, gold Cinzel headings and the
+ * bevelled blue buttons. Inside the tabs, the spellbook's parchment and ink.
+ * The God tools keep the Modern look (they're for running the world).
+ *
+ * Everything is under body.classic; without it, style.css alone is Modern.
+ */
+
+body.classic {
+  --stone-dark: #2e2e30;
+  --stone-mid: #45464a;
+  --stone-light: #a9abb2;
+  --sapphire: #1a2f5c;
+  --sapphire-bright: #3a5ba0;
+  --gold: #cbb26a;
+  --gold-bright: #e8d391;
+  --parchment: #d8d2c0;
+  --ink: #3b2a17;
+  --ink-soft: #6d5536;
+  --ink-red: #7a2e14;
+
+  --bg: #202022;
+  --panel: rgba(20, 20, 22, 0.55);
+  --panel-2: rgba(46, 46, 50, 0.85);
+  --border: #56575c;
+  --text: var(--parchment);
+  --muted: var(--stone-light);
+  --faint: #7b7c82;
+  --accent: var(--gold);
+  --accent-dim: var(--sapphire);
+  --warn: var(--gold-bright);
+  --radius: 2px;
+
+  background: var(--stone-dark) url("../img/theme/bgTile.jpg") repeat;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 15px;
+}
+
+/* ---- the frame: the login screen's stone border with sapphire corners ---- */
+
+body.classic .card,
+body.classic .login-card,
+body.classic .settings-menu {
+  border: 16px solid transparent;
+  border-image: url("../img/theme/bgframe.jpg") 40 fill / 16px stretch;
+  border-radius: 0;
+  background: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+
+/* ---- top bar ---- */
+
+body.classic #topbar {
+  background: linear-gradient(180deg, #3a3b3f, #242427);
+  border-bottom: 2px solid #1a1a1a;
+  box-shadow: 0 1px 0 rgba(203, 178, 106, 0.35), 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+body.classic .brand {
+  font-family: "Cinzel", serif;
+  font-size: 20px;
+  color: var(--gold-bright);
+  text-shadow: 0 0 8px rgba(203, 178, 106, 0.35), 1px 1px 0 #111;
+}
+body.classic h1, body.classic h2, body.classic #char-name {
+  font-family: "Cinzel", serif;
+  color: var(--gold-bright);
+  text-shadow: 1px 1px 0 #111;
+}
+
+/* ---- buttons: the game's bevelled blue block ---- */
+
+body.classic button,
+body.classic #settings summary {
+  font-family: "Cinzel", serif;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: #eaf1ff;
+  background: #1e3566 url("../img/theme/blockButton.jpg") center / 100% 100%;
+  border: 1px solid #0b1630;
+  border-radius: 3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+body.classic button:hover:not(:disabled),
+body.classic #settings summary:hover { filter: brightness(1.15); border-color: var(--gold); }
+body.classic button.ghost { background: rgba(0, 0, 0, 0.25); }
+body.classic button.danger { background: #5a1f18; background-image: linear-gradient(180deg, #8a3326, #4a1812); }
+body.classic .segmented { border-color: #0b1630; border-radius: 3px; }
+body.classic .segmented button { background: #20242e; color: var(--stone-light); border-radius: 0; }
+body.classic .segmented button[aria-checked="true"] { background: #1e3566 url("../img/theme/blockButton.jpg") center / 100% 100%; color: #fff; }
+body.classic input[type="text"], body.classic input[type="password"], body.classic input[type="number"],
+body.classic input[type="search"], body.classic select {
+  font-family: "EB Garamond", Georgia, serif;
+  background: rgba(10, 10, 12, 0.7);
+  border-color: #5a5b60;
+  color: var(--parchment);
+}
+
+/* ---- character card: name, bars, stats ---- */
+
+body.classic #char-card { padding: 4px 6px; }
+body.classic #char-name { font-size: 18px; }
+body.classic #stat-loc { color: var(--gold); }
+body.classic .bar-label { font-family: "Cinzel", serif; color: var(--gold); }
+body.classic .bar-track {
+  height: 10px;
+  border-radius: 2px;
+  background: #0d0d0f;
+  box-shadow: inset 0 1px 2px #000, 0 0 0 1px #5a5b60;
+}
+body.classic .bar-fill { border-radius: 1px; background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.2)); }
+body.classic .char-stats { border-top-color: rgba(203, 178, 106, 0.3); }
+body.classic .cs-attr { background: rgba(10, 10, 12, 0.55); border-color: #5a5b60; border-radius: 2px; }
+body.classic .cs-attr .cs-key { font-family: "Cinzel", serif; color: var(--gold); }
+body.classic .cs-attr .cs-val { font-family: "EB Garamond", serif; font-size: 17px; color: var(--gold-bright); }
+body.classic .cs-cond { background: #5a1f18; border: 1px solid #8a3326; color: #f3dcc8; border-radius: 2px; }
+body.classic .eyebrow { font-family: "Cinzel", serif; color: var(--gold); }
+
+/* ---- the tab strip ---- */
+
+body.classic #panel { padding: 0; }
+body.classic #panel-tabs { border-bottom: 1px solid rgba(203, 178, 106, 0.35); }
+body.classic [role="tab"] {
+  font-family: "Cinzel", serif;
+  font-size: 13px;
+  color: var(--stone-light);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  text-shadow: 1px 1px 0 #111;
+  filter: none;
+}
+body.classic [role="tab"][aria-selected="true"] { color: var(--gold-bright); border-bottom-color: var(--gold); }
+body.classic [role="tab"]:hover:not(:disabled) { color: var(--gold-bright); }
+
+/* ---- inside the tabs: the spellbook's parchment and ink ---- */
+
+body.classic .tab:not(#tab-god):not(#tab-book) {
+  margin: 6px;
+  padding: 8px 4px;
+  color: var(--ink);
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 15px;
+  background:
+    radial-gradient(ellipse at 20% 0%, #fff6dc88, transparent 60%),
+    linear-gradient(180deg, #efe2c2, #e2cfa2);
+  border: 1px solid #8a6a3a;
+  border-radius: 3px;
+  box-shadow: inset 0 0 40px #a0783a44, 0 2px 8px #0008;
+  --text: var(--ink);
+  --muted: var(--ink-soft);
+  --faint: #9a8260;
+  --border: #b08a5a;
+  --panel: #f3e7c9;
+  --panel-2: #eadbb6;
+  --warn: #8a6a1a;
+  --ok: #2e6b4f;
+  --bad: #9a2a1a;
+  --accent: var(--ink-red);
+  --accent-dim: #d9c392;
+}
+body.classic #tab-book { padding: 8px 0; }
+
+/* Buttons on parchment: the spellbook's little pills. */
+body.classic .tab:not(#tab-god) button {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 13px;
+  letter-spacing: 0;
+  color: var(--ink);
+  background: #f6ecd2;
+  border: 1px solid #a07a48;
+  border-radius: 999px;
+  text-shadow: none;
+}
+body.classic .tab:not(#tab-god) button:hover:not(:disabled) { background: #fff6de; border-color: var(--ink-red); filter: none; }
+body.classic .tab:not(#tab-god) button.armed { background: #9a2a1a; color: #fff; border-color: #6b1a0e; }
+body.classic .tab:not(#tab-god) input,
+body.classic .tab:not(#tab-god) select {
+  color: var(--ink);
+  background: #fbf3dd;
+  border: 1px solid #b08a5a;
+}
+
+/* Lists: ruled like a ledger. */
+body.classic .tab:not(#tab-god) .rows li { border-bottom: 1px dotted #b08a5a88; border-radius: 0; }
+body.classic .tab:not(#tab-god) .rows li:hover { background: #fff3d466; }
+body.classic .tab:not(#tab-god) .rows .name { font-size: 15px; }
+body.classic .tab:not(#tab-god) .pill { background: #e2cfa2; color: var(--ink-soft); border: 1px solid #b08a5a; }
+body.classic .tab:not(#tab-god) .summary { color: var(--ink-soft); border-bottom: 3px double #b08a5a; margin: 0 8px 4px; padding: 0 4px 4px; }
+body.classic .tab:not(#tab-god) .summary .gold { color: #8a6a1a; }
+body.classic .tab:not(#tab-god) .list-head,
+body.classic .tab:not(#tab-god) .stat-section h4 {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 14px;
+  font-variant: small-caps;
+  text-transform: none;
+  letter-spacing: 0.1em;
+  color: var(--ink-red);
+  border-bottom: 3px double #b08a5a;
+  padding-bottom: 1px;
+}
+body.classic .tab:not(#tab-god) .empty { color: var(--ink-soft); font-style: italic; }
+body.classic .tab:not(#tab-god) .chip { background: #f6ecd2; border-color: #b08a5a; color: var(--ink); }
+body.classic .tab:not(#tab-god) .stat-table td.num,
+body.classic .tab:not(#tab-god) .stat-table td.bonus { font-family: "EB Garamond", Georgia, serif; font-size: 14px; }
+
+/* Equipped: the body outline in brown ink on the page. */
+body.classic .doll-body { fill: #d6c08e; stroke: #8a6a3a; }
+body.classic .doll-slot { background: #f6ecd2d9; border-color: #a07a48; border-radius: 3px; }
+body.classic .doll-slot.empty-slot { background: #efe2c266; border-color: #b08a5a; }
+body.classic .doll-slot .slot-label { font-variant: small-caps; text-transform: none; font-size: 12px; letter-spacing: 0.06em; color: var(--ink-red); }
+body.classic .doll-slot .slot-item { font-size: 14px; }
+body.classic .doll-slot .remove { background: none; border: none; color: var(--ink-soft); }
+
+/* ---- the chat: dark slate, parchment text ---- */
+
+body.classic #log { padding: 0; }
+body.classic #output {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 15px;
+  background: rgba(8, 8, 10, 0.55);
+  box-shadow: inset 0 0 12px #000;
+}
+body.classic #output .echo { color: var(--gold-bright); }
+body.classic #output .sys { color: var(--stone-light); }
+body.classic #input { font-family: "EB Garamond", Georgia, serif; font-size: 15px; }
+body.classic #output-latest { font-size: 12px; }
+
+/* ---- on the map ---- */
+
+body.classic #map { box-shadow: 0 0 0 2px #111, 0 0 0 4px rgba(203, 178, 106, 0.45), 0 8px 24px rgba(0, 0, 0, 0.6); }
+body.classic #minimap { border: 2px solid var(--gold); border-radius: 2px; }
+body.classic #hotbar { background: rgba(20, 20, 22, 0.75); border: 1px solid #5a5b60; border-radius: 3px; }
+body.classic #hotbar .slot { background: rgba(10, 10, 12, 0.7); border-color: #5a5b60; border-radius: 2px; font-family: "EB Garamond", Georgia, serif; }
+body.classic #hotbar .slot .key { color: var(--gold); font-family: "Cinzel", serif; }
+/* The click menu: a scrap of parchment. */
+body.classic #entity-menu {
+  color: var(--ink);
+  background: linear-gradient(180deg, #efe2c2, #e2cfa2);
+  border: 1px solid #8a6a3a;
+  border-radius: 3px;
+  box-shadow: inset 0 0 20px #a0783a44, 0 6px 16px #000a;
+}
+body.classic #entity-menu h3 { font-family: "Cinzel", serif; color: var(--ink-red); }
+body.classic #entity-menu button {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 15px;
+  color: var(--ink);
+  background: none;
+  border: none;
+  text-shadow: none;
+}
+body.classic #entity-menu button:hover:not(:disabled),
+body.classic #entity-menu button:focus-visible { background: #fff3d4; filter: none; }
+body.classic #entity-menu button .hint { color: var(--ink-soft); }
+body.classic #entity-menu section + section { border-top-color: #b08a5a; }
+body.classic .popover { background: rgba(20, 20, 22, 0.95); border-color: #5a5b60; }
+
+/* ---- login ---- */
+
+body.classic .login-card { padding: 18px 22px; }
+body.classic .login-card h1 { font-size: 34px; text-align: center; }
+body.classic .login-card button.primary { font-size: 17px; padding: 10px; }
+
+/* ---- the God tools keep the Modern look ---- */
+
+body.classic #tab-god,
+body.classic .god-float {
+  --bg: #0e1014;
+  --panel: #171a20;
+  --panel-2: #1e222a;
+  --border: #2a2f39;
+  --text: #dde0e5;
+  --muted: #858c99;
+  --faint: #5c6370;
+  --accent: #6aa9ff;
+  --accent-dim: #2b4a73;
+  --warn: #e0b341;
+  --radius: 8px;
+  color: var(--text);
+  background: var(--panel);
+  font: 14px/1.4 system-ui, sans-serif;
+}
+body.classic .god-float { border: 1px solid var(--border); border-image: none; border-radius: 8px; }
+body.classic #tab-god button,
+body.classic .god-float button {
+  font: 13px/1.4 system-ui, sans-serif;
+  letter-spacing: 0;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-shadow: none;
+  filter: none;
+}
+body.classic #tab-god button.primary, body.classic .god-float button.primary { background: var(--accent-dim); border-color: #3b6297; }
+body.classic #tab-god button:hover:not(:disabled), body.classic .god-float button:hover:not(:disabled) { border-color: var(--accent); }
+body.classic #tab-god input, body.classic #tab-god select,
+body.classic .god-float input, body.classic .god-float select {
+  font-family: system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  border-color: var(--border);
+}
+body.classic [role="tab"][data-tab="god"] { font-family: system-ui, sans-serif; color: #d7a6ff; }
+
+/* ---- fitting it together ---- */
+
+/* Cinzel runs wide: tighter tabs so they all fit. */
+body.classic [role="tab"] { font-size: 12px; padding: 8px 7px 6px; letter-spacing: 0; }
+/* The stone shows around the map instead of black. */
+body.classic #map-wrap { background: none; }
+body.classic #map-wrap canvas#map { background: #000; }

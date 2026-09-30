@@ -9,14 +9,25 @@
     // need the trailing slash: /play -> /play/.
     if (!/\/$|\.html$/.test(location.pathname)) location.replace(location.pathname + '/' + location.search + location.hash);
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
   <link rel="stylesheet" href="css/style.css">
+  <!-- The Classic look (stone frames and parchment, like the website);
+       everything in it is under body.classic, so Modern is untouched. -->
+  <link rel="stylesheet" href="css/classic.css">
 </head>
-<body class="in-login">
+<body class="in-login classic">
+  <script>try { if (localStorage.getItem('dusk.look') === 'modern') document.body.classList.remove('classic'); } catch {}</script>
   <header id="topbar">
     <span class="brand">Dusk</span>
     <span id="status-dot" class="dot off" aria-hidden="true"></span>
     <span id="status-text" role="status">Disconnected</span>
     <span class="spacer"></span>
+    <div id="look-toggle" class="segmented" role="radiogroup" aria-label="Look">
+      <button type="button" role="radio" data-look="classic" aria-checked="true">Classic</button>
+      <button type="button" role="radio" data-look="modern" aria-checked="false">Modern</button>
+    </div>
     <div id="art-toggle" class="segmented" role="radiogroup" aria-label="Art style">
       <button type="button" role="radio" data-art="pixel" aria-checked="true">Pixel</button>
       <button type="button" role="radio" data-art="painted" aria-checked="false">Painted</button>
@@ -228,6 +239,7 @@
     </aside>
     <section id="log" class="card">
       <main id="output" aria-live="polite"></main>
+      <button type="button" id="output-latest" hidden>New messages ↓</button>
       <div id="prompt-bar" role="group" aria-labelledby="prompt-text" hidden>
         <span id="prompt-text"></span>
         <button type="button" data-answer="yes" class="primary">Yes</button>

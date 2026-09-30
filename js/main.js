@@ -26,6 +26,29 @@ import { World } from './world.js';
 
 const $ = (id) => document.getElementById(id);
 const output = $('output');
+
+// The log follows the newest line unless you've scrolled up to read; then
+// a "New messages" button offers the way back down. Whether it's
+// following is decided by your scrolling, not by where it happens to be
+// when a line arrives, so a log that changes size (a tab opening, the
+// window resizing) doesn't lose its place.
+let followLog = true;
+const latestBtn = $('output-latest');
+const logNearBottom = () => output.scrollHeight - output.scrollTop - output.clientHeight < 24;
+function toLatest() {
+  followLog = true;
+  output.scrollTop = output.scrollHeight;
+  latestBtn.hidden = true;
+}
+output.addEventListener('scroll', () => {
+  followLog = logNearBottom();
+  if (followLog) latestBtn.hidden = true;
+});
+latestBtn.addEventListener('click', toLatest);
+new ResizeObserver(() => {
+  if (followLog) output.scrollTop = output.scrollHeight;
+}).observe(output);
+
 const input = $('input');
 const serverUrl = $('server-url');
 const connectBtn = $('connect-btn');
@@ -917,6 +940,17 @@ function setArt(style) {
   applyArt();
 }
 $('art-style').addEventListener('change', (e) => setArt(e.target.value));
+// The look: Classic (stone and parchment, like the website) or Modern.
+function setLook(look) {
+  document.body.classList.toggle('classic', look === 'classic');
+  storage('set', 'dusk.look', look);
+  for (const b of document.querySelectorAll('#look-toggle [data-look]')) b.setAttribute('aria-checked', String(b.dataset.look === look));
+}
+setLook(storage('get', 'dusk.look') === 'modern' ? 'modern' : 'classic');
+$('look-toggle').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-look]');
+  if (b) setLook(b.dataset.look);
+});
 $('art-toggle').addEventListener('click', (e) => {
   const b = e.target.closest('[data-art]');
   if (b) setArt(b.dataset.art);
@@ -1211,14 +1245,16 @@ function traceLine(msg) {
 }
 
 function appendLine(text, cls, color) {
-  const atBottom = output.scrollHeight - output.scrollTop - output.clientHeight < 40;
   const div = document.createElement('div');
   div.className = cls ? `line ${cls}` : 'line';
   if (color) div.style.color = color;
   div.textContent = text;
   output.appendChild(div);
   while (output.childElementCount > MAX_LINES) output.firstElementChild.remove();
-  if (atBottom) output.scrollTop = output.scrollHeight;
+  // What you type always brings you back to the latest.
+  if (cls === 'echo') followLog = true;
+  if (followLog) output.scrollTop = output.scrollHeight;
+  else latestBtn.hidden = false;
 }
 
 // Server colors were picked for the Java client's white text area; lift

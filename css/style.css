@@ -469,6 +469,7 @@ body.playing #map-wrap { display: flex; }
 /* ---- log ---- */
 
 #log {
+  position: relative;
   grid-area: log;
   min-height: 0;
   margin: 8px;
@@ -489,6 +490,16 @@ body.playing #map-wrap { display: flex; }
   tab-size: 4;
 }
 #output .line { min-height: 1.4em; }
+#output-latest {
+  position: absolute;
+  right: 22px;
+  bottom: 58px;
+  z-index: 2;
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
 #output .sys { color: var(--muted); font-style: italic; }
 #output .err { color: var(--bad); }
 #output .echo { color: var(--accent); }
