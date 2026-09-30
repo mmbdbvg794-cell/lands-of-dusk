@@ -129,9 +129,17 @@ button.small { padding: 2px 8px; font-size: 12px; }
 #mute-btn { padding: 4px 8px; line-height: 1; }
 #mute-btn[aria-pressed="true"] { opacity: 0.6; }
 .settings-volume { display: none; }
+/* Art style: a Pixel | Smooth switch in the top bar; in Settings on phones. */
+.segmented { display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.segmented button { border: none; border-radius: 0; padding: 5px 10px; font-size: 13px; background: var(--panel-2); color: var(--muted); }
+.segmented button + button { border-left: 1px solid var(--border); }
+.segmented button[aria-checked="true"] { background: var(--accent-dim); color: var(--text); }
+.settings-art { display: none !important; }
 @media (max-width: 600px) {
   .top-volume { display: none; }
   .settings-volume { display: block; }
+  #art-toggle { display: none; }
+  .settings-art { display: flex !important; }
 }
 
 /* ---- play area: map, side column (cards and tabs) and chat ----

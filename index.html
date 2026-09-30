@@ -4,6 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Dusk</title>
+  <script>
+    // Served under a path (/play via Tailscale), the page's relative links
+    // need the trailing slash: /play -> /play/.
+    if (!/\/$|\.html$/.test(location.pathname)) location.replace(location.pathname + '/' + location.search + location.hash);
+  </script>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="in-login">
@@ -12,6 +17,10 @@
     <span id="status-dot" class="dot off" aria-hidden="true"></span>
     <span id="status-text" role="status">Disconnected</span>
     <span class="spacer"></span>
+    <div id="art-toggle" class="segmented" role="radiogroup" aria-label="Art style">
+      <button type="button" role="radio" data-art="pixel" aria-checked="true">Pixel</button>
+      <button type="button" role="radio" data-art="smooth" aria-checked="false">Smooth</button>
+    </div>
     <div id="sound-controls">
       <button type="button" id="mute-btn" aria-pressed="false" title="Sound on (click to mute)" aria-label="Mute">🔊</button>
       <input class="volume top-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Volume" title="Volume">
@@ -34,7 +43,7 @@
         </div>
         <label class="toggle"><input id="hotbar-toggle" type="checkbox" checked> Hotbar</label>
         <label class="toggle"><input id="chat-bottom" type="checkbox" checked> Chat across the bottom</label>
-        <div class="toggle-row">
+        <div class="toggle-row settings-art">
           <label class="toggle" for="art-style">Art style</label>
           <select id="art-style">
             <option value="pixel">Pixel (original)</option>

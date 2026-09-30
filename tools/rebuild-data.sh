@@ -22,4 +22,4 @@ for name in spellinfo raceinfo; do
   rm -f "$out.new"
 done
 
-python3 tools/smoothart.py "$GAME/rc/images" art/smooth 1.0
+python3 tools/smoothart.py "$GAME/rc/images" art/smooth

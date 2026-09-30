@@ -34,7 +34,12 @@ const stepsBox = $('steps-toggle');
 
 const MAX_LINES = 2000;
 const HISTORY_MAX = 100;
-const DEFAULT_BRIDGE = 'ws://192.168.4.61:8765';
+// On the LAN the page is plain http and the bridge is on port 8765. From
+// outside (https://duskserver.tailaee0f2.ts.net/play/, via Tailscale Funnel)
+// the bridge is at /ws on the same address, over wss: an https page can't
+// open a plain ws:// connection.
+const SECURE = location.protocol === 'https:';
+const DEFAULT_BRIDGE = SECURE ? `wss://${location.host}/ws` : 'ws://192.168.4.61:8765';
 // The game server's own ResourceServer, tried on the bridge's host if the
 // address from opcode 1 doesn't serve the sprite sheets.
 const FALLBACK_RC_PORT = 8000;
@@ -115,9 +120,11 @@ const WASD = { w: 'n', s: 's', a: 'w', d: 'e' };
 
 // ---- setup -----------------------------------------------------------------
 
+// A saved plain ws:// address can't work from an https page; use the default.
+const savedServer = storage('get', 'dusk.server');
 serverUrl.value =
   new URLSearchParams(location.search).get('server') ||
-  storage('get', 'dusk.server') ||
+  (SECURE && savedServer?.startsWith('ws://') ? null : savedServer) ||
   DEFAULT_BRIDGE;
 traceBox.checked = storage('get', 'dusk.trace') === '1';
 traceBox.addEventListener('change', () => storage('set', 'dusk.trace', traceBox.checked ? '1' : '0'));
@@ -300,7 +307,8 @@ function loadPlayerSheet() {
     const img = new Image();
     img.onload = () => resolve((playerSheet = new SpriteSheet(img)));
     img.onerror = () => resolve(null);
-    img.src = `http://${host}:${FALLBACK_RC_PORT}/images/players.gif`;
+    // Over https the resource server is the root of the same address.
+    img.src = SECURE ? `${location.origin}/images/players.gif` : `http://${host}:${FALLBACK_RC_PORT}/images/players.gif`;
   });
 }
 
@@ -787,7 +795,8 @@ async function loadGraphics(address) {
   const c = conn;
   const candidates = [address];
   try {
-    const fallback = `http://${new URL(c.url.replace(/^ws/, 'http')).hostname}:${FALLBACK_RC_PORT}/`;
+    // (Not from an https page: browsers block plain http images there.)
+    const fallback = SECURE ? `${location.origin}/` : `http://${new URL(c.url.replace(/^ws/, 'http')).hostname}:${FALLBACK_RC_PORT}/`;
     if (fallback !== address) candidates.push(fallback);
   } catch {}
 
@@ -819,12 +828,22 @@ async function loadGraphics(address) {
 let pixelSheets = null;
 let smoothSheets = null;
 let artStyle = storage('get', 'dusk.art') === 'smooth' ? 'smooth' : 'pixel';
-$('art-style').value = artStyle;
-$('art-style').addEventListener('change', (e) => {
-  artStyle = e.target.value;
-  storage('set', 'dusk.art', artStyle);
+// Two switches, kept in step: Pixel | Smooth in the top bar, and a menu in
+// Settings (shown instead on phones).
+function setArt(style) {
+  artStyle = style;
+  storage('set', 'dusk.art', style);
+  $('art-style').value = style;
+  for (const b of document.querySelectorAll('#art-toggle [data-art]')) b.setAttribute('aria-checked', String(b.dataset.art === style));
   applyArt();
+}
+$('art-style').addEventListener('change', (e) => setArt(e.target.value));
+$('art-toggle').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-art]');
+  if (b) setArt(b.dataset.art);
 });
+$('art-style').value = artStyle;
+for (const b of document.querySelectorAll('#art-toggle [data-art]')) b.setAttribute('aria-checked', String(b.dataset.art === artStyle));
 
 async function applyArt() {
   let sheets = pixelSheets;

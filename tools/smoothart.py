@@ -1,25 +1,32 @@
 #!/usr/bin/env python3
-"""Makes the "Smooth" art style: the server's three sprite sheets redrawn
-at 4x with Scale2x applied twice (Scale4x), a pixel-art upscaler that
-rounds off staircase edges and diagonals without blurring.
+"""Makes the "Smooth" art style from the server's three sprite sheets.
 
-    python3 tools/smoothart.py /home/flan/DuskRPG/rc/images art/smooth [soften]
+    python3 tools/smoothart.py /home/flan/DuskRPG/rc/images art/smooth
 
-Each sheet is a strip of square frames (the side is the image height), and
-each frame is scaled on its own, so edges never borrow pixels from the
-next frame. "soften" (default 1.0, in 4x pixels; 0 for none) then blurs
-each frame a little, premultiplied so transparent edges don't darken, to
-take the grain off. Output is PNG with transparency. A sheet is only
-redone when its source is newer than the output, so running this often
-is cheap.
-Needs Pillow (the server has it).
+Each frame (the sheets are strips of square frames, the side being the
+image height) is redrawn on its own, so edges never borrow pixels from the
+next frame:
+  1. Scale4x (Scale2x twice): a pixel-art upscaler that rounds off
+     staircase edges and diagonals.
+  2. A blur, premultiplied so transparent edges don't darken, that takes
+     the grain off the textures: stronger on the map tiles than on the
+     small character sprites, which would turn to mush.
+  3. An unsharp mask that brings the outlines back, so the result looks
+     painted rather than blurry.
+  4. A little more colour.
+The settings are written to art/smooth/STYLE; sheets are redone when a
+source image is newer or the settings changed, so running this often is
+cheap. Needs Pillow (the server has it).
 """
+import json
 import os
 import sys
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageEnhance, ImageFilter
 
 SHEETS = ["map", "players", "sprites"]
+# Blur radius per sheet (in 4x pixels), sharpening strength, colour boost.
+STYLE = {"version": 2, "blur": {"map": 3.0, "players": 1.6, "sprites": 2.2}, "sharpen": 140, "color": 1.25}
 
 
 def scale2x(px, w, h):
@@ -51,48 +58,57 @@ def scale2x(px, w, h):
     return out
 
 
-def smooth_frame(frame, soften):
+def smooth_frame(frame, blur):
     w, h = frame.size
     # get_flattened_data replaces getdata from Pillow 12 on.
     px = list(frame.get_flattened_data() if hasattr(frame, "get_flattened_data") else frame.getdata())
-    px = scale2x(px, w, h)
-    px = scale2x(px, 2 * w, 2 * h)
+    px = scale2x(scale2x(px, w, h), 2 * w, 2 * h)
     out = Image.new("RGBA", (4 * w, 4 * h))
     out.putdata(px)
-    if soften > 0:
-        # "RGBa" is premultiplied, so blurring into transparent pixels
-        # doesn't drag in their (black) colour.
-        out = out.convert("RGBa").filter(ImageFilter.GaussianBlur(soften)).convert("RGBA")
-    return out
+    # "RGBa" is premultiplied, so blurring into transparent pixels doesn't
+    # drag in their (black) colour.
+    out = out.convert("RGBa").filter(ImageFilter.GaussianBlur(blur)).convert("RGBA")
+    alpha = out.getchannel("A")
+    rgb = out.convert("RGB").filter(ImageFilter.UnsharpMask(radius=blur * 1.2, percent=STYLE["sharpen"], threshold=2))
+    rgb = ImageEnhance.Color(rgb).enhance(STYLE["color"])
+    rgb.putalpha(alpha)
+    return rgb
 
 
-def smooth_sheet(src, dst, soften):
+def smooth_sheet(src, dst, blur):
     sheet = Image.open(src).convert("RGBA")
     size = sheet.height
     frames = sheet.width // size
     out = Image.new("RGBA", (frames * size * 4, size * 4))
     for i in range(frames):
         frame = sheet.crop((i * size, 0, (i + 1) * size, size))
-        out.paste(smooth_frame(frame, soften), (i * size * 4, 0))
+        out.paste(smooth_frame(frame, blur), (i * size * 4, 0))
     tmp = dst + ".new"
     out.save(tmp, "PNG", optimize=True)
     os.replace(tmp, dst)
     return frames, size
 
 
-def main(src_dir, out_dir, soften=1.0):
+def main(src_dir, out_dir):
     os.makedirs(out_dir, exist_ok=True)
+    stamp = os.path.join(out_dir, "STYLE")
+    try:
+        same_style = json.load(open(stamp)) == STYLE
+    except (OSError, ValueError):
+        same_style = False
     for name in SHEETS:
         src = os.path.join(src_dir, f"{name}.gif")
         dst = os.path.join(out_dir, f"{name}.png")
         if not os.path.exists(src):
             print(f"{name}: no {src}", file=sys.stderr)
             continue
-        if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src):
+        if same_style and os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src):
             continue
-        frames, size = smooth_sheet(src, dst, soften)
+        frames, size = smooth_sheet(src, dst, STYLE["blur"][name])
         print(f"{name}: {frames} frames, {size}px -> {size * 4}px")
+    with open(stamp, "w") as f:
+        json.dump(STYLE, f)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], float(sys.argv[3]) if len(sys.argv) > 3 else 1.0)
+    main(sys.argv[1], sys.argv[2])
