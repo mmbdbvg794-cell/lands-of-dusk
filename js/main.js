@@ -823,13 +823,13 @@ async function loadGraphics(address) {
 
 // ---- art style ---------------------------------------------------------------
 //
-// Pixel is the server's own sheets. Painted repaints the map tiles in a new
-// style (tools/paintart/painter.js, built into art/painted/map.png next to
-// this page), loaded the first time it's picked; characters and creatures
-// keep the original art for now.
+// Pixel is the server's own sheets. Painted is the same world repainted
+// (tools/paintart: map tiles by painter.js, characters and creatures by
+// figures.js, built into art/painted/ next to this page), loaded the first
+// time it's picked. Any painted sheet that fails falls back to Pixel's.
 
 let pixelSheets = null;
-let paintedMap = null;
+let paintedSheets = null;
 let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
 // Two switches, kept in step: Pixel | Painted in the top bar, and a menu in
 // Settings (shown instead on phones).
@@ -851,9 +851,17 @@ for (const b of document.querySelectorAll('#art-toggle [data-art]')) b.setAttrib
 async function applyArt() {
   let sheets = pixelSheets;
   if (artStyle === 'painted' && pixelSheets) {
-    paintedMap ??= await loadSheet('art/painted/map.png');
-    if (paintedMap) sheets = { ...pixelSheets, map: paintedMap };
-    else errLine('The Painted art isn\'t available on this server yet; showing Pixel.');
+    if (!paintedSheets) {
+      const [map, players, sprites] = await Promise.all(['map', 'players', 'sprites'].map((n) => loadSheet(`art/painted/${n}.png`)));
+      paintedSheets = { map, players, sprites };
+      if (!map && !players && !sprites) errLine('The Painted art isn\'t available on this server yet; showing Pixel.');
+    }
+    sheets = {
+      ...pixelSheets,
+      map: paintedSheets.map ?? pixelSheets.map,
+      players: paintedSheets.players ?? pixelSheets.players,
+      sprites: paintedSheets.sprites ?? pixelSheets.sprites,
+    };
   }
   if (!sheets) return;
   renderer.setSheets(sheets);

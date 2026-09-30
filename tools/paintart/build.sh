@@ -1,12 +1,14 @@
 #!/bin/sh
-# Builds art/painted/map.png (the Painted art style's map tiles) from the
-# server's map.gif, by running tools/paintart/painter.js in headless Chrome.
+# Builds the Painted art style from the server's sprite sheets, by running
+# tools/paintart in headless Chrome:
+#   art/painted/map.png      map tiles (painter.js)
+#   art/painted/players.png  characters (figures.js)
+#   art/painted/sprites.png  creatures, items and props (figures.js)
 #
 #   sh tools/paintart/build.sh
 #
 # Runs on the dev machine (it needs the headless Chrome there);
-# tools/deploy.sh calls it and copies the result to the server. Only the
-# map is repainted so far; characters and creatures keep the original art.
+# tools/deploy.sh calls it and copies the result to the server.
 set -eu
 cd "$(dirname "$0")/../.."
 RC=${RC:-http://192.168.4.61:8000}
@@ -15,8 +17,10 @@ CHROME=${CHROME:-$(ls -d "$HOME"/.cache/ms-playwright/chromium_headless_shell-*/
 
 work=$(mktemp -d)
 trap 'kill $server 2>/dev/null; rm -rf "$work"' EXIT
-cp tools/paintart/index.html tools/paintart/painter.js "$work/"
-curl -s -f -m 20 -o "$work/map.gif" "$RC/images/map.gif"
+cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js "$work/"
+for name in map players sprites; do
+  curl -s -f -m 20 -o "$work/$name.gif" "$RC/images/$name.gif"
+done
 
 port=$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')
 (cd "$work" && exec python3 -m http.server "$port" --bind 127.0.0.1 >/dev/null 2>&1) &
@@ -24,13 +28,16 @@ server=$!
 sleep 1
 
 mkdir -p art/painted
-"$CHROME" --no-sandbox --disable-gpu --virtual-time-budget=60000 --dump-dom "http://127.0.0.1:$port/index.html" 2>/dev/null |
+"$CHROME" --no-sandbox --disable-gpu --virtual-time-budget=180000 --dump-dom "http://127.0.0.1:$port/index.html" 2>/dev/null |
   python3 -c '
-import base64, re, sys
-m = re.search(r"<pre id=\"png\">data:image/png;base64,([^<]+)</pre>", sys.stdin.read())
-if not m:
-    sys.exit("painter produced no image")
-open("art/painted/map.png.new", "wb").write(base64.b64decode(m.group(1)))
+import base64, os, re, sys
+page = sys.stdin.read()
+for name in ("map", "players", "sprites"):
+    m = re.search(r"<pre id=\"%s\">data:image/png;base64,([^<]+)</pre>" % name, page)
+    if not m:
+        sys.exit("painter produced no %s image" % name)
+    tmp = "art/painted/%s.png.new" % name
+    open(tmp, "wb").write(base64.b64decode(m.group(1)))
+    os.replace(tmp, "art/painted/%s.png" % name)
+    print("painted %s: %d KB" % (name, os.path.getsize("art/painted/%s.png" % name) // 1024))
 '
-mv art/painted/map.png.new art/painted/map.png
-echo "painted map: $(python3 -c 'import os; print(os.path.getsize("art/painted/map.png") // 1024)') KB"

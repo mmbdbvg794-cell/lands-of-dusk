@@ -1,20 +1,30 @@
 <!doctype html>
 <meta charset="utf-8">
 <title>Paint art</title>
-<!-- Generates the Painted map sheet from map.gif (next to this page, or ?src=).
-     The result is left in <pre id="png"> as a data: URL for the caller to save. -->
+<!-- Generates the Painted sheets from the server's originals (next to this
+     page): map.gif via painter.js, players.gif and sprites.gif via figures.js.
+     Each result is left in <pre id="<name>"> as a data: URL for the caller. -->
 <body style="background:#222">
 <script type="module">
   import { paintSheet } from './painter.js';
-  const src = new URLSearchParams(location.search).get('src') || 'map.gif';
-  const img = new Image();
-  img.onload = () => {
-    const sheet = paintSheet(img);
+  import { paintFigureSheet } from './figures.js';
+  const load = (src) => new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+  const out = (name, canvas) => {
     const pre = document.createElement('pre');
-    pre.id = 'png';
-    pre.textContent = sheet.toDataURL('image/png');
+    pre.id = name;
+    pre.textContent = canvas.toDataURL('image/png');
     document.body.append(pre);
   };
-  img.src = src;
+  out('map', paintSheet(await load('map.gif')));
+  out('players', paintFigureSheet(await load('players.gif')));
+  out('sprites', paintFigureSheet(await load('sprites.gif')));
+  const done = document.createElement('pre');
+  done.id = 'done';
+  document.body.append(done);
 </script>
 </body>
