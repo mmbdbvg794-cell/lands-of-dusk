@@ -116,3 +116,17 @@ export function gearFromEquipment(equipment = {}) {
 
 // A key that changes exactly when the drawing would.
 export const gearKey = (gear) => JSON.stringify(gear);
+
+// Other players: the server's "worn <id>" answers
+// "Worn: <id>|wield=iron sword;torso=iron suit" (server/Props.java).
+export const wornCommand = (id) => `worn ${id}`;
+export function parseWorn(line) {
+  const m = /^Worn: (\d*)\|(.*)$/.exec(line.trim());
+  if (!m) return null;
+  const equipment = {};
+  for (const pair of m[2].split(';')) {
+    const i = pair.indexOf('=');
+    if (i > 0) equipment[pair.slice(0, i).trim()] = { name: pair.slice(i + 1).trim() };
+  }
+  return { id: m[1] === '' ? null : Number(m[1]), equipment };
+}

@@ -42,7 +42,9 @@ export class Renderer {
     // Painted style only: what the player is wearing (gear.js), drawn on
     // their own character; null draws them from the players sheet.
     this.gear = null;
-    this.outfit = null; // { key, strip }: the last dressed figure
+    // Other players' gear (Painted style), by entity ID, from "worn".
+    this.others = new Map();
+    this.outfits = new Map(); // "image gear" -> strip, the figures painted so far
     this.cell = 0;
     this.pending = false;
     new ResizeObserver(() => this.resize()).observe(box);
@@ -119,6 +121,7 @@ export class Renderer {
     ctx.textBaseline = 'alphabetic';
     const where = new Map();
     const self = this.gear ? world.self() : null;
+    const dressing = !!this.gear; // the Painted style
     for (const e of list) {
       const pos = world.visualPos(e, now);
       const [px, py] = toPx(pos.x, pos.y);
@@ -142,7 +145,8 @@ export class Renderer {
       const byName = art?.index.get(key);
       if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
-      else if (e === self) this.drawDressed(e.image, step, px, py, c);
+      else if (e === self) this.drawDressed(e.image, step, px, py, c, this.gear);
+      else if (dressing && e.type === 0 && this.others.has(e.id)) this.drawDressed(e.image, step, px, py, c, this.others.get(e.id));
       else players?.draw(ctx, e.image * 8 + step, px, py, c);
 
       const kind = this.nameKind(e);
@@ -165,12 +169,23 @@ export class Renderer {
 
   // The player's own figure wearing their gear, painted once per change of
   // gear (8 frames) and kept.
-  drawDressed(image, step, px, py, c) {
-    const key = `${image} ${gearKey(this.gear)}`;
-    if (this.outfit?.key !== key) this.outfit = { key, strip: paintFigureStrip(LOOKS[image] ?? LOOKS[0], this.gear) };
+  drawDressed(image, step, px, py, c, gear) {
+    const key = `${image} ${gearKey(gear)}`;
+    let strip = this.outfits.get(key);
+    if (!strip) {
+      strip = paintFigureStrip(LOOKS[image] ?? LOOKS[0], gear);
+      this.outfits.set(key, strip);
+      // Keep a few dozen; the oldest go first.
+      if (this.outfits.size > 40) this.outfits.delete(this.outfits.keys().next().value);
+    }
     this.ctx.imageSmoothingEnabled = true;
     this.ctx.imageSmoothingQuality = 'high';
-    this.ctx.drawImage(this.outfit.strip, step * OUT, 0, OUT, OUT, px, py, c, c);
+    this.ctx.drawImage(strip, step * OUT, 0, OUT, OUT, px, py, c, c);
+  }
+
+  setOtherGear(id, gear) {
+    this.others.set(id, gear);
+    this.invalidate();
   }
 
   setGear(gear) {

@@ -59,6 +59,7 @@ public class Props {
         String lower = trimmed.toLowerCase();
         try {
             if (lower.equals("prop looks")) return "Looks: " + looks();
+            if (lower.startsWith("worn ")) return worn(who, engine, trimmed.substring(5).trim());
             if (lower.startsWith("nameprop ")) return nameProp(who, engine, trimmed.substring(9).trim());
             if (lower.startsWith("namesign ")) return nameSign(who, engine, trimmed.substring(9).trim());
             if (lower.startsWith("signname ")) return editSign(who, engine, trimmed.substring(9).trim(), true);
@@ -199,6 +200,34 @@ public class Props {
         } catch (Exception e) {
             Log.logError(e, "Props.loadSignNames", false);
         }
+    }
+
+    // ---- what other players wear ----
+
+    // "Worn: <id>|wield=iron sword;torso=iron suit" for a player in view,
+    // so the client can dress them (it's only told its own equipment; Look
+    // shows the same to anyone).
+    static String worn(LivingThing who, DuskEngine engine, String arg) {
+        if (!Storage.isNumber(arg)) return "Worn: |";
+        DuskObject o;
+        try {
+            o = engine.getDuskObject(Integer.parseInt(arg));
+        } catch (Exception e) {
+            o = null;
+        }
+        StringBuffer b = new StringBuffer("Worn: " + arg + "|");
+        if (!(o instanceof Player) || ((Player) o).equWorn == null) return b.toString();
+        if (Math.abs(o.intLocX - who.intLocX) > 10 || Math.abs(o.intLocY - who.intLocY) > 10) return b.toString();
+        Equipment e = ((Player) o).equWorn;
+        String[] slots = e.getLocationArray();
+        boolean first = true;
+        for (int i = 0; i < slots.length; i++) {
+            Item it = e.getItem(i);
+            if (it == null) continue;
+            b.append(first ? "" : ";").append(slots[i]).append("=").append(it.strName);
+            first = false;
+        }
+        return b.toString();
     }
 
     // ---- descriptions ----

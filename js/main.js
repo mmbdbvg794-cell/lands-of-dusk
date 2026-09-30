@@ -10,7 +10,7 @@ import { parseStats } from './stats.js';
 import { bareName } from './world.js';
 import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
-import { gearFromEquipment } from './gear.js';
+import { gearFromEquipment, parseWorn, wornCommand } from './gear.js';
 import { StorageReader, isStorage, lookCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS } from './god.js';
@@ -121,6 +121,11 @@ const god = new GodPanel($('tab-god'), {
   people: () => renderer.propPeople,
   onNpcPlaced: (name) => dialogueEditor.edit(name),
   onTileEdit: (x, y) => tileEditor.edit(x, y),
+  onUseCommand: (text) => {
+    input.value = text;
+    input.focus();
+    input.setSelectionRange(text.length, text.length);
+  },
   // Popped out, the tab isn't needed; docked, it comes back and opens.
   onFloat: (out) => {
     panels.setTabVisible('god', isGod && !out);
@@ -974,6 +979,8 @@ function handle(msg) {
     worldMap.setPlayer(msg.x, msg.y);
   }
   if (targetId !== -1 && (msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || msg.op === OP.MAP)) updateTarget();
+  // A player coming into view: what are they wearing?
+  if (msg.op === OP.ENTITY && msg.type === 0) askWorn(Date.now(), 30000);
 
   const part = player.apply(msg);
   if (part) {
@@ -1005,6 +1012,8 @@ function handle(msg) {
       // The "talk names" answer is for the menu, not the chat.
       const names = parseTalkers(msg.text);
       if (names) { talkers = names; renderer.talkers = names; renderer.invalidate(); break; }
+      const worn = parseWorn(msg.text);
+      if (worn) { if (worn.id != null) renderer.setOtherGear(worn.id, gearFromEquipment(worn.equipment)); break; }
       const dlgReply = parseDialogueReply(msg.text);
       if (dlgReply) { dialogueEditor.loaded(dlgReply); break; }
       const tileReply = parseTileReply(msg.text);
@@ -1146,9 +1155,25 @@ $('art-toggle').addEventListener('click', (e) => {
 $('art-style').value = artStyle;
 for (const b of document.querySelectorAll('#art-toggle [data-art]')) b.setAttribute('aria-checked', String(b.dataset.art === artStyle));
 
+// Other players' gear (Painted style): asked for as they come into view,
+// and again every so often while they're visible.
+const wornAsked = new Map(); // entity ID -> when last asked
+function askWorn(now = Date.now(), every = 30000) {
+  if (artStyle !== 'painted' || !conn?.connected) return;
+  const self = world.self();
+  for (const e of world.entities.values()) {
+    if (e.type !== 0 || e === self) continue;
+    if (now - (wornAsked.get(e.id) ?? 0) < every) continue;
+    wornAsked.set(e.id, now);
+    conn.send(wornCommand(e.id));
+  }
+}
+setInterval(() => askWorn(), 10000);
+
 // In the Painted style your own character wears what you have equipped.
 function dressSelf() {
   renderer.setGear(artStyle === 'painted' ? gearFromEquipment(player.equipment) : null);
+  if (artStyle === 'painted') { wornAsked.clear(); askWorn(); }
 }
 
 // A Painted sheet drawn by name plus its index: { sheet, index }, or false

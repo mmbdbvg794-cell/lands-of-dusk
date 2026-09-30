@@ -1,6 +1,6 @@
 // Run with: node test/gear.test.mjs
 import assert from 'node:assert/strict';
-import { gearFromEquipment, weaponKind, material } from '../js/gear.js';
+import { gearFromEquipment, weaponKind, material, parseWorn, wornCommand } from '../js/gear.js';
 
 const worn = (o) => Object.fromEntries(Object.entries(o).map(([slot, name]) => [slot, { name, id: 1 }]));
 
@@ -51,4 +51,11 @@ for (const [name, kind] of [['leather cap', 'cap'], ['gaia skull', 'horned'], ['
   assert.equal(gearFromEquipment(worn({ skull: name })).helm.kind, kind, name);
 }
 
+// Other players' gear.
+assert.deepEqual(parseWorn('Worn: 2073|wield=iron sword;torso=iron suit'), { id: 2073, equipment: { wield: { name: 'iron sword' }, torso: { name: 'iron suit' } } });
+assert.deepEqual(parseWorn('Worn: 12|'), { id: 12, equipment: {} });
+assert.equal(parseWorn('Worn: |').id, null);
+assert.equal(parseWorn('You wear it.'), null);
+assert.equal(gearFromEquipment(parseWorn('Worn: 1|wield=long sword').equipment).weapon.kind, 'sword');
+assert.equal(wornCommand(5), 'worn 5');
 console.log('gear tests passed');

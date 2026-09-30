@@ -4,6 +4,7 @@
 // map. Shown only to gods (see god.js). The commands are the server's
 // own; this panel just builds them.
 
+import { GOD_COMMANDS, commandStart } from './godcommands.js';
 import { place, SAVE_MAP, listCommand, search, teleport, wizinvis, addWare, removeWare, SAVED_KINDS, PROP_LOOKS, tileMessage, tileClear } from './god.js';
 
 const KINDS = [
@@ -22,8 +23,10 @@ export class GodPanel {
   // people() is the set of props that are people (lower case), for NPC
   // looks; onNpcPlaced(name) opens the dialogue editor for a new NPC.
   // onTileEdit(x, y) opens the tile editor for your square.
-  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit }) {
+  // onUseCommand(text) puts a command in the chat box to finish typing.
+  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit, onUseCommand }) {
     this.tab = tab;
+    this.onUseCommand = onUseCommand;
     this.onTileEdit = onTileEdit;
     this.people = people;
     this.onNpcPlaced = onNpcPlaced;
@@ -161,11 +164,36 @@ export class GodPanel {
       h('div', { className: 'god-row' }, $.tx, $.ty, $.go),
       h('div', { className: 'god-row' }, h('span', { className: 'god-label', textContent: 'To players you are' }), $.show, $.hide));
 
+    // Every god command, to look up or start typing.
+    $.cmdSearch = h('input', { type: 'search', placeholder: 'Search commands…', autocomplete: 'off', className: 'god-search' });
+    $.cmdList = h('div', { className: 'god-cmds' });
+    const renderCmds = () => {
+      const q = $.cmdSearch.value.trim().toLowerCase();
+      const hits = GOD_COMMANDS.filter((c) => !q || `${c.use} ${c.desc} ${c.group}`.toLowerCase().includes(q));
+      const rows = [];
+      let group = null;
+      for (const c of hits) {
+        if (c.group !== group) { group = c.group; rows.push(h('div', { className: 'god-cmd-group', textContent: group })); }
+        const row = h('button', { type: 'button', className: 'god-cmd', title: 'Put it in the chat box' },
+          h('code', { textContent: c.use }),
+          h('span', { className: 'god-cmd-desc', textContent: c.desc }),
+          c.level > 3 ? h('span', { className: 'god-cmd-level', textContent: `level ${c.level}` }) : null);
+        row.addEventListener('click', () => this.onUseCommand?.(commandStart(c.use)));
+        rows.push(row);
+      }
+      $.cmdList.replaceChildren(...rows);
+    };
+    $.cmdSearch.addEventListener('input', renderCmds);
+    renderCmds();
+    const commands = h('details', { className: 'god-sec' },
+      h('summary', { className: 'list-head', textContent: `Commands (${GOD_COMMANDS.length})` }),
+      h('div', { className: 'god-row' }, $.cmdSearch), $.cmdList);
+
     const hint = h('p', { className: 'god-hint', textContent:
       'Things are placed on your square. Click something on the map for Remove. ' +
       'Save map keeps mobs, props, signs, merchants and tiles after a restart; items on the ground are never kept, and storage keeps itself.' });
 
-    this.root = h('div', { className: 'god-root' }, head, $.kinds, $.listBox, $.textBox, $.tiles, placeRow, $.merchant, tools, hint);
+    this.root = h('div', { className: 'god-root' }, head, $.kinds, $.listBox, $.textBox, $.tiles, placeRow, $.merchant, tools, commands, hint);
     this.tab.replaceChildren(this.root);
     this.setKind('npc');
     this.renderUnsaved();
