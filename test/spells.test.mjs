@@ -76,3 +76,20 @@ assert.equal(encodeFx('heal', 3000, 1), null, 'off the grid');
 // The number the script line computes, as a double, still decodes.
 assert.deepEqual(decodeFx(110000000 + (557 * 3000 + 481)), { kind: 'heal', x: 557, y: 481 });
 console.log('ok - spell effect numbers');
+
+import { parseSpellList } from '../js/spells.js';
+// As the live server sends it.
+const list = parseSpellList([
+  'clerical group: 45%', '  5 mp) mend', '  12 mp) counter poison',
+  'summons group: 20%', '  17 mp) summon bahamut',
+  '', 'Following: nobody',
+]);
+assert.deepEqual(list.groups, { 'clerical group': 45, 'summons group': 20 });
+assert.deepEqual(list.spells, [
+  { name: 'mend', cost: 5, group: 'clerical group' },
+  { name: 'counter poison', cost: 12, group: 'clerical group' },
+  { name: 'summon bahamut', cost: 17, group: 'summons group' },
+]);
+// A plain list of names still works.
+assert.deepEqual(parseSpellList(['mend', 'bless']).spells.map((s) => s.name), ['mend', 'bless']);
+console.log('ok - spell list');

@@ -135,3 +135,33 @@ export function decodeFx(n) {
   const rest = v % FX_SPAN;
   return { kind, x: Math.floor(rest / FX_ROW), y: rest % FX_ROW };
 }
+
+// The stats' spell list as this server writes it (LivingThing, with
+// SpellGroup.spellList for each school):
+//   clerical group: 45%        a school and your skill in it
+//     5 mp) mend               its spells you know, with their cost
+//   Following: ...             not a spell
+// Returns { spells: [{ name, cost, group }], groups: { name: skill } }.
+// Lines that are neither are left out, so other servers' plainer lists
+// (just names) still work: a bare name counts as a spell.
+export function parseSpellList(lines) {
+  const spells = [];
+  const groups = {};
+  let group = null;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    let m;
+    if ((m = line.match(/^(.+?):\s*(-?\d+)\s*%$/))) {
+      group = m[1].trim();
+      groups[group] = Number(m[2]);
+    } else if (COST_PREFIX.test(line)) {
+      spells.push({ name: spellName(line), cost: spellCost(line), group });
+    } else if (/^following\b/i.test(line) || line.includes(':')) {
+      // "Following: ..." and other notes aren't spells.
+    } else if (spellName(line)) {
+      spells.push({ name: spellName(line), cost: null, group });
+    }
+  }
+  return { spells, groups };
+}

@@ -3,7 +3,7 @@
 // the skill each spell needs come from js/spellinfo.json, built from the
 // server's own spell files by tools/spellinfo.py.
 
-import { effectKind, spellName, spellCost } from './spells.js';
+import { effectKind, parseSpellList } from './spells.js';
 
 const GLYPH = { heal: '✚', holy: '✦', fire: '🔥', earth: '⛰', dark: '☾', arcane: '✧' };
 
@@ -15,6 +15,8 @@ export class Spellbook {
     this.info = {};
     this.known = [];
     this.costs = new Map(); // spell -> MP, when the stats list it
+    this.schoolOf = new Map(); // spell -> its school, as the stats group it
+    this.skills = {}; // school -> your skill in it (%)
     el.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-spell]');
       if (!b) return;
@@ -37,8 +39,11 @@ export class Spellbook {
 
   // `listed` is the stats' "-Spells-" lines.
   setKnown(listed) {
-    this.costs = new Map(listed.map((l) => [spellName(l), spellCost(l)]).filter(([name, cost]) => name && cost !== null));
-    this.known = [...new Set(listed.map(spellName).filter(Boolean))];
+    const { spells, groups } = parseSpellList(listed);
+    this.costs = new Map(spells.filter((s) => s.cost !== null).map((s) => [s.name, s.cost]));
+    this.schoolOf = new Map(spells.filter((s) => s.group).map((s) => [s.name, s.group]));
+    this.skills = groups;
+    this.known = [...new Set(spells.map((s) => s.name))];
     this.render();
   }
 
@@ -69,7 +74,8 @@ export class Spellbook {
     const chapters = new Map();
     for (const spell of this.known) {
       const info = this.info[spell.toLowerCase()] ?? this.info[spell];
-      const school = info?.group ?? 'Other spells';
+      // The stats say which school a spell is in; spellinfo.json as backup.
+      const school = this.schoolOf.get(spell) ?? info?.group ?? 'Other spells';
       if (!chapters.has(school)) chapters.set(school, []);
       chapters.get(school).push({ spell, info });
     }
@@ -78,6 +84,14 @@ export class Spellbook {
       const h = document.createElement('h4');
       h.className = 'chapter';
       h.textContent = school.replace(/\s+group$/i, '');
+      const skill = this.skills[school];
+      if (skill !== undefined) {
+        const s = document.createElement('span');
+        s.className = 'school-skill';
+        s.textContent = `${skill}%`;
+        s.title = `Your skill in ${school}`;
+        h.append(' ', s);
+      }
       book.append(h);
       spells.sort((a, b) => (a.info?.order ?? 99) - (b.info?.order ?? 99) || a.spell.localeCompare(b.spell));
       for (const { spell, info } of spells) book.append(this.entry(spell, info, hasTarget));

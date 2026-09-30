@@ -4,7 +4,7 @@ import { Hotbar } from './hotbar.js';
 import { LoginFlow, isYesNo } from './login.js';
 import { isDeath, parseLoss, lossSentence } from './death.js';
 import { Sound } from './sound.js';
-import { parseCast, effectKind, isCastFailure, landedOnMe, castCommand, compileMessages, decodeFx } from './spells.js';
+import { parseCast, effectKind, isCastFailure, landedOnMe, castCommand, compileMessages, decodeFx, parseSpellList } from './spells.js';
 import { Spellbook } from './spellbook.js';
 import { parseStats } from './stats.js';
 import { bareName } from './world.js';
@@ -72,7 +72,7 @@ entityMenu.onShop = () => panels.openShop();
 const hotbar = new Hotbar($('hotbar'), $('hotbar-picker'), $('map-wrap'), {
   send: (cmd) => runCommand(cmd),
   context: () => ({
-    spells: parseStats(player.stats).sections.find((s) => /spell/i.test(s.title))?.items ?? [],
+    spells: parseSpellList(parseStats(player.stats).sections.find((s) => /spell/i.test(s.title))?.items ?? []).spells.map((s) => s.name),
     actions: player.actions,
     items: player.groupedItems().map((g) => g.name),
     itemId: (name) => player.items.find((i) => i.name.toLowerCase() === name.toLowerCase())?.id ?? null,
