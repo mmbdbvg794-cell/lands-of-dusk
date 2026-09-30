@@ -111,6 +111,18 @@ is empty; with text in it, Up/Down browse history), and so does WASD when
 the command box isn't focused. Enter jumps to the command box. Clicking
 the map walks to an empty square or opens the menu above.
 
+Settings → "Art style" switches between Pixel (the server's own sheets)
+and Smooth: the same art redrawn at 4x by `tools/smoothart.py` (Scale4x, a
+pixel-art upscaler, plus a light premultiplied blur), generated on the
+server into `art/smooth/` by `tools/rebuild-data.sh` whenever the server's
+images change.
+
+Spell effects reach everyone nearby, not just the caster and target, when
+a spell's script ends with a line like
+`playsound + 110000000 + * target locx 3000 target locy target locx target locy`:
+opcode 15 numbers from 100,000,000 up carry an effect kind and a square
+(see `encodeFx` / `decodeFx` in `js/spells.js`). Mend has it so far.
+
 Tick "Protocol trace" to see every parsed opcode in the log. Settings →
 "Report a bug…" opens a form that hands a filled-in email to
 duskadmins@gmail.com to your email app (with optional technical details:

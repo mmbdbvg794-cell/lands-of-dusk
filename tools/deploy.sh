@@ -8,7 +8,8 @@
 #    current spell and race files.
 # 2. Runs the tests; stops if any fail.
 # 3. Copies the page's files into ~/dusk-browser-client on the server
-#    (no restart needed: serve.py serves whatever is there).
+#    (no restart needed: serve.py serves whatever is there), and makes the
+#    Smooth art there (tools/rebuild-data.sh).
 # 4. Checks the page and a script come back.
 #
 # The server also rebuilds both by itself every 10 minutes (a cron job for
@@ -35,11 +36,11 @@ echo "Running tests..."
 for t in test/*.test.mjs; do node "$t"; done
 
 echo "Copying to $HOST..."
-tar czf - index.html css js tools/spellinfo.py tools/raceinfo.py tools/rebuild-data.sh serve.py README.md |
-  ssh -o BatchMode=yes "$HOST" "mkdir -p ~/$DIR && cd ~/$DIR && rm -rf css js && tar xzf -"
+tar czf - index.html css js tools/spellinfo.py tools/raceinfo.py tools/smoothart.py tools/rebuild-data.sh serve.py README.md |
+  ssh -o BatchMode=yes "$HOST" "mkdir -p ~/$DIR && cd ~/$DIR && rm -rf css js && tar xzf - && sh tools/rebuild-data.sh \$HOME/DuskRPG"
 
 echo "Checking..."
-for f in / js/main.js js/spellinfo.json js/raceinfo.json; do
+for f in / js/main.js js/spellinfo.json js/raceinfo.json art/smooth/map.png; do
   code=$(curl -s -m 5 -o /dev/null -w '%{http_code}' "$URL/${f#/}")
   echo "  $f $code"
   [ "$code" = 200 ] || { echo "Deploy check failed for $f" >&2; exit 1; }

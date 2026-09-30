@@ -26,22 +26,25 @@ export class SpriteSheet {
     // Nearest-neighbour when enlarging keeps pixel art crisp; smoothing
     // when shrinking avoids dropped pixels on the 64px sprites.
     ctx.imageSmoothingEnabled = cell < this.size;
+    ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(this.img, n * this.size, 0, this.size, this.size, dx, dy, cell, cell);
     return true;
   }
 }
 
 // Resolves to { map, players, sprites } (each a SpriteSheet, or null if
-// that sheet failed) plus `errors`, a list of what went wrong.
-export async function loadSheets(baseUrl) {
-  const results = await Promise.all(SHEETS.map((name) => loadImage(`${baseUrl}images/${name}.gif`)));
+// that sheet failed) plus `errors`, a list of what went wrong. By default
+// the server's <base>images/<name>.gif; the Smooth art style passes its
+// own folder and "png" (see tools/smoothart.py).
+export async function loadSheets(baseUrl, { path = 'images/', ext = 'gif' } = {}) {
+  const results = await Promise.all(SHEETS.map((name) => loadImage(`${baseUrl}${path}${name}.${ext}`)));
   const sheets = { errors: [] };
   SHEETS.forEach((name, i) => {
     const r = results[i];
     if (r.img) sheets[name] = new SpriteSheet(r.img);
     else {
       sheets[name] = null;
-      sheets.errors.push(`${name}.gif: ${r.error}`);
+      sheets.errors.push(`${name}.${ext}: ${r.error}`);
     }
   });
   return sheets;

@@ -803,10 +803,42 @@ async function loadGraphics(address) {
       const { map, players, sprites } = sheets;
       sysLine(`Graphics loaded: ${map.count} tiles, ${players.count / 8} player images, ${sprites.count} sprites.`);
     }
-    renderer.setSheets(sheets);
-    minimap.setSheet(sheets.map);
+    pixelSheets = sheets;
+    await applyArt();
   }
   if (conn === c) c.send('playerloaded true');
+}
+
+// ---- art style ---------------------------------------------------------------
+//
+// Pixel is the server's own sheets. Smooth is the same art redrawn at 4x
+// with a pixel-art smoothing filter (tools/smoothart.py, run on the server
+// into art/smooth/ next to this page), loaded the first time it's picked.
+
+let pixelSheets = null;
+let smoothSheets = null;
+let artStyle = storage('get', 'dusk.art') === 'smooth' ? 'smooth' : 'pixel';
+$('art-style').value = artStyle;
+$('art-style').addEventListener('change', (e) => {
+  artStyle = e.target.value;
+  storage('set', 'dusk.art', artStyle);
+  applyArt();
+});
+
+async function applyArt() {
+  let sheets = pixelSheets;
+  if (artStyle === 'smooth') {
+    if (!smoothSheets) {
+      const loaded = await loadSheets('art/smooth/', { path: '', ext: 'png' });
+      if (loaded.errors.length === 0) smoothSheets = loaded;
+      else errLine('The Smooth art isn\'t available on this server yet; showing Pixel.');
+    }
+    sheets = smoothSheets ?? pixelSheets;
+  }
+  if (!sheets) return;
+  renderer.setSheets(sheets);
+  minimap.setSheet(sheets.map);
+  if (sheets.players) playerSheet = sheets.players;
 }
 
 // With "reduce motion" on, walkers jump square to square instead of sliding.
