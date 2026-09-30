@@ -42,4 +42,5 @@ assert.deepEqual(parseLooks('Looks: George=Villager Man; Military Captain=Guard'
 assert.deepEqual(parseLooks('Looks: '), new Map());
 assert.equal(parseLooks('You look around.'), null);
 assert.equal(PROP_LOOKS, 'prop looks');
+assert.equal(place.namedSign('Bank', 'Deposits and withdrawals'), 'namesign Bank|Deposits and withdrawals');
 console.log('god tests passed');

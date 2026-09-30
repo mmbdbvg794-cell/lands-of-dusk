@@ -23,7 +23,14 @@ export const BOX = 'box';
 export const BOX_BUY = 'box buy';
 export const boxPut = (itemId) => `box put ${itemId}`;
 export const boxTake = (name) => `box take ${name}`;
-export const isTeller = (e) => (e?.type === 3 || e?.type === 2) && /teller/i.test(bareName(e.name ?? ''));
+// A bank teller: "teller" in its name, or in what a named prop looks like
+// (looks: the server's "prop looks", lower-case name -> lower-case look).
+export const TELLER_REACH = 5;
+export function isTeller(e, looks) {
+  if (!(e?.type === 3 || e?.type === 2)) return false;
+  const name = bareName(e.name ?? '').toLowerCase();
+  return /teller/.test(name) || /teller/.test(looks?.get(name) ?? '');
+}
 // A deposit box line: its listing, or the offer to buy one.
 export const isBoxLine = (t) => /^The deposit box (holds|is empty)|^You don't have a deposit box yet\./.test(t.trim());
 

@@ -24,6 +24,12 @@ export class Renderer {
     // creatures and merchants: off by default, or a room of couches reads
     // "couch couch couch".
     this.showObjectNames = false;
+    // NPCs: merchants, and props that are people (propPeople, from the
+    // Painted art), talk (talkers) or are tellers; their names have their
+    // own setting.
+    this.showNpcNames = true;
+    this.talkers = new Set();
+    this.propPeople = new Set();
     // Props with names of their own -> the prop they look like (lower case),
     // from the server's "prop looks".
     this.propLooks = new Map();
@@ -107,7 +113,7 @@ export class Renderer {
     }
 
     const list = world.drawList(now);
-    const names = this.showNames ? world.displayNames() : null;
+    const names = this.showNames || this.showNpcNames || this.showObjectNames ? world.displayNames() : null;
     const fontPx = Math.max(9, Math.round(c * 0.3));
     ctx.font = `${fontPx}px system-ui, sans-serif`;
     ctx.textBaseline = 'alphabetic';
@@ -139,8 +145,8 @@ export class Renderer {
       else if (e === self) this.drawDressed(e.image, step, px, py, c);
       else players?.draw(ctx, e.image * 8 + step, px, py, c);
 
-      const isObject = e.type === 1 || e.type === 3 || e.type === 5;
-      if (names && !e.hideName && (!isObject || this.showObjectNames)) {
+      const kind = this.nameKind(e);
+      if (names && !e.hideName && (kind === 'object' ? this.showObjectNames : kind === 'npc' ? this.showNpcNames : this.showNames)) {
         // Java: black copy one pixel left, then white, baseline on the
         // tile's bottom edge.
         const label = names.get(e.id) ?? e.name;
@@ -170,6 +176,18 @@ export class Renderer {
   setGear(gear) {
     this.gear = gear;
     this.invalidate();
+  }
+
+  // Whose name this is, for the name settings: 'people' (players and
+  // creatures), 'npc' or 'object'.
+  nameKind(e) {
+    if (e.type === 0 || e.type === 4) return 'people';
+    if (e.type === 2) return 'npc';
+    if (e.type !== 3) return 'object';
+    const name = bareName(e.name).toLowerCase();
+    const look = this.propLooks.get(name) ?? name;
+    if (this.talkers.has(name) || this.talkers.has(look) || this.propPeople.has(look) || /teller/.test(look)) return 'npc';
+    return 'object';
   }
 
   // Spell effects over whoever they're on; 'self' is the player, or the

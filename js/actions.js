@@ -7,9 +7,13 @@
 // Commands follow the server's Commands.java: "a" and "look" take an ID,
 // "get" a name, "opendoor" an ID.
 
-import { isStorage, storageKind, isTeller, BOX } from './storage.js';
+import { isStorage, storageKind, isTeller, BOX, TELLER_REACH } from './storage.js';
 import { talkCommand } from './talk.js';
 import { bareName } from './world.js';
+
+// Signs and props are both type 3; signs show the sign picture (the
+// server's signimage, 1) and are called "sign" unless they've been named.
+export const isSign = (ent) => ent.type === 3 && (ent.image === 1 || /sign$/i.test(bareName(ent.name ?? '')));
 
 export const TYPE = { PLAYER: 0, ITEM: 1, MERCHANT: 2, SIGN: 3, MOB: 4, DOOR: 5 };
 
@@ -29,16 +33,23 @@ export const storageReach = (ent, me) => Math.abs(ent.x - me.x) <= 1 && Math.abs
 // can also remove things ("unset", or "storage remove" standing on it).
 export function entityActions(ent, me) {
   const acts = playerActions(ent, me);
-  // NPCs with something to say (me.talkers: lower-case names, from the
-  // server's "talk names") get Talk first, from up to two squares away.
   const name = bareName(ent.name ?? '');
-  // Tellers: straight to your deposit box.
-  if (isTeller(ent) && Math.abs(ent.x - me.x) <= 2 && Math.abs(ent.y - me.y) <= 2) acts.unshift({ label: 'Deposit box', cmd: BOX });
-  if (ent.type !== TYPE.PLAYER && me.talkers?.has(name.toLowerCase())) {
-    const near = Math.abs(ent.x - me.x) <= 2 && Math.abs(ent.y - me.y) <= 2;
-    acts.unshift(near ? { label: 'Talk', cmd: talkCommand(ent.id) } : { label: `Go talk to ${name}`, cmd: `goto ${ent.x} ${ent.y}` });
+  // Tellers stand behind counters, so they're reached from further away:
+  // straight to your deposit box, or a talk.
+  const teller = isTeller(ent, me.looks);
+  const reach = teller ? TELLER_REACH : 2;
+  const within = Math.abs(ent.x - me.x) <= reach && Math.abs(ent.y - me.y) <= reach;
+  if (teller && within) acts.unshift({ label: 'Deposit box', cmd: BOX });
+  // NPCs with something to say (me.talkers: lower-case names, from the
+  // server's "talk names"; a named prop talks like what it looks like, from
+  // me.looks) get Talk first.
+  const look = me.looks?.get(name.toLowerCase());
+  if (ent.type !== TYPE.PLAYER && (me.talkers?.has(name.toLowerCase()) || (look && me.talkers?.has(look)))) {
+    acts.unshift(within ? { label: 'Talk', cmd: talkCommand(ent.id) } : { label: `Go talk to ${name}`, cmd: `goto ${ent.x} ${ent.y}` });
   }
   if (!me.god || ent.type === TYPE.PLAYER) return acts;
+  // Signs can be renamed and rewritten.
+  if (isSign(ent)) acts.push({ label: 'Rename (god)', sign: 'name', god: true }, { label: 'Edit text (god)', sign: 'text', god: true });
   if (isStorage(ent)) {
     if (ent.x === me.x && ent.y === me.y) acts.push({ label: 'Remove (god)', cmd: 'storage remove', god: true });
     else acts.push({ label: 'Remove (god)', disabled: true, hint: 'stand on it', god: true });
@@ -80,7 +91,7 @@ function playerActions(ent, me) {
         : [{ label: 'Go to shop', cmd: `goto ${ent.x} ${ent.y}` }, look];
     // Signs and props are both type 3: signs are read, the rest looked at.
     case TYPE.SIGN:
-      return [{ label: /sign$/i.test(bareName(ent.name ?? '')) ? 'Read' : 'Look', cmd: `look ${ent.id}` }];
+      return [{ label: isSign(ent) ? 'Read' : 'Look', cmd: `look ${ent.id}` }];
     default:
       return [look];
   }

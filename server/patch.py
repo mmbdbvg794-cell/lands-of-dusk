@@ -112,6 +112,7 @@ patch('DuskServer.java', [
     ('''    public DuskServer() {
         try {''', '''    public DuskServer() {
         Storage.load(this.engGame);
+        Props.loadSignNames(this.engGame);
         Talk.start(this.engGame);
         try {''', 1),
 ])

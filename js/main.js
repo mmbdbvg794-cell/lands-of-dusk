@@ -11,7 +11,7 @@ import { bareName } from './world.js';
 import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
 import { gearFromEquipment } from './gear.js';
-import { StorageReader, isStorage, lookCommand, isBoxLine, isTeller } from './storage.js';
+import { StorageReader, isStorage, lookCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS } from './god.js';
 import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
@@ -100,6 +100,11 @@ const renderer = new Renderer($('map'), world, $('map-wrap'));
 let sheetsFor = null; // resource address the current sheets came from
 const minimap = new Minimap($('minimap'), new Explored());
 const worldMap = new WorldMap($('world-map'), minimap);
+// Which props are people, for the NPC name setting (from the art build).
+fetch('art/painted/people.json').then((r) => (r.ok ? r.json() : [])).then((list) => {
+  renderer.propPeople = new Set(list);
+  renderer.invalidate();
+}).catch(() => {});
 $('map-btn').addEventListener('click', () => worldMap.toggle());
 // Gods (see god.js) get the God tab and Remove in the click menu.
 let isGod = false;
@@ -129,8 +134,16 @@ const entityMenu = new EntityMenu(
     runCommand(cmd);
     if (/^unset \d/.test(cmd)) god.removed();
   },
-  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id, talkers }),
+  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id, talkers, looks: renderer.propLooks }),
 );
+// Gods rename signs and change what they say.
+entityMenu.onSign = (what, id) => {
+  const ent = world.entities.get(id);
+  const answer = window.prompt(what === 'name' ? `Call this sign (now "${ent ? bareName(ent.name) : 'sign'}"):` : 'What should the sign say?');
+  if (!answer?.trim()) return;
+  runCommand(`${what === 'name' ? 'signname' : 'signtext'} ${id}|${answer.trim().replace(/\|/g, ' ')}`);
+  if (what === 'text') god.removed(); // counts as an unsaved change: "<s" keeps it
+};
 entityMenu.onStorage = (action, id) => (action === 'open' ? openStorage(id) : panels.setStorage(null));
 
 // ---- NPCs talking (see talk.js) ----
@@ -282,6 +295,14 @@ traceBox.checked = false;
 storage('set', 'dusk.trace', '0');
 namesBox.checked = storage('get', 'dusk.names') !== '0';
 renderer.showNames = namesBox.checked;
+const npcNamesBox = $('npc-names');
+npcNamesBox.checked = storage('get', 'dusk.npcnames') !== '0';
+renderer.showNpcNames = npcNamesBox.checked;
+npcNamesBox.addEventListener('change', () => {
+  storage('set', 'dusk.npcnames', npcNamesBox.checked ? '1' : '0');
+  renderer.showNpcNames = npcNamesBox.checked;
+  renderer.invalidate();
+});
 const objectNamesBox = $('object-names');
 objectNamesBox.checked = storage('get', 'dusk.objectnames') === '1';
 renderer.showObjectNames = objectNamesBox.checked;
@@ -938,7 +959,7 @@ function handle(msg) {
     // An open barrel or chest closes once it's out of reach (a deposit
     // box: two squares from its teller).
     const open = panels.storage && world.entities.get(panels.storage.entity.id);
-    const reach = panels.storage?.box ? 2 : 1;
+    const reach = panels.storage?.box ? TELLER_REACH : 1;
     if (panels.storage && !(open && Math.abs(open.x - world.locX) <= reach && Math.abs(open.y - world.locY) <= reach)) panels.setStorage(null);
     if (isGod) {
       god.setPos(world.locX, world.locY);
@@ -955,7 +976,7 @@ function handle(msg) {
     case OP.TEXT: {
       // The "talk names" answer is for the menu, not the chat.
       const names = parseTalkers(msg.text);
-      if (names) { talkers = names; break; }
+      if (names) { talkers = names; renderer.talkers = names; renderer.invalidate(); break; }
       const looks = parseLooks(msg.text);
       if (looks) { renderer.propLooks = looks; renderer.invalidate(); break; }
       const sp = parseSpeech(msg.text);
@@ -963,7 +984,7 @@ function handle(msg) {
       else if (Date.now() < speechFollow && !$('speech').hidden && msg.text.trim()) noteSpeech(msg.text.trim());
       // A deposit box reply opens the box, at the teller beside you.
       if (isBoxLine(msg.text) && !panels.storage?.box) {
-        const teller = [...world.entities.values()].find((e) => isTeller(e) && Math.abs(e.x - world.locX) <= 2 && Math.abs(e.y - world.locY) <= 2);
+        const teller = [...world.entities.values()].find((e) => isTeller(e, renderer.propLooks) && Math.abs(e.x - world.locX) <= TELLER_REACH && Math.abs(e.y - world.locY) <= TELLER_REACH);
         if (teller) panels.setStorage(teller, { box: true });
       }
       const st = panels.storage ? storageReader.feed(msg.text) : null;

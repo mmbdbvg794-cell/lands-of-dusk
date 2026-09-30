@@ -45,6 +45,10 @@
   iidx.id = 'itemsIndex';
   iidx.textContent = JSON.stringify(items.index);
   document.body.append(iidx);
+  const ppl = document.createElement('pre');
+  ppl.id = 'propPeople';
+  ppl.textContent = JSON.stringify(items.people);
+  document.body.append(ppl);
   const done = document.createElement('pre');
   done.id = 'done';
   document.body.append(done);

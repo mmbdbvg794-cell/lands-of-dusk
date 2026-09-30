@@ -61,8 +61,16 @@ public class Talk {
         }
         if (npc == null || npc instanceof Player) return "There's no one like that here.";
         String name = bare(npc.strName);
-        if (Math.abs(npc.intLocX - who.intLocX) > REACH || Math.abs(npc.intLocY - who.intLocY) > REACH) return "Get closer to talk to " + name + ".";
+        // Tellers stand behind counters: they can be talked to from further.
+        int reach = Props.isTeller(npc) ? Props.TELLER_REACH : REACH;
+        if (Math.abs(npc.intLocX - who.intLocX) > reach || Math.abs(npc.intLocY - who.intLocY) > reach) return "Get closer to talk to " + name + ".";
         String file = scriptFor(npc.strName);
+        // A named prop without a script of its own talks like what it looks
+        // like (a teller called Gringotts is still a teller).
+        if (file == null && npc instanceof Prop) {
+            String look = Props.lookOf(new File(Props.DIR, npc.strName));
+            if (look != null) file = scriptFor(look);
+        }
         if (file == null) return name + " has nothing to say.";
         try {
             // Recompiled when the script is newer than its .dsko, so an

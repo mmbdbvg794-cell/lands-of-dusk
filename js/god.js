@@ -59,6 +59,7 @@ export const place = {
   // A prop that looks like `base` but has a name of its own (server/Props.java).
   namedProp: (base, name) => `nameprop ${base}|${name.replace(/\|/g, ' ')}`,
   sign: (text) => `<sign ${text}`,
+  namedSign: (name, text) => `namesign ${name.replace(/\|/g, ' ')}|${text}`,
   merchant: (name) => (name ? `<merchant ${name}` : '<merchant'),
   tile: (n) => `>${Math.floor(Number(n))}`,
   storage: (kind, label) => `storage place ${kind === 'chest' ? 'chest' : 'barrel'}${label ? ` ${label}` : ''}`,

@@ -61,4 +61,8 @@ m = re.search(r"<pre id=\"itemsIndex\">([^<]*)</pre>", page)
 index = json.loads(html.unescape(m.group(1))) if m else {}
 json.dump(index, open("art/painted/items.json", "w"), sort_keys=True)
 print("items drawn by name: %d" % len(set(index.values())))
+m = re.search(r"<pre id=\"propPeople\">([^<]*)</pre>", page)
+people = json.loads(html.unescape(m.group(1))) if m else []
+json.dump(sorted(people), open("art/painted/people.json", "w"))
+print("props that are people: %d" % len(people))
 '

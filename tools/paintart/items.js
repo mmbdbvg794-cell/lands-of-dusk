@@ -949,5 +949,7 @@ export function paintItemSheet(items, props = []) {
     index[it.name.toLowerCase()] = i;
     index[it.name.toLowerCase().replace(/_/g, ' ')] = i;
   });
-  return { sheet, index };
+  // Props that are people (for the client's NPC name setting).
+  const people = props.filter((name) => propPainterFor(name) === propPerson).map((n) => n.toLowerCase());
+  return { sheet, index, people };
 }

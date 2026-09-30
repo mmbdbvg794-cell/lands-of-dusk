@@ -95,7 +95,9 @@ export class GodPanel {
     $.text = h('input', { type: 'text', autocomplete: 'off', className: 'god-text' });
     $.storageKind = h('select', { className: 'god-select' }, new Option('Barrel (20 items)', 'barrel'), new Option('Chest (40 items)', 'chest'));
     $.storageKind.addEventListener('change', () => this.renderChoice());
-    $.textBox = h('div', { className: 'god-row' }, $.storageKind, $.text);
+    // A sign can be named ("Bank") as well as saying something.
+    $.signName = h('input', { type: 'text', placeholder: 'Name (optional), e.g. Bank', autocomplete: 'off', className: 'god-text', maxLength: 40 });
+    $.textBox = h('div', { className: 'god-row' }, $.storageKind, $.signName, $.text);
 
     // Tiles: a palette of the map's tiles.
     $.tiles = h('div', { className: 'god-tiles' });
@@ -270,6 +272,7 @@ export class GodPanel {
     $.propNameRow.hidden = kind !== 'prop';
     $.textBox.hidden = !['sign', 'merchant', 'storage'].includes(kind);
     $.storageKind.hidden = kind !== 'storage';
+    $.signName.hidden = kind !== 'sign';
     $.text.placeholder = { sign: 'What the sign says', merchant: 'Merchant name (optional)', storage: 'Label (optional), e.g. Guild' }[kind] ?? '';
     $.tiles.hidden = kind !== 'tile';
     if (kind === 'tile') this.renderTiles();
@@ -364,8 +367,10 @@ export class GodPanel {
     } else if (k === 'sign') {
       const t = $.text.value.trim();
       if (!t) return this.note('Write what the sign says first.');
-      cmd = place.sign(t);
-      what = 'a sign';
+      const n = $.signName.value.trim();
+      cmd = n ? place.namedSign(n, t) : place.sign(t);
+      what = n ? `the ${n} sign` : 'a sign';
+      $.signName.value = '';
     } else if (k === 'merchant') {
       cmd = place.merchant($.text.value.trim());
       what = 'a merchant';

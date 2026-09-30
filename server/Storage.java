@@ -254,7 +254,7 @@ public class Storage extends Prop {
     static final String BOX_FILE = "boxes";
     static final int BOX_PRICE = 500;
     static final int BOX_SIZE = 40;
-    static final int TELLER_REACH = 2;
+    static final int TELLER_REACH = Props.TELLER_REACH;
     static final Hashtable<String, Vector> boxes = new Hashtable<String, Vector>();
     static boolean boxesBroken = false;
 
@@ -321,12 +321,12 @@ public class Storage extends Prop {
         return b.toString();
     }
 
-    // A bank teller (a prop whose name has "teller" in it) within reach.
+    // A bank teller (see Props.isTeller) within reach.
     static boolean nearTeller(LivingThing who, DuskEngine engine) {
         Object[] props = engine.vctProps.toArray();
         for (int i = 0; i < props.length; i++) {
             Prop p = (Prop) props[i];
-            if (p == null || p.strName == null || p.strName.toLowerCase().indexOf("teller") < 0) continue;
+            if (!Props.isTeller(p)) continue;
             if (Math.abs(p.intLocX - who.intLocX) <= TELLER_REACH && Math.abs(p.intLocY - who.intLocY) <= TELLER_REACH) return true;
         }
         return false;

@@ -30,7 +30,7 @@ assert.deepEqual(labels(entityActions({ id: 7, name: 'rock', type: 9, x: 1, y: 1
 // Gods can remove anything but players; storage only from its square.
 const god = { ...me, god: true };
 assert.deepEqual(entityActions(slimer, god).at(-1), { label: 'Remove (god)', cmd: 'unset 77', god: true });
-assert.deepEqual(labels(entityActions({ id: 3, name: 'sign', type: TYPE.SIGN, x: 1, y: 1 }, god)), ['Read', 'Remove (god)']);
+assert.deepEqual(labels(entityActions({ id: 3, name: 'sign', type: TYPE.SIGN, x: 1, y: 1 }, god)), ['Read', 'Rename (god)', 'Edit text (god)', 'Remove (god)']);
 assert.deepEqual(labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 12, y: 10 }, god)), ['Look']);
 assert.deepEqual(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 10, y: 10 }, god).at(-1), { label: 'Remove (god)', cmd: 'storage remove', god: true });
 assert.deepEqual(labels(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 11, y: 10 }, god)), ['Open', 'Remove (god) (stand on it)']);
@@ -49,4 +49,13 @@ assert.deepEqual(entityActions({ ...sarge, x: 14 }, { ...me, talkers })[0], { la
 assert.equal(entityActions(sarge, me).some((a) => a.label === 'Talk'), false);
 assert.equal(entityActions({ id: 5, name: 'drill sergeant', type: TYPE.PLAYER, x: 11, y: 10 }, { ...me, talkers }).some((a) => a.label === 'Talk'), false, 'not players');
 assert.deepEqual(entityActions(sarge, me), [{ label: 'Look', cmd: 'look 30' }], 'props are looked at, signs read');
+// Tellers from five squares, named ones too; named props talk like their look.
+const looks = new Map([['gringotts', 'bank teller'], ['george', 'villager man']]);
+const teller = { id: 40, name: 'Gringotts', type: TYPE.SIGN, image: 5, x: 14, y: 10 };
+assert.deepEqual(labels(entityActions(teller, { ...me, looks, talkers: new Set(['bank teller']) })).slice(0, 2), ['Talk', 'Deposit box']);
+assert.deepEqual(labels(entityActions({ ...teller, x: 16 }, { ...me, looks, talkers: new Set(['bank teller']) }))[0], 'Go talk to Gringotts');
+// Signs: read; gods can rename and rewrite them.
+const bankSign = { id: 41, name: 'Bank', type: TYPE.SIGN, image: 1, x: 11, y: 10 };
+assert.deepEqual(labels(entityActions(bankSign, me)), ['Read']);
+assert.deepEqual(labels(entityActions(bankSign, god)), ['Read', 'Rename (god)', 'Edit text (god)', 'Remove (god)']);
 console.log('ok - entity actions');
