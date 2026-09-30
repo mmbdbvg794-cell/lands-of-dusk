@@ -789,6 +789,42 @@ body.playing #map-wrap { display: flex; }
 [role="tab"][data-tab="store"] { color: var(--ok); }
 [role="tab"][data-tab="store"][aria-selected="true"] { border-bottom-color: var(--ok); }
 .store-note { margin: 8px 12px 2px; font-size: 12px; color: var(--muted); }
+
+/* ---- god ---- */
+
+[role="tab"][data-tab="god"] { color: #d7a6ff; }
+[role="tab"][data-tab="god"][aria-selected="true"] { border-bottom-color: #d7a6ff; }
+#tab-god { padding-bottom: 10px; }
+.god-head { display: flex; align-items: center; gap: 8px; padding: 8px 12px 4px; font-size: 12px; }
+.god-where { font-family: var(--mono); color: var(--text); }
+.god-unsaved { flex: 1; color: var(--muted); }
+.god-unsaved.dirty { color: var(--warn); }
+.god-head button { padding: 3px 10px; font-size: 12px; }
+.god-kinds { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 12px 6px; }
+.god-kinds button { padding: 3px 9px; font-size: 12px; border-radius: 999px; }
+.god-kinds button[aria-checked="true"] { background: var(--accent-dim); border-color: var(--accent); color: #fff; }
+.god-row { display: flex; gap: 6px; align-items: center; padding: 2px 12px 4px; }
+.god-row input, .god-row select { min-width: 0; padding: 3px 6px; font: inherit; font-size: 13px; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
+.god-search, .god-text { flex: 1; }
+.god-level { width: 70px; }
+.god-num { width: 76px; }
+.god-label { font-size: 12px; color: var(--muted); }
+.god-row button { padding: 3px 10px; font-size: 13px; }
+.god-list { list-style: none; margin: 2px 12px; padding: 0; max-height: 190px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; }
+.god-list li { padding: 3px 8px; font-size: 13px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.god-list li:hover { background: var(--panel-2); }
+.god-list li[aria-selected="true"] { background: var(--accent-dim); color: #fff; }
+.god-listbox .empty { padding: 2px 12px; margin: 0; font-size: 12px; }
+.god-tiles { display: flex; flex-wrap: wrap; gap: 2px; margin: 2px 12px; max-height: 190px; overflow-y: auto; }
+.god-tiles canvas { width: 32px; height: 32px; cursor: pointer; border: 2px solid transparent; image-rendering: pixelated; }
+.god-tiles canvas.chosen { border-color: var(--accent); }
+.god-place { display: flex; align-items: center; gap: 8px; padding: 6px 12px; }
+.god-preview { width: 40px; height: 40px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; flex: none; }
+.god-choice { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.god-sec { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 2px; }
+.god-wares li { display: flex; justify-content: space-between; align-items: center; }
+.god-wares button { padding: 2px 8px; font-size: 12px; }
+.god-hint { margin: 8px 12px 0; font-size: 12px; color: var(--muted); }
 [role="tab"][data-tab="shop"][aria-selected="true"] { border-bottom-color: var(--warn); }
 
 /* ---- login screen ---- */

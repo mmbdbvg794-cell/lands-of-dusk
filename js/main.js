@@ -12,6 +12,8 @@ import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
 import { gearFromEquipment } from './gear.js';
 import { StorageReader, nearStorage, LOOK as STORAGE_LOOK } from './storage.js';
+import { GOD_PROMPT, listKind, cleanList } from './god.js';
+import { GodPanel } from './godpanel.js';
 import { Minimap } from './minimap.js';
 import { Panels, setBar } from './panels.js';
 import { Player } from './player.js';
@@ -70,10 +72,27 @@ let world = newWorld();
 const renderer = new Renderer($('map'), world, $('map-wrap'));
 let sheetsFor = null; // resource address the current sheets came from
 const minimap = new Minimap($('minimap'), new Explored());
+// Gods (see god.js) get the God tab and Remove in the click menu.
+let isGod = false;
+const god = new GodPanel($('tab-god'), {
+  send: (cmd, opts) => {
+    if (opts?.quiet) { if (conn?.connected) conn.send(cmd); } else runCommand(cmd);
+  },
+  note: (t) => sysLine(t),
+  tileSheet: () => renderer.sheets?.map ?? null,
+  itemArt: () => renderer.items,
+});
+function setGod(on) {
+  isGod = on;
+  panels.setTabVisible('god', on);
+}
 const entityMenu = new EntityMenu(
   $('entity-menu'),
-  (cmd) => runCommand(cmd),
-  () => ({ x: world.locX, y: world.locY, range: player.range }),
+  (cmd) => {
+    runCommand(cmd);
+    if (/^unset \d/.test(cmd)) god.removed();
+  },
+  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod }),
 );
 entityMenu.onShop = () => panels.openShop();
 const hotbar = new Hotbar($('hotbar'), $('hotbar-picker'), $('map-wrap'), {
@@ -226,8 +245,13 @@ addEventListener('pagehide', saveExplored);
 // room, unless it was left open last time.
 const panelState = storage('get', 'dusk.panel');
 const [savedTab, savedOpen] = panelState ? panelState.split(':') : [];
-panels.selectByName(savedTab ?? 'inv', savedOpen ? savedOpen === '1' : window.innerWidth >= 800);
-panels.onToggle = (tab, open) => storage('set', 'dusk.panel', `${tab}:${open ? 1 : 0}`);
+// Tabs that come and go (God, Shop, Storage) aren't reopened from last time.
+const steadyTab = ['inv', 'equip', 'book', 'stats'].includes(savedTab) ? savedTab : 'inv';
+panels.selectByName(steadyTab, savedOpen ? savedOpen === '1' : window.innerWidth >= 800);
+panels.onToggle = (tab, open) => {
+  storage('set', 'dusk.panel', `${tab}:${open ? 1 : 0}`);
+  if (tab === 'god' && open) god.opened();
+};
 
 // ---- logging in --------------------------------------------------------------
 //
@@ -680,6 +704,7 @@ function connect(url) {
   targetId = -1;
   player = panels.player = new Player();
   panels.setOnMerchant(null);
+  setGod(false);
   panels.renderAll();
   saveExplored();
   exploredKey = loginName = null;
@@ -747,6 +772,12 @@ function handle(msg) {
     panels.setOnMerchant([...world.entities.values()].find((e) => e.type === 2 && e.x === world.locX && e.y === world.locY));
     // Next to a barrel or chest? Look inside when you reach one.
     if (panels.setStorage(nearStorage(world.entities.values(), world.locX, world.locY))) conn?.send(STORAGE_LOOK);
+    if (isGod) {
+      god.setPos(world.locX, world.locY);
+      god.setMerchant(panels.onMerchant, player.shop.wares);
+    }
+  } else if (isGod && part === 'shop') {
+    god.setMerchant(panels.onMerchant, player.shop.wares);
   }
   // The menu's entities may have moved, left, or come into attack range.
   if (entityMenu.open && (msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || msg.op === OP.MAP || msg.op === OP.RANGE ||
@@ -756,7 +787,7 @@ function handle(msg) {
     case OP.TEXT: {
       const st = panels.storage ? storageReader.feed(msg.text) : null;
       if (st?.listing) panels.setStorageListing(st.listing);
-      if (!st?.hide) addText(msg.text);
+      if (!st?.hide && !(isGod && god.expecting(msg.text))) addText(msg.text);
       serverLine(msg.text);
       break;
     }
@@ -767,6 +798,12 @@ function handle(msg) {
     case OP.LOADED:
       loaded = true;
       break;
+    case OP.EDIT_OR_LIST: {
+      // Name lists for the God tab ("list items", ...).
+      const kind = listKind(msg.title);
+      if (kind && isGod) god.setList(kind, cleanList(kind, msg.lines));
+      break;
+    }
     case OP.PLAY_SFX: {
       // Spell scripts send effects as sound numbers (see decodeFx).
       const fx = decodeFx(msg.index);
@@ -1019,6 +1056,8 @@ document.addEventListener('keydown', (e) => {
 // Every line of server text, after it's shown: login, yes/no questions,
 // why we might be about to be dropped, deaths, and spell replies.
 function serverLine(text) {
+  // Only gods are asked this, at login.
+  if (GOD_PROMPT.test(text.trim())) setGod(true);
   if (handleLogin(text)) return;
   if (isDeath(text)) showDeath();
   const loss = losses && parseLoss(text);

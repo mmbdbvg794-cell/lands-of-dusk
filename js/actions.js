@@ -17,10 +17,23 @@ export function distance(ent, x, y) {
   return Math.max(Math.abs(ent.x - x), Math.abs(ent.y - y));
 }
 
-// Returns [{ label, cmd, disabled?, hint? }] for `ent`. `me` is
-// { x, y, range }: where the player stands and their attack range
-// (opcode 28; 1 until the server says).
+// Returns [{ label, cmd, disabled?, hint?, god? }] for `ent`. `me` is
+// { x, y, range, god }: where the player stands, their attack range
+// (opcode 28; 1 until the server says), and whether they're a god, who
+// can also remove things ("unset", or "storage remove" standing on it).
 export function entityActions(ent, me) {
+  const acts = playerActions(ent, me);
+  if (!me.god || ent.type === TYPE.PLAYER) return acts;
+  if (isStorage(ent)) {
+    if (ent.x === me.x && ent.y === me.y) acts.push({ label: 'Remove (god)', cmd: 'storage remove', god: true });
+    else acts.push({ label: 'Remove (god)', disabled: true, hint: 'stand on it', god: true });
+  } else {
+    acts.push({ label: 'Remove (god)', cmd: `unset ${ent.id}`, god: true });
+  }
+  return acts;
+}
+
+function playerActions(ent, me) {
   const look = { label: 'Look', cmd: `look ${ent.id}` };
   const self = ent.type === TYPE.PLAYER && ent.x === me.x && ent.y === me.y;
   // Shared storage opens from next to it (the Storage tab lists it).

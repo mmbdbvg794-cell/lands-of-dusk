@@ -94,6 +94,15 @@ export class Panels {
     this.onToggle?.(tab.dataset.tab, open);
   }
 
+  // Shows or hides a tab (the God tab, for gods only); hiding the open one
+  // goes back to the inventory.
+  setTabVisible(name, show) {
+    const tab = this.tabs.find((t) => t.dataset.tab === name);
+    if (!tab || tab.hidden === !show) return;
+    tab.hidden = !show;
+    if (!show && tab.getAttribute('aria-selected') === 'true') this.selectByName('inv', !this.collapsed);
+  }
+
   selectByName(name, open) {
     const tab = this.tabs.find((t) => t.dataset.tab === name) ?? this.tabs[0];
     this.select(tab, open);

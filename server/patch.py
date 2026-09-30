@@ -3,6 +3,8 @@ classes so they compile again, and hooks in Storage (server/Storage.java):
 
   Commands.parseCommand   hands each command to Storage.command first
   DuskServer()            calls Storage.load before accepting players
+  "<prop", "<mob"         find mob and prop files whatever their case
+                          (server/CaseFix.java)
 
 Every change is an exact text replacement that must match once (or the
 stated number of times), so a changed server fails loudly here instead of
@@ -74,6 +76,12 @@ patch('Commands.java', [
                 return storageReply;
             }
             Player player = null;''', 1),
+    # "<prop name" and "<mob name": find the file whatever its case (the
+    # command is lowercased; many mob and prop files have capitals).
+    ('''Prop prop = duskEngine.getProp(string = string.substring(5));''',
+     '''Prop prop = duskEngine.getProp(string = CaseFix.file("defProps", string.substring(5)));''', 1),
+    ('''Mob mob = new Mob(string, livingThing.intLocX, livingThing.intLocY, duskEngine);''',
+     '''Mob mob = new Mob(CaseFix.file("defMobs", string), livingThing.intLocX, livingThing.intLocY, duskEngine);''', 1),
 ])
 
 patch('DuskServer.java', [

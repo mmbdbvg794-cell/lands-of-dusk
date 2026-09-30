@@ -1,0 +1,76 @@
+// The God panel's logic: knowing you're a god, reading the server's name
+// lists, and the commands that place things. No DOM; tested in node.
+//
+// Gods (privs above 2) are asked at login whether players may see them;
+// that's the same level the server wants for placing things, so the
+// question is how the client knows to show the panel.
+//
+// The server's god commands (Commands.adminCommands), all acting on the
+// square you stand on:
+//   <item name              an item on the ground
+//   <mob name lev: N        a mob (level optional)
+//   <prop name              a prop from defProps
+//   <sign text              a sign
+//   <merchant [name]        a merchant (then "madd"/"mremove" its wares)
+//   >N                      ground tile N under you
+//   <s                      save the map, mobs, merchants, signs and props
+//   unset ID                remove a mob, item, sign, prop, merchant or door
+//   teleport X Y            jump anywhere
+//   wizinvis on|off         hide from players or not
+// Storage (server/Storage.java): storage place barrel|chest [label], and
+// storage remove (on its square).
+// "list items|mobs|props" answer with opcode 20: a title ("Items:",
+// "Mobiles:", "Props:") and one file name per line.
+
+export const GOD_PROMPT = /^Do you want players to be able to see your presence\?/i;
+
+const LIST_KINDS = { 'items:': 'items', 'mobiles:': 'mobs', 'props:': 'props' };
+
+// Which list an opcode 20 message is, or null.
+export function listKind(title) {
+  return LIST_KINDS[String(title).trim().toLowerCase()] ?? null;
+}
+
+// The names in a list, cleaned of compiled caches and stray files, sorted.
+// Items with capitals are left out: the server lowercases item names when
+// it loads them, so those files can't be made.
+export function cleanList(kind, lines) {
+  const out = new Set();
+  for (const raw of lines) {
+    const name = raw.trim();
+    if (!name || name.startsWith('.') || /\.(dsko|sh|log|bak|txt|zip)$/i.test(name) || name.endsWith('~')) continue;
+    if (kind === 'items' && /[A-Z]/.test(name)) continue;
+    out.add(name);
+  }
+  return [...out].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+}
+
+// Names matching a search (every word, anywhere, any case).
+export function search(names, query, limit = 200) {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = names.filter((n) => words.every((w) => n.toLowerCase().includes(w)));
+  return hits.slice(0, limit);
+}
+
+export const place = {
+  item: (name) => `<${name}`,
+  mob: (name, level) => (Number(level) > 0 ? `<${name} lev: ${Math.floor(Number(level))}` : `<${name}`),
+  prop: (name) => `<prop ${name}`,
+  sign: (text) => `<sign ${text}`,
+  merchant: (name) => (name ? `<merchant ${name}` : '<merchant'),
+  tile: (n) => `>${Math.floor(Number(n))}`,
+  storage: (kind, label) => `storage place ${kind === 'chest' ? 'chest' : 'barrel'}${label ? ` ${label}` : ''}`,
+};
+
+export const SAVE_MAP = '<s';
+export const listCommand = (kind) => `list ${kind}`;
+export const unset = (id) => `unset ${id}`;
+export const teleport = (x, y) => `teleport ${Math.floor(Number(x))} ${Math.floor(Number(y))}`;
+export const wizinvis = (on) => `wizinvis ${on ? 'on' : 'off'}`;
+export const addWare = (name) => `madd ${name}`;
+export const removeWare = (name) => `mremove ${name}`;
+
+// What "<s" saves: tiles, mobs, merchants (and their wares), signs and
+// props. Items on the ground are never saved (they're gone after a
+// restart), and storage saves itself.
+export const SAVED_KINDS = new Set(['mob', 'prop', 'sign', 'merchant', 'tile', 'ware', 'remove']);

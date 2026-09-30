@@ -27,4 +27,12 @@ assert.deepEqual(entityActions({ id: 3, name: 'sign', type: TYPE.SIGN, x: 1, y: 
 assert.deepEqual(entityActions({ id: 2, name: 'shopkeeper', type: TYPE.MERCHANT, x: 12, y: 10 }, me)[0], { label: 'Go to shop', cmd: 'goto 12 10' });
 assert.deepEqual(labels(entityActions({ id: 2, name: 'shopkeeper', type: TYPE.MERCHANT, x: 10, y: 10 }, me)), ['Shop', 'Look']);
 assert.deepEqual(labels(entityActions({ id: 7, name: 'rock', type: 9, x: 1, y: 1 }, me)), ['Look'], 'unknown types can still be looked at');
+// Gods can remove anything but players; storage only from its square.
+const god = { ...me, god: true };
+assert.deepEqual(entityActions(slimer, god).at(-1), { label: 'Remove (god)', cmd: 'unset 77', god: true });
+assert.deepEqual(labels(entityActions({ id: 3, name: 'sign', type: TYPE.SIGN, x: 1, y: 1 }, god)), ['Read', 'Remove (god)']);
+assert.deepEqual(labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 12, y: 10 }, god)), ['Look']);
+assert.deepEqual(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 10, y: 10 }, god).at(-1), { label: 'Remove (god)', cmd: 'storage remove', god: true });
+assert.deepEqual(labels(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 11, y: 10 }, god)), ['Open', 'Remove (god) (stand on it)']);
+assert.equal(entityActions(slimer, me).some((a) => a.god), false, 'not for players');
 console.log('ok - entity actions');
