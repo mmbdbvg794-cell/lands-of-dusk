@@ -734,9 +734,12 @@ for (const i of [106, 107, 123, 126]) SURFACES[i] = (ctx, px) => restyle(ctx, px
 SURFACES[125] = (ctx, px) => restyle(ctx, px, ['void', 'stone', 'snow']);
 // Doors and the torch are too fine to restyle: the wall behind them is
 // restyled, and they're painted fresh where the original ones are.
-SURFACES[23] = (ctx, px) => withFitting(ctx, px, 'door');
-SURFACES[158] = (ctx, px) => withFitting(ctx, px, 'door');
-SURFACES[159] = (ctx, px) => withFitting(ctx, px, 'door');
+// Doors are painted whole: a stone frame big enough to cover the old
+// doorway, and a door inside it. 23 faces you in a north wall; 158 and 159
+// are in side walls, seen at an angle (skewed one way, then the other).
+SURFACES[23] = (ctx, px) => doorTile(ctx, px, { x: 8, y: 6, w: 112, h: 122, skew: 0, lintel: true });
+SURFACES[158] = (ctx, px) => doorTile(ctx, px, { x: 14, y: 2, w: 106, h: 124, skew: -0.12 });
+SURFACES[159] = (ctx, px) => doorTile(ctx, px, { x: 8, y: 2, w: 106, h: 124, skew: 0.12 });
 SURFACES[24] = (ctx, px) => withFitting(ctx, px, 'torch');
 for (const i of [...range(131, 148), 151]) SURFACES[i] = (ctx, px) => restyle(ctx, px, SHIP, { fallback: 'deck' });
 
@@ -760,10 +763,47 @@ function withFitting(ctx, px, kind) {
   else paintTorch(ctx, box);
 }
 
+function doorTile(ctx, px, { x, y, w, h, skew, lintel = false }) {
+  restyle(ctx, px, WALL);
+  const t = 12; // frame thickness
+  ctx.save();
+  // Shadow the frame casts on the wall.
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.fillRect(x + 3, y + 3, w, h);
+  // The frame: dressed stone blocks, lit from the upper left.
+  const fg = ctx.createLinearGradient(x, y, x + w, y + h);
+  fg.addColorStop(0, '#86847e'); fg.addColorStop(1, '#4c4a46');
+  ctx.fillStyle = fg;
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+  for (let fx = x + 18; fx < x + w; fx += 22) ctx.fillRect(fx, y, 2, t);
+  for (let fy = y + 20; fy < y + h; fy += 24) { ctx.fillRect(x, fy, t, 2); ctx.fillRect(x + w - t, fy, t, 2); }
+  ctx.fillStyle = 'rgba(255, 250, 235, 0.35)';
+  ctx.fillRect(x, y, w, 2); ctx.fillRect(x, y, 2, h);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.fillRect(x, y + h - 2, w, 2); ctx.fillRect(x + w - 2, y, 2, h);
+  // The opening, dark, then the door in it.
+  const ix = x + t, iy = y + t, iw = w - 2 * t, ih = h - t;
+  ctx.fillStyle = '#0c0a08';
+  ctx.fillRect(ix, iy, iw, ih);
+  if (lintel) {
+    const lg = ctx.createLinearGradient(0, iy, 0, iy + 10);
+    lg.addColorStop(0, '#8a5e34'); lg.addColorStop(1, '#4e3218');
+    ctx.fillStyle = lg;
+    ctx.fillRect(ix - 4, iy, iw + 8, 10);
+  }
+  const dy = iy + (lintel ? 10 : 2);
+  ctx.save();
+  ctx.beginPath(); ctx.rect(ix, iy, iw, ih); ctx.clip();
+  // Seen at an angle, the door's top and bottom slope.
+  ctx.transform(1, skew, 0, 1, 0, -skew * (ix + iw / 2));
+  paintDoor(ctx, { x: ix + 2, y: dy, w: iw - 4, h: iy + ih - dy });
+  ctx.restore();
+  ctx.restore();
+}
+
 function paintDoor(ctx, { x, y, w, h }) {
   ctx.save();
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-  ctx.fillRect(x - 2, y - 2, w + 4, h + 4);
   // Planks.
   const n = Math.max(3, Math.round(w / 14));
   for (let i = 0; i < n; i++) {
