@@ -161,6 +161,59 @@ function wolf(ctx, name) {
   ctx.restore();
 }
 
+// ---- cats ----
+
+function cat(ctx, name) {
+  const kitten = /kitty|kitten/.test(name);
+  const fur = /black/.test(name) ? '#2e2a2a' : /white/.test(name) ? '#ece6dc' : '#d08a40';
+  const stripe = /black/.test(name) ? '#141212' : /white/.test(name) ? '#c8c0b4' : '#8a5020';
+  ctx.save();
+  if (kitten) { ctx.translate(46, 70); ctx.scale(0.66, 0.66); }
+  shadow(ctx, 128, 206, 66, 13);
+  // Tail curling up, then body sitting, front legs, head.
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(84, 190); ctx.quadraticCurveTo(40, 190, 44, 150); ctx.quadraticCurveTo(48, 128, 62, 128); ctx.quadraticCurveTo(56, 150, 64, 168); ctx.quadraticCurveTo(76, 178, 90, 178); ctx.closePath(); }, fur, [40, 128, 90, 190]);
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(84, 204); ctx.quadraticCurveTo(76, 150, 104, 124); ctx.quadraticCurveTo(128, 108, 150, 124); ctx.quadraticCurveTo(170, 150, 164, 204); ctx.quadraticCurveTo(124, 212, 84, 204); }, fur, [76, 108, 170, 212]);
+  ctx.strokeStyle = stripe; ctx.lineWidth = 4; ctx.globalAlpha = 0.6;
+  for (const y of [150, 166, 182]) { ctx.beginPath(); ctx.moveTo(88, y); ctx.quadraticCurveTo(100, y - 6, 110, y); ctx.stroke(); }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = 'rgba(255,245,230,0.5)'; ctx.beginPath(); ctx.ellipse(132, 170, 16, 26, 0, 0, Math.PI * 2); ctx.fill();
+  for (const x of [118, 142]) fill(ctx, () => { ctx.beginPath(); ctx.roundRect(x - 6, 168, 12, 38, 6); }, fur, [x - 6, 168, x + 6, 206], 2);
+  // Head: round, with pointed ears, green eyes, a small nose and whiskers.
+  fill(ctx, ell(ctx, 130, 104, 32, 28), fur, [98, 76, 162, 132]);
+  for (const [ex, d] of [[108, -1], [152, 1]]) {
+    fill(ctx, () => { ctx.beginPath(); ctx.moveTo(ex - 10 * d, 90); ctx.lineTo(ex + 2 * d, 60); ctx.lineTo(ex + 12 * d, 84); ctx.closePath(); }, fur, [ex - 12, 60, ex + 12, 90], 2);
+    ctx.fillStyle = 'rgba(240,160,160,0.7)'; ctx.beginPath(); ctx.moveTo(ex - 4 * d, 86); ctx.lineTo(ex + 2 * d, 68); ctx.lineTo(ex + 7 * d, 84); ctx.closePath(); ctx.fill();
+  }
+  for (const ex of [118, 142]) {
+    ctx.fillStyle = '#7ad048'; ctx.beginPath(); ctx.ellipse(ex, 102, 6, 7, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#101010'; ctx.beginPath(); ctx.ellipse(ex, 102, 1.8, 6, 0, 0, Math.PI * 2); ctx.fill();
+    glint(ctx, ex - 2, 99, 1.6);
+  }
+  ctx.fillStyle = '#e07a8a'; ctx.beginPath(); ctx.moveTo(126, 112); ctx.lineTo(134, 112); ctx.lineTo(130, 117); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1;
+  for (const d of [-1, 1]) for (const dy of [-2, 3]) { ctx.beginPath(); ctx.moveTo(130 + d * 6, 116); ctx.lineTo(130 + d * 30, 114 + dy); ctx.stroke(); }
+  ctx.restore();
+}
+
+// ---- bears ----
+
+function bear(ctx, name) {
+  const fur = /polar|ice|white/.test(name) ? '#ece8e0' : /black/.test(name) ? '#2a2420' : '#7a5230';
+  shadow(ctx, 128, 212, 96, 16);
+  for (const [x, f] of [[86, 0.8], [168, 0.8]]) limb(ctx, [[x, 150], [x - 2, 190], [x + 4, 210]], 26, 22, fur);
+  fill(ctx, ell(ctx, 122, 144, 70, 44), fur, [52, 100, 192, 188]);
+  ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.beginPath(); ctx.ellipse(118, 118, 60, 14, 0, 0, Math.PI * 2); ctx.fill();
+  for (const x of [100, 182]) limb(ctx, [[x, 158], [x + 2, 194], [x + 6, 212]], 26, 22, fur);
+  // Hump, head with round ears and a lighter muzzle.
+  fill(ctx, ell(ctx, 170, 118, 26, 22), fur, [144, 96, 196, 140]);
+  fill(ctx, ell(ctx, 204, 122, 28, 24), fur, [176, 98, 232, 146]);
+  for (const ex of [192, 212]) fill(ctx, ell(ctx, ex, 100, 9, 9), fur, [ex - 9, 91, ex + 9, 109], 2);
+  fill(ctx, ell(ctx, 224, 132, 14, 11), '#c8a070', [210, 121, 238, 143], 1.5);
+  ctx.fillStyle = '#141010'; ctx.beginPath(); ctx.ellipse(234, 128, 5, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(210, 116, 3, 0, Math.PI * 2); ctx.fill();
+  glint(ctx, 96, 118, 12);
+}
+
 // ---- slimes ----
 
 function slime(ctx, name) {
@@ -277,6 +330,8 @@ export const FAMILIES = [
   { paint: person, match: /knight|guard|warden|soldier|gladiator|warlord/ },
   { paint: dragon, match: /dragon|freyrbrand|dino|dinosaur/ },
   { paint: wolf, match: /wolf|coyote|dog|hound|puppy|rufus|trainer/ },
+  { paint: cat, match: /\bcat\b|kitty|kitten/ },
+  { paint: bear, match: /grizzly|bear/ },
   { paint: slime, match: /blob|slime|sludge/ },
   { paint: wizard, match: /wizard|mage|keymaster|plenton/ },
   { paint: person, match: /townfolk|bartender|cashier|hunter|thief|invader|stalker|bob|zack|andy|kenny|cecil|boss|bigbum|grinder|clone/ },
