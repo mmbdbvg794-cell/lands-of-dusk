@@ -28,6 +28,8 @@ cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js
 ssh -o BatchMode=yes duskserver 'cd ~/DuskRPG && python3 -c "import os, json; print(json.dumps(sorted(m for m in os.listdir(\"defMobs\") if not m.endswith(\".dsko\"))))"' > "$work/mobnames.json"
 # The server's items, for the items sheet.
 ssh -o BatchMode=yes duskserver 'python3 - ~/DuskRPG' < tools/paintart/itemdefs.py > "$work/itemdefs.json"
+# And its props (furniture, people), drawn by name in the same sheet.
+ssh -o BatchMode=yes duskserver 'cd ~/DuskRPG && python3 -c "import os, json; print(json.dumps(sorted(p for p in os.listdir(\"defProps\") if not p.endswith(\".dsko\") and not p.startswith(\".\"))))"' > "$work/propnames.json"
 for name in map players sprites; do
   curl -s -f -m 20 -o "$work/$name.gif" "$RC/images/$name.gif"
 done

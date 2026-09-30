@@ -121,8 +121,10 @@ export class Renderer {
       const step = world.frameStep(e, now);
       // Storage barrels and chests are drawn by their kind.
       const storage = step === -1 && isStorage(e);
-      const art = step !== -1 ? null : e.type === 4 ? this.named : e.type === 1 || storage ? this.items : null;
-      const byName = art?.index.get(storage ? `storage ${storageKind(bareName(e.name))}` : bareName(e.name).toLowerCase());
+      // Props (type 3: furniture, people) by name too, as "prop <name>".
+      const art = step !== -1 ? null : e.type === 4 ? this.named : e.type === 1 || e.type === 3 ? this.items : null;
+      const key = storage ? `storage ${storageKind(bareName(e.name))}` : e.type === 3 ? `prop ${bareName(e.name).toLowerCase()}` : bareName(e.name).toLowerCase();
+      const byName = art?.index.get(key);
       if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
       else if (e === self) this.drawDressed(e.image, step, px, py, c);

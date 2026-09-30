@@ -48,11 +48,26 @@ public class Storage extends Prop {
     Storage(DuskEngine engine, String kind, String label, int x, int y) {
         super(engine);
         this.kind = kind;
-        this.strName = label == null || label.trim().length() == 0 ? kind : label.trim() + " " + kind;
+        this.strName = nameFor(kind, label);
         this.strDescription = "A " + kind + " anyone can store things in.";
         this.intImage = kind.equals("chest") ? CHEST_IMAGE : BARREL_IMAGE;
         this.intLocX = x;
         this.intLocY = y;
+    }
+
+    // "Guild" makes a "Guild barrel"; a label that already says what it is
+    // ("Water Barrel") is used as it is.
+    static String nameFor(String kind, String label) {
+        if (label == null || label.trim().length() == 0) return kind;
+        String l = label.trim();
+        return l.toLowerCase().endsWith(kind) ? l : l + " " + kind;
+    }
+
+    // Names saved before nameFor lose the doubled kind ("Water Barrel barrel").
+    static String tidyName(String kind, String name) {
+        String lower = name.toLowerCase();
+        if (lower.endsWith(" " + kind + " " + kind)) return name.substring(0, name.length() - kind.length() - 1);
+        return name;
     }
 
     int capacity() {
@@ -260,7 +275,7 @@ public class Storage extends Prop {
                     int x = Integer.parseInt(r.readLine()), y = Integer.parseInt(r.readLine());
                     int count = Integer.parseInt(r.readLine());
                     Storage s = new Storage(engine, kind, null, x, y);
-                    s.strName = name;
+                    s.strName = tidyName(kind, name);
                     for (int j = 0; j < count; j++) {
                         String itemName = r.readLine();
                         long durability = Long.parseLong(r.readLine());

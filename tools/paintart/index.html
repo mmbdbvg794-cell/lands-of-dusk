@@ -38,7 +38,8 @@
   idx.textContent = JSON.stringify(named.index);
   document.body.append(idx);
   // Items by name (itemdefs.json: the server's defItems).
-  const items = paintItemSheet(await (await fetch('itemdefs.json')).json());
+  // ... and props by name (propnames.json: the server's defProps).
+  const items = paintItemSheet(await (await fetch('itemdefs.json')).json(), await (await fetch('propnames.json')).json());
   out('items', items.sheet);
   const iidx = document.createElement('pre');
   iidx.id = 'itemsIndex';

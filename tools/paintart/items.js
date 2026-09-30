@@ -9,7 +9,7 @@
 // Weapons and armour are drawn lying on the ground with the same shapes and
 // materials your character wears them in (js/figure.js, js/gear.js).
 
-import { drawWeapon, drawShield } from './figure.js';
+import { drawWeapon, drawShield, paintPerson } from './figure.js';
 import { material, weaponKind, torsoKind, helmKind } from './gear.js';
 
 const OUT = 128;
@@ -611,6 +611,215 @@ function shield(ctx, n) {
   ctx.restore();
 }
 
+
+// ---- props: furniture and people placed on the map ----
+//
+// Props share pictures too (sprite 16 is every chair, couch, throne and
+// mattress; sprite 5 a guard, a woman, a child and a statue), so they're
+// drawn by name as well, under "prop <name>" in the same sheet.
+
+function hashName(name) {
+  let h = 2166136261;
+  for (let i = 0; i < name.length; i++) h = Math.imul(h ^ name.charCodeAt(i), 16777619);
+  return ((h >>> 0) % 1000) / 1000;
+}
+const FABRICS = ['#8a2a2a', '#2a4a8a', '#2e6b4f', '#6a3a8a', '#8a6a2a', '#3a3a44', '#9a4a2a'];
+const fabric = (n) => FABRICS[Math.floor(hashName(n) * FABRICS.length)];
+
+function chair(ctx) {
+  shadow(ctx, 26, 7, 104);
+  const wood = '#7a4a26';
+  for (const x of [CX - 20, CX + 16]) fill(ctx, rr(ctx, x, 70, 5, 34, 2), shade(wood, 0.8), [x, 70, x + 5, 104], 1);
+  fill(ctx, rr(ctx, CX - 22, 20, 44, 50, 4), wood, [CX - 22, 20, CX + 22, 70]);
+  ctx.strokeStyle = shade(wood, 0.55); ctx.lineWidth = 1.5;
+  for (const x of [CX - 10, CX, CX + 10]) { ctx.beginPath(); ctx.moveTo(x, 26); ctx.lineTo(x, 64); ctx.stroke(); }
+  fill(ctx, rr(ctx, CX - 26, 64, 52, 12, 3), shade(wood, 1.1), [CX - 26, 64, CX + 26, 76]);
+  for (const x of [CX - 24, CX + 19]) fill(ctx, rr(ctx, x, 76, 5, 30, 2), wood, [x, 76, x + 5, 106], 1);
+}
+
+function couch(ctx, n) {
+  const c = fabric(n);
+  shadow(ctx, 50, 9, 104);
+  fill(ctx, rr(ctx, CX - 48, 40, 96, 40, 12), shade(c, 0.85), [CX - 48, 40, CX + 48, 80]);
+  fill(ctx, rr(ctx, CX - 44, 66, 88, 30, 8), c, [CX - 44, 66, CX + 44, 96]);
+  ctx.strokeStyle = shade(c, 0.6); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(CX, 68); ctx.lineTo(CX, 94); ctx.stroke();
+  for (const x of [CX - 56, CX + 40]) fill(ctx, rr(ctx, x, 56, 16, 44, 7), shade(c, 0.95), [x, 56, x + 16, 100]);
+  for (const x of [CX - 50, CX + 44]) fill(ctx, rr(ctx, x, 98, 6, 8, 2), '#3a2414', [x, 98, x + 6, 106], 1);
+}
+
+function throne(ctx) {
+  shadow(ctx, 34, 8, 106);
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(CX - 26, 70); ctx.lineTo(CX - 26, 22); ctx.lineTo(CX - 14, 30); ctx.lineTo(CX, 10); ctx.lineTo(CX + 14, 30); ctx.lineTo(CX + 26, 22); ctx.lineTo(CX + 26, 70); ctx.closePath(); }, '#d8a830', [CX - 26, 10, CX + 26, 70]);
+  fill(ctx, rr(ctx, CX - 18, 30, 36, 40, 4), '#9a1a24', [CX - 18, 30, CX + 18, 70], 1);
+  fill(ctx, rr(ctx, CX - 32, 66, 64, 16, 4), '#d8a830', [CX - 32, 66, CX + 32, 82]);
+  fill(ctx, rr(ctx, CX - 28, 80, 56, 26, 3), '#b8881e', [CX - 28, 80, CX + 28, 106]);
+  glow(ctx, '#ff3040', 6, () => { ctx.fillStyle = '#e02030'; ctx.beginPath(); ctx.arc(CX, 20, 4, 0, Math.PI * 2); ctx.fill(); });
+}
+
+function bed(ctx, n) {
+  const blanket = /haunt|fire|firey/.test(n) ? (/fire/.test(n) ? '#c8401a' : '#4a3a5a') : fabric(n);
+  const bunk = /bunk/.test(n);
+  const one = (y, s) => {
+    fill(ctx, rr(ctx, CX - 44, y, 88, 30 * s, 4), '#7a4a26', [CX - 44, y, CX + 44, y + 30 * s]);
+    fill(ctx, rr(ctx, CX - 40, y - 8 * s, 80, 22 * s, 6), '#ece4d0', [CX - 40, y - 8 * s, CX + 40, y + 14 * s], 1);
+    fill(ctx, rr(ctx, CX - 36, y - 12 * s, 24, 14 * s, 6), '#f8f4ea', [CX - 36, y - 12 * s, CX - 12, y + 2 * s], 1);
+    fill(ctx, rr(ctx, CX - 10, y - 10 * s, 52, 24 * s, 5), blanket, [CX - 10, y - 10 * s, CX + 42, y + 14 * s]);
+  };
+  shadow(ctx, 50, 9, 108);
+  if (bunk) {
+    for (const x of [CX - 46, CX + 40]) fill(ctx, rr(ctx, x, 16, 6, 92, 2), '#5a3418', [x, 16, x + 6, 108], 1);
+    one(38, 0.8); one(84, 0.8);
+  } else {
+    fill(ctx, rr(ctx, CX - 46, 50, 8, 56, 2), '#5a3418', [CX - 46, 50, CX - 38, 106], 1);
+    one(72, 1);
+  }
+}
+
+// People placed as props: the character painter, dressed by name.
+function propPerson(ctx, n) {
+  const look = { skin: '#c89468', hair: '#4a2e18', top: fabric(n), trim: '#3a2414', legs: '#3e3a2c', boots: '#2a1c10', style: 'plain' };
+  let gear = {};
+  let s = 0.82;
+  if (/guard|soldier|lava guard/.test(n)) {
+    Object.assign(look, { top: '#8a8e98', trim: '#c8b060', legs: '#6a6e78', style: 'armour', helm: '#8a8e98' });
+    gear = { weapon: { kind: 'spear', colour: '#c8ccd4' }, shield: { colour: '#c8b060' } };
+  } else if (/thief|spy/.test(n)) {
+    Object.assign(look, { top: '#2a2a2e', trim: '#1a1a1e', legs: '#1e1e22', hair: '#1a1a1a' });
+    gear = { weapon: { kind: 'dagger', colour: '#c8ccd4' } };
+  } else if (/cook/.test(n)) {
+    Object.assign(look, { top: '#f0ece0', trim: '#c8c0a8', legs: '#4a4a4a' });
+  } else if (/bouncer/.test(n)) {
+    Object.assign(look, { top: '#1a1a1a', trim: '#3a3a3a', legs: '#1a1a1a', hair: null });
+  } else if (/teller|banker/.test(n)) {
+    Object.assign(look, { top: '#2a3a5a', trim: '#d8b050', legs: '#1e2a40' });
+  } else if (/prisoner/.test(n)) {
+    Object.assign(look, { top: '#8a8478', trim: '#5a544c', legs: '#6a645c', hair: '#6a5a4a' });
+  } else if (/woman|girl|kat|jenova/.test(n)) {
+    Object.assign(look, { skin: '#e8c0a0', hair: /jenova|old/.test(n) ? '#c8c8d0' : '#8a4a24', legs: fabric(n + 'x') });
+  } else if (/hermit|old|crazy/.test(n)) {
+    Object.assign(look, { top: '#6a5a3a', trim: '#4a3a24', hair: '#d8d8d0', beard: '#d8d8d0' });
+  } else if (/child/.test(n)) {
+    s = 0.62;
+  } else if (/dark elf/.test(n)) {
+    Object.assign(look, { skin: '#8a8c9a', hair: '#e8e8f0', top: '#3a3a44', legs: '#1c1c22', ears: true });
+  } else if (/statue|skeleton statue|demon statue/.test(n)) {
+    Object.assign(look, { skin: '#9a9a96', hair: '#8a8a86', top: '#9a9a96', trim: '#7a7a76', legs: '#8a8a86', boots: '#7a7a76' });
+  }
+  ctx.save();
+  ctx.translate(CX - 72 * s, 118 - 134 * s);
+  ctx.scale(s, s);
+  if (/statue/.test(n)) {
+    // A plinth under the stone figure.
+    ctx.restore(); ctx.save();
+    fill(ctx, rr(ctx, CX - 28, 100, 56, 18, 2), '#7a7a76', [CX - 28, 100, CX + 28, 118]);
+    ctx.translate(CX - 72 * s, 100 - 134 * s); ctx.scale(s, s);
+  }
+  paintPerson(ctx, look, 's', false, gear);
+  ctx.restore();
+  // A teller stands behind a counter with coins on it.
+  if (/teller|banker/.test(n)) {
+    fill(ctx, rr(ctx, CX - 48, 78, 96, 40, 3), '#6a3a1c', [CX - 48, 78, CX + 48, 118]);
+    fill(ctx, rr(ctx, CX - 52, 74, 104, 8, 2), '#8a5a30', [CX - 52, 74, CX + 52, 82]);
+    ctx.strokeStyle = '#4a2810'; ctx.lineWidth = 1.5;
+    for (const x of [CX - 16, CX + 16]) { ctx.beginPath(); ctx.moveTo(x, 84); ctx.lineTo(x, 116); ctx.stroke(); }
+    for (const [x, y] of [[-30, 72], [-24, 70], [-27, 67], [28, 72]]) fill(ctx, ell(ctx, CX + x, y, 5, 2.2), '#e0b030', [CX + x - 5, y - 2, CX + x + 5, y + 2], 1);
+  }
+}
+
+function tombstone(ctx, n) {
+  shadow(ctx, 28, 7, 106);
+  const c = /king|zilen/.test(n) ? '#a8a49a' : '#8a8680';
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(CX - 22, 104); ctx.lineTo(CX - 22, 44); ctx.arc(CX, 44, 22, Math.PI, Math.PI * 2); ctx.lineTo(CX + 22, 104); ctx.closePath(); }, c, [CX - 22, 22, CX + 22, 104]);
+  ctx.fillStyle = shade(c, 0.55);
+  if (/grave/.test(n) && !/r\.i\.p/.test(n)) { ctx.fillRect(CX - 2.5, 36, 5, 34); ctx.fillRect(CX - 11, 46, 22, 5); }
+  else { ctx.font = 'bold 13px Georgia, serif'; ctx.textAlign = 'center'; ctx.fillText('R.I.P', CX, 62); }
+  fill(ctx, rr(ctx, CX - 30, 102, 60, 8, 2), '#5a4a30', [CX - 30, 102, CX + 30, 110], 1);
+}
+
+function well(ctx) {
+  shadow(ctx, 40, 9, 108);
+  for (const x of [CX - 36, CX + 30]) fill(ctx, rr(ctx, x, 18, 6, 60, 2), '#6a4424', [x, 18, x + 6, 78], 1);
+  fill(ctx, poly(ctx, [[CX - 44, 26], [CX, 6], [CX + 44, 26], [CX + 40, 30], [CX, 12], [CX - 40, 30]]), '#8a3a22', [CX - 44, 6, CX + 44, 30]);
+  fill(ctx, ell(ctx, CX, 72, 38, 12), '#8a8680', [CX - 38, 60, CX + 38, 84]);
+  fill(ctx, rr(ctx, CX - 38, 72, 76, 34, 4), '#7a7670', [CX - 38, 72, CX + 38, 106]);
+  ctx.fillStyle = '#1a2a4a'; ctx.beginPath(); ctx.ellipse(CX, 72, 30, 8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = shade('#7a7670', 0.6); ctx.lineWidth = 1;
+  for (let y = 80; y < 104; y += 8) { ctx.beginPath(); ctx.moveTo(CX - 38, y); ctx.lineTo(CX + 38, y); ctx.stroke(); }
+}
+
+function flowerBox(ctx, n) {
+  shadow(ctx, 44, 8, 106);
+  const plants = /^plants?$/.test(n);
+  if (!plants) fill(ctx, rr(ctx, CX - 44, 80, 88, 24, 3), '#7a4a26', [CX - 44, 80, CX + 44, 104]);
+  for (let i = 0; i < 7; i++) {
+    const x = CX - 36 + i * 12, top = 48 + (i % 3) * 8;
+    ctx.strokeStyle = '#3a6a2a'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(x, plants ? 104 : 82); ctx.quadraticCurveTo(x + 4, 70, x, top); ctx.stroke();
+    fill(ctx, ell(ctx, x + 5, top + 16, 6, 3, -0.5), '#4a8a34', [0, 0, 128, 128], 0);
+    if (!plants) {
+      const c = ['#e04040', '#f0d040', '#e070c0', '#f0f0f0'][i % 4];
+      for (let k = 0; k < 5; k++) { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x + Math.cos(k * 1.26) * 4, top + Math.sin(k * 1.26) * 4, 3.2, 0, Math.PI * 2); ctx.fill(); }
+    }
+  }
+}
+
+function candlestick(ctx) {
+  shadow(ctx, 18, 5, 108);
+  fill(ctx, rr(ctx, CX - 14, 100, 28, 8, 3), '#c8a040', [CX - 14, 100, CX + 14, 108]);
+  fill(ctx, rr(ctx, CX - 3, 40, 6, 62, 2), '#c8a040', [CX - 3, 40, CX + 3, 102]);
+  fill(ctx, rr(ctx, CX - 18, 36, 36, 6, 2), '#c8a040', [CX - 18, 36, CX + 18, 42], 1);
+  for (const x of [CX - 16, CX, CX + 16]) {
+    fill(ctx, rr(ctx, x - 3, 18, 6, 18, 1), '#f4ecd8', [x - 3, 18, x + 3, 36], 1);
+    glow(ctx, '#ffb040', 12, () => { ctx.fillStyle = '#ffd060'; ctx.beginPath(); ctx.ellipse(x, 12, 3, 6, 0, 0, Math.PI * 2); ctx.fill(); });
+  }
+}
+
+function slotMachine(ctx) {
+  shadow(ctx, 28, 7, 108);
+  fill(ctx, rr(ctx, CX - 26, 22, 52, 86, 6), '#b82a2a', [CX - 26, 22, CX + 26, 108]);
+  fill(ctx, rr(ctx, CX - 20, 38, 40, 22, 3), '#f4ecd8', [CX - 20, 38, CX + 20, 60], 1);
+  ctx.font = 'bold 14px Georgia'; ctx.textAlign = 'center'; ctx.fillStyle = '#b82a2a';
+  ctx.fillText('7 7 7', CX, 54);
+  ctx.strokeStyle = '#8a8a8a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(CX + 26, 50); ctx.lineTo(CX + 36, 30); ctx.stroke();
+  fill(ctx, ell(ctx, CX + 36, 28, 5, 5), '#e02020', [CX + 31, 23, CX + 41, 33], 1);
+  fill(ctx, rr(ctx, CX - 14, 80, 28, 10, 2), '#3a1a1a', [CX - 14, 80, CX + 14, 90], 1);
+}
+
+function coffin(ctx) {
+  shadow(ctx, 40, 8, 106);
+  ctx.save(); ctx.translate(CX, 70); ctx.rotate(-0.08);
+  fill(ctx, poly(ctx, [[-14, -40], [14, -40], [24, -20], [16, 40], [-16, 40], [-24, -20]]), '#5a3418', [-24, -40, 24, 40]);
+  ctx.fillStyle = '#c8a040'; ctx.fillRect(-2, -26, 4, 30); ctx.fillRect(-10, -18, 20, 4);
+  ctx.restore();
+}
+
+const PROPS = [
+  [/teller|banker/, propPerson],
+  [/throne/, throne],
+  [/couch|sofa/, couch],
+  [/chair|stool/, chair],
+  [/\bbed\b|bunk|mattress/, bed],
+  [/grave|tombstone|r\.i\.p/, tombstone],
+  [/\bwell\b/, well],
+  [/flower box|^plants?$/, flowerBox],
+  [/candle/, candlestick],
+  [/slot machine/, slotMachine],
+  [/coffin/, coffin],
+  [/^skull$/, skull],
+  [/^key$/, key],
+  [/^(sword|dagger|pickaxe|excalibur|chaos sword)$/, (ctx, n) => weapon(ctx, n)],
+  [/^(box|box of stuff|goods|junk)$/, box],
+  [/^chest$/, chest],
+  [/^food$/, sandwich],
+  [/statue|guard|soldier|thief|spy|cook|bouncer|innkeeper|bar tender|prisoner|villager|hermit|woman|girl|child|dark elf|crazyoldman|oldcrazyman|old demon woman|kat$|jenova/, propPerson],
+];
+
+export function propPainterFor(name) {
+  const n = name.toLowerCase();
+  return PROPS.find(([re]) => re.test(n))?.[1] ?? null;
+}
+
 // ---- families: which items they cover ----
 
 // First match wins. Items are { name, type, kind } from defItems; weapons
@@ -709,8 +918,13 @@ export const STORAGE = [{ name: 'storage barrel', paint: barrel }, { name: 'stor
 // sheet is a grid, COLS frames wide (one strip would pass the widest
 // canvas a browser allows).
 export const COLS = 32;
-export function paintItemSheet(items) {
-  const drawn = [...items.map((it) => [it, painterFor(it)]).filter(([, p]) => p), ...STORAGE.map((st) => [{ name: st.name }, st.paint])];
+// props: the server's prop names, drawn under "prop <name>" (lower case).
+export function paintItemSheet(items, props = []) {
+  const drawn = [
+    ...items.map((it) => [it, painterFor(it)]).filter(([, p]) => p),
+    ...STORAGE.map((st) => [{ name: st.name }, st.paint]),
+    ...props.map((name) => [{ name: `prop ${name}`, draw: name }, propPainterFor(name)]).filter(([, p]) => p),
+  ];
   const sheet = document.createElement('canvas');
   sheet.width = COLS * OUT;
   sheet.height = Math.max(1, Math.ceil(drawn.length / COLS)) * OUT;
@@ -721,7 +935,7 @@ export function paintItemSheet(items) {
     ctx.translate((i % COLS) * OUT, Math.floor(i / COLS) * OUT);
     ctx.beginPath(); ctx.rect(0, 0, OUT, OUT); ctx.clip();
     ctx.lineCap = 'butt';
-    paint(ctx, it.name.toLowerCase().replace(/_/g, ' '));
+    paint(ctx, (it.draw ?? it.name).toLowerCase().replace(/_/g, ' '));
     ctx.restore();
     index[it.name.toLowerCase()] = i;
     index[it.name.toLowerCase().replace(/_/g, ' ')] = i;
