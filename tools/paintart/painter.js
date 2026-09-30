@@ -94,7 +94,7 @@ const PAINT = {
     const n = fbm(u, v, 3, 3);
     const ridge = 1 - Math.abs(2 * fbm(u, v, 5, 4, 3) - 1);
     let c = mix([20, 58, 142], [44, 104, 188], n);
-    if (ridge > 0.9) c = mix(c, [168, 212, 244], Math.min(1, (ridge - 0.9) * 7) * 0.8);
+    if (ridge > 0.93) c = mix(c, [160, 204, 238], Math.min(1, (ridge - 0.93) * 10) * 0.55);
     return c;
   },
   pond(u, v) {
@@ -207,90 +207,150 @@ function fillMaterial(ctx, name) {
 
 // ---- trees ----
 
-function blob(ctx, x, y, r, light, dark) {
-  const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
-  g.addColorStop(0, light);
-  g.addColorStop(1, dark);
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fill();
+// Trees are built up like a painting: shadow, trunk, then the canopy in
+// layers of small leaf clusters, dark underneath and dappled with light on
+// the upper left, with no hard outline. Colours vary a little per cluster.
+
+const PALETTES = {
+  oak: { deep: [24, 52, 20], mid: [52, 96, 34], light: [118, 160, 62], glint: [178, 206, 110] },
+  autumn: { deep: [74, 30, 12], mid: [150, 66, 22], light: [212, 120, 44], glint: [240, 180, 96] },
+  'autumn-gold': { deep: [84, 60, 14], mid: [168, 124, 30], light: [220, 178, 60], glint: [246, 222, 130] },
+};
+const rgba = (c, a = 1) => `rgba(${c.map((v) => Math.round(clamp(v))).join(',')},${a})`;
+
+function jitter(c, amount, r) {
+  return c.map((v) => v + (r - 0.5) * amount);
 }
 
 function paintTree(ctx, kind, seed) {
   const R = (n) => hash(n, seed, 91);
   ctx.save();
-  // Shadow on the ground.
-  ctx.fillStyle = 'rgba(20, 30, 10, 0.35)';
+  // A soft shadow on the ground.
+  const sg = ctx.createRadialGradient(66, 110, 4, 66, 110, 40);
+  sg.addColorStop(0, 'rgba(10, 20, 6, 0.45)');
+  sg.addColorStop(1, 'rgba(10, 20, 6, 0)');
+  ctx.fillStyle = sg;
   ctx.beginPath();
-  ctx.ellipse(66, 112, 34, 10, 0, 0, Math.PI * 2);
+  ctx.ellipse(66, 110, 40, 13, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.lineJoin = 'round';
   if (kind === 'palm') {
-    // A curved, ringed trunk.
-    const trunk = [[60, 114], [56, 90], [60, 62], [68, 40]];
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#2a1a0c'; ctx.lineWidth = 14;
-    ctx.beginPath(); ctx.moveTo(...trunk[0]); ctx.bezierCurveTo(...trunk[1], ...trunk[2], ...trunk[3]); ctx.stroke();
-    ctx.strokeStyle = '#9a6c3c'; ctx.lineWidth = 9;
-    ctx.beginPath(); ctx.moveTo(...trunk[0]); ctx.bezierCurveTo(...trunk[1], ...trunk[2], ...trunk[3]); ctx.stroke();
-    ctx.strokeStyle = 'rgba(60, 36, 16, 0.7)'; ctx.lineWidth = 2;
-    for (let t = 0.08; t < 0.95; t += 0.11) {
-      const bx = (1 - t) ** 3 * 60 + 3 * (1 - t) ** 2 * t * 56 + 3 * (1 - t) * t * t * 60 + t ** 3 * 68;
-      const by = (1 - t) ** 3 * 114 + 3 * (1 - t) ** 2 * t * 90 + 3 * (1 - t) * t * t * 62 + t ** 3 * 40;
-      ctx.beginPath(); ctx.moveTo(bx - 4, by); ctx.lineTo(bx + 4, by - 1); ctx.stroke();
-    }
-    // Fronds: broad, drooping leaves with a midrib, outlined.
-    const top = [68, 40];
-    for (let i = 0; i < 9; i++) {
-      const a = (i / 9) * Math.PI * 2 + R(i) * 0.4;
-      const len = 48 + R(i + 9) * 12;
-      const ex = top[0] + Math.cos(a) * len, ey = top[1] + Math.sin(a) * len * 0.5 + 20;
-      const cx = top[0] + Math.cos(a) * len * 0.55, cy = top[1] + Math.sin(a) * len * 0.3 - 14;
-      const nx = -Math.sin(a) * 14, ny = Math.cos(a) * 8;
-      const leaf = () => {
-        ctx.beginPath();
-        ctx.moveTo(...top);
-        ctx.quadraticCurveTo(cx + nx, cy + ny, ex, ey);
-        ctx.quadraticCurveTo(cx - nx, cy - ny, ...top);
-      };
-      ctx.fillStyle = '#16300c'; ctx.lineWidth = 5; ctx.strokeStyle = '#16300c'; leaf(); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = i % 2 ? '#5aa83a' : '#46902c'; leaf(); ctx.fill();
-      ctx.strokeStyle = 'rgba(210, 240, 150, 0.5)'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(...top); ctx.quadraticCurveTo(cx, cy, ex, ey); ctx.stroke();
-    }
-    for (const [dx, dy] of [[-5, 4], [4, 5], [0, 9]]) blob(ctx, top[0] + dx, top[1] + dy, 5, '#b08a50', '#4a2c10');
+    paintPalm(ctx, R);
     ctx.restore();
     return;
   }
-  // Trunk, outlined.
-  ctx.fillStyle = '#2a1a0c';
-  ctx.beginPath(); ctx.moveTo(52, 114); ctx.lineTo(58, 70); ctx.lineTo(74, 70); ctx.lineTo(80, 114); ctx.closePath(); ctx.fill();
-  const tg = ctx.createLinearGradient(56, 0, 76, 0);
-  tg.addColorStop(0, '#9a6a3a'); tg.addColorStop(1, '#5a3a1c');
+  const pal = PALETTES[kind];
+
+  // Trunk: tapering, with bark streaks and a hint of roots.
+  const tg = ctx.createLinearGradient(58, 0, 74, 0);
+  tg.addColorStop(0, '#6e4a2a');
+  tg.addColorStop(0.45, '#8a6038');
+  tg.addColorStop(1, '#3e2814');
   ctx.fillStyle = tg;
-  ctx.beginPath(); ctx.moveTo(56, 112); ctx.lineTo(61, 72); ctx.lineTo(71, 72); ctx.lineTo(76, 112); ctx.closePath(); ctx.fill();
-  // Canopy: an outline pass, then clumps light at the top-left.
-  const colours = {
-    oak: ['#8ed05a', '#2e6a1e'], autumn: ['#f0b050', '#8a3a12'], 'autumn-gold': ['#f6d060', '#9a6a14'],
-  }[kind];
-  const clumps = [];
-  for (let i = 0; i < 9; i++) {
-    const a = (i / 9) * Math.PI * 2 + R(i) * 0.6;
-    const d = i === 0 ? 0 : 20 + R(i + 20) * 8;
-    clumps.push([66 + Math.cos(a) * d, 50 + Math.sin(a) * d * 0.75, 20 + R(i + 40) * 8]);
+  ctx.beginPath();
+  ctx.moveTo(54, 112); ctx.quadraticCurveTo(60, 106, 61, 78); ctx.lineTo(71, 78);
+  ctx.quadraticCurveTo(72, 106, 80, 112); ctx.quadraticCurveTo(67, 108, 54, 112);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(40, 24, 10, 0.5)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const x = 62 + i * 2 + R(i) * 1.5;
+    ctx.beginPath(); ctx.moveTo(x, 80); ctx.lineTo(x + (R(i + 5) - 0.5) * 3, 106); ctx.stroke();
   }
-  ctx.fillStyle = '#16240c';
-  for (const [x, y, r] of clumps) { ctx.beginPath(); ctx.arc(x, y, r + 3, 0, Math.PI * 2); ctx.fill(); }
-  for (const [x, y, r] of clumps.sort((p, q) => q[1] - p[1])) blob(ctx, x, y, r, colours[0], colours[1]);
-  // A few light leaf dabs.
-  ctx.fillStyle = 'rgba(255, 255, 220, 0.25)';
-  for (let i = 0; i < 14; i++) {
-    ctx.beginPath();
-    ctx.ellipse(44 + R(i + 60) * 40, 30 + R(i + 80) * 34, 3, 2, R(i) * 3, 0, Math.PI * 2);
-    ctx.fill();
+
+  // Canopy clusters, scattered inside an uneven outline.
+  const clusters = [];
+  for (let i = 0; i < 70; i++) {
+    const a = R(i + 100) * Math.PI * 2;
+    const rim = 30 + fbm(Math.cos(a) * 0.3 + 0.5, Math.sin(a) * 0.3 + 0.5, seed, 3, 2) * 14;
+    const d = Math.sqrt(R(i + 200)) * rim;
+    clusters.push({ x: 66 + Math.cos(a) * d, y: 50 + Math.sin(a) * d * 0.8, r: 5 + R(i + 300) * 5, k: R(i + 400) });
+  }
+  // How lit a spot is: from the upper left, and higher is lighter.
+  const lit = (x, y) => Math.max(0, Math.min(1, 0.55 - (x - 66) / 90 - (y - 50) / 70));
+  // Back layer: darker and a little larger, which reads as the canopy's edge.
+  for (const c of clusters) {
+    ctx.fillStyle = rgba(jitter(pal.deep, 24, c.k), 0.95);
+    ctx.beginPath(); ctx.arc(c.x, c.y + 2, c.r + 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+  // Body: shade to light by where the cluster sits.
+  for (const c of [...clusters].sort((p, q) => p.y - q.y)) {
+    const t = lit(c.x, c.y);
+    const col = mix(mix(pal.deep, pal.mid, 0.6 + t * 0.4), pal.light, t * 0.8);
+    ctx.fillStyle = rgba(jitter(col, 30, c.k), 0.9);
+    ctx.beginPath(); ctx.ellipse(c.x, c.y, c.r, c.r * 0.85, c.k * 3, 0, Math.PI * 2); ctx.fill();
+  }
+  // Dappled light: small leaf dabs where the light falls.
+  for (let i = 0; i < 90; i++) {
+    const c = clusters[Math.floor(R(i + 500) * clusters.length)];
+    const t = lit(c.x, c.y);
+    if (R(i + 600) > t + 0.15) continue;
+    const x = c.x + (R(i + 700) - 0.5) * c.r * 1.4, y = c.y + (R(i + 800) - 0.5) * c.r * 1.2;
+    ctx.fillStyle = rgba(mix(pal.light, pal.glint, R(i + 900)), 0.55 + t * 0.35);
+    ctx.beginPath(); ctx.ellipse(x, y, 1.8 + R(i) * 1.6, 1.2 + R(i + 1) * 1, R(i + 2) * 3, 0, Math.PI * 2); ctx.fill();
   }
   ctx.restore();
+}
+
+// A palm: a curved, ringed trunk and feathery fronds made of many thin
+// leaflets, with no hard outline.
+function paintPalm(ctx, R) {
+  const trunk = (t) => [
+    (1 - t) ** 3 * 60 + 3 * (1 - t) ** 2 * t * 55 + 3 * (1 - t) * t * t * 60 + t ** 3 * 68,
+    (1 - t) ** 3 * 114 + 3 * (1 - t) ** 2 * t * 90 + 3 * (1 - t) * t * t * 62 + t ** 3 * 40,
+  ];
+  for (let t = 0; t <= 1; t += 0.02) {
+    const [x, y] = trunk(t);
+    const w = 5.5 - t * 1.8;
+    const g = ctx.createLinearGradient(x - w, 0, x + w, 0);
+    g.addColorStop(0, '#6a4a2a'); g.addColorStop(0.5, '#9c7446'); g.addColorStop(1, '#4a3018');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - w, y - 1.5, w * 2, 3);
+  }
+  ctx.strokeStyle = 'rgba(50, 30, 12, 0.55)';
+  ctx.lineWidth = 1.2;
+  for (let t = 0.06; t < 0.95; t += 0.08) {
+    const [x, y] = trunk(t);
+    ctx.beginPath(); ctx.moveTo(x - 5, y + 1); ctx.lineTo(x + 5, y - 1); ctx.stroke();
+  }
+  const top = trunk(1);
+  const fronds = 10;
+  for (let i = 0; i < fronds; i++) {
+    const a = (i / fronds) * Math.PI * 2 + R(i) * 0.35;
+    const len = 44 + R(i + 9) * 12;
+    const droop = 22 + R(i + 19) * 10;
+    // The frond's rib as a curve; leaflets hang off both sides.
+    const pt = (t) => [
+      top[0] + Math.cos(a) * len * t,
+      top[1] + Math.sin(a) * len * t * 0.5 - Math.sin(t * Math.PI) * 10 + t * t * droop,
+    ];
+    const shade = 0.35 + 0.65 * Math.max(0, Math.min(1, 0.6 - Math.cos(a) * 0.3 - Math.sin(a) * 0.4));
+    for (let t = 0.12; t < 1; t += 0.045) {
+      const [x, y] = pt(t), [x2, y2] = pt(t + 0.03);
+      const dx = x2 - x, dy = y2 - y, dl = Math.hypot(dx, dy) || 1;
+      const nx = -dy / dl, ny = dx / dl;
+      const leaf = 11 * Math.sin(t * Math.PI) * (0.8 + R(i * 40 + t * 100) * 0.4);
+      for (const side of [-1, 1]) {
+        const col = mix([28, 66, 22], [104, 160, 60], shade * (0.7 + R(i * 80 + t * 200 + side) * 0.3));
+        ctx.strokeStyle = rgba(col, 0.9);
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.quadraticCurveTo(x + nx * side * leaf * 0.6 + dx, y + ny * side * leaf * 0.6 + dy + 2, x + nx * side * leaf + dx * 2, y + ny * side * leaf + dy * 2 + 4);
+        ctx.stroke();
+      }
+    }
+    ctx.strokeStyle = rgba(mix([40, 70, 24], [120, 150, 70], shade), 0.9);
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    for (let t = 0; t <= 1; t += 0.05) { const [x, y] = pt(t); t ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke();
+  }
+  for (const [dx, dy] of [[-4, 4], [4, 5], [0, 8]]) {
+    const g = ctx.createRadialGradient(top[0] + dx - 1.5, top[1] + dy - 1.5, 0.5, top[0] + dx, top[1] + dy, 4.5);
+    g.addColorStop(0, '#a88450'); g.addColorStop(1, '#4a2e12');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(top[0] + dx, top[1] + dy, 4.5, 0, Math.PI * 2); ctx.fill();
+  }
 }
 
 // ---- the sheet ----
