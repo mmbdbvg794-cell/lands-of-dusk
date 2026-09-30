@@ -64,7 +64,7 @@ export function weaponKind(name) {
 
 // Body armour: plate, chain, leather, hide, cloth, or a robe (down to the
 // feet). Cloaks and capes are worn over whatever's underneath.
-function torsoKind(n) {
+export function torsoKind(n) {
   if (/cloak|cape/.test(n)) return 'cape';
   if (/robe|garb|toga/.test(n)) return 'robe';
   if (/chain/.test(n)) return 'chain';
@@ -74,7 +74,7 @@ function torsoKind(n) {
   return 'plate';
 }
 
-function helmKind(n) {
+export function helmKind(n) {
   if (/cap\b|hood/.test(n)) return 'cap';
   if (/skull|horn/.test(n)) return 'horned';
   if (/mask/.test(n)) return 'mask';

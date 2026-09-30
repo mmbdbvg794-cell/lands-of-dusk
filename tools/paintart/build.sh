@@ -8,6 +8,8 @@
 #                            (figures.js)
 #   art/painted/named.png    creatures by name, for names in a family
 #   art/painted/named.json   (bestiary.js): the index from name to frame
+#   art/painted/items.png    items by name (items.js), and items.json, the
+#   art/painted/items.json   index from name to frame
 #
 #   sh tools/paintart/build.sh
 #
@@ -21,9 +23,11 @@ CHROME=${CHROME:-$(ls -d "$HOME"/.cache/ms-playwright/chromium_headless_shell-*/
 
 work=$(mktemp -d)
 trap 'kill $server 2>/dev/null; rm -rf "$work"' EXIT
-cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js js/figure.js tools/paintart/creatures.js tools/paintart/bestiary.js "$work/"
+cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js js/figure.js tools/paintart/creatures.js tools/paintart/bestiary.js tools/paintart/items.js js/gear.js "$work/"
 # The server's creature names, for the named sheet.
 ssh -o BatchMode=yes duskserver 'cd ~/DuskRPG && python3 -c "import os, json; print(json.dumps(sorted(m for m in os.listdir(\"defMobs\") if not m.endswith(\".dsko\"))))"' > "$work/mobnames.json"
+# The server's items, for the items sheet.
+ssh -o BatchMode=yes duskserver 'python3 - ~/DuskRPG' < tools/paintart/itemdefs.py > "$work/itemdefs.json"
 for name in map players sprites; do
   curl -s -f -m 20 -o "$work/$name.gif" "$RC/images/$name.gif"
 done
@@ -38,7 +42,7 @@ mkdir -p art/painted
   python3 -c '
 import base64, os, re, sys
 page = sys.stdin.read()
-for name in ("map", "players", "sprites", "named"):
+for name in ("map", "players", "sprites", "named", "items"):
     m = re.search(r"<pre id=\"%s\">data:image/png;base64,([^<]+)</pre>" % name, page)
     if not m:
         sys.exit("painter produced no %s image" % name)
@@ -51,4 +55,8 @@ m = re.search(r"<pre id=\"namedIndex\">([^<]*)</pre>", page)
 index = json.loads(html.unescape(m.group(1))) if m else {}
 json.dump(index, open("art/painted/named.json", "w"), sort_keys=True)
 print("creatures drawn by name: %d" % len(index))
+m = re.search(r"<pre id=\"itemsIndex\">([^<]*)</pre>", page)
+index = json.loads(html.unescape(m.group(1))) if m else {}
+json.dump(index, open("art/painted/items.json", "w"), sort_keys=True)
+print("items drawn by name: %d" % len(set(index.values())))
 '

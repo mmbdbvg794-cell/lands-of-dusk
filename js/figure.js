@@ -81,7 +81,7 @@ function torso(ctx, x, y, w, h) {
 }
 
 // A weapon held at the origin (the hand), pointing up (-y) before `angle`.
-function drawWeapon(ctx, w, x, y, angle) {
+export function drawWeapon(ctx, w, x, y, angle) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
@@ -157,7 +157,7 @@ function drawWeapon(ctx, w, x, y, angle) {
 
 // A heater shield centred on (x, y); `edgeOn` squeezes it for side views,
 // `back` shows its back (seen from behind).
-function drawShield(ctx, s, x, y, { edgeOn = false, back = false } = {}) {
+export function drawShield(ctx, s, x, y, { edgeOn = false, back = false } = {}) {
   ctx.save();
   ctx.translate(x, y);
   if (edgeOn) ctx.scale(0.55, 1);

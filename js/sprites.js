@@ -13,10 +13,13 @@ const SHEETS = ['map', 'players', 'sprites'];
 const LOAD_TIMEOUT_MS = 15000;
 
 export class SpriteSheet {
-  constructor(img) {
+  // `size`: the frame side, for a grid of frames read left to right, top
+  // to bottom (the Painted items sheet); by default one strip.
+  constructor(img, size = img.naturalHeight) {
     this.img = img;
-    this.size = img.naturalHeight;
-    this.count = Math.floor(img.naturalWidth / this.size);
+    this.size = size;
+    this.cols = Math.floor(img.naturalWidth / size);
+    this.count = this.cols * Math.floor(img.naturalHeight / size);
   }
 
   // Draws frame `n` into the square at (dx, dy) with side `cell`. Frames
@@ -27,7 +30,8 @@ export class SpriteSheet {
     // when shrinking avoids dropped pixels on the 64px sprites.
     ctx.imageSmoothingEnabled = cell < this.size;
     ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(this.img, n * this.size, 0, this.size, this.size, dx, dy, cell, cell);
+    const sx = (n % this.cols) * this.size, sy = Math.floor(n / this.cols) * this.size;
+    ctx.drawImage(this.img, sx, sy, this.size, this.size, dx, dy, cell, cell);
     return true;
   }
 }
@@ -51,9 +55,9 @@ export async function loadSheets(baseUrl, { path = 'images/', ext = 'gif' } = {}
 }
 
 // One sheet on its own (the Painted style's map), or null if it failed.
-export async function loadSheet(url) {
+export async function loadSheet(url, size) {
   const r = await loadImage(url);
-  return r.img ? new SpriteSheet(r.img) : null;
+  return r.img ? new SpriteSheet(r.img, size) : null;
 }
 
 function loadImage(url) {

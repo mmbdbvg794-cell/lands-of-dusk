@@ -22,6 +22,9 @@ export class Renderer {
     // Painted style only: creature art by name ({ sheet, index: Map }),
     // for creatures that share a picture with others (see bestiary.js).
     this.named = null;
+    // Painted style only: items on the ground by name, the same shape
+    // (see tools/paintart/items.js).
+    this.items = null;
     // Painted style only: what the player is wearing (gear.js), drawn on
     // their own character; null draws them from the players sheet.
     this.gear = null;
@@ -115,8 +118,9 @@ export class Renderer {
       }
 
       const step = world.frameStep(e, now);
-      const byName = step === -1 && e.type === 4 && this.named?.index.get(bareName(e.name).toLowerCase());
-      if (byName !== undefined && byName !== false) this.named.sheet.draw(ctx, byName, px, py, c);
+      const art = step === -1 && (e.type === 4 ? this.named : e.type === 1 ? this.items : null);
+      const byName = art?.index.get(bareName(e.name).toLowerCase());
+      if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
       else if (e === self) this.drawDressed(e.image, step, px, py, c);
       else players?.draw(ctx, e.image * 8 + step, px, py, c);

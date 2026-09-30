@@ -833,6 +833,7 @@ async function loadGraphics(address) {
 let pixelSheets = null;
 let paintedSheets = null;
 let paintedNamed = null; // { sheet, index } once loaded, false if unavailable
+let paintedItems = null; // the same, for items by name
 let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
 // Two switches, kept in step: Pixel | Painted in the top bar, and a menu in
 // Settings (shown instead on phones).
@@ -856,6 +857,16 @@ function dressSelf() {
   renderer.setGear(artStyle === 'painted' ? gearFromEquipment(player.equipment) : null);
 }
 
+// A Painted sheet drawn by name plus its index: { sheet, index }, or false
+// if it isn't there. `size`: the frame side for a grid sheet.
+async function loadNamed(name, size) {
+  const [sheet, index] = await Promise.all([
+    loadSheet(`art/painted/${name}.png`, size),
+    fetch(`art/painted/${name}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+  ]);
+  return sheet && index ? { sheet, index: new Map(Object.entries(index)) } : false;
+}
+
 async function applyArt() {
   let sheets = pixelSheets;
   if (artStyle === 'painted' && pixelSheets) {
@@ -874,16 +885,13 @@ async function applyArt() {
   if (!sheets) return;
   // Creatures drawn by name, in the Painted style.
   if (artStyle === 'painted') {
-    if (paintedNamed === null) {
-      const [sheet, index] = await Promise.all([
-        loadSheet('art/painted/named.png'),
-        fetch('art/painted/named.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
-      ]);
-      paintedNamed = sheet && index ? { sheet, index: new Map(Object.entries(index)) } : false;
-    }
+    if (paintedNamed === null) paintedNamed = await loadNamed('named');
+    if (paintedItems === null) paintedItems = await loadNamed('items', 128);
     renderer.named = paintedNamed || null;
+    renderer.items = paintedItems || null;
   } else {
     renderer.named = null;
+    renderer.items = null;
   }
   dressSelf();
   renderer.setSheets(sheets);
