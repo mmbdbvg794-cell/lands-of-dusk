@@ -39,11 +39,22 @@ export class DialogueEditor {
     this.body.replaceChildren(Object.assign(document.createElement('p'), { className: 'empty', textContent: 'Loading…' }));
     this.el.hidden = false;
     this.send(loadCommand(name), { quiet: true });
+    // No answer (a server without the editor's part, or not restarted since
+    // it was installed): say so rather than loading forever.
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      if (this.dlg || !this.open) return;
+      this.body.replaceChildren(Object.assign(document.createElement('p'), {
+        className: 'de-warn',
+        textContent: "The server didn't answer. It may need restarting to use the dialogue editor (sudo systemctl restart duskserver).",
+      }));
+    }, 5000);
   }
 
   // The server's answer to the load (see parseDialogueReply).
   loaded({ name, dialogue, handWritten }) {
     if (!this.open || name.toLowerCase() !== this.name?.toLowerCase()) return;
+    clearTimeout(this.timer);
     this.dlg = dialogue ?? newDialogue();
     this.el.querySelector('.de-warn').hidden = !handWritten;
     this.render();
