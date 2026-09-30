@@ -1152,7 +1152,7 @@ dialog::backdrop { background: #000a; }
 .de-stage-head strong { font-size: 13px; }
 .de-row { display: flex; gap: 6px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
 .de-grow { flex: 1; }
-.de-label-text { width: 44px; font-size: 12px; color: #858c99; }
+.de-label-text { width: 64px; font-size: 12px; color: #858c99; }
 .de-answers { margin-left: 50px; }
 .de-answer { padding: 6px 8px; margin: 6px 0; border-left: 3px solid #2b4a73; background: #171a20; border-radius: 4px; }
 .de-effect { margin-left: 16px; }
@@ -1169,3 +1169,5 @@ dialog::backdrop { background: #000a; }
 #dialogue-editor button:hover { border-color: #6aa9ff; }
 #dialogue-editor .de-small { font-size: 12px; padding: 2px 8px; }
 #dialogue-editor .list-head { margin: 10px 0 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #858c99; font-family: system-ui, sans-serif; }
+.de-follow { margin: 6px 0 4px 16px; padding: 6px 8px; border-left: 3px dashed #3b6297; background: #1b1f26; border-radius: 4px; }
+.de-follow .de-answers { margin-left: 20px; }

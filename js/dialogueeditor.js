@@ -2,13 +2,14 @@
 // what they do, for one NPC. Opened from the God tab or an NPC's click
 // menu; saved as the NPC's talk script (js/dialogue.js turns it into one).
 
-import { newDialogue, saveCommand, loadCommand } from './dialogue.js';
+import { newDialogue, saveCommand, loadCommand, MAX_DEPTH } from './dialogue.js';
 
-const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item']];
+const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
 const EFFECTS = [
-  ['give', 'Give item'], ['take', 'Take item'], ['gold', 'Give gold'], ['exp', 'Give experience'],
+  ['give', 'Give item'], ['take', 'Take item'], ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'],
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['teleport', 'Teleport to'],
 ];
+const NEEDS = [['none', 'Needs nothing'], ['gold', 'Needs gold'], ['item', 'Needs item'], ['flag', 'Needs flag']];
 
 export class DialogueEditor {
   // el: the #dialogue-editor dialog; send(cmd, opts) runs a command;
@@ -95,28 +96,52 @@ export class DialogueEditor {
       h('p', { className: 'de-hint', textContent: 'What they call out when players come near (one line each, a random one each time). Leave empty for none.' }),
       area(d.shouts.join('\n'), 'Hey you! Come here!', (v) => { d.shouts = v.split('\n'); }, 2));
 
+    // A question's answers: each with its reply, what it needs, its
+    // effects, and maybe a follow-up question with answers of its own.
+    const renderAnswers = (node, depth) => node.answers.map((a, ai) => {
+      const effects = a.effects.map((e, ei) => {
+        const fields = [];
+        if (e.kind === 'give' || e.kind === 'take') fields.push(input(e.item, 'item name', (v) => { e.item = v; }, { list: 'de-items' }));
+        if (e.kind === 'gold' || e.kind === 'takegold' || e.kind === 'exp') fields.push(input(e.amount, 'amount', (v) => { e.amount = v; }, { type: 'number', min: 1, className: 'de-num' }));
+        if (e.kind === 'flag' || e.kind === 'unflag') fields.push(input(e.flag, 'flag name', (v) => { e.flag = v; }));
+        if (e.kind === 'teleport') fields.push(input(e.x, 'x', (v) => { e.x = v; }, { type: 'number', className: 'de-num' }), input(e.y, 'y', (v) => { e.y = v; }, { type: 'number', className: 'de-num' }));
+        return h('div', { className: 'de-row de-effect' },
+          select(EFFECTS, e.kind, (v) => { a.effects[ei] = { kind: v }; again(); }), ...fields,
+          button('✕', () => { a.effects.splice(ei, 1); again(); }, 'ghost de-x'));
+      });
+      const need = a.needs ?? { kind: 'none', value: '' };
+      const needValue = need.kind === 'none' ? null
+        : input(need.value, need.kind === 'gold' ? 'gold' : need.kind === 'item' ? 'item name' : 'flag name', (v) => { a.needs.value = v; },
+          need.kind === 'gold' ? { type: 'number', min: 1, className: 'de-num' } : need.kind === 'item' ? { list: 'de-items' } : {});
+      const follow = a.next
+        ? h('div', { className: 'de-follow' },
+          h('div', { className: 'de-row' },
+            h('span', { className: 'de-label-text', textContent: 'Then asks' }),
+            area(a.next.says, 'A follow-up question', (v) => { a.next.says = v; }),
+            button('✕', () => { delete a.next; again(); }, 'ghost de-x')),
+          h('div', { className: 'de-answers' }, ...renderAnswers(a.next, depth + 1)),
+          h('div', { className: 'de-row' }, button('+ Answer button', () => { a.next.answers.push({ label: '', reply: '', effects: [] }); again(); }, 'de-small')))
+        : null;
+      return h('div', { className: 'de-answer' },
+        h('div', { className: 'de-row' },
+          input(a.label, 'Button, e.g. Yes', (v) => { a.label = v; }, { className: 'de-label' }),
+          input(a.reply, 'What they say back', (v) => { a.reply = v; }),
+          button('✕', () => { node.answers.splice(ai, 1); again(); }, 'ghost de-x')),
+        h('div', { className: 'de-row de-effect' },
+          select(NEEDS, need.kind, (v) => { if (v === 'none') delete a.needs; else a.needs = { kind: v, value: '' }; again(); }), needValue),
+        ...effects,
+        follow,
+        h('div', { className: 'de-row' },
+          button('+ Effect', () => { a.effects.push({ kind: 'give' }); again(); }, 'de-small'),
+          !a.next && depth + 1 < MAX_DEPTH ? button('+ Follow-up question', () => { a.next = { says: '', answers: [] }; again(); }, 'de-small') : null));
+    });
+
     // Stages.
     const stages = d.stages.map((st, si) => {
-      const valueBox = st.when.kind === 'always' ? null : input(st.when.value, st.when.kind === 'item' ? 'item name' : 'flag name, e.g. wolfquest', (v) => { st.when.value = v; }, st.when.kind === 'item' ? { list: 'de-items' } : {});
-      const answers = st.answers.map((a, ai) => {
-        const effects = a.effects.map((e, ei) => {
-          const fields = [];
-          if (e.kind === 'give' || e.kind === 'take') fields.push(input(e.item, 'item name', (v) => { e.item = v; }, { list: 'de-items' }));
-          if (e.kind === 'gold' || e.kind === 'exp') fields.push(input(e.amount, 'amount', (v) => { e.amount = v; }, { type: 'number', min: 1, className: 'de-num' }));
-          if (e.kind === 'flag' || e.kind === 'unflag') fields.push(input(e.flag, 'flag name', (v) => { e.flag = v; }));
-          if (e.kind === 'teleport') fields.push(input(e.x, 'x', (v) => { e.x = v; }, { type: 'number', className: 'de-num' }), input(e.y, 'y', (v) => { e.y = v; }, { type: 'number', className: 'de-num' }));
-          return h('div', { className: 'de-row de-effect' },
-            select(EFFECTS, e.kind, (v) => { a.effects[ei] = { kind: v }; again(); }), ...fields,
-            button('✕', () => { a.effects.splice(ei, 1); again(); }, 'ghost de-x'));
-        });
-        return h('div', { className: 'de-answer' },
-          h('div', { className: 'de-row' },
-            input(a.label, 'Button, e.g. Yes', (v) => { a.label = v; }, { className: 'de-label' }),
-            input(a.reply, 'What they say back', (v) => { a.reply = v; }),
-            button('✕', () => { st.answers.splice(ai, 1); again(); }, 'ghost de-x')),
-          ...effects,
-          h('div', { className: 'de-row' }, button('+ Effect', () => { a.effects.push({ kind: 'give' }); again(); }, 'de-small')));
-      });
+      const valueBox = st.when.kind === 'always' ? null
+        : input(st.when.value, st.when.kind === 'item' ? 'item name' : st.when.kind === 'gold' ? 'gold' : 'flag name, e.g. wolfquest', (v) => { st.when.value = v; },
+          st.when.kind === 'item' ? { list: 'de-items' } : st.when.kind === 'gold' ? { type: 'number', min: 1, className: 'de-num' } : {});
+      const answers = renderAnswers(st, 0);
       return h('section', { className: 'de-stage' },
         h('div', { className: 'de-row de-stage-head' },
           h('strong', { textContent: `Stage ${si + 1}` }),

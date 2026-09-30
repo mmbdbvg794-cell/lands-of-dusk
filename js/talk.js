@@ -14,6 +14,9 @@ export const TALKERS = 'talk names';
 
 const SPEECH = /^(.{1,40}?) (says|shouts|asks|whispers): (.+)$/;
 const CHOICES = /\s*\(([^()]+(?:\/[^()]+)+)\)\s*$/;
+// One answer on its own, as the dialogue editor writes it: lower case, at
+// the very end of the line ("Want to hear a story? (sure)").
+const ONE_CHOICE = /\s*\(([a-z0-9' -]{1,30})\)$/;
 
 // { who, verb, text, choices } for an NPC's line, or null.
 export function parseSpeech(line) {
@@ -21,7 +24,7 @@ export function parseSpeech(line) {
   if (!m) return null;
   let text = m[3];
   let choices = [];
-  const c = CHOICES.exec(text);
+  const c = CHOICES.exec(text) ?? ONE_CHOICE.exec(text);
   if (c) {
     choices = c[1].split('/').map((s) => s.trim()).filter(Boolean);
     text = text.slice(0, c.index).trim();

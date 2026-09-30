@@ -1,6 +1,6 @@
 // Run with: node test/god.test.mjs
 import assert from 'node:assert/strict';
-import { parseLooks, PROP_LOOKS } from '../js/god.js';
+import { parseLooks, PROP_LOOKS, tileMessage, tileClear } from '../js/god.js';
 import { GOD_PROMPT, listKind, cleanList, search, place, SAVE_MAP, unset, teleport, wizinvis, addWare, removeWare, SAVED_KINDS } from '../js/god.js';
 
 assert.ok(GOD_PROMPT.test('Do you want players to be able to see your presence? (yes/no)'));
@@ -43,4 +43,7 @@ assert.deepEqual(parseLooks('Looks: '), new Map());
 assert.equal(parseLooks('You look around.'), null);
 assert.equal(PROP_LOOKS, 'prop looks');
 assert.equal(place.namedSign('Bank', 'Deposits and withdrawals'), 'namesign Bank|Deposits and withdrawals');
+assert.equal(tileMessage('Bank Teller', 'Stand here to talk to me.'), 'tilemsg Bank Teller|Stand here to talk to me.');
+assert.equal(tileMessage('', 'Beware!'), 'tilemsg |Beware!');
+assert.equal(tileClear(), 'tilemsg clear');
 console.log('god tests passed');

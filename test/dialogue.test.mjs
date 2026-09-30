@@ -95,4 +95,55 @@ assert.deepEqual(parseDialogueReply(`Dialogue: Elder Martha|${toBase64(JSON.stri
 assert.equal(parseDialogueReply('Dialogue: Drill Sergeant|!').handWritten, true);
 assert.deepEqual(parseDialogueReply('Dialogue: New Guy|').dialogue, newDialogue());
 assert.equal(parseDialogueReply('Hello'), null);
+// Needs, taking gold, a gold condition and a follow-up question.
+const shop = { stages: [
+  { when: { kind: 'gold', value: 10 }, says: 'Welcome, customer.', answers: [
+    { label: 'Buy potion', reply: 'Here you are.', needs: { kind: 'gold', value: 50 }, effects: [{ kind: 'takegold', amount: 50 }, { kind: 'give', item: 'red potion' }] },
+    { label: 'Chat', reply: 'Nice weather.', effects: [], next: { says: 'Heard about the wolves?', answers: [
+      { label: 'Yes', reply: 'Terrible business.', effects: [] },
+      { label: 'Tell me', reply: 'Ask Elder Martha.', needs: { kind: 'flag', value: 'met_martha' }, effects: [] },
+    ] } },
+  ] },
+] };
+const s3 = toScript('Shopkeep', shop);
+assert.equal(s3, `#Shopkeep's dialogue, made with the God tab's dialogue editor.
+#Change it there: saving the editor rewrites this file.
+if ! < trigger cash 10
+	chat trigger "Shopkeep says: Welcome, customer. (buy potion/chat)"
+	input trigger answer
+	if strequals answer "buy potion"
+		if < trigger cash 50
+			chat trigger "Shopkeep says: You don't have enough gold for that. It's 50 gp."
+			endscript
+		end
+		inc trigger cash - 0 50
+		giveitem trigger "red potion"
+		chat trigger "Shopkeep says: Here you are."
+		endscript
+	end
+	if strequals answer "chat"
+		chat trigger "Shopkeep says: Nice weather."
+		chat trigger "Shopkeep says: Heard about the wolves? (yes/tell me)"
+		input trigger answer2
+		if strequals answer2 "yes"
+			chat trigger "Shopkeep says: Terrible business."
+			endscript
+		end
+		if strequals answer2 "tell me"
+			if ! hasCondition trigger met_martha
+				chat trigger "Shopkeep says: You can't do that yet."
+				endscript
+			end
+			chat trigger "Shopkeep says: Ask Elder Martha."
+			endscript
+		end
+		chat trigger "Shopkeep says: Hm? Talk to me again when you've made up your mind."
+		endscript
+	end
+	chat trigger "Shopkeep says: Hm? Talk to me again when you've made up your mind."
+	endscript
+end
+endscript
+`);
+assert.deepEqual(flagsOf(shop), ['met_martha']);
 console.log('ok - dialogue');

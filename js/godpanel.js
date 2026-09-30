@@ -4,11 +4,11 @@
 // map. Shown only to gods (see god.js). The commands are the server's
 // own; this panel just builds them.
 
-import { place, SAVE_MAP, listCommand, search, teleport, wizinvis, addWare, removeWare, SAVED_KINDS, PROP_LOOKS } from './god.js';
+import { place, SAVE_MAP, listCommand, search, teleport, wizinvis, addWare, removeWare, SAVED_KINDS, PROP_LOOKS, tileMessage, tileClear } from './god.js';
 
 const KINDS = [
   ['npc', 'NPC'], ['item', 'Item'], ['mob', 'Mob'], ['prop', 'Prop'], ['storage', 'Storage'],
-  ['sign', 'Sign'], ['merchant', 'Merchant'], ['tile', 'Tile'],
+  ['sign', 'Sign'], ['merchant', 'Merchant'], ['tile', 'Tile'], ['tilemsg', 'Tile message'],
 ];
 const LISTED = { npc: 'props', item: 'items', mob: 'mobs', prop: 'props' };
 const SHOWN = 150; // list rows shown at once; searching narrows the rest
@@ -101,7 +101,11 @@ export class GodPanel {
     $.storageKind.addEventListener('change', () => this.renderChoice());
     // A sign can be named ("Bank") as well as saying something.
     $.signName = h('input', { type: 'text', placeholder: 'Name (optional), e.g. Bank', autocomplete: 'off', className: 'god-text', maxLength: 40 });
-    $.textBox = h('div', { className: 'god-row' }, $.storageKind, $.signName, $.text);
+    // A tile message: who says it (optional) and what.
+    $.tileSpeaker = h('input', { type: 'text', placeholder: 'Who says it (optional), e.g. Bank Teller', autocomplete: 'off', className: 'god-text', maxLength: 40 });
+    $.textBox = h('div', { className: 'god-row' }, $.storageKind, $.signName, $.tileSpeaker, $.text);
+    $.tileClear = h('button', { type: 'button', textContent: 'Clear this square' });
+    $.tileClear.addEventListener('click', () => this.send(tileClear()));
 
     // Tiles: a palette of the map's tiles.
     $.tiles = h('div', { className: 'god-tiles' });
@@ -117,7 +121,7 @@ export class GodPanel {
     $.choice = h('span', { className: 'god-choice' });
     $.place = h('button', { type: 'button', className: 'primary', textContent: 'Place here' });
     $.place.addEventListener('click', () => this.placeChosen());
-    const placeRow = h('div', { className: 'god-place' }, $.preview, $.choice, $.place);
+    const placeRow = h('div', { className: 'god-place' }, $.preview, $.choice, $.tileClear, $.place);
 
     // The merchant you stand on: its wares, and adding more.
     $.merchName = h('strong');
@@ -276,10 +280,12 @@ export class GodPanel {
     $.propNameRow.hidden = kind !== 'prop' && kind !== 'npc';
     $.propName.placeholder = kind === 'npc' ? 'Name, e.g. Elder Martha' : 'Name it (optional), e.g. George';
     $.place.textContent = kind === 'npc' ? 'Place & edit dialogue' : 'Place here';
-    $.textBox.hidden = !['sign', 'merchant', 'storage'].includes(kind);
+    $.textBox.hidden = !['sign', 'merchant', 'storage', 'tilemsg'].includes(kind);
+    $.tileSpeaker.hidden = kind !== 'tilemsg';
+    $.tileClear.hidden = kind !== 'tilemsg';
     $.storageKind.hidden = kind !== 'storage';
     $.signName.hidden = kind !== 'sign';
-    $.text.placeholder = { sign: 'What the sign says', merchant: 'Merchant name (optional)', storage: 'Label (optional), e.g. Guild' }[kind] ?? '';
+    $.text.placeholder = { sign: 'What the sign says', merchant: 'Merchant name (optional)', storage: 'Label (optional), e.g. Guild', tilemsg: 'What they see, e.g. Stand here to talk to the teller.' }[kind] ?? '';
     $.tiles.hidden = kind !== 'tile';
     if (kind === 'tile') this.renderTiles();
     if (listed) {
@@ -342,7 +348,7 @@ export class GodPanel {
     let label = '';
     if (LISTED[k]) label = this.chosen[k] ?? (k === 'npc' ? 'Pick how the NPC looks' : `Pick a ${k} from the list`);
     else if (k === 'tile') label = this.chosen.tile == null ? 'Pick a tile' : `Tile ${this.chosen.tile}`;
-    else label = { sign: 'A sign', merchant: 'A merchant', storage: 'Shared storage' }[k];
+    else label = { sign: 'A sign', merchant: 'A merchant', storage: 'Shared storage', tilemsg: 'A message for whoever steps here' }[k];
     $.choice.textContent = label;
     // A picture where the client has one: items drawn by name, and tiles.
     const art = this.itemArt();
@@ -384,6 +390,11 @@ export class GodPanel {
     } else if (k === 'merchant') {
       cmd = place.merchant($.text.value.trim());
       what = 'a merchant';
+    } else if (k === 'tilemsg') {
+      const t = $.text.value.trim();
+      if (!t) return this.note('Write the message first.');
+      cmd = tileMessage($.tileSpeaker.value.trim(), t);
+      $.text.value = '';
     } else if (k === 'storage') {
       cmd = place.storage($.storageKind.value, $.text.value.trim());
       what = `a ${$.storageKind.value}`;
@@ -396,7 +407,7 @@ export class GodPanel {
       this.send(PROP_LOOKS, { quiet: true }); // so it's drawn right away
       $.propName.value = '';
       if (k === 'npc') this.onNpcPlaced?.(named);
-    } else if (k !== 'storage') this.note(`Placed ${what}${at}.`);
+    } else if (k !== 'storage' && k !== 'tilemsg') this.note(`Placed ${what}${at}.`);
   }
 
   renderUnsaved() {

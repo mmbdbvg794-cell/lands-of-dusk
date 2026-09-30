@@ -9,8 +9,11 @@
 //         answers: [{ label: 'yes', reply: 'Bless you!', effects: [...] }] },
 //     ] }
 // when.kind: 'always' | 'flag' (the player has it) | 'noflag' | 'item'
-// (carries it). Effects: { kind: 'give'|'take', item }, { kind: 'gold'|'exp',
-// amount }, { kind: 'flag'|'unflag', flag }, { kind: 'teleport', x, y }.
+// (carries it) | 'gold' (has at least that much). Effects: { kind:
+// 'give'|'take', item }, { kind: 'gold'|'takegold'|'exp', amount }, { kind:
+// 'flag'|'unflag', flag }, { kind: 'teleport', x, y }. An answer can also
+// have needs: { kind: 'gold'|'item'|'flag', value } (said to be missing
+// otherwise) and next: a follow-up question { says, answers } of its own.
 // Flags are conditions on the player (a quest remembers where you got to
 // with them); the server makes a hidden condition file for each.
 
@@ -34,6 +37,7 @@ function condition(when) {
     case 'flag': return cleanFlag(v) && `hasCondition trigger ${cleanFlag(v)}`;
     case 'noflag': return cleanFlag(v) && `! hasCondition trigger ${cleanFlag(v)}`;
     case 'item': return text(v) && `hasItem trigger "${text(v)}"`;
+    case 'gold': return Number(v) > 0 && `! < trigger cash ${Math.floor(Number(v))}`;
     default: return null;
   }
 }
@@ -43,12 +47,51 @@ function effect(e, pad) {
     case 'give': return text(e.item) ? `${pad}giveitem trigger "${text(e.item)}"` : null;
     case 'take': return text(e.item) ? `${pad}removeItem trigger "${text(e.item)}"` : null;
     case 'gold': return Number(e.amount) > 0 ? `${pad}inc trigger cash ${Math.floor(Number(e.amount))}` : null;
+    case 'takegold': return Number(e.amount) > 0 ? `${pad}inc trigger cash - 0 ${Math.floor(Number(e.amount))}` : null;
     case 'exp': return Number(e.amount) > 0 ? `${pad}inc trigger exp ${Math.floor(Number(e.amount))}` : null;
     case 'flag': return cleanFlag(e.flag) ? `${pad}addCondition trigger ${cleanFlag(e.flag)}` : null;
     case 'unflag': return cleanFlag(e.flag) ? `${pad}removeCondition trigger ${cleanFlag(e.flag)}` : null;
     case 'teleport': return Number.isFinite(Number(e.x)) && Number.isFinite(Number(e.y)) && e.x !== '' && e.y !== '' ? `${pad}set trigger locxy ${Math.floor(Number(e.x))} ${Math.floor(Number(e.y))}` : null;
     default: return null;
   }
+}
+
+// What an answer needs before it works (answer.needs): the check, and
+// what the NPC says when it isn't met.
+function needs(n, who) {
+  const v = n?.value;
+  switch (n?.kind) {
+    case 'gold': return Number(v) > 0 ? [`< trigger cash ${Math.floor(Number(v))}`, `${who} says: You don't have enough gold for that. It's ${Math.floor(Number(v))} gp.`] : null;
+    case 'item': return text(v) ? [`! hasItem trigger "${text(v)}"`, `${who} says: You'll need a ${text(v)} for that.`] : null;
+    case 'flag': return cleanFlag(v) ? [`! hasCondition trigger ${cleanFlag(v)}`, `${who} says: You can't do that yet.`] : null;
+    default: return null;
+  }
+}
+
+export const MAX_DEPTH = 4; // follow-up questions inside follow-up questions
+
+// A question: what's said, then its answers (each of which can ask a
+// follow-up question), at depth `depth` (0 for a stage's own question).
+function question(out, who, node, pad, depth) {
+  const answers = (node.answers ?? []).filter((a) => cleanLabel(a.label));
+  const choices = answers.length ? ` (${answers.map((a) => cleanLabel(a.label)).join('/')})` : '';
+  if (text(node.says) || choices) out.push(`${pad}chat trigger "${who} says: ${text(node.says)}${choices}"`);
+  if (!answers.length) return;
+  const v = depth ? `answer${depth + 1}` : 'answer';
+  out.push(`${pad}input trigger ${v}`);
+  for (const a of answers) {
+    out.push(`${pad}if strequals ${v} "${cleanLabel(a.label)}"`);
+    const need = needs(a.needs, who);
+    if (need) out.push(`${pad}\tif ${need[0]}`, `${pad}\t\tchat trigger "${need[1]}"`, `${pad}\t\tendscript`, `${pad}\tend`);
+    for (const e of a.effects ?? []) {
+      const line = effect(e, pad + '\t');
+      if (line) out.push(line);
+    }
+    if (text(a.reply)) out.push(`${pad}\tchat trigger "${who} says: ${text(a.reply)}"`);
+    if (a.next && depth + 1 < MAX_DEPTH) question(out, who, a.next, pad + '\t', depth + 1);
+    out.push(`${pad}\tendscript`, `${pad}end`);
+  }
+  out.push(`${pad}chat trigger "${who} says: Hm? Talk to me again when you've made up your mind."`);
 }
 
 // The talk script for an NPC called `name`.
@@ -62,22 +105,7 @@ export function toScript(name, dlg) {
     const cond = condition(stage.when);
     const pad = cond ? '\t' : '';
     if (cond) out.push(`if ${cond}`);
-    const answers = (stage.answers ?? []).filter((a) => cleanLabel(a.label));
-    const choices = answers.length ? ` (${answers.map((a) => cleanLabel(a.label)).join('/')})` : '';
-    if (text(stage.says) || choices) out.push(`${pad}chat trigger "${who} says: ${text(stage.says)}${choices}"`);
-    if (answers.length) {
-      out.push(`${pad}input trigger answer`);
-      for (const a of answers) {
-        out.push(`${pad}if strequals answer "${cleanLabel(a.label)}"`);
-        for (const e of a.effects ?? []) {
-          const line = effect(e, pad + '\t');
-          if (line) out.push(line);
-        }
-        if (text(a.reply)) out.push(`${pad}\tchat trigger "${who} says: ${text(a.reply)}"`);
-        out.push(`${pad}\tendscript`, `${pad}end`);
-      }
-      out.push(`${pad}chat trigger "${who} says: Hm? Talk to me again when you've made up your mind."`);
-    }
+    question(out, who, stage, pad, 0);
     out.push(`${pad}endscript`);
     if (cond) out.push('end');
     else break; // an "always" stage: nothing after it is reached
@@ -92,9 +120,16 @@ export const toGreet = (dlg) => (dlg.shouts ?? []).map(text).filter(Boolean).joi
 // Every flag the dialogue uses, so the server can make their files.
 export function flagsOf(dlg) {
   const flags = new Set();
+  const walk = (node) => {
+    for (const a of node.answers ?? []) {
+      for (const e of a.effects ?? []) if (e.kind === 'flag' || e.kind === 'unflag') flags.add(cleanFlag(e.flag));
+      if (a.needs?.kind === 'flag') flags.add(cleanFlag(a.needs.value));
+      if (a.next) walk(a.next);
+    }
+  };
   for (const stage of dlg.stages ?? []) {
     if (stage.when?.kind === 'flag' || stage.when?.kind === 'noflag') flags.add(cleanFlag(stage.when.value));
-    for (const a of stage.answers ?? []) for (const e of a.effects ?? []) if (e.kind === 'flag' || e.kind === 'unflag') flags.add(cleanFlag(e.flag));
+    walk(stage);
   }
   flags.delete('');
   return [...flags];

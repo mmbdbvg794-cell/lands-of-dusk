@@ -17,4 +17,8 @@ assert.deepEqual(parseTalkers('Talkers: '), new Set());
 assert.equal(parseTalkers('Talk to whom?'), null);
 assert.equal(talkCommand(12), 'talk 12');
 assert.equal(TALKERS, 'talk names');
+// A single answer, as the dialogue editor writes it.
+assert.deepEqual(parseSpeech('Tom says: Want to hear a story? (sure)').choices, ['sure']);
+assert.deepEqual(parseSpeech('Tom says: Once upon a time (long ago)').choices, ['long ago']);
+assert.deepEqual(parseSpeech('Tom says: That was Bob (The Brave)').choices, [], 'capitals: just brackets');
 console.log('ok - talk');

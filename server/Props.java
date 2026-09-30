@@ -16,6 +16,12 @@
  * The game's signs file keeps only text and place, so names are kept in
  * "signnames" (x, y, name per sign) and put back at start-up.
  *
+ * Tile messages: something said to whoever steps on a square ("Stand here
+ * to talk to the teller"), as that square's walk-on script:
+ *   tilemsg <speaker>|<text>   (gods) on your square; no speaker, just text
+ *   tilemsg clear              (gods) remove the one on your square
+ * Only scripts it wrote itself are replaced or removed.
+ *
  * Bank tellers (a name, or the look of a named prop, with "teller" in it)
  * can be used from TELLER_REACH squares, since they stand behind counters.
  *
@@ -42,6 +48,7 @@ public class Props {
             if (lower.startsWith("namesign ")) return nameSign(who, engine, trimmed.substring(9).trim());
             if (lower.startsWith("signname ")) return editSign(who, engine, trimmed.substring(9).trim(), true);
             if (lower.startsWith("signtext ")) return editSign(who, engine, trimmed.substring(9).trim(), false);
+            if (lower.startsWith("tilemsg ")) return tileMessage(who, trimmed.substring(8).trim());
         } catch (Exception e) {
             Log.logError(e, "Props command \"" + line + "\" by " + who.strName, false);
             return "Something went wrong placing that prop.";
@@ -166,6 +173,52 @@ public class Props {
             }
         } catch (Exception e) {
             Log.logError(e, "Props.loadSignNames", false);
+        }
+    }
+
+    // ---- tile messages ----
+
+    static final String TILE_MARK = "#Tile message, placed from the God tab.";
+
+    static String tileMessage(LivingThing who, String args) throws Exception {
+        if (who.privs < GOD_PRIVS) return "Only gods can place tile messages.";
+        File f = new File("defMoveActions", who.intLocX + "_" + who.intLocY);
+        boolean ours = !f.exists() || firstLine(f).equals(TILE_MARK);
+        if (args.equalsIgnoreCase("clear")) {
+            if (!f.exists()) return "There's no message on this square.";
+            if (!ours) return "This square has a walk-on script that isn't a tile message; it's left alone.";
+            f.delete();
+            new File(f.getPath() + ".dsko").delete();
+            return "The message on this square is gone.";
+        }
+        if (!ours) return "This square already has a walk-on script (a teleport, a trap...); it's left alone. Pick the square next to it.";
+        int bar = args.indexOf('|');
+        String speaker = (bar < 0 ? "" : args.substring(0, bar)).trim().replace('"', '\'');
+        String text = (bar < 0 ? args : args.substring(bar + 1)).trim().replace('"', '\'');
+        if (text.length() == 0) return "What should the message say?";
+        String say = speaker.length() > 0 ? speaker + " says: " + text : text;
+        FileWriter w = new FileWriter(f);
+        try {
+            w.write(TILE_MARK + "\nchat trigger \"" + say + "\"\nendscript\n");
+        } finally {
+            w.close();
+        }
+        new File(f.getPath() + ".dsko").delete();
+        Log.logEvent(who.strName + " put a tile message at " + who.intLocX + "," + who.intLocY);
+        return "Anyone stepping on " + who.intLocX + "," + who.intLocY + " will see: " + say;
+    }
+
+    static String firstLine(File f) {
+        try {
+            BufferedReader r = new BufferedReader(new FileReader(f));
+            try {
+                String l = r.readLine();
+                return l == null ? "" : l;
+            } finally {
+                r.close();
+            }
+        } catch (Exception e) {
+            return "";
         }
     }
 
