@@ -101,6 +101,7 @@ export function toScript(name, dlg) {
     `#${who}'s dialogue, made with the God tab's dialogue editor.`,
     '#Change it there: saving the editor rewrites this file.',
   ];
+  let always = false;
   for (const stage of dlg.stages ?? []) {
     const cond = condition(stage.when);
     const pad = cond ? '\t' : '';
@@ -108,8 +109,11 @@ export function toScript(name, dlg) {
     question(out, who, stage, pad, 0);
     out.push(`${pad}endscript`);
     if (cond) out.push('end');
-    else break; // an "always" stage: nothing after it is reached
+    else { always = true; break; } // an "always" stage: nothing after it is reached
   }
+  // No stage fitted: a hint, rather than silence, that they're waiting on
+  // something (a flag, an item...).
+  if (!always) out.push(`chat trigger "${who} doesn't seem to notice you."`);
   out.push('endscript');
   return out.join('\n') + '\n';
 }
@@ -159,4 +163,52 @@ export function parseDialogueReply(line) {
   } catch {
     return { name, dialogue: newDialogue(), handWritten: false };
   }
+}
+
+// ---- tile actions ----
+//
+// What happens when someone steps on a square: rules checked in order,
+// the first that fits is used. A rule is
+//   { when: { kind, value }, speaker, says, effects: [...] }
+// with the same conditions and effects as dialogue; the message is said
+// by `speaker` if there is one (shown in the speech box), else just shown.
+
+export const newRule = () => ({ when: { kind: 'always', value: '' }, speaker: '', says: '', effects: [] });
+
+export function toTileScript(rules) {
+  const out = ['#Tile action, made in the God tab.', '#Change it there: saving the tile editor rewrites this file.'];
+  for (const r of rules ?? []) {
+    const cond = condition(r.when);
+    const pad = cond ? '\t' : '';
+    if (cond) out.push(`if ${cond}`);
+    for (const e of r.effects ?? []) {
+      const line = effect(e, pad);
+      if (line) out.push(line);
+    }
+    if (text(r.says)) out.push(`${pad}chat trigger "${text(r.speaker) ? `${text(r.speaker)} says: ` : ''}${text(r.says)}"`);
+    out.push(`${pad}endscript`);
+    if (cond) out.push('end');
+    else break; // an "always" rule: nothing after it is reached
+  }
+  out.push('endscript');
+  return out.join('\n') + '\n';
+}
+
+export const tileFlagsOf = (rules) => flagsOf({ stages: (rules ?? []).map((r) => ({ when: r.when, answers: [{ label: 'x', effects: r.effects }] })) });
+
+export const TILE_GET = 'tileget';
+export const tileSaveCommand = (rules) => `tileset ${toBase64(JSON.stringify(rules))}|${toBase64(toTileScript(rules))}|${tileFlagsOf(rules).join(',')}`;
+
+// The server's answer to TILE_GET: "TileAction: <x>_<y>|<base64 rules>",
+// empty for none, "!" for a script it didn't make. { x, y, rules, other }.
+export function parseTileReply(line) {
+  const m = /^TileAction: (-?\d+)_(-?\d+)\|(.*)$/.exec(line.trim());
+  if (!m) return null;
+  const [, x, y, data] = m;
+  if (data === '!') return { x: Number(x), y: Number(y), rules: [], other: true };
+  let rules = [newRule()];
+  if (data) {
+    try { rules = JSON.parse(fromBase64(data)); } catch { /* start afresh */ }
+  }
+  return { x: Number(x), y: Number(y), rules, other: false };
 }

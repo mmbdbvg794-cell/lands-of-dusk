@@ -57,7 +57,7 @@ export const place = {
   mob: (name, level) => (Number(level) > 0 ? `<${name} lev: ${Math.floor(Number(level))}` : `<${name}`),
   prop: (name) => `<prop ${name}`,
   // A prop that looks like `base` but has a name of its own (server/Props.java).
-  namedProp: (base, name) => `nameprop ${base}|${name.replace(/\|/g, ' ')}`,
+  namedProp: (base, name, desc = '') => `nameprop ${base}|${name.replace(/\|/g, ' ')}${desc ? `|${desc.replace(/\|/g, ' ')}` : ''}`,
   sign: (text) => `<sign ${text}`,
   namedSign: (name, text) => `namesign ${name.replace(/\|/g, ' ')}|${text}`,
   merchant: (name) => (name ? `<merchant ${name}` : '<merchant'),

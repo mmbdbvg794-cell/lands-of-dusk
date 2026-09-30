@@ -8,7 +8,7 @@ import { place, SAVE_MAP, listCommand, search, teleport, wizinvis, addWare, remo
 
 const KINDS = [
   ['npc', 'NPC'], ['item', 'Item'], ['mob', 'Mob'], ['prop', 'Prop'], ['storage', 'Storage'],
-  ['sign', 'Sign'], ['merchant', 'Merchant'], ['tile', 'Tile'], ['tilemsg', 'Tile message'],
+  ['sign', 'Sign'], ['merchant', 'Merchant'], ['tile', 'Tile'], ['tileaction', 'Tile action'],
 ];
 const LISTED = { npc: 'props', item: 'items', mob: 'mobs', prop: 'props' };
 const SHOWN = 150; // list rows shown at once; searching narrows the rest
@@ -21,8 +21,10 @@ export class GodPanel {
   // the tab can hide) or docks back.
   // people() is the set of props that are people (lower case), for NPC
   // looks; onNpcPlaced(name) opens the dialogue editor for a new NPC.
-  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced }) {
+  // onTileEdit(x, y) opens the tile editor for your square.
+  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit }) {
     this.tab = tab;
+    this.onTileEdit = onTileEdit;
     this.people = people;
     this.onNpcPlaced = onNpcPlaced;
     this.onFloat = onFloat;
@@ -92,7 +94,8 @@ export class GodPanel {
     // A prop can be given a name of its own ("George"): it looks like the
     // prop picked, and can have its own conversation (talk/<name>).
     $.propName = h('input', { type: 'text', placeholder: 'Name it (optional), e.g. George', autocomplete: 'off', spellcheck: false, className: 'god-text', maxLength: 40 });
-    $.propNameRow = h('div', { className: 'god-row' }, $.propName);
+    $.propDesc = h('input', { type: 'text', placeholder: 'Description (optional): what "Look" says', autocomplete: 'off', className: 'god-text' });
+    $.propNameRow = h('div', { className: 'god-row god-col' }, $.propName, $.propDesc);
     $.listBox = h('div', { className: 'god-listbox' }, h('div', { className: 'god-row' }, $.search, $.level), $.list, $.listNote, $.propNameRow);
 
     // Sign, merchant and storage: a text box or two.
@@ -279,10 +282,10 @@ export class GodPanel {
     $.level.hidden = kind !== 'mob';
     $.propNameRow.hidden = kind !== 'prop' && kind !== 'npc';
     $.propName.placeholder = kind === 'npc' ? 'Name, e.g. Elder Martha' : 'Name it (optional), e.g. George';
-    $.place.textContent = kind === 'npc' ? 'Place & edit dialogue' : 'Place here';
-    $.textBox.hidden = !['sign', 'merchant', 'storage', 'tilemsg'].includes(kind);
-    $.tileSpeaker.hidden = kind !== 'tilemsg';
-    $.tileClear.hidden = kind !== 'tilemsg';
+    $.place.textContent = kind === 'npc' ? 'Place & edit dialogue' : kind === 'tileaction' ? 'Edit this square' : 'Place here';
+    $.textBox.hidden = !['sign', 'merchant', 'storage'].includes(kind);
+    $.tileSpeaker.hidden = true;
+    $.tileClear.hidden = true;
     $.storageKind.hidden = kind !== 'storage';
     $.signName.hidden = kind !== 'sign';
     $.text.placeholder = { sign: 'What the sign says', merchant: 'Merchant name (optional)', storage: 'Label (optional), e.g. Guild', tilemsg: 'What they see, e.g. Stand here to talk to the teller.' }[kind] ?? '';
@@ -348,7 +351,7 @@ export class GodPanel {
     let label = '';
     if (LISTED[k]) label = this.chosen[k] ?? (k === 'npc' ? 'Pick how the NPC looks' : `Pick a ${k} from the list`);
     else if (k === 'tile') label = this.chosen.tile == null ? 'Pick a tile' : `Tile ${this.chosen.tile}`;
-    else label = { sign: 'A sign', merchant: 'A merchant', storage: 'Shared storage', tilemsg: 'A message for whoever steps here' }[k];
+    else label = { sign: 'A sign', merchant: 'A merchant', storage: 'Shared storage', tileaction: 'What happens when someone steps on your square' }[k];
     $.choice.textContent = label;
     // A picture where the client has one: items drawn by name, and tiles.
     const art = this.itemArt();
@@ -374,7 +377,7 @@ export class GodPanel {
       if (!name) return this.note(`Pick a ${k} from the list first.`);
       const own = k === 'prop' || k === 'npc' ? $.propName.value.trim() : '';
       if (k === 'npc' && !own) return this.note('Give the NPC a name first, so it can have dialogue of its own.');
-      cmd = k === 'mob' ? place.mob(name, $.level.value) : own ? place.namedProp(name, own) : place[k](name);
+      cmd = k === 'mob' ? place.mob(name, $.level.value) : own ? place.namedProp(name, own, $.propDesc.value.trim()) : place[k](name);
       what = own ? `${own} (a ${name})` : name;
     } else if (k === 'tile') {
       if (this.chosen.tile == null) return this.note('Pick a tile first.');
@@ -390,11 +393,9 @@ export class GodPanel {
     } else if (k === 'merchant') {
       cmd = place.merchant($.text.value.trim());
       what = 'a merchant';
-    } else if (k === 'tilemsg') {
-      const t = $.text.value.trim();
-      if (!t) return this.note('Write the message first.');
-      cmd = tileMessage($.tileSpeaker.value.trim(), t);
-      $.text.value = '';
+    } else if (k === 'tileaction') {
+      if (this.pos) this.onTileEdit?.(this.pos.x, this.pos.y);
+      return;
     } else if (k === 'storage') {
       cmd = place.storage($.storageKind.value, $.text.value.trim());
       what = `a ${$.storageKind.value}`;
@@ -406,6 +407,7 @@ export class GodPanel {
     if (named) {
       this.send(PROP_LOOKS, { quiet: true }); // so it's drawn right away
       $.propName.value = '';
+      $.propDesc.value = '';
       if (k === 'npc') this.onNpcPlaced?.(named);
     } else if (k !== 'storage' && k !== 'tilemsg') this.note(`Placed ${what}${at}.`);
   }

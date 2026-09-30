@@ -1123,7 +1123,7 @@ dialog::backdrop { background: #000a; }
 
 /* ---- dialogue editor (a God tool: always the Modern look) ---- */
 
-#dialogue-editor {
+.editor-dialog {
   position: fixed;
   z-index: 35;
   top: 4vh;
@@ -1140,7 +1140,7 @@ dialog::backdrop { background: #000a; }
   box-shadow: 0 16px 48px #000d;
   font: 14px/1.4 system-ui, sans-serif;
 }
-#dialogue-editor[hidden] { display: none; }
+.editor-dialog[hidden] { display: none; }
 .de-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #2a2f39; }
 .de-title { font-size: 15px; }
 .de-warn { margin: 8px 14px 0; padding: 6px 10px; color: #e0b341; background: #3a3018; border-radius: 6px; font-size: 13px; }
@@ -1156,18 +1156,19 @@ dialog::backdrop { background: #000a; }
 .de-answers { margin-left: 50px; }
 .de-answer { padding: 6px 8px; margin: 6px 0; border-left: 3px solid #2b4a73; background: #171a20; border-radius: 4px; }
 .de-effect { margin-left: 16px; }
-#dialogue-editor input, #dialogue-editor select, #dialogue-editor textarea {
+.editor-dialog input, .editor-dialog select, .editor-dialog textarea {
   font: inherit; font-size: 13px; color: #dde0e5; background: #0e1014; border: 1px solid #2a2f39; border-radius: 6px; padding: 4px 7px;
 }
-#dialogue-editor textarea { flex: 1; min-width: 200px; resize: vertical; }
-#dialogue-editor .de-row > input:not(.de-num):not(.de-label) { flex: 1; min-width: 120px; }
-#dialogue-editor .de-label { width: 130px; }
-#dialogue-editor .de-num { width: 80px; }
-#dialogue-editor button { font: inherit; font-size: 13px; color: #dde0e5; background: #1e222a; border: 1px solid #2a2f39; border-radius: 6px; padding: 3px 10px; cursor: pointer; text-shadow: none; filter: none; }
-#dialogue-editor button.primary { background: #2b4a73; border-color: #3b6297; }
-#dialogue-editor button.ghost { background: none; }
-#dialogue-editor button:hover { border-color: #6aa9ff; }
-#dialogue-editor .de-small { font-size: 12px; padding: 2px 8px; }
-#dialogue-editor .list-head { margin: 10px 0 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #858c99; font-family: system-ui, sans-serif; }
+.editor-dialog textarea { flex: 1; min-width: 200px; resize: vertical; }
+.editor-dialog .de-row > input:not(.de-num):not(.de-label) { flex: 1; min-width: 120px; }
+.editor-dialog .de-label { width: 130px; }
+.editor-dialog .de-num { width: 80px; }
+.editor-dialog button { font: inherit; font-size: 13px; color: #dde0e5; background: #1e222a; border: 1px solid #2a2f39; border-radius: 6px; padding: 3px 10px; cursor: pointer; text-shadow: none; filter: none; }
+.editor-dialog button.primary { background: #2b4a73; border-color: #3b6297; }
+.editor-dialog button.ghost { background: none; }
+.editor-dialog button:hover { border-color: #6aa9ff; }
+.editor-dialog .de-small { font-size: 12px; padding: 2px 8px; }
+.editor-dialog .list-head { margin: 10px 0 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #858c99; font-family: system-ui, sans-serif; }
 .de-follow { margin: 6px 0 4px 16px; padding: 6px 8px; border-left: 3px dashed #3b6297; background: #1b1f26; border-radius: 4px; }
 .de-follow .de-answers { margin-left: 20px; }
+.god-col { flex-direction: column; align-items: stretch; }

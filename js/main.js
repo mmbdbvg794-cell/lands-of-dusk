@@ -17,7 +17,8 @@ import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS } from './god.j
 import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
 import { GodPanel } from './godpanel.js';
 import { DialogueEditor } from './dialogueeditor.js';
-import { parseDialogueReply } from './dialogue.js';
+import { TileEditor } from './tileeditor.js';
+import { parseDialogueReply, parseTileReply } from './dialogue.js';
 import { Minimap } from './minimap.js';
 import { WorldMap } from './worldmap.js';
 import { Panels, setBar } from './panels.js';
@@ -119,6 +120,7 @@ const god = new GodPanel($('tab-god'), {
   itemArt: () => renderer.items,
   people: () => renderer.propPeople,
   onNpcPlaced: (name) => dialogueEditor.edit(name),
+  onTileEdit: (x, y) => tileEditor.edit(x, y),
   // Popped out, the tab isn't needed; docked, it comes back and opens.
   onFloat: (out) => {
     panels.setTabVisible('god', isGod && !out);
@@ -131,6 +133,13 @@ const dialogueEditor = new DialogueEditor($('dialogue-editor'), {
     if (opts?.quiet) { if (conn?.connected) conn.send(cmd); } else runCommand(cmd);
     // After a save, the new NPC may now have something to say.
     if (/^talkedit set /.test(cmd) && conn?.connected) conn.send(TALKERS);
+  },
+  items: () => god.lists.items ?? [],
+});
+// The tile editor (gods): what happens on the square you stand on.
+const tileEditor = new TileEditor($('tile-editor'), {
+  send: (cmd, opts) => {
+    if (opts?.quiet) { if (conn?.connected) conn.send(cmd); } else runCommand(cmd);
   },
   items: () => god.lists.items ?? [],
 });
@@ -151,6 +160,11 @@ const entityMenu = new EntityMenu(
 );
 // Gods rename signs and change what they say.
 entityMenu.onDialogue = (name) => dialogueEditor.edit(name);
+entityMenu.onDescribe = (id) => {
+  const ent = world.entities.get(id);
+  const text = window.prompt(`What should "Look" say about ${ent ? bareName(ent.name) : 'this'}?`);
+  if (text?.trim()) runCommand(`propdesc ${id}|${text.trim().replace(/\|/g, ' ')}`);
+};
 entityMenu.onSign = (what, id) => {
   const ent = world.entities.get(id);
   const answer = window.prompt(what === 'name' ? `Call this sign (now "${ent ? bareName(ent.name) : 'sign'}"):` : 'What should the sign say?');
@@ -993,6 +1007,8 @@ function handle(msg) {
       if (names) { talkers = names; renderer.talkers = names; renderer.invalidate(); break; }
       const dlgReply = parseDialogueReply(msg.text);
       if (dlgReply) { dialogueEditor.loaded(dlgReply); break; }
+      const tileReply = parseTileReply(msg.text);
+      if (tileReply) { tileEditor.loaded(tileReply); break; }
       const looks = parseLooks(msg.text);
       if (looks) { renderer.propLooks = looks; renderer.invalidate(); break; }
       const sp = parseSpeech(msg.text);
@@ -1222,6 +1238,11 @@ function runCommand(cmd) {
   if (/^talkedit set /.test(cmd)) {
     conn.send(cmd);
     echoLine(`talkedit set ${cmd.slice(13).split('|')[0]} (dialogue)`);
+    return;
+  }
+  if (/^tileset /.test(cmd)) {
+    conn.send(cmd);
+    echoLine('tileset (tile action)');
     return;
   }
   if (/^talk \d/.test(cmd)) talkHold = Date.now() + 4000;

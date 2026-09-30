@@ -51,6 +51,8 @@ export function entityActions(ent, me) {
   // Signs can be renamed and rewritten; NPCs given something to say.
   if (isSign(ent)) acts.push({ label: 'Rename (god)', sign: 'name', god: true }, { label: 'Edit text (god)', sign: 'text', god: true });
   else if (!isStorage(ent) && (ent.type === TYPE.SIGN || ent.type === TYPE.MOB || ent.type === TYPE.MERCHANT)) acts.push({ label: 'Edit dialogue (god)', dialogue: name, god: true });
+  // Props: what "Look" says about them.
+  if (ent.type === TYPE.SIGN && !isSign(ent) && !isStorage(ent)) acts.push({ label: 'Edit description (god)', describe: true, god: true });
   if (isStorage(ent)) {
     if (ent.x === me.x && ent.y === me.y) acts.push({ label: 'Remove (god)', cmd: 'storage remove', god: true });
     else acts.push({ label: 'Remove (god)', disabled: true, hint: 'stand on it', god: true });

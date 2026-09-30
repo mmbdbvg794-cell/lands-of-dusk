@@ -1,5 +1,6 @@
 // Run with: node test/dialogue.test.mjs
 import assert from 'node:assert/strict';
+import { toTileScript, tileFlagsOf, tileSaveCommand, parseTileReply, newRule } from '../js/dialogue.js';
 import { newDialogue, toScript, toGreet, flagsOf, cleanFlag, cleanLabel, saveCommand, loadCommand, parseDialogueReply, toBase64, fromBase64 } from '../js/dialogue.js';
 
 // The wolf-pelt quest: four stages, first that fits wins.
@@ -143,7 +144,34 @@ if ! < trigger cash 10
 	chat trigger "Shopkeep says: Hm? Talk to me again when you've made up your mind."
 	endscript
 end
+chat trigger "Shopkeep doesn't seem to notice you."
 endscript
 `);
 assert.deepEqual(flagsOf(shop), ['met_martha']);
+// Tile actions: the doorway before the Recruiter.
+const door = [
+  { when: { kind: 'noflag', value: 'newplayertrain' }, speaker: 'Recruiter', says: 'You there! Come and see me.', effects: [{ kind: 'flag', flag: 'newplayertrain' }] },
+  { when: { kind: 'always', value: '' }, speaker: '', says: '', effects: [] },
+];
+assert.equal(toTileScript(door), `#Tile action, made in the God tab.
+#Change it there: saving the tile editor rewrites this file.
+if ! hasCondition trigger newplayertrain
+	addCondition trigger newplayertrain
+	chat trigger "Recruiter says: You there! Come and see me."
+	endscript
+end
+endscript
+endscript
+`);
+assert.match(toTileScript([{ when: { kind: 'always' }, speaker: '', says: 'A cold wind blows.', effects: [] }]), /^chat trigger "A cold wind blows."$/m);
+assert.deepEqual(tileFlagsOf(door), ['newplayertrain']);
+const [th, tr, ts, tf] = tileSaveCommand(door).split('|');
+assert.ok(th.startsWith('tileset '));
+assert.deepEqual(JSON.parse(fromBase64(th.slice(8))), door);
+assert.equal(fromBase64(tr), toTileScript(door));
+assert.equal(ts, 'newplayertrain');
+assert.equal(tf, undefined);
+assert.deepEqual(parseTileReply(`TileAction: 127_372|${toBase64(JSON.stringify(door))}`), { x: 127, y: 372, rules: door, other: false });
+assert.deepEqual(parseTileReply('TileAction: 5_6|'), { x: 5, y: 6, rules: [newRule()], other: false });
+assert.equal(parseTileReply('TileAction: 38_32|!').other, true);
 console.log('ok - dialogue');

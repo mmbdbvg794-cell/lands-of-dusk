@@ -5,8 +5,11 @@
  * prop, can have its own conversation (talk/<name>), and the client knows
  * how to draw it.
  *
- *   nameprop <prop>|<name>   (gods) place a prop that looks like <prop>,
- *                            called <name>, on your square
+ *   nameprop <prop>|<name>[|<description>]   (gods) place a prop that
+ *                            looks like <prop>, called <name>, on your square
+ *   propdesc <id>|<text>     (gods) what "look" says about a prop: kept in
+ *                            its prop file, so for a plain prop (every
+ *                            statue) it's shared, for a named one its own
  *   prop looks               "Looks: <name>=<prop>; ..." for the client
  *
  * Signs with names ("Bank" rather than "sign"), whose text can be changed:
@@ -20,7 +23,14 @@
  * to talk to the teller"), as that square's walk-on script:
  *   tilemsg <speaker>|<text>   (gods) on your square; no speaker, just text
  *   tilemsg clear              (gods) remove the one on your square
- * Only scripts it wrote itself are replaced or removed.
+ * Tile actions, made in the God tab's tile editor (js/dialogue.js turns
+ * rules into the script):
+ *   tileget                  "TileAction: <x>_<y>|<base64 of its rules>"
+ *                            (empty for none, "!" for another script)
+ *   tileset <rules>|<script>|<flag,flag>   (base64) your square's action
+ * The rules are kept in tileactions/<x>_<y>.json for editing again.
+ * Only scripts it wrote itself (tile messages and actions) are replaced
+ * or removed.
  *
  * Bank tellers (a name, or the look of a named prop, with "teller" in it)
  * can be used from TELLER_REACH squares, since they stand behind counters.
@@ -49,6 +59,9 @@ public class Props {
             if (lower.startsWith("signname ")) return editSign(who, engine, trimmed.substring(9).trim(), true);
             if (lower.startsWith("signtext ")) return editSign(who, engine, trimmed.substring(9).trim(), false);
             if (lower.startsWith("tilemsg ")) return tileMessage(who, trimmed.substring(8).trim());
+            if (lower.equals("tileget")) return tileGet(who);
+            if (lower.startsWith("tileset ")) return tileSet(who, trimmed.substring(8).trim());
+            if (lower.startsWith("propdesc ")) return propDesc(who, engine, trimmed.substring(9).trim());
         } catch (Exception e) {
             Log.logError(e, "Props command \"" + line + "\" by " + who.strName, false);
             return "Something went wrong placing that prop.";
@@ -62,6 +75,12 @@ public class Props {
         if (bar < 0) return "Usage: nameprop <prop>|<name>";
         String base = CaseFix.file(DIR, args.substring(0, bar).trim());
         String name = args.substring(bar + 1).trim();
+        String desc = null;
+        int bar2 = name.indexOf('|');
+        if (bar2 >= 0) {
+            desc = name.substring(bar2 + 1).trim();
+            name = name.substring(0, bar2).trim();
+        }
         if (!new File(DIR, base).isFile() || base.endsWith(".dsko")) return "There's no prop called " + base + ".";
         if (name.length() == 0 || name.length() > 40 || name.indexOf('/') >= 0 || name.indexOf('\\') >= 0 || name.startsWith(".") || name.indexOf('|') >= 0)
             return "Pick a name up to 40 letters long, without slashes.";
@@ -75,6 +94,7 @@ public class Props {
         } else {
             write(new File(DIR, base), new File(DIR, name), base);
         }
+        if (desc != null && desc.length() > 0) setDescription(new File(DIR, name), desc);
         Prop prop = engine.getProp(name);
         if (prop == null) return "That prop couldn't be made.";
         prop.intLocX = who.intLocX;
@@ -176,6 +196,104 @@ public class Props {
         }
     }
 
+    // ---- descriptions ----
+
+    static String propDesc(LivingThing who, DuskEngine engine, String args) throws Exception {
+        if (who.privs < GOD_PRIVS) return "Only gods can change descriptions.";
+        int bar = args.indexOf('|');
+        if (bar < 0 || !Storage.isNumber(args.substring(0, bar).trim())) return "Usage: propdesc <id>|<text>";
+        DuskObject o;
+        try {
+            o = engine.getDuskObject(Integer.parseInt(args.substring(0, bar).trim()));
+        } catch (Exception e) {
+            o = null;
+        }
+        if (!(o instanceof Prop) || o instanceof Storage) return "That isn't a prop.";
+        String text = args.substring(bar + 1).trim();
+        if (text.length() == 0) return "What should it say?";
+        File f = new File(DIR, CaseFix.file(DIR, o.strName));
+        if (!f.isFile()) return "There's no prop file for " + o.strName + ".";
+        setDescription(f, text);
+        // Every prop loaded from that file.
+        String shown = text.replaceAll("[.\\s]+$", "");
+        Object[] props = engine.vctProps.toArray();
+        int shared = 0;
+        for (int i = 0; i < props.length; i++) {
+            Prop p = (Prop) props[i];
+            if (p != null && p.strName != null && p.strName.equalsIgnoreCase(o.strName)) { p.strDescription = shown; shared++; }
+        }
+        text = text.replaceAll("[.\\s]+$", "");
+        ((Prop) o).strDescription = text;
+        return shared > 1 ? "Every " + o.strName + " (" + shared + " of them) now reads: " + text : o.strName + " now reads: " + text;
+    }
+
+    // Replaces (or adds) the description in a prop file.
+    static void setDescription(File f, String text) throws Exception {
+        StringBuffer out = new StringBuffer();
+        BufferedReader r = new BufferedReader(new FileReader(f));
+        try {
+            String l;
+            while ((l = r.readLine()) != null) {
+                if (l.equals(".")) break;
+                if (l.equalsIgnoreCase("description")) { r.readLine(); continue; }
+                out.append(l).append("\n");
+            }
+        } finally {
+            r.close();
+        }
+        // "look" adds its own full stop.
+        out.append("description\n").append(text.replace('\n', ' ').replaceAll("[.\\s]+$", "")).append("\n.\n");
+        FileWriter w = new FileWriter(f);
+        try {
+            w.write(out.toString());
+        } finally {
+            w.close();
+        }
+    }
+
+    // ---- tile actions ----
+
+    static final String ACTION_MARK = "#Tile action, made in the God tab.";
+    static final String ACTIONS_DIR = "tileactions";
+
+    static String tileGet(LivingThing who) throws Exception {
+        if (who.privs < GOD_PRIVS) return "Only gods can edit tile actions.";
+        String key = who.intLocX + "_" + who.intLocY;
+        File script = new File("defMoveActions", key), rules = new File(ACTIONS_DIR, key + ".json");
+        if (rules.isFile() && script.isFile()) return "TileAction: " + key + "|" + java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(rules.toPath()));
+        if (script.isFile() && !editorMade(script)) return "TileAction: " + key + "|!";
+        return "TileAction: " + key + "|";
+    }
+
+    static String tileSet(LivingThing who, String args) throws Exception {
+        if (who.privs < GOD_PRIVS) return "Only gods can edit tile actions.";
+        String key = who.intLocX + "_" + who.intLocY;
+        File script = new File("defMoveActions", key);
+        if (script.isFile() && !editorMade(script)) return "This square already has a walk-on script (a teleport, a trap...); it's left alone. Pick the square next to it.";
+        String[] parts = args.split("\\|", -1);
+        if (parts.length != 3) return "The tile action didn't arrive whole; try saving again.";
+        java.util.Base64.Decoder b64 = java.util.Base64.getDecoder();
+        byte[] rules = b64.decode(parts[0].trim()), code = b64.decode(parts[1].trim());
+        new File(ACTIONS_DIR).mkdirs();
+        Talk.write(new File(ACTIONS_DIR, key + ".json"), rules);
+        Talk.write(script, code);
+        new File(script.getPath() + ".dsko").delete();
+        for (String flag : parts[2].split(",")) {
+            flag = flag.trim().toLowerCase();
+            if (!flag.matches("[a-z0-9_]{1,40}")) continue;
+            File cond = new File("defConditions", flag);
+            if (!cond.exists()) Talk.write(cond, "nodisplay\n.\n".getBytes("UTF-8"));
+        }
+        Log.logEvent(who.strName + " saved the tile action at " + key.replace('_', ','));
+        return "Saved the action on " + key.replace('_', ',') + ". Step off and back on to try it.";
+    }
+
+    // A walk-on script made here (a tile message or action), not by hand.
+    static boolean editorMade(File f) {
+        String first = firstLine(f);
+        return first.equals(TILE_MARK) || first.equals(ACTION_MARK);
+    }
+
     // ---- tile messages ----
 
     static final String TILE_MARK = "#Tile message, placed from the God tab.";
@@ -183,13 +301,14 @@ public class Props {
     static String tileMessage(LivingThing who, String args) throws Exception {
         if (who.privs < GOD_PRIVS) return "Only gods can place tile messages.";
         File f = new File("defMoveActions", who.intLocX + "_" + who.intLocY);
-        boolean ours = !f.exists() || firstLine(f).equals(TILE_MARK);
+        boolean ours = !f.exists() || editorMade(f);
         if (args.equalsIgnoreCase("clear")) {
             if (!f.exists()) return "There's no message on this square.";
             if (!ours) return "This square has a walk-on script that isn't a tile message; it's left alone.";
             f.delete();
             new File(f.getPath() + ".dsko").delete();
-            return "The message on this square is gone.";
+            new File(ACTIONS_DIR, who.intLocX + "_" + who.intLocY + ".json").delete();
+            return "This square's message or action is gone.";
         }
         if (!ours) return "This square already has a walk-on script (a teleport, a trap...); it's left alone. Pick the square next to it.";
         int bar = args.indexOf('|');

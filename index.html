@@ -298,7 +298,7 @@
   </section>
 
   <!-- The dialogue editor, for gods (dialogueeditor.js). -->
-  <section id="dialogue-editor" role="dialog" aria-label="Dialogue editor" hidden>
+  <section id="dialogue-editor" class="editor-dialog" role="dialog" aria-label="Dialogue editor" hidden>
     <div class="de-bar">
       <strong class="de-title">Dialogue</strong>
       <button type="button" data-de="close" class="ghost" aria-label="Close">×</button>
@@ -308,6 +308,22 @@
     <div class="de-foot">
       <button type="button" data-de="cancel">Cancel</button>
       <button type="button" data-de="save" class="primary">Save dialogue</button>
+    </div>
+  </section>
+
+  <!-- The tile editor, for gods (tileeditor.js): what happens on a square. -->
+  <section id="tile-editor" class="editor-dialog" role="dialog" aria-label="Tile editor" hidden>
+    <div class="de-bar">
+      <strong class="de-title">Tile action</strong>
+      <button type="button" data-de="close" class="ghost" aria-label="Close">×</button>
+    </div>
+    <p class="de-warn" hidden></p>
+    <div class="de-body"></div>
+    <div class="de-foot">
+      <button type="button" data-de="clear">Clear this square</button>
+      <span class="de-grow"></span>
+      <button type="button" data-de="cancel">Cancel</button>
+      <button type="button" data-de="save" class="primary">Save</button>
     </div>
   </section>
 
