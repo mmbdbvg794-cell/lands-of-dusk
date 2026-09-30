@@ -3,7 +3,7 @@
 // the skill each spell needs come from js/spellinfo.json, built from the
 // server's own spell files by tools/spellinfo.py.
 
-import { effectKind, spellName } from './spells.js';
+import { effectKind, spellName, spellCost } from './spells.js';
 
 const GLYPH = { heal: '✚', holy: '✦', fire: '🔥', earth: '⛰', dark: '☾', arcane: '✧' };
 
@@ -14,6 +14,7 @@ export class Spellbook {
     this.el = el;
     this.info = {};
     this.known = [];
+    this.costs = new Map(); // spell -> MP, when the stats list it
     el.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-spell]');
       if (!b) return;
@@ -36,6 +37,7 @@ export class Spellbook {
 
   // `listed` is the stats' "-Spells-" lines.
   setKnown(listed) {
+    this.costs = new Map(listed.map((l) => [spellName(l), spellCost(l)]).filter(([name, cost]) => name && cost !== null));
     this.known = [...new Set(listed.map(spellName).filter(Boolean))];
     this.render();
   }
@@ -96,6 +98,14 @@ export class Spellbook {
     const name = document.createElement('h5');
     name.textContent = spell;
     head.append(glyph, name);
+    const cost = this.costs.get(spell);
+    if (cost !== undefined) {
+      const mp = document.createElement('span');
+      mp.className = 'cost';
+      mp.textContent = `${cost} MP`;
+      mp.title = `Costs ${cost} MP to cast`;
+      head.append(mp);
+    }
     if (info?.needs !== undefined) {
       const needs = document.createElement('span');
       needs.className = 'needs';

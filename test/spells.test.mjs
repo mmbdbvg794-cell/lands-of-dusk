@@ -39,6 +39,13 @@ assert.equal(spellName('mend'), 'mend');
 assert.equal(spellName('mend (85%)'), 'mend');
 assert.equal(spellName('meteor 40%'), 'meteor');
 assert.equal(spellName('hells fire: 12'), 'hells fire');
+// As this server lists them: the cost first.
+import { spellCost } from '../js/spells.js';
+assert.equal(spellName('17 mp) summon bahamut'), 'summon bahamut');
+assert.equal(spellName('5 mp) bone shards'), 'bone shards');
+assert.equal(spellName('44 MP) healing staff'), 'healing staff');
+assert.equal(spellCost('17 mp) summon bahamut'), 17);
+assert.equal(spellCost('mend'), null);
 console.log('ok - spell commands');
 
 import { compileMessages } from '../js/spells.js';

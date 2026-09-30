@@ -121,7 +121,17 @@ Spell effects reach everyone nearby, not just the caster and target, when
 a spell's script ends with a line like
 `playsound + 110000000 + * target locx 3000 target locy target locx target locy`:
 opcode 15 numbers from 100,000,000 up carry an effect kind and a square
-(see `encodeFx` / `decodeFx` in `js/spells.js`). Mend has it so far.
+(see `encodeFx` / `decodeFx` in `js/spells.js`). 36 of the 43 castable
+spells have one, added by `tools/server/add_spell_effects.py` after each
+line that does the spell's work (damage, healing, conditions, teleports),
+on whoever it was done to; the other seven only make items or print text.
+Edited scripts were checked with `tools/server/TestCompile.java` (the
+server's own script compiler) first. The originals are in
+`~/DuskRPG/backups/spell-scripts/` on the server; to undo, copy them back
+into `defSpellGroups/` and delete the matching `.dsko` files.
+
+This server lists known spells in the stats as "17 mp) summon bahamut";
+the client takes the name from that and shows the cost in the spellbook.
 
 Tick "Protocol trace" to see every parsed opcode in the log. Settings →
 "Report a bug…" opens a form that hands a filled-in email to

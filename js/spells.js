@@ -72,10 +72,18 @@ export function parseCast(cmd) {
   return { spell: (m[1] ?? m[2]).trim(), target: m[3].trim() };
 }
 
-// A spell as listed under "-Spells-" in the stats, without any extras the
-// server adds after the name, e.g. "mend (85%)" or "meteor 40%".
+// A spell as listed under "-Spells-" in the stats, without the extras
+// around the name: this server lists "17 mp) summon bahamut" (the cost
+// first); others may add "mend (85%)" or "meteor 40%" after it.
+const COST_PREFIX = /^\s*\(?\s*(\d+)\s*mp\s*\)\s*/i;
 export function spellName(listed) {
-  return listed.trim().replace(/\s*[([].*$/, '').replace(/\s+-?\d+%?$/, '').replace(/[:\s]+$/, '').trim();
+  return listed.trim().replace(COST_PREFIX, '').replace(/\s*[([].*$/, '').replace(/\s+-?\d+%?$/, '').replace(/[:\s]+$/, '').trim();
+}
+
+// The MP cost in a listed spell ("17 mp) summon bahamut" -> 17), or null.
+export function spellCost(listed) {
+  const m = listed.match(COST_PREFIX);
+  return m ? Number(m[1]) : null;
 }
 
 // Chat templates from js/spellinfo.json (built by tools/spellinfo.py from

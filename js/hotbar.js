@@ -324,7 +324,10 @@ export class Hotbar {
 
 function validSlot(s) {
   if (s?.type === 'spell' && typeof s.spell === 'string' && s.spell) {
-    return { type: 'spell', spell: s.spell, label: String(s.label || s.spell), aim: s.aim === 'self' ? 'self' : 'target' };
+    // Slots saved before spell names were cleaned up held "17 mp) name".
+    const spell = spellName(s.spell) || s.spell;
+    const label = spellName(String(s.label || spell)) || spell;
+    return { type: 'spell', spell, label, aim: s.aim === 'self' ? 'self' : 'target' };
   }
   if (s?.type === 'cmd' && typeof s.cmd === 'string' && s.cmd) return { type: 'cmd', cmd: s.cmd, label: String(s.label || s.cmd) };
   return null;
