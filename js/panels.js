@@ -246,30 +246,26 @@ export class Panels {
 
     this.renderCharStats(s);
 
-    const secs = [];
-    if (s.attributes.length) {
-      secs.push(section('Attributes', table(s.attributes.map((a) => {
-        const kind = a.bonus > 0 ? 'up' : a.bonus < 0 ? 'down' : 'zero';
-        return [a.label, [String(a.base), 'num'], [a.bonus > 0 ? `+${a.bonus}` : String(a.bonus), `bonus ${kind}`]];
-      }))));
-    }
-    const values = [...s.values.map((v) => [v.label, [v.value, 'num']]),
-      ...s.bars.map((b) => [b.label, [`${b.value}/${b.max}`, 'num']])];
-    if (values.length) secs.push(section('Combat', table(values)));
+    // The Skills tab: just the skills (attributes, combat numbers and
+    // conditions are under the bars now), each with its value and a bar.
     const spells = s.sections.find((sec) => /spell/i.test(sec.title));
     this.onSpells?.(spells?.items ?? []);
-    for (const sec of s.sections) {
-      if (sec === spells) continue; // shown in the Spellbook tab
-      // Players see only hunger and thirst; gods see every condition
-      // (quest and place flags too), which helps checking scripts.
-      const items = /affected/i.test(sec.title) && !this.isGod ? playerConditions(sec.items) : sec.items;
-      const body = items.length
-        ? chips(items)
-        : text('span', 'none', 'none');
-      secs.push(section(sec.title, body));
-    }
-    if (s.other.length) secs.push(section('Other', text('div', 'plain', s.other.join('\n'))));
-    this.$('#stats-body').replaceChildren(...secs);
+    const skills = (s.sections.find((sec) => /skill/i.test(sec.title))?.items ?? [])
+      .map((line) => /^(.+?):\s*(-?\d+)$/.exec(line))
+      .filter(Boolean)
+      .map(([, name, value]) => ({ name, value: Number(value) }))
+      .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
+    this.$('#stats-empty').hidden = skills.length > 0;
+    this.$('#stats-empty').textContent = has ? 'No skills yet: train them at a trainer.' : 'No skills yet.';
+    this.$('#stats-body').replaceChildren(...skills.map((sk) => {
+      const row = document.createElement('div');
+      row.className = 'skill-row';
+      const bar = document.createElement('span');
+      bar.className = 'skill-bar';
+      bar.style.setProperty('--pct', `${Math.max(0, Math.min(100, sk.value))}%`);
+      row.append(text('span', 'skill-name', sk.name), bar, text('span', 'skill-value', String(sk.value)));
+      return row;
+    }));
   }
 
   // The short version under the HP/MP bars: attributes, the combat
@@ -465,36 +461,6 @@ function tradeButton(label, trade, name) {
   b.dataset.trade = trade;
   b.dataset.name = name;
   return b;
-}
-
-function section(title, body) {
-  const div = document.createElement('div');
-  div.className = 'stat-section';
-  div.append(text('h4', '', title), body);
-  return div;
-}
-
-// rows: [label, [text, class], ...]
-function table(rows) {
-  const t = document.createElement('table');
-  t.className = 'stat-table';
-  for (const [label, ...cells] of rows) {
-    const tr = t.insertRow();
-    tr.insertCell().textContent = label;
-    for (const [content, cls] of cells) {
-      const td = tr.insertCell();
-      td.textContent = content;
-      td.className = cls;
-    }
-  }
-  return t;
-}
-
-function chips(items) {
-  const div = document.createElement('div');
-  div.className = 'chips';
-  div.append(...items.map((i) => text('span', 'chip', i)));
-  return div;
 }
 
 function row(left, right) {

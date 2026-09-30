@@ -127,9 +127,10 @@ const god = new GodPanel($('tab-god'), {
     input.focus();
     input.setSelectionRange(text.length, text.length);
   },
-  // Popped out, the tab isn't needed; docked, it comes back and opens.
+  // The tab stays while the tools are popped out (it points at their
+  // window); docked, it opens again.
   onFloat: (out) => {
-    panels.setTabVisible('god', isGod && !out);
+    panels.setTabVisible('god', isGod);
     if (!out && isGod) panels.selectByName('god', true);
   },
 });
@@ -160,7 +161,7 @@ function setGod(on) {
   panels.isGod = on;
   panels.update('stats');
   if (!on) god.dock();
-  panels.setTabVisible('god', on && !god.floating);
+  panels.setTabVisible('god', on);
 }
 const entityMenu = new EntityMenu(
   $('entity-menu'),

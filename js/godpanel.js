@@ -220,6 +220,8 @@ export class GodPanel {
     bar.append(title, dock);
     win.append(bar, this.root);
     document.body.append(win);
+    // The tab stays, pointing at the window, so it can't get lost.
+    this.tab.replaceChildren(this.placeholder());
     const saved = readPos();
     placeWindow(win, saved?.x ?? window.innerWidth - win.offsetWidth - 24, saved?.y ?? 80);
     dragBy(bar, win);
@@ -228,6 +230,40 @@ export class GodPanel {
     this.$.pop.title = 'Dock back with the other tabs';
     this.onFloat?.(true);
     this.opened();
+    // Kept on screen when the browser window changes size.
+    if (!this.onResize) {
+      this.onResize = () => this.showFloating(false);
+      window.addEventListener('resize', this.onResize);
+    }
+  }
+
+  // What the God tab shows while the tools are in their own window.
+  placeholder() {
+    const box = document.createElement('div');
+    box.className = 'god-away';
+    const p = document.createElement('p');
+    p.textContent = 'The God tools are in their own window.';
+    const show = document.createElement('button');
+    show.type = 'button';
+    show.className = 'primary';
+    show.textContent = 'Show window';
+    show.addEventListener('click', () => this.showFloating(true));
+    const dock = document.createElement('button');
+    dock.type = 'button';
+    dock.textContent = 'Dock it here';
+    dock.addEventListener('click', () => this.dock());
+    box.append(p, show, dock);
+    return box;
+  }
+
+  // Brings the floating window back into view (centred if asked), on top.
+  showFloating(centre = false) {
+    const win = this.floating;
+    if (!win) return;
+    if (centre) placeWindow(win, (window.innerWidth - win.offsetWidth) / 2, 80);
+    else placeWindow(win, win.offsetLeft, win.offsetTop);
+    win.style.zIndex = '41';
+    win.querySelector('.god-float-bar button')?.focus({ preventScroll: true });
   }
 
   dock() {
@@ -462,7 +498,8 @@ function readPos() {
 // Keeps the window on screen.
 function placeWindow(win, x, y) {
   const maxX = Math.max(0, window.innerWidth - win.offsetWidth - 8);
-  const maxY = Math.max(0, window.innerHeight - 40);
+  // All of it when it fits, else at least the title bar.
+  const maxY = Math.max(8, window.innerHeight - Math.min(win.offsetHeight, window.innerHeight - 16) - 8);
   win.style.left = `${Math.min(Math.max(8, x), maxX)}px`;
   win.style.top = `${Math.min(Math.max(8, y), maxY)}px`;
 }
