@@ -7,6 +7,8 @@
 // Commands follow the server's Commands.java: "a" and "look" take an ID,
 // "get" a name, "opendoor" an ID.
 
+import { isStorage, storageKind } from './storage.js';
+
 export const TYPE = { PLAYER: 0, ITEM: 1, MERCHANT: 2, SIGN: 3, MOB: 4, DOOR: 5 };
 
 // Squares apart, counting diagonals as one, like a melee range of 1
@@ -21,6 +23,11 @@ export function distance(ent, x, y) {
 export function entityActions(ent, me) {
   const look = { label: 'Look', cmd: `look ${ent.id}` };
   const self = ent.type === TYPE.PLAYER && ent.x === me.x && ent.y === me.y;
+  // Shared storage opens from next to it (the Storage tab lists it).
+  if (isStorage(ent)) {
+    const near = Math.abs(ent.x - me.x) <= 1 && Math.abs(ent.y - me.y) <= 1;
+    return near ? [{ label: 'Open', cmd: 'storage' }] : [{ label: `Go to the ${storageKind(ent.name)}`, cmd: `goto ${ent.x} ${ent.y}` }];
+  }
   switch (ent.type) {
     case TYPE.MOB: {
       const far = distance(ent, me.x, me.y) > Math.max(1, me.range);

@@ -6,6 +6,7 @@
 import { slotForType, command } from './player.js';
 import { parseStats } from './stats.js';
 import { buyCommand, sellCommand } from './shop.js';
+import { putCommand, takeCommand, groupContents } from './storage.js';
 
 const SLOT_LABELS = {
   wield: 'Wield', arms: 'Arms', legs: 'Legs', torso: 'Torso', waist: 'Waist',
@@ -50,6 +51,14 @@ export class Panels {
       if (item) this.send(buyCommand(item, f.qty.value));
     });
     this.onMerchant = null; // the merchant entity on your square, if any
+    // Storage you're next to ({ entity, listing }), if any: listing is the
+    // last { name, items } the server sent, null until it comes.
+    this.storage = null;
+    this.$('#tab-store').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-store]');
+      if (!btn) return;
+      this.send(btn.dataset.store === 'take' ? takeCommand(btn.dataset.name) : putCommand(btn.dataset.id));
+    });
     // Shop rows: Buy/Sell with the quantity from the row's own box.
     for (const list of [this.$('#shop-buy'), this.$('#shop-sell')]) {
       list.addEventListener('click', (e) => {
@@ -125,11 +134,12 @@ export class Panels {
       case 'stats': return this.renderStats();
       case 'actions': return this.renderActions();
       case 'shop': return this.renderShop();
+      case 'store': return this.renderStorage();
     }
   }
 
   renderAll() {
-    for (const part of ['status', 'items', 'equipment', 'stats', 'actions', 'shop']) this.update(part);
+    for (const part of ['status', 'items', 'equipment', 'stats', 'actions', 'shop', 'store']) this.update(part);
   }
 
   renderStatus() {
@@ -141,6 +151,7 @@ export class Panels {
   }
 
   renderItems() {
+    if (this.storage) this.renderStorage();
     const groups = this.player.groupedItems();
     const list = this.$('#inv-list');
     list.replaceChildren(
@@ -275,6 +286,57 @@ export class Panels {
     this.$('#shop-buy-empty').hidden = shop.wares.length > 0;
     this.$('#shop-sell-empty').hidden = shop.sell.length > 0;
     this.renderShopSummary();
+  }
+
+  // The Storage tab shows while you're next to a barrel or chest, and
+  // opens by itself when you reach one. entity: the storage prop, or null.
+  setStorage(entity) {
+    const was = this.storage?.entity.id ?? null;
+    if ((entity?.id ?? null) === was) return false;
+    this.storage = entity ? { entity, listing: null } : null;
+    this.renderStorage();
+    return !!entity;
+  }
+
+  setStorageListing(listing) {
+    if (!this.storage) return;
+    this.storage.listing = listing;
+    this.renderStorage();
+  }
+
+  renderStorage() {
+    const st = this.storage;
+    const tab = this.tabs.find((t) => t.dataset.tab === 'store');
+    const wasOpen = !tab.hidden;
+    // A barrel that the server says isn't storage (just a prop) hides it.
+    const show = !!st && !st.listing?.none;
+    tab.hidden = !show;
+    if (show && !wasOpen) this.select(tab, true);
+    if (!show && wasOpen && tab.getAttribute('aria-selected') === 'true') this.selectByName('inv', !this.collapsed);
+    if (!show) return;
+    const name = st.listing?.name ?? st.entity.name.replace(/^(<[^>]*>)+/, '');
+    for (const el of this.$('#tab-store').querySelectorAll('.store-name')) el.textContent = name;
+    const items = st.listing?.items ?? [];
+    this.$('#store-waiting').hidden = !!st.listing;
+    this.$('#store-in-empty').hidden = !st.listing || items.length > 0;
+    const act = (label, kind, data) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.dataset.store = kind;
+      Object.assign(b.dataset, data);
+      return b;
+    };
+    this.$('#store-in').replaceChildren(...groupContents(items).map((g) => row(
+      [text('span', 'name', g.name), g.count > 1 && text('span', 'count', `×${g.count}`)],
+      [act('Take', 'take', { name: g.name })],
+    )));
+    const mine = this.player.groupedItems();
+    this.$('#store-mine').replaceChildren(...mine.map((g) => row(
+      [text('span', 'name', g.name), g.ids.length > 1 && text('span', 'count', `×${g.ids.length}`)],
+      [act('Put in', 'put', { id: g.ids[0] })],
+    )));
+    this.$('#store-mine-empty').hidden = mine.length > 0;
   }
 
   renderShopSummary() {

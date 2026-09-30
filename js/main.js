@@ -11,6 +11,7 @@ import { bareName } from './world.js';
 import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
 import { gearFromEquipment } from './gear.js';
+import { StorageReader, nearStorage, LOOK as STORAGE_LOOK } from './storage.js';
 import { Minimap } from './minimap.js';
 import { Panels, setBar } from './panels.js';
 import { Player } from './player.js';
@@ -744,16 +745,21 @@ function handle(msg) {
   // On a merchant's square? (Dusk.java enables its Merchant button this way.)
   if (msg.op === OP.MAP || msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || (msg.op >= OP.MOVE_NORTH && msg.op <= OP.MOVE_EAST)) {
     panels.setOnMerchant([...world.entities.values()].find((e) => e.type === 2 && e.x === world.locX && e.y === world.locY));
+    // Next to a barrel or chest? Look inside when you reach one.
+    if (panels.setStorage(nearStorage(world.entities.values(), world.locX, world.locY))) conn?.send(STORAGE_LOOK);
   }
   // The menu's entities may have moved, left, or come into attack range.
   if (entityMenu.open && (msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || msg.op === OP.MAP || msg.op === OP.RANGE ||
       (msg.op >= OP.MOVE_NORTH && msg.op <= OP.MOVE_EAST))) entityMenu.refresh(world);
 
   switch (msg.op) {
-    case OP.TEXT:
-      addText(msg.text);
+    case OP.TEXT: {
+      const st = panels.storage ? storageReader.feed(msg.text) : null;
+      if (st?.listing) panels.setStorageListing(st.listing);
+      if (!st?.hide) addText(msg.text);
       serverLine(msg.text);
       break;
+    }
     case OP.COLOR_TEXT:
       addText(msg.text, `rgb(${readable(msg.r, msg.g, msg.b).join(',')})`);
       serverLine(msg.text);
@@ -834,6 +840,8 @@ let pixelSheets = null;
 let paintedSheets = null;
 let paintedNamed = null; // { sheet, index } once loaded, false if unavailable
 let paintedItems = null; // the same, for items by name
+// Reads storage listings (see storage.js) while you're next to storage.
+const storageReader = new StorageReader();
 let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
 // Two switches, kept in step: Pixel | Painted in the top bar, and a menu in
 // Settings (shown instead on phones).

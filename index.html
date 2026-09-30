@@ -157,6 +157,7 @@
             <button type="button" role="tab" data-tab="equip" aria-controls="tab-equip" aria-selected="false" tabindex="-1">Equipment</button>
             <button type="button" role="tab" data-tab="book" aria-controls="tab-book" aria-selected="false" tabindex="-1">Spellbook</button>
             <button type="button" role="tab" data-tab="shop" aria-controls="tab-shop" aria-selected="false" tabindex="-1" hidden>Shop</button>
+            <button type="button" role="tab" data-tab="store" aria-controls="tab-store" aria-selected="false" tabindex="-1" hidden>Storage</button>
             <button type="button" role="tab" data-tab="stats" aria-controls="tab-stats" aria-selected="false" tabindex="-1">Stats</button>
           </div>
           <select id="actions" aria-label="Actions" disabled><option value="">Action…</option></select>
@@ -190,6 +191,16 @@
           <h4 class="list-head">Sell</h4>
           <ul id="shop-sell" class="rows shop-list"></ul>
           <p id="shop-sell-empty" class="empty">Nothing you carry interests this merchant.</p>
+        </div>
+        <div id="tab-store" class="tab" role="tabpanel" hidden>
+          <p class="store-note">Shared: anyone can see and take what's in the <span class="store-name">barrel</span>.</p>
+          <h4 class="list-head">In the <span class="store-name">barrel</span></h4>
+          <ul id="store-in" class="rows shop-list"></ul>
+          <p id="store-in-empty" class="empty">Nothing in here yet.</p>
+          <p id="store-waiting" class="empty" hidden>Looking inside…</p>
+          <h4 class="list-head">Your things</h4>
+          <ul id="store-mine" class="rows shop-list"></ul>
+          <p id="store-mine-empty" class="empty">You aren't carrying anything.</p>
         </div>
         <div id="tab-stats" class="tab" role="tabpanel" hidden>
           <div id="stats-body"></div>

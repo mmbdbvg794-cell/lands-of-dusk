@@ -353,6 +353,50 @@ function chest(ctx) {
   fill(ctx, rr(ctx, CX - 5, 62, 10, 12, 2), '#d8b050', [CX - 5, 62, CX + 5, 74], 1);
 }
 
+// Storage barrels (the server's Storage props) stand as big as a person's
+// middle, so they're drawn larger than things on the ground.
+function barrel(ctx) {
+  shadow(ctx, 38, 9, 110);
+  const top = 26, bottom = 108, w = 30, bulge = 6;
+  const body = () => {
+    ctx.beginPath();
+    ctx.moveTo(CX - w, top + 6);
+    ctx.quadraticCurveTo(CX - w - bulge * 2, (top + bottom) / 2, CX - w, bottom - 4);
+    ctx.quadraticCurveTo(CX, bottom + 6, CX + w, bottom - 4);
+    ctx.quadraticCurveTo(CX + w + bulge * 2, (top + bottom) / 2, CX + w, top + 6);
+    ctx.closePath();
+  };
+  fill(ctx, body, '#8a5a30', [CX - w - bulge, top, CX + w + bulge, bottom]);
+  // Staves.
+  ctx.save(); body(); ctx.clip();
+  ctx.strokeStyle = 'rgba(40,22,10,0.55)'; ctx.lineWidth = 1.5;
+  for (const f of [-0.66, -0.33, 0, 0.33, 0.66]) {
+    ctx.beginPath(); ctx.moveTo(CX + f * w, top); ctx.quadraticCurveTo(CX + f * (w + bulge * 2), (top + bottom) / 2, CX + f * w, bottom + 4); ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(255,230,190,0.12)'; ctx.fillRect(CX - w * 0.55, top, w * 0.3, bottom - top);
+  ctx.restore();
+  // Iron hoops.
+  for (const [y, grow] of [[top + 16, 0.6], [bottom - 16, 0.6], [(top + bottom) / 2 - 8, 1], [(top + bottom) / 2 + 8, 1]]) {
+    const hw = w + bulge * 2 * grow * 0.75;
+    ctx.strokeStyle = '#3a3634'; ctx.lineWidth = 4.5;
+    ctx.beginPath(); ctx.moveTo(CX - hw, y); ctx.quadraticCurveTo(CX, y + 6, CX + hw, y); ctx.stroke();
+    ctx.strokeStyle = 'rgba(200,200,210,0.35)'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(CX - hw + 2, y - 1.5); ctx.quadraticCurveTo(CX, y + 4.5, CX + hw - 2, y - 1.5); ctx.stroke();
+  }
+  // The lid.
+  fill(ctx, ell(ctx, CX, top + 6, w, 9), '#9a6a3a', [CX - w, top - 3, CX + w, top + 15]);
+  ctx.strokeStyle = 'rgba(40,22,10,0.5)'; ctx.lineWidth = 1.2;
+  for (const dy of [-3, 0, 3]) { ctx.beginPath(); ctx.moveTo(CX - w + 6, top + 6 + dy * 2); ctx.lineTo(CX + w - 6, top + 6 + dy * 2); ctx.stroke(); }
+  ctx.strokeStyle = '#3a3634'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(CX, top + 6, w, 9, 0, 0, Math.PI * 2); ctx.stroke();
+}
+
+// A storage chest: the wooden chest, drawn bigger.
+function bigChest(ctx) {
+  ctx.save(); ctx.translate(CX, 118); ctx.scale(1.45, 1.45); ctx.translate(-CX, -96);
+  chest(ctx);
+  ctx.restore();
+}
+
 function quiver(ctx) {
   shadow(ctx, 26, 6);
   ctx.save(); ctx.translate(CX, 80); ctx.rotate(-0.6);
@@ -656,13 +700,17 @@ export function painterFor({ name, type = '', kind = '' }) {
   return BY_NAME.find(([re]) => re.test(n))?.[1] ?? null;
 }
 
+// Storage (the server's barrels and chests, props named by kind), drawn
+// under these names; the renderer looks storage up by its kind.
+export const STORAGE = [{ name: 'storage barrel', paint: barrel }, { name: 'storage chest', paint: bigChest }];
+
 // items: [{ name, type, kind }]. The index keys are lower case, with
 // underscores kept and also as spaces, since names arrive both ways. The
 // sheet is a grid, COLS frames wide (one strip would pass the widest
 // canvas a browser allows).
 export const COLS = 32;
 export function paintItemSheet(items) {
-  const drawn = items.map((it) => [it, painterFor(it)]).filter(([, p]) => p);
+  const drawn = [...items.map((it) => [it, painterFor(it)]).filter(([, p]) => p), ...STORAGE.map((st) => [{ name: st.name }, st.paint])];
   const sheet = document.createElement('canvas');
   sheet.width = COLS * OUT;
   sheet.height = Math.max(1, Math.ceil(drawn.length / COLS)) * OUT;

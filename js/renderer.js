@@ -6,6 +6,7 @@ import { HIT_MS, bareName } from './world.js';
 import { drawEffect } from './effects.js';
 import { LOOKS, OUT, paintFigureStrip } from './figure.js';
 import { gearKey } from './gear.js';
+import { isStorage, storageKind } from './storage.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
 
@@ -118,8 +119,10 @@ export class Renderer {
       }
 
       const step = world.frameStep(e, now);
-      const art = step === -1 && (e.type === 4 ? this.named : e.type === 1 ? this.items : null);
-      const byName = art?.index.get(bareName(e.name).toLowerCase());
+      // Storage barrels and chests are drawn by their kind.
+      const storage = step === -1 && isStorage(e);
+      const art = step !== -1 ? null : e.type === 4 ? this.named : e.type === 1 || storage ? this.items : null;
+      const byName = art?.index.get(storage ? `storage ${storageKind(bareName(e.name))}` : bareName(e.name).toLowerCase());
       if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
       else if (e === self) this.drawDressed(e.image, step, px, py, c);

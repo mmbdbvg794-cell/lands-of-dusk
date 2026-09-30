@@ -786,6 +786,9 @@ body.playing #map-wrap { display: flex; }
 .shop-manual input[name="item"] { flex: 1; min-width: 0; padding: 3px 6px; font-size: 13px; }
 .shop-manual .qty { width: 52px; padding: 3px 4px; text-align: right; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; font: inherit; font-size: 13px; }
 [role="tab"][data-tab="shop"] { color: var(--warn); }
+[role="tab"][data-tab="store"] { color: var(--ok); }
+[role="tab"][data-tab="store"][aria-selected="true"] { border-bottom-color: var(--ok); }
+.store-note { margin: 8px 12px 2px; font-size: 12px; color: var(--muted); }
 [role="tab"][data-tab="shop"][aria-selected="true"] { border-bottom-color: var(--warn); }
 
 /* ---- login screen ---- */

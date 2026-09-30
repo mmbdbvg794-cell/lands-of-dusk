@@ -9,3 +9,4 @@ client_src_reference/build/
 *.json.new
 # The Painted map, built by tools/paintart/build.sh at deploy time
 /art/
+server/cfr.jar
