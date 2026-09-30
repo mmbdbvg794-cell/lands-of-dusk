@@ -24,6 +24,7 @@
     <span id="status-dot" class="dot off" aria-hidden="true"></span>
     <span id="status-text" role="status">Disconnected</span>
     <span class="spacer"></span>
+    <button type="button" id="map-btn" title="World map (M)">Map</button>
     <div id="look-toggle" class="segmented" role="radiogroup" aria-label="Look">
       <button type="button" role="radio" data-look="classic" aria-checked="true">Classic</button>
       <button type="button" role="radio" data-look="modern" aria-checked="false">Modern</button>
@@ -47,7 +48,8 @@
           <button type="button" id="report-bug" class="small">Report a bug…</button>
           <button type="button" id="forget-login" class="ghost small">Forget saved login</button>
         </div>
-        <label class="toggle"><input id="names" type="checkbox" checked> Show names on the map</label>
+        <label class="toggle"><input id="names" type="checkbox" checked> Show names of people and creatures</label>
+        <label class="toggle"><input id="object-names" type="checkbox"> Show names of objects (furniture, items, signs)</label>
         <div class="toggle-row">
           <label class="toggle"><input id="minimap-toggle" type="checkbox" checked> Minimap</label>
           <button type="button" id="minimap-reset" class="ghost small">Move to corner</button>
@@ -234,6 +236,7 @@
           <h4 class="list-head">In the <span class="store-name">barrel</span></h4>
           <ul id="store-in" class="rows shop-list"></ul>
           <p id="store-in-empty" class="empty">Nothing in here yet.</p>
+          <p class="store-buy-row"><button type="button" id="store-buy" data-store="buy" hidden>Buy a deposit box</button></p>
           <p id="store-waiting" class="empty" hidden>Looking inside…</p>
           <h4 class="list-head">Your things</h4>
           <ul id="store-mine" class="rows shop-list"></ul>
@@ -279,6 +282,19 @@
       </div>
     </form>
   </dialog>
+
+  <!-- The world map: everything explored, the rest under fog (worldmap.js). -->
+  <section id="world-map" class="card" role="dialog" aria-label="World map" hidden>
+    <div class="wm-bar">
+      <strong>World Map</strong>
+      <span data-map="info" class="wm-info"></span>
+      <button type="button" data-map="out" title="Zoom out">−</button>
+      <button type="button" data-map="in" title="Zoom in">+</button>
+      <button type="button" data-map="here">Here</button>
+      <button type="button" data-map="close" class="ghost" aria-label="Close">×</button>
+    </div>
+    <canvas aria-label="Explored world"></canvas>
+  </section>
 
   <script type="module" src="js/main.js"></script>
 </body>

@@ -20,6 +20,10 @@ export class Renderer {
     this.world = world;
     this.sheets = null;
     this.showNames = true;
+    // Labels on things (items, props, signs, doors) as well as on people,
+    // creatures and merchants: off by default, or a room of couches reads
+    // "couch couch couch".
+    this.showObjectNames = false;
     // Painted style only: creature art by name ({ sheet, index: Map }),
     // for creatures that share a picture with others (see bestiary.js).
     this.named = null;
@@ -130,7 +134,8 @@ export class Renderer {
       else if (e === self) this.drawDressed(e.image, step, px, py, c);
       else players?.draw(ctx, e.image * 8 + step, px, py, c);
 
-      if (names && !e.hideName) {
+      const isObject = e.type === 1 || e.type === 3 || e.type === 5;
+      if (names && !e.hideName && (!isObject || this.showObjectNames)) {
         // Java: black copy one pixel left, then white, baseline on the
         // tile's bottom edge.
         const label = names.get(e.id) ?? e.name;

@@ -18,6 +18,10 @@ function hexToRgb(hex) {
 function rgb(hex, f = 1) {
   return `rgb(${hexToRgb(hex).map((v) => Math.max(0, Math.min(255, Math.round(v * f)))).join(',')})`;
 }
+// A hex colour lighter or darker by f (for painters that want hex).
+function shadeHex(hex, f) {
+  return `#${hexToRgb(hex).map((v) => Math.max(0, Math.min(255, Math.round(v * f))).toString(16).padStart(2, '0')).join('')}`;
+}
 function fill(ctx, path, colour, [x0, y0, x1, y1] = [0, 0, OUT, OUT], edge = 2.5) {
   const g = ctx.createLinearGradient(x0, y0, x1, y1);
   g.addColorStop(0, rgb(colour, 1.25)); g.addColorStop(0.5, rgb(colour, 1)); g.addColorStop(1, rgb(colour, 0.62));
@@ -163,8 +167,75 @@ function wolf(ctx, name) {
 
 // ---- cats ----
 
+// A wildcat: lean, stalking low on four legs, striped, with a thick banded
+// tail, tufted ears and narrowed eyes. Kittens keep the cute sitting cat.
 function cat(ctx, name) {
-  const kitten = /kitty|kitten/.test(name);
+  if (/kitty|kitten/.test(name)) return kittenCat(ctx, name);
+  const fur = /black|shadow|panther/.test(name) ? '#2e2a2a' : /white|snow/.test(name) ? '#e4ded2' : '#a8845a';
+  const dark = /black|shadow|panther/.test(name) ? '#121010' : /white|snow/.test(name) ? '#8a8478' : '#3e2c1a';
+  const belly = /black|shadow|panther/.test(name) ? '#3a3434' : '#e4d2b0';
+  shadow(ctx, 128, 208, 96, 12);
+  // Far legs, darker.
+  for (const [x, top] of [[92, 150], [170, 146]]) limb(ctx, [[x, top], [x - 4, 184], [x + 2, 204]], 15, 11, shadeHex(fur, 0.75));
+  // Tail: thick, low, curving up at the end, banded, with a black tip.
+  const tail = [[70, 136], [40, 150], [24, 176], [30, 196]];
+  limb(ctx, tail, 17, 14, fur);
+  ctx.strokeStyle = dark; ctx.lineWidth = 16; ctx.lineCap = 'butt';
+  for (const t of [0.35, 0.6]) {
+    const x = 40 - 12 * t, y = 150 + 40 * t;
+    ctx.beginPath(); ctx.moveTo(x - 3, y - 4); ctx.lineTo(x + 3, y + 4); ctx.stroke();
+  }
+  fill(ctx, ell(ctx, 30, 196, 9, 8), dark, [21, 188, 39, 204], 1.5);
+  // Body: long and low, shoulders dropped as it stalks.
+  fill(ctx, () => {
+    ctx.beginPath();
+    ctx.moveTo(66, 142);
+    ctx.quadraticCurveTo(70, 112, 104, 114);
+    ctx.quadraticCurveTo(140, 118, 176, 128);
+    ctx.quadraticCurveTo(192, 136, 184, 154);
+    ctx.quadraticCurveTo(140, 168, 96, 164);
+    ctx.quadraticCurveTo(66, 162, 66, 142);
+    ctx.closePath();
+  }, fur, [66, 112, 192, 168]);
+  ctx.fillStyle = belly; ctx.globalAlpha = 0.55;
+  ctx.beginPath(); ctx.ellipse(126, 160, 42, 7, 0.05, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+  // Stripes down the flank.
+  ctx.strokeStyle = dark; ctx.lineWidth = 4.5; ctx.lineCap = 'round'; ctx.globalAlpha = 0.75;
+  for (const x of [88, 104, 120, 136, 152, 166]) { ctx.beginPath(); ctx.moveTo(x, 120 + (x - 88) * 0.08); ctx.quadraticCurveTo(x - 6, 136, x - 2, 152); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(80, 118); ctx.quadraticCurveTo(128, 112, 176, 128); ctx.lineWidth = 3; ctx.stroke();
+  ctx.globalAlpha = 1;
+  // Near legs, one front paw raised mid-step.
+  limb(ctx, [[104, 150], [98, 186], [104, 206]], 17, 12, fur);
+  limb(ctx, [[180, 146], [192, 170], [204, 180]], 16, 11, fur);
+  for (const [x, y] of [[106, 206], [206, 181]]) fill(ctx, ell(ctx, x, y, 9, 5), fur, [x - 9, y - 5, x + 9, y + 5], 1.5);
+  // Head, low and forward: a broad face with a muzzle.
+  fill(ctx, ell(ctx, 204, 134, 27, 22, -0.1), fur, [177, 112, 231, 156]);
+  fill(ctx, ell(ctx, 226, 144, 14, 11, 0.2), belly, [212, 133, 240, 155], 1.5);
+  // Ears: pointed, with black tufts.
+  for (const [ex, lean] of [[190, -1], [210, 1]]) {
+    fill(ctx, () => { ctx.beginPath(); ctx.moveTo(ex - 9, 120); ctx.lineTo(ex + lean * 3, 92); ctx.lineTo(ex + 9, 118); ctx.closePath(); }, fur, [ex - 9, 92, ex + 9, 120], 2);
+    ctx.strokeStyle = '#141010'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(ex + lean * 3, 93); ctx.lineTo(ex + lean * 5, 82); ctx.stroke();
+  }
+  // Face stripes, a narrowed yellow eye, nose and a bared fang.
+  ctx.strokeStyle = dark; ctx.lineWidth = 2.5;
+  for (const [x1, y1, x2, y2] of [[192, 124, 200, 140], [198, 120, 206, 134], [214, 128, 204, 142]]) { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
+  ctx.fillStyle = '#e8c030';
+  ctx.beginPath(); ctx.moveTo(206, 128); ctx.quadraticCurveTo(214, 122, 222, 128); ctx.quadraticCurveTo(214, 132, 206, 128); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#101010'; ctx.beginPath(); ctx.ellipse(215, 127.5, 1.6, 3.2, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#101010'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(204, 124); ctx.lineTo(224, 126); ctx.stroke();
+  ctx.fillStyle = '#3a2420'; ctx.beginPath(); ctx.moveTo(236, 140); ctx.lineTo(240, 146); ctx.lineTo(233, 146); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#3a1010'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(222, 152); ctx.quadraticCurveTo(230, 156, 238, 150); ctx.stroke();
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(229, 152); ctx.lineTo(232, 161); ctx.lineTo(234, 152); ctx.closePath(); }, '#f4ecd8', [229, 152, 234, 161], 1);
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1;
+  for (const dy of [-2, 3]) { ctx.beginPath(); ctx.moveTo(228, 146); ctx.lineTo(252, 142 + dy); ctx.stroke(); }
+}
+
+// ---- cats ----
+
+function kittenCat(ctx, name) {
+  const kitten = true;
   const fur = /black/.test(name) ? '#2e2a2a' : /white/.test(name) ? '#ece6dc' : '#d08a40';
   const stripe = /black/.test(name) ? '#141212' : /white/.test(name) ? '#c8c0b4' : '#8a5020';
   ctx.save();
@@ -299,6 +370,13 @@ const CIVILIAN = [
   { skin: '#8a6040', hair: '#1a1210', top: '#9a7a4a', trim: '#6a5030', legs: '#3a3028', boots: '#1a140c', style: 'plain' },
   { skin: '#e8c8a8', hair: '#9a9a9a', top: '#5a4a7a', trim: '#3a2a5a', legs: '#2a2a2a', boots: '#1a1a1a', style: 'plain', beard: '#9a9a9a' },
 ];
+// Townswomen: skirts and long hair, a bun or a ponytail.
+const CIVILIAN_WOMEN = [
+  { skin: '#e8c0a0', hair: '#8a4a24', hairStyle: 'long', top: '#6a2a4a', skirt: '#3a2a5a', trim: '#3a1a2a', legs: '#3a3a4a', boots: '#2a1c10', style: 'plain' },
+  { skin: '#c89468', hair: '#2a1a10', hairStyle: 'bun', top: '#2a6a5a', skirt: '#6a4a2a', trim: '#1a3a3a', legs: '#4a3a2a', boots: '#2a1c10', style: 'plain' },
+  { skin: '#f0d0b0', hair: '#c8a040', hairStyle: 'ponytail', top: '#8a5a2a', skirt: '#2a4a7a', trim: '#4a3018', legs: '#5a4a3a', boots: '#3a2818', style: 'plain' },
+];
+const FEMALE = /woman|girl|lady|maid|wife|witch|queen|princess|nun|priestess|mother|sister|daughter/;
 const ARMOURS = [
   [/dark|doom|shadow/, ['#2a2830', '#8a2a2a']],
   [/dragon/, ['#2a6a3a', '#d8b040']],
@@ -309,7 +387,7 @@ const ARMOURS = [
   [/guard|warden|soldier/, ['#8a8e98', '#c8b060']],
 ];
 function person(ctx, name) {
-  let look = CIVILIAN[Math.floor(hash(name) * CIVILIAN.length)];
+  let look = FEMALE.test(name) ? CIVILIAN_WOMEN[Math.floor(hash(name) * CIVILIAN_WOMEN.length)] : CIVILIAN[Math.floor(hash(name) * CIVILIAN.length)];
   let gear = {};
   for (const [re, [metal, trim]] of ARMOURS) {
     if (re.test(name)) {

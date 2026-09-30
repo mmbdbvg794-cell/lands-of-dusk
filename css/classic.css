@@ -340,3 +340,7 @@ body.classic #speech button {
 body.classic #speech button:hover:not(:disabled) { background: #fff6de; border-color: var(--ink-red); filter: none; }
 body.classic #speech #speech-close { background: none; border: none; }
 body.classic .speech-note { color: var(--ink-soft); }
+
+/* The world map, framed like the rest. */
+body.classic .wm-bar { border-bottom-color: rgba(203, 178, 106, 0.35); }
+body.classic .wm-bar strong { font-family: "Cinzel", serif; color: var(--gold-bright); text-shadow: 1px 1px 0 #111; }

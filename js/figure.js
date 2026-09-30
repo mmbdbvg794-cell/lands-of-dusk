@@ -18,8 +18,8 @@ export const OUT = 144;
 // darkelf 2, lizardman 6; 3-5 and 7 are other characters on this server.
 export const LOOKS = [
   { skin: '#c89468', hair: '#4a2e18', top: '#7a5230', trim: '#4a3018', legs: '#3e3a2c', boots: '#2a1c10', style: 'plain' },
-  { skin: '#f0d0b0', hair: '#e8d078', top: '#e6dcc0', trim: '#b8a878', legs: '#9a2a22', boots: '#4a2a18', style: 'plain', ears: true },
-  { skin: '#8a8c9a', hair: '#e8e8f0', top: '#3a3a44', trim: '#6a6a78', legs: '#1c1c22', boots: '#101014', style: 'plain', ears: true },
+  { skin: '#f0d0b0', hair: '#e8d078', hairStyle: 'long', top: '#e6dcc0', trim: '#b8a878', legs: '#9a2a22', boots: '#4a2a18', style: 'plain', ears: true },
+  { skin: '#8a8c9a', hair: '#e8e8f0', hairStyle: 'ponytail', top: '#3a3a44', trim: '#6a6a78', legs: '#1c1c22', boots: '#101014', style: 'plain', ears: true },
   { skin: '#c89468', top: '#d8a030', trim: '#f4d870', legs: '#b86a20', boots: '#6a3a14', style: 'armour', helm: '#c8902a' },
   { skin: '#c89468', top: '#c02a22', trim: '#f0c050', legs: '#8a1a16', boots: '#3a1410', style: 'armour', helm: '#a82018' },
   { skin: '#c89468', top: '#2a4ab0', trim: '#d8303a', legs: '#1a2a78', boots: '#10183a', style: 'armour', helm: '#2440a0', emblem: '#e0343c' },
@@ -246,6 +246,17 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
     }
   }
 
+  // A skirt (look.skirt: its colour) falls to below the knee.
+  if (look.skirt && armour?.kind !== 'robe') {
+    const hem = hipY + 30;
+    part(ctx, () => {
+      ctx.beginPath();
+      if (side) { ctx.moveTo(cx - 12, hipY - 6); ctx.lineTo(cx + 12, hipY - 6); ctx.lineTo(cx + 16 + stride * 2, hem); ctx.quadraticCurveTo(cx, hem + 4, cx - 16 - stride * 2, hem); }
+      else { ctx.moveTo(bx + 1, hipY - 6); ctx.lineTo(bx + bodyW - 1, hipY - 6); ctx.lineTo(bx + bodyW + 6, hem); ctx.quadraticCurveTo(cx, hem + 4, bx - 6, hem); }
+      ctx.closePath();
+    }, look.skirt, { x0: bx - 6, x1: bx + bodyW + 6 });
+  }
+
   // A robe falls over the legs to the boots.
   if (armour?.kind === 'robe') {
     part(ctx, () => {
@@ -392,17 +403,9 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
     }
     part(ctx, ellipse(ctx, hx, headY, headR, headR + 1), look.skin, { x0: cx - headR, x1: cx + headR });
     if (look.beard && dir !== 'n') part(ctx, ellipse(ctx, cx + (side ? 5 : 0), headY + 10, side ? 7 : 10, 7), look.beard, { x0: cx - 10, x1: cx + 10 });
-    // Hair, unless a full helmet hides it: the top of the head, the back
-    // half from the side, all of it from behind.
-    if (look.hair && !(helm && helm.kind !== 'mask')) {
-      part(ctx, () => {
-        ctx.beginPath();
-        if (dir === 'n') { ctx.arc(cx, headY - 2, headR + 1.5, Math.PI, Math.PI * 2); ctx.ellipse(cx, headY + 2, headR + 1, headR + 3, 0, 0, Math.PI); }
-        else if (side) { ctx.arc(hx - 1, headY - 1, headR + 1.5, Math.PI * 0.6, Math.PI * 1.95); ctx.lineTo(cx + 5, headY - 5); }
-        else ctx.arc(cx, headY - 2, headR + 1.5, Math.PI, Math.PI * 2);
-        ctx.closePath();
-      }, look.hair, { x0: cx - headR, x1: cx + headR });
-    }
+    // Hair, unless a full helmet hides it, in the look's style (see
+    // drawHair): short with a swept fringe unless it says otherwise.
+    if (look.hair && !(helm && helm.kind !== 'mask')) drawHair(ctx, look, { cx, hx, headY, headR, side, dir, shoulderY });
     if (helm?.kind !== 'great') eyes();
     if (gear.eyes && dir !== 'n') {
       // Goggles or lenses.
@@ -413,6 +416,68 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
     if (helm) drawHelm(ctx, helm, { cx, hx, headY, headR, side, dir });
   }
   ctx.restore();
+}
+
+// Hair styles (look.hairStyle): 'short' (the default: a cap with a
+// swept fringe, the forehead showing), 'long' (to the shoulders),
+// 'ponytail', 'bun', 'bald'.
+function drawHair(ctx, look, { cx, hx, headY, headR, side, dir, shoulderY }) {
+  const style = look.hairStyle ?? 'short';
+  if (style === 'bald') return;
+  const c = look.hair;
+  const opts = { x0: cx - headR, x1: cx + headR };
+  const top = headY - headR - 3;
+  // Behind the head: long hair and ponytails, seen from behind or the side.
+  if (style === 'long' && dir !== 'n') {
+    part(ctx, () => {
+      ctx.beginPath();
+      if (side) { ctx.moveTo(hx - 8, headY - 6); ctx.quadraticCurveTo(hx - 16, headY + 10, hx - 12, shoulderY + 14); ctx.lineTo(hx - 2, shoulderY + 10); ctx.quadraticCurveTo(hx - 4, headY + 6, hx + 2, headY - 8); }
+      else {
+        for (const d of [-1, 1]) {
+          ctx.moveTo(cx + d * (headR - 2), headY - 6);
+          ctx.quadraticCurveTo(cx + d * (headR + 5), headY + 8, cx + d * (headR + 3), shoulderY + 12);
+          ctx.lineTo(cx + d * (headR - 4), shoulderY + 10);
+          ctx.quadraticCurveTo(cx + d * (headR - 1), headY + 6, cx + d * (headR - 6), headY - 4);
+        }
+      }
+      ctx.closePath();
+    }, c, opts);
+  }
+  if (style === 'ponytail' && (side || dir === 'n')) {
+    const tx = side ? hx - headR - 1 : cx;
+    part(ctx, () => { ctx.beginPath(); ctx.moveTo(tx - 3, headY - 6); ctx.quadraticCurveTo(tx - (side ? 10 : 0) - 4, headY + 6, tx - (side ? 8 : 0), shoulderY + 6); ctx.quadraticCurveTo(tx - (side ? 2 : -5), headY + 6, tx + 4, headY - 6); ctx.closePath(); }, c, opts);
+  }
+  if (style === 'bun') {
+    const bx = side ? hx - headR + 2 : cx;
+    part(ctx, ellipse(ctx, bx, dir === 's' ? top + 1 : headY - headR + 2, 7, 6), c, opts);
+  }
+  // The top of the head.
+  part(ctx, () => {
+    ctx.beginPath();
+    if (dir === 'n') {
+      ctx.arc(cx, headY - 2, headR + 1.5, Math.PI, Math.PI * 2);
+      const fall = style === 'long' ? shoulderY + 12 - headY : style === 'short' ? 4 : 6;
+      ctx.lineTo(cx + headR + 1, headY + fall);
+      ctx.quadraticCurveTo(cx, headY + fall + 5, cx - headR - 1, headY + fall);
+    } else if (side) {
+      // Over the crown and down the back, a fringe at the front.
+      ctx.moveTo(hx + headR - 1, headY - 5);
+      ctx.quadraticCurveTo(hx + headR, top + 2, hx + 2, top);
+      ctx.quadraticCurveTo(hx - headR - 3, top + 1, hx - headR - 1, headY + 4);
+      ctx.lineTo(hx - headR + 5, headY + (style === 'long' ? 8 : 3));
+      ctx.quadraticCurveTo(hx - 4, headY - 6, hx + 3, headY - 7);
+      ctx.quadraticCurveTo(hx + 8, headY - 9, hx + headR - 1, headY - 5);
+    } else {
+      // Temples, over the top, and a fringe swept to one side.
+      ctx.moveTo(cx - headR - 1, headY);
+      ctx.quadraticCurveTo(cx - headR - 2, top + 1, cx, top);
+      ctx.quadraticCurveTo(cx + headR + 2, top + 1, cx + headR + 1, headY);
+      ctx.lineTo(cx + headR - 2, headY - 4);
+      ctx.quadraticCurveTo(cx + 4, headY - 11, cx - 6, headY - 6);
+      ctx.quadraticCurveTo(cx - headR + 3, headY - 4, cx - headR + 1, headY + 1);
+    }
+    ctx.closePath();
+  }, c, opts);
 }
 
 function drawHelm(ctx, helm, { cx, hx, headY, headR, side, dir }) {

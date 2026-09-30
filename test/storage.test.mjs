@@ -1,6 +1,6 @@
 // Run with: node test/storage.test.mjs
 import assert from 'node:assert/strict';
-import { StorageReader, nearStorage, isStorage, groupContents, putCommand, takeCommand, lookCommand, storageKind } from '../js/storage.js';
+import { StorageReader, nearStorage, isStorage, groupContents, putCommand, takeCommand, lookCommand, storageKind, isTeller, isBoxLine, boxPut, boxTake } from '../js/storage.js';
 
 const r = new StorageReader();
 assert.equal(r.feed('You feel hungry.'), null);
@@ -37,4 +37,13 @@ assert.deepEqual(groupContents(['apple', 'sword', 'apple']), [{ name: 'apple', c
 assert.equal(lookCommand(7), 'storage #7');
 assert.equal(putCommand(42, 7), 'storage #7 put 42');
 assert.equal(takeCommand('red potion', 7), 'storage #7 take red potion');
+// Deposit boxes.
+assert.deepEqual(r.feed('The deposit box holds 1 item:'), { listing: null, hide: true });
+assert.deepEqual(r.feed('- dagger'), { listing: { name: 'deposit box', items: ['dagger'] }, hide: true });
+assert.deepEqual(r.feed("You don't have a deposit box yet. One costs 500 gp."), { listing: { name: 'deposit box', items: [], noBox: 500 }, hide: false });
+assert.ok(isBoxLine('The deposit box is empty.') && isBoxLine("You don't have a deposit box yet. One costs 500 gp."));
+assert.ok(!isBoxLine('The chest is empty.'));
+assert.ok(isTeller({ type: 3, name: 'Bank Teller' }) && !isTeller({ type: 3, name: 'couch' }));
+assert.equal(boxPut(9), 'box put 9');
+assert.equal(boxTake('iron sword'), 'box take iron sword');
 console.log('storage tests passed');

@@ -27,6 +27,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 public class Storage extends Prop {
@@ -81,11 +83,12 @@ public class Storage extends Prop {
         if (line == null) return null;
         String trimmed = line.trim();
         String lower = trimmed.toLowerCase();
-        if (!(lower.equals("storage") || lower.startsWith("storage "))) return null;
+        boolean box = lower.equals("box") || lower.startsWith("box ");
+        if (!(box || lower.equals("storage") || lower.startsWith("storage "))) return null;
         try {
             String reply;
             synchronized (Storage.class) {
-                reply = run(who, engine, trimmed.substring(7).trim());
+                reply = box ? runBox(who, engine, trimmed.substring(3).trim()) : run(who, engine, trimmed.substring(7).trim());
             }
             // A reply goes out as one text message (opcode 3), which is
             // one line: send all but the last line separately.
@@ -238,6 +241,156 @@ public class Storage extends Prop {
         return b.toString();
     }
 
+    // ---- deposit boxes ----
+    //
+    // A private box for each player, bought once from a bank teller and
+    // reached at any teller (one box, every bank):
+    //   box              what's in yours
+    //   box buy          buy one (BOX_PRICE gp)
+    //   box put <item>   put an item in (inventory ID or name)
+    //   box take <item>  take one out (by name)
+    // Saved to the game's "boxes" file, like storage.
+
+    static final String BOX_FILE = "boxes";
+    static final int BOX_PRICE = 500;
+    static final int BOX_SIZE = 40;
+    static final int TELLER_REACH = 2;
+    static final Hashtable<String, Vector> boxes = new Hashtable<String, Vector>();
+    static boolean boxesBroken = false;
+
+    private static String runBox(LivingThing who, DuskEngine engine, String args) throws Exception {
+        if (!(who instanceof Player)) return "Only players have deposit boxes.";
+        if (boxesBroken) return "The deposit boxes are closed for repairs.";
+        if (!nearTeller(who, engine)) return "You can only reach your deposit box at a bank teller.";
+        String key = who.strName.toLowerCase();
+        Vector box = boxes.get(key);
+        String lower = args.toLowerCase();
+        if (lower.equals("buy")) {
+            if (box != null) return "You already have a deposit box.\n" + boxListing(box);
+            if (who.cash < BOX_PRICE) return "A deposit box costs " + BOX_PRICE + " gp, and you're carrying " + who.cash + " gp.";
+            // Saved in the order that can't make anything from nothing.
+            who.cash -= BOX_PRICE;
+            who.savePlayer();
+            box = new Vector();
+            boxes.put(key, box);
+            saveBoxes();
+            who.updateStats();
+            Log.logEvent(who.strName + " bought a deposit box for " + BOX_PRICE + " gp");
+            return "You buy a deposit box for " + BOX_PRICE + " gp. It's yours at every bank.\n" + boxListing(box);
+        }
+        if (box == null) return "You don't have a deposit box yet. One costs " + BOX_PRICE + " gp.";
+        if (lower.length() == 0 || lower.equals("look")) return boxListing(box);
+        if (lower.startsWith("put ")) {
+            String what = args.substring(4).trim();
+            Item item = isNumber(what) ? who.items.getItem(Integer.parseInt(what)) : who.items.getItem(what, 0);
+            if (item == null) return "You don't have that.";
+            if (item.intCost == 0 || !new File("defItems/" + item.strName.toLowerCase()).exists()) return "The " + item.strName + " can't be stored.";
+            if (box.size() >= BOX_SIZE) return "Your deposit box is full.";
+            who.items.remove((Object) item);
+            who.savePlayer();
+            box.addElement(item);
+            saveBoxes();
+            who.updateItems();
+            Log.logEvent(who.strName + " put " + item.strName + " in their deposit box");
+            return "You put the " + item.strName + " in your deposit box.\n" + boxListing(box);
+        }
+        if (lower.startsWith("take ")) {
+            String what = args.substring(5).trim();
+            Item item = null;
+            for (int i = 0; i < box.size() && item == null; i++) {
+                Item it = (Item) box.elementAt(i);
+                if (it.strName.equalsIgnoreCase(what)) item = it;
+            }
+            if (item == null) return "Your deposit box doesn't hold a " + what + ".";
+            box.removeElement(item);
+            saveBoxes();
+            who.items.add((Object) item);
+            who.savePlayer();
+            who.updateItems();
+            Log.logEvent(who.strName + " took " + item.strName + " from their deposit box");
+            return "You take the " + item.strName + " from your deposit box.\n" + boxListing(box);
+        }
+        return "Box: look, buy, put <item> or take <item>.";
+    }
+
+    // Worded like storage's, so the client reads both the same way.
+    static String boxListing(Vector box) {
+        if (box.isEmpty()) return "The deposit box is empty.";
+        StringBuffer b = new StringBuffer("The deposit box holds " + box.size() + (box.size() == 1 ? " item:" : " items:"));
+        for (int i = 0; i < box.size(); i++) b.append("\n- ").append(((Item) box.elementAt(i)).strName);
+        return b.toString();
+    }
+
+    // A bank teller (a prop whose name has "teller" in it) within reach.
+    static boolean nearTeller(LivingThing who, DuskEngine engine) {
+        Object[] props = engine.vctProps.toArray();
+        for (int i = 0; i < props.length; i++) {
+            Prop p = (Prop) props[i];
+            if (p == null || p.strName == null || p.strName.toLowerCase().indexOf("teller") < 0) continue;
+            if (Math.abs(p.intLocX - who.intLocX) <= TELLER_REACH && Math.abs(p.intLocY - who.intLocY) <= TELLER_REACH) return true;
+        }
+        return false;
+    }
+
+    // Per box: "box1", the owner, the item count, then per item its name,
+    // durability and uses.
+    static void saveBoxes() throws Exception {
+        if (boxesBroken) throw new Exception("boxes file unreadable; not saving over it");
+        File tmp = new File(BOX_FILE + ".new");
+        FileWriter w = new FileWriter(tmp);
+        try {
+            for (Enumeration<String> e = boxes.keys(); e.hasMoreElements();) {
+                String owner = e.nextElement();
+                Vector box = boxes.get(owner);
+                w.write("box1\n" + owner + "\n" + box.size() + "\n");
+                for (int j = 0; j < box.size(); j++) {
+                    Item it = (Item) box.elementAt(j);
+                    w.write(it.strName + "\n" + it.lngDurability + "\n" + it.intUses + "\n");
+                }
+            }
+        } finally {
+            w.close();
+        }
+        Files.move(tmp.toPath(), new File(BOX_FILE).toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+    }
+
+    static void loadBoxes(DuskEngine engine) {
+        File f = new File(BOX_FILE);
+        if (!f.exists()) return;
+        try {
+            BufferedReader r = new BufferedReader(new FileReader(f));
+            try {
+                String line;
+                while ((line = r.readLine()) != null && line.equals("box1")) {
+                    String owner = r.readLine();
+                    int count = Integer.parseInt(r.readLine());
+                    Vector box = new Vector();
+                    for (int j = 0; j < count; j++) {
+                        String itemName = r.readLine();
+                        long durability = Long.parseLong(r.readLine());
+                        int uses = Integer.parseInt(r.readLine());
+                        Item it = engine.getItem(itemName);
+                        if (it == null) {
+                            Log.logEvent("Deposit box of " + owner + " lost unknown item " + itemName);
+                            continue;
+                        }
+                        it.lngDurability = durability;
+                        it.intUses = uses;
+                        box.addElement(it);
+                    }
+                    boxes.put(owner, box);
+                }
+            } finally {
+                r.close();
+            }
+            System.out.println("Loaded " + boxes.size() + " deposit boxes.");
+        } catch (Exception e) {
+            boxesBroken = true;
+            Log.logError(e, "Storage.loadBoxes(): the boxes file couldn't be read; saving it as boxes.bad", false);
+            try { Files.copy(f.toPath(), new File(BOX_FILE + ".bad").toPath(), StandardCopyOption.REPLACE_EXISTING); } catch (Exception e2) { }
+        }
+    }
+
     // ---- saving ----
 
     // The file: per storage, "storage1", kind, name, x, y, item count, then
@@ -263,6 +416,7 @@ public class Storage extends Prop {
     }
 
     public static void load(DuskEngine engine) {
+        loadBoxes(engine);
         File f = new File(FILE);
         if (!f.exists()) return;
         System.out.println("Loading Storage...");

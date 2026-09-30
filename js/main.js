@@ -11,12 +11,13 @@ import { bareName } from './world.js';
 import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
 import { gearFromEquipment } from './gear.js';
-import { StorageReader, isStorage, lookCommand } from './storage.js';
+import { StorageReader, isStorage, lookCommand, isBoxLine, isTeller } from './storage.js';
 import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList } from './god.js';
 import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
 import { GodPanel } from './godpanel.js';
 import { Minimap } from './minimap.js';
+import { WorldMap } from './worldmap.js';
 import { Panels, setBar } from './panels.js';
 import { Player } from './player.js';
 import { OP, opName } from './protocol.js';
@@ -98,6 +99,8 @@ let world = newWorld();
 const renderer = new Renderer($('map'), world, $('map-wrap'));
 let sheetsFor = null; // resource address the current sheets came from
 const minimap = new Minimap($('minimap'), new Explored());
+const worldMap = new WorldMap($('world-map'), minimap);
+$('map-btn').addEventListener('click', () => worldMap.toggle());
 // Gods (see god.js) get the God tab and Remove in the click menu.
 let isGod = false;
 const god = new GodPanel($('tab-god'), {
@@ -279,6 +282,14 @@ traceBox.checked = false;
 storage('set', 'dusk.trace', '0');
 namesBox.checked = storage('get', 'dusk.names') !== '0';
 renderer.showNames = namesBox.checked;
+const objectNamesBox = $('object-names');
+objectNamesBox.checked = storage('get', 'dusk.objectnames') === '1';
+renderer.showObjectNames = objectNamesBox.checked;
+objectNamesBox.addEventListener('change', () => {
+  storage('set', 'dusk.objectnames', objectNamesBox.checked ? '1' : '0');
+  renderer.showObjectNames = objectNamesBox.checked;
+  renderer.invalidate();
+});
 namesBox.addEventListener('change', () => {
   storage('set', 'dusk.names', namesBox.checked ? '1' : '0');
   renderer.showNames = namesBox.checked;
@@ -772,6 +783,17 @@ document.addEventListener('keydown', (e) => {
     input.focus();
     return;
   }
+  // M opens and closes the world map (not while typing); Escape closes it.
+  if (worldMap.open && e.key === 'Escape') {
+    e.preventDefault();
+    worldMap.close();
+    return;
+  }
+  if (!inInput && !inOtherField && (e.key === 'm' || e.key === 'M') && document.body.classList.contains('playing')) {
+    e.preventDefault();
+    worldMap.toggle();
+    return;
+  }
   // 1-9 and 0 use the hotbar slots, like the arrows only while the command
   // box is empty.
   if (!typing && !inOtherField && !$('hotbar').hidden && /^[0-9]$/.test(e.key) && canAct()) {
@@ -900,6 +922,7 @@ function handle(msg) {
   if (msg.op === OP.MAP) {
     minimap.paint(minimap.explored.record(msg.x, msg.y, msg.tiles));
     minimap.setCentre(msg.x, msg.y);
+    worldMap.setPlayer(msg.x, msg.y);
   }
   if (targetId !== -1 && (msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || msg.op === OP.MAP)) updateTarget();
 
@@ -912,9 +935,11 @@ function handle(msg) {
   // On a merchant's square? (Dusk.java enables its Merchant button this way.)
   if (msg.op === OP.MAP || msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || (msg.op >= OP.MOVE_NORTH && msg.op <= OP.MOVE_EAST)) {
     panels.setOnMerchant([...world.entities.values()].find((e) => e.type === 2 && e.x === world.locX && e.y === world.locY));
-    // An open barrel or chest closes once it's out of reach.
+    // An open barrel or chest closes once it's out of reach (a deposit
+    // box: two squares from its teller).
     const open = panels.storage && world.entities.get(panels.storage.entity.id);
-    if (panels.storage && !(open && storageReach(open, { x: world.locX, y: world.locY }))) panels.setStorage(null);
+    const reach = panels.storage?.box ? 2 : 1;
+    if (panels.storage && !(open && Math.abs(open.x - world.locX) <= reach && Math.abs(open.y - world.locY) <= reach)) panels.setStorage(null);
     if (isGod) {
       god.setPos(world.locX, world.locY);
       god.setMerchant(panels.onMerchant, player.shop.wares);
@@ -934,6 +959,11 @@ function handle(msg) {
       const sp = parseSpeech(msg.text);
       if (sp) showSpeech(sp);
       else if (Date.now() < speechFollow && !$('speech').hidden && msg.text.trim()) noteSpeech(msg.text.trim());
+      // A deposit box reply opens the box, at the teller beside you.
+      if (isBoxLine(msg.text) && !panels.storage?.box) {
+        const teller = [...world.entities.values()].find((e) => isTeller(e) && Math.abs(e.x - world.locX) <= 2 && Math.abs(e.y - world.locY) <= 2);
+        if (teller) panels.setStorage(teller, { box: true });
+      }
       const st = panels.storage ? storageReader.feed(msg.text) : null;
       if (st?.listing) panels.setStorageListing(st.listing);
       if (!st?.hide && !(isGod && god.expecting(msg.text))) addText(msg.text);

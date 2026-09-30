@@ -6,7 +6,7 @@
 import { slotForType, command } from './player.js';
 import { parseStats, playerConditions } from './stats.js';
 import { buyCommand, sellCommand } from './shop.js';
-import { putCommand, takeCommand, groupContents } from './storage.js';
+import { putCommand, takeCommand, groupContents, BOX_BUY, boxPut, boxTake } from './storage.js';
 
 const SLOT_LABELS = {
   wield: 'Wield', arms: 'Arms', legs: 'Legs', torso: 'Torso', waist: 'Waist',
@@ -58,9 +58,12 @@ export class Panels {
     this.$('#tab-store').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-store]');
       if (!btn) return;
-      const sid = this.storage?.entity.id;
-      if (sid == null) return;
-      this.send(btn.dataset.store === 'take' ? takeCommand(btn.dataset.name, sid) : putCommand(btn.dataset.id, sid));
+      const st = this.storage;
+      if (!st) return;
+      if (btn.dataset.store === 'buy') return this.send(BOX_BUY);
+      // A deposit box has its own commands; storage names the one clicked.
+      if (st.box) this.send(btn.dataset.store === 'take' ? boxTake(btn.dataset.name) : boxPut(btn.dataset.id));
+      else this.send(btn.dataset.store === 'take' ? takeCommand(btn.dataset.name, st.entity.id) : putCommand(btn.dataset.id, st.entity.id));
     });
     // Shop rows: Buy/Sell with the quantity from the row's own box.
     for (const list of [this.$('#shop-buy'), this.$('#shop-sell')]) {
@@ -367,10 +370,11 @@ export class Panels {
   // clicking it, and close it by clicking it again, with Close, or by
   // walking away. entity: the storage prop, or null to close. Returns
   // whether one was just opened (so its contents can be asked for).
-  setStorage(entity) {
+  // With box, the storage is your deposit box, reached at that teller.
+  setStorage(entity, { box = false } = {}) {
     const was = this.storage?.entity.id ?? null;
-    if ((entity?.id ?? null) === was) return false;
-    this.storage = entity ? { entity, listing: null } : null;
+    if ((entity?.id ?? null) === was && !!this.storage?.box === box) return false;
+    this.storage = entity ? { entity, listing: null, box } : null;
     this.renderStorage();
     return !!entity;
   }
@@ -391,7 +395,12 @@ export class Panels {
     if (show && !wasOpen) this.select(tab, true);
     if (!show && wasOpen && tab.getAttribute('aria-selected') === 'true') this.selectByName('inv', !this.collapsed);
     if (!show) return;
-    const name = st.listing?.name ?? st.entity.name.replace(/^(<[^>]*>)+/, '');
+    const name = st.box ? 'deposit box' : st.listing?.name ?? st.entity.name.replace(/^(<[^>]*>)+/, '');
+    // A deposit box is private; shared storage says so.
+    this.$('#tab-store .store-note').innerHTML = '';
+    this.$('#tab-store .store-note').append(st.box ? 'Your own: only you can see what\'s in your ' : 'Shared: anyone can see and take what\'s in the ', Object.assign(document.createElement('span'), { className: 'store-name' }), '.');
+    this.$('#store-buy').hidden = !st.listing?.noBox;
+    if (st.listing?.noBox) this.$('#store-buy').textContent = `Buy a deposit box (${st.listing.noBox} gp)`;
     for (const el of this.$('#tab-store').querySelectorAll('.store-name')) el.textContent = name;
     const items = st.listing?.items ?? [];
     this.$('#store-waiting').hidden = !!st.listing;

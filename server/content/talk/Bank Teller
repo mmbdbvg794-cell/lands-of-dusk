@@ -2,10 +2,17 @@
 #with the bank's own commands (commands/balance, deposit, withdraw), so
 #it's the same gold as the bank. Those only work at the bank
 #(atCoLBank), so the teller opens it for the visit and closes it after.
-chat trigger "Bank Teller says: Welcome to the bank! What can I do for you? (balance/deposit/withdraw/nothing)"
+chat trigger "Bank Teller says: Welcome to the bank! What can I do for you? (balance/deposit/withdraw/box/nothing)"
 input trigger answer
 if strequals answer "nothing"
 	chat trigger "Bank Teller says: Very well. Come again!"
+	endscript
+end
+#Your deposit box: the server opens it once the talk is over (see
+#"then" in server/Talk.java). Buying one is offered there too.
+if strequals answer "box"
+	chat trigger "Bank Teller says: Your deposit box? Right this way."
+	string then "box"
 	endscript
 end
 if ! strequals answer "balance"

@@ -678,7 +678,9 @@ function bed(ctx, n) {
 
 // People placed as props: the character painter, dressed by name.
 function propPerson(ctx, n) {
-  const look = { skin: '#c89468', hair: '#4a2e18', top: fabric(n), trim: '#3a2414', legs: '#3e3a2c', boots: '#2a1c10', style: 'plain' };
+  const look = { skin: ['#c89468', '#e0b890', '#8a6040'][Math.floor(hashName(n + 's') * 3)], hair: ['#4a2e18', '#2a1a10', '#8a6a3a', '#1a1210'][Math.floor(hashName(n + 'h') * 4)], hairStyle: 'short', top: fabric(n), trim: '#3a2414', legs: '#3e3a2c', boots: '#2a1c10', style: 'plain' };
+  // Men now and then have a beard.
+  if (/villager man|^villager$|farmer|\bman$/.test(n) && !/woman/.test(n) && hashName(n + 'b') < 0.5) look.beard = look.hair;
   let gear = {};
   let s = 0.82;
   if (/guard|soldier|sergeant/.test(n)) {
@@ -695,8 +697,15 @@ function propPerson(ctx, n) {
     Object.assign(look, { top: '#2a3a5a', trim: '#d8b050', legs: '#1e2a40' });
   } else if (/prisoner/.test(n)) {
     Object.assign(look, { top: '#8a8478', trim: '#5a544c', legs: '#6a645c', hair: '#6a5a4a' });
-  } else if (/woman|girl|kat|jenova/.test(n)) {
-    Object.assign(look, { skin: '#e8c0a0', hair: /jenova|old/.test(n) ? '#c8c8d0' : '#8a4a24', legs: fabric(n + 'x') });
+  } else if (/woman|girl|lady|maid|wife|kat$|jenova/.test(n)) {
+    // Women: a skirt, and long hair, a bun or a ponytail.
+    const styles = ['long', 'bun', 'ponytail'];
+    Object.assign(look, {
+      skin: '#e8c0a0',
+      hair: /jenova|old/.test(n) ? '#c8c8d0' : ['#8a4a24', '#2a1a10', '#c8a040', '#a0401e'][Math.floor(hashName(n + 'h') * 4)],
+      hairStyle: /old/.test(n) ? 'bun' : styles[Math.floor(hashName(n) * styles.length)],
+      top: fabric(n), skirt: fabric(n + 'x'),
+    });
   } else if (/hermit|old|crazy/.test(n)) {
     Object.assign(look, { top: '#6a5a3a', trim: '#4a3a24', hair: '#d8d8d0', beard: '#d8d8d0' });
   } else if (/child/.test(n)) {
@@ -812,7 +821,7 @@ const PROPS = [
   [/^(box|box of stuff|goods|junk)$/, box],
   [/^chest$/, chest],
   [/^food$/, sandwich],
-  [/statue|guard|soldier|sergeant|thief|spy|cook|bouncer|innkeeper|bar tender|prisoner|villager|hermit|woman|girl|child|dark elf|crazyoldman|oldcrazyman|old demon woman|kat$|jenova/, propPerson],
+  [/statue|guard|soldier|sergeant|farmer|lady|maid|thief|spy|cook|bouncer|innkeeper|bar tender|prisoner|villager|hermit|woman|girl|child|dark elf|crazyoldman|oldcrazyman|old demon woman|kat$|jenova/, propPerson],
 ];
 
 export function propPainterFor(name) {

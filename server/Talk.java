@@ -65,11 +65,22 @@ public class Talk {
         String file = scriptFor(npc.strName);
         if (file == null) return name + " has nothing to say.";
         try {
-            Script script = new Script(DIR + "/" + file, engine, false);
+            // Recompiled when the script is newer than its .dsko, so an
+            // edited conversation takes effect at once.
+            File src = new File(DIR, file), compiled = new File(DIR, file + ".dsko");
+            boolean stale = !compiled.exists() || src.lastModified() > compiled.lastModified();
+            Script script = new Script(DIR + "/" + file, engine, stale);
             script.varVariables.addVariable("trigger", who);
             if (npc instanceof LivingThing) script.varVariables.addVariable("npc", npc);
             script.runScript();
             script.close();
+            // A script can hand over to a built-in afterwards by setting
+            // "then": the teller's "box" opens the player's deposit box.
+            Variable then = script.varVariables.getVariable("then");
+            if (then != null && "box".equals(String.valueOf(then.objData).toLowerCase())) {
+                String reply = Storage.command(who, engine, "box");
+                return reply == null ? "" : reply;
+            }
         } catch (Exception e) {
             Log.logError(e, "Talk script " + file + " for " + who.strName, false);
             return name + " seems lost for words.";

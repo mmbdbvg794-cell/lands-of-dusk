@@ -17,6 +17,16 @@ export const lookCommand = (sid) => `storage #${sid}`;
 export const putCommand = (itemId, sid) => `storage #${sid} put ${itemId}`;
 export const takeCommand = (name, sid) => `storage #${sid} take ${name}`;
 
+// Deposit boxes (one per player, at any bank teller): the same listing,
+// named "deposit box", and these commands.
+export const BOX = 'box';
+export const BOX_BUY = 'box buy';
+export const boxPut = (itemId) => `box put ${itemId}`;
+export const boxTake = (name) => `box take ${name}`;
+export const isTeller = (e) => (e?.type === 3 || e?.type === 2) && /teller/i.test(bareName(e.name ?? ''));
+// A deposit box line: its listing, or the offer to buy one.
+export const isBoxLine = (t) => /^The deposit box (holds|is empty)|^You don't have a deposit box yet\./.test(t.trim());
+
 export const isStorage = (e) => e?.type === 3 && /(^|\s)(barrel|chest)$/i.test(bareName(e.name ?? ''));
 export const storageKind = (name) => (/chest$/i.test(name) ? 'chest' : 'barrel');
 
@@ -36,6 +46,7 @@ export function nearStorage(entities, x, y) {
 const EMPTY = /^The (.+) is empty\.$/;
 const HOLDS = /^The (.+) holds (\d+) items?:$/;
 const NONE = /^There's no storage here\.$/;
+const NO_BOX = /^You don't have a deposit box yet\. One costs (\d+) gp\.$/;
 
 // Reads the listing as its lines arrive. feed(line) returns null for a
 // line that isn't part of one, else { listing, hide }: listing is
@@ -69,6 +80,8 @@ export class StorageReader {
       return { listing: null, hide: true };
     }
     if (NONE.test(t)) return { listing: { none: true }, hide: false };
+    m = t.match(NO_BOX);
+    if (m) return { listing: { name: 'deposit box', items: [], noBox: Number(m[1]) }, hide: false };
     return null;
   }
 }

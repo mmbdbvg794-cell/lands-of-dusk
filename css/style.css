@@ -1101,3 +1101,22 @@ dialog::backdrop { background: #000a; }
 #speech.nudge { animation: speech-nudge 0.4s; }
 @keyframes speech-nudge { 25% { transform: translateX(calc(-50% - 6px)); } 75% { transform: translateX(calc(-50% + 6px)); } }
 .speech-note { margin: -2px 0 8px; font-style: italic; color: var(--muted); }
+.store-buy-row { margin: 4px 12px 8px; }
+
+/* ---- world map ---- */
+
+#world-map {
+  position: fixed;
+  inset: 5vh 5vw;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 48px #000d;
+}
+#world-map[hidden] { display: none; }
+.wm-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.wm-bar strong { font-size: 15px; }
+.wm-info { flex: 1; color: var(--muted); font-size: 12px; }
+.wm-bar button { padding: 3px 10px; }
+#world-map canvas { flex: 1; min-height: 0; width: 100%; cursor: grab; touch-action: none; }
+#world-map canvas.dragging { cursor: grabbing; }
