@@ -375,43 +375,71 @@ body.playing #map-wrap { display: flex; }
 .rows .acts button.armed { border-color: var(--bad); color: var(--bad); opacity: 1; }
 
 /* Equipment: a 3x3 grid, head at the top and feet-ish at the bottom. */
-.slots {
-  list-style: none;
-  margin: 0;
-  padding: 4px 10px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+.doll-wrap { position: relative; margin: 6px 10px 2px; }
+.doll-body {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  transform: translateX(-50%);
+  fill: color-mix(in srgb, var(--accent) 14%, var(--panel-2));
+  stroke: color-mix(in srgb, var(--accent) 45%, var(--border));
+  stroke-width: 1.5;
+  pointer-events: none;
 }
-.slots li {
+.doll {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr);
+  grid-template-areas:
+    ".     skull .    "
+    ".     eyes  .    "
+    "arms  neck  .    "
+    "arms  torso hands"
+    "wield waist hands"
+    "wield legs  .    ";
+  gap: 5px 8px;
+}
+.doll-slot {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-height: 58px;
-  padding: 6px 8px;
+  justify-content: center;
+  min-height: 38px;
+  padding: 3px 22px 3px 6px;
   border-radius: 6px;
-  background: var(--panel-2);
+  background: color-mix(in srgb, var(--panel) 82%, transparent);
   border: 1px solid var(--border);
 }
-.slots li.empty-slot { background: none; border-style: dashed; }
-.slots .slot-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.slots .slot-item { font-size: 13px; line-height: 1.25; overflow-wrap: anywhere; padding-right: 16px; }
-.slots .empty-slot .slot-item { color: var(--faint); }
-.slots .remove {
+.doll-slot[data-slot="skull"] { grid-area: skull; }
+.doll-slot[data-slot="eyes"] { grid-area: eyes; }
+.doll-slot[data-slot="neck"] { grid-area: neck; }
+.doll-slot[data-slot="torso"] { grid-area: torso; }
+.doll-slot[data-slot="waist"] { grid-area: waist; }
+.doll-slot[data-slot="legs"] { grid-area: legs; }
+.doll-slot[data-slot="arms"] { grid-area: arms; }
+.doll-slot[data-slot="wield"] { grid-area: wield; }
+.doll-slot[data-slot="hands"] { grid-area: hands; }
+.doll-slot.empty-slot { border-style: dashed; background: color-mix(in srgb, var(--panel) 35%, transparent); }
+.doll-slot .slot-icon { position: absolute; right: 4px; bottom: 3px; width: 26px; height: 26px; opacity: 0.95; pointer-events: none; }
+.doll-slot:has(.slot-icon) { padding-right: 32px; }
+.doll-slot .slot-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.doll-slot .slot-item { font-size: 12px; line-height: 1.2; overflow-wrap: anywhere; }
+.doll-slot .remove {
   position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 22px;
-  height: 22px;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
   padding: 0;
   line-height: 1;
-  font-size: 14px;
+  font-size: 13px;
   background: none;
   border-color: transparent;
   color: var(--muted);
 }
-.slots .remove:hover { color: var(--bad); border-color: var(--bad); }
+.doll-slot:has(.slot-icon) .remove { top: 1px; }
+.doll-slot .remove:hover { color: var(--bad); border-color: var(--bad); }
 
 /* Stats */
 #stats-body { padding: 0 12px; }

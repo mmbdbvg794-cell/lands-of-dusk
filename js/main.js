@@ -68,6 +68,7 @@ let historyPos = 0;
 const finePointer = window.matchMedia?.('(pointer: fine)');
 let player = new Player();
 const panels = new Panels(document.body, player, (cmd) => runCommand(cmd));
+panels.itemArt = () => renderer.items; // pictures for worn items
 const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
 let world = newWorld();
 const renderer = new Renderer($('map'), world, $('map-wrap'));
@@ -90,6 +91,8 @@ const god = new GodPanel($('tab-god'), {
 });
 function setGod(on) {
   isGod = on;
+  panels.isGod = on;
+  panels.update('stats');
   if (!on) god.dock();
   panels.setTabVisible('god', on && !god.floating);
 }
@@ -261,7 +264,7 @@ addEventListener('pagehide', saveExplored);
 const panelState = storage('get', 'dusk.panel');
 const [savedTab, savedOpen] = panelState ? panelState.split(':') : [];
 // Tabs that come and go (God, Shop, Storage) aren't reopened from last time.
-const steadyTab = ['inv', 'equip', 'book', 'stats'].includes(savedTab) ? savedTab : 'inv';
+const steadyTab = ['inv', 'book', 'stats'].includes(savedTab) ? savedTab : 'inv';
 panels.selectByName(steadyTab, savedOpen ? savedOpen === '1' : window.innerWidth >= 800);
 panels.onToggle = (tab, open) => {
   storage('set', 'dusk.panel', `${tab}:${open ? 1 : 0}`);
@@ -958,6 +961,7 @@ async function applyArt() {
     if (paintedItems === null) paintedItems = await loadNamed('items', 128);
     renderer.named = paintedNamed || null;
     renderer.items = paintedItems || null;
+    panels.update('equipment'); // item pictures on the body
   } else {
     renderer.named = null;
     renderer.items = null;

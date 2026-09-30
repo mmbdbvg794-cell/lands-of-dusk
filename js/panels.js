@@ -4,7 +4,7 @@
 // Every command goes out through `send`, just as if it had been typed.
 
 import { slotForType, command } from './player.js';
-import { parseStats } from './stats.js';
+import { parseStats, playerConditions } from './stats.js';
 import { buyCommand, sellCommand } from './shop.js';
 import { putCommand, takeCommand, groupContents } from './storage.js';
 
@@ -190,21 +190,35 @@ export class Panels {
     this.$('#tab-inv-count').textContent = this.player.items.length ? String(this.player.items.length) : '';
   }
 
+  // The worn gear on the body outline (see index.html). Each slot sits
+  // where it's worn; the Painted style's item art shows when there is some.
   renderEquipment() {
     const eq = this.player.equipment;
+    const art = this.itemArt?.();
     this.$('#equip-list').replaceChildren(
       ...SLOT_GRID.map((slot) => {
         const item = eq[slot];
-        const li = document.createElement('li');
-        if (!item) li.className = 'empty-slot';
-        li.append(text('span', 'slot-label', SLOT_LABELS[slot]), text('span', 'slot-item', item ? item.name : 'empty'));
+        const cell = document.createElement('div');
+        cell.className = `doll-slot${item ? '' : ' empty-slot'}`;
+        cell.dataset.slot = slot;
+        cell.role = 'listitem';
+        cell.title = item ? `${SLOT_LABELS[slot]}: ${item.name}` : `${SLOT_LABELS[slot]}: nothing`;
+        const frame = art?.index.get(item?.name.toLowerCase());
+        if (frame !== undefined) {
+          const c = document.createElement('canvas');
+          c.width = c.height = 64;
+          c.className = 'slot-icon';
+          art.sheet.draw(c.getContext('2d'), frame, 0, 0, 64);
+          cell.append(c);
+        }
+        cell.append(text('span', 'slot-label', SLOT_LABELS[slot]), text('span', 'slot-item', item ? item.name : ''));
         if (item) {
           const b = button('×', 'unwear', item.id);
           b.className = 'remove';
           b.title = b.ariaLabel = `Remove ${item.name}`;
-          li.append(b);
+          cell.append(b);
         }
-        return li;
+        return cell;
       }),
     );
   }
@@ -243,8 +257,11 @@ export class Panels {
     this.onSpells?.(spells?.items ?? []);
     for (const sec of s.sections) {
       if (sec === spells) continue; // shown in the Spellbook tab
-      const body = sec.items.length
-        ? chips(sec.items)
+      // Players see only hunger and thirst; gods see every condition
+      // (quest and place flags too), which helps checking scripts.
+      const items = /affected/i.test(sec.title) && !this.isGod ? playerConditions(sec.items) : sec.items;
+      const body = items.length
+        ? chips(items)
         : text('span', 'none', 'none');
       secs.push(section(sec.title, body));
     }
@@ -286,11 +303,11 @@ export class Panels {
     if (s.gold !== null) facts.append(fact('', `${s.gold} gp`, 'gold'));
     if (s.exp !== null) facts.append(fact('', `${s.exp} exp`, 'exp'));
     const kids = [attrs, facts];
-    const affected = s.sections.find((sec) => /affected/i.test(sec.title));
-    if (affected?.items.length) {
+    const affected = playerConditions(s.sections.find((sec) => /affected/i.test(sec.title))?.items ?? []);
+    if (affected.length) {
       const conds = document.createElement('div');
       conds.className = 'cs-conds';
-      conds.append(...affected.items.map((c) => text('span', 'cs-cond', c)));
+      conds.append(...affected.map((c) => text('span', 'cs-cond', c)));
       kids.push(conds);
     }
     box.replaceChildren(...kids);

@@ -155,7 +155,6 @@
         <div id="panel-tabs">
           <div role="tablist" aria-label="Character">
             <button type="button" role="tab" data-tab="inv" aria-controls="tab-inv" aria-selected="true">Inventory <span id="tab-inv-count" class="count"></span></button>
-            <button type="button" role="tab" data-tab="equip" aria-controls="tab-equip" aria-selected="false" tabindex="-1">Equipment</button>
             <button type="button" role="tab" data-tab="book" aria-controls="tab-book" aria-selected="false" tabindex="-1">Spellbook</button>
             <button type="button" role="tab" data-tab="shop" aria-controls="tab-shop" aria-selected="false" tabindex="-1" hidden>Shop</button>
             <button type="button" role="tab" data-tab="store" aria-controls="tab-store" aria-selected="false" tabindex="-1" hidden>Storage</button>
@@ -169,11 +168,22 @@
             <span id="inv-gold" class="gold"></span>
             <span id="inv-exp"></span>
           </div>
+          <!-- What you're wearing, laid out on a body: head at the top,
+               weapon and gloves at the hands, and so on. -->
+          <div class="doll-wrap">
+            <svg class="doll-body" viewBox="0 0 120 230" aria-hidden="true">
+              <circle cx="60" cy="24" r="17"/>
+              <rect x="53" y="40" width="14" height="10" rx="3"/>
+              <path d="M34 52 Q60 44 86 52 L90 118 Q60 124 30 118 Z"/>
+              <path d="M34 54 Q22 58 18 74 L10 130 Q14 136 20 132 L30 84 Z"/>
+              <path d="M86 54 Q98 58 102 74 L110 130 Q106 136 100 132 L90 84 Z"/>
+              <path d="M32 118 Q60 126 88 118 L84 218 Q76 224 68 218 L62 140 L58 140 L52 218 Q44 224 36 218 Z"/>
+            </svg>
+            <div id="equip-list" class="doll" role="list" aria-label="Equipment"></div>
+          </div>
+          <h4 class="list-head">Carried</h4>
           <ul id="inv-list" class="rows"></ul>
           <p id="inv-empty" class="empty">You aren't carrying anything.</p>
-        </div>
-        <div id="tab-equip" class="tab" role="tabpanel" hidden>
-          <ul id="equip-list" class="slots"></ul>
         </div>
         <div id="tab-book" class="tab" role="tabpanel" hidden></div>
         <div id="tab-shop" class="tab" role="tabpanel" hidden>
