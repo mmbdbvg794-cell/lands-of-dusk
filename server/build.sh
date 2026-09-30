@@ -16,7 +16,7 @@ rm -rf "$WORK"
 mkdir -p "$WORK/classes" "$WORK/src" "$WORK/out"
 # The live classes as they are now (without any Storage from before).
 cp "$GAME"/*.class "$WORK/classes/"
-rm -f "$WORK/classes/Storage.class" "$WORK/classes/CaseFix.class" "$WORK/classes/FixedEngine.class"
+rm -f "$WORK/classes/Storage.class" "$WORK/classes/CaseFix.class" "$WORK/classes/FixedEngine.class" "$WORK/classes/Talk.class" "$WORK/classes/Talk\$1.class"
 cd "$WORK"
 # If Storage is installed already, decompile the originals it replaced.
 if [ -f "$GAME/storage-originals/Commands.class" ]; then
@@ -24,6 +24,6 @@ if [ -f "$GAME/storage-originals/Commands.class" ]; then
 fi
 java -jar "$SRC/cfr.jar" classes/Commands.class classes/DuskServer.class --outputdir src --silent true >/dev/null
 python3 "$SRC/patch.py" src
-cp "$SRC/Storage.java" "$SRC/CaseFix.java" "$SRC/FixedEngine.java" src/
-javac -nowarn -encoding UTF-8 -d out -cp classes src/Storage.java src/CaseFix.java src/FixedEngine.java src/Commands.java src/DuskServer.java
+cp "$SRC/Storage.java" "$SRC/CaseFix.java" "$SRC/FixedEngine.java" "$SRC/Talk.java" src/
+javac -nowarn -encoding UTF-8 -d out -cp classes src/Storage.java src/CaseFix.java src/FixedEngine.java src/Talk.java src/Commands.java src/DuskServer.java
 ls out

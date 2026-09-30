@@ -8,6 +8,8 @@
 // "get" a name, "opendoor" an ID.
 
 import { isStorage, storageKind } from './storage.js';
+import { talkCommand } from './talk.js';
+import { bareName } from './world.js';
 
 export const TYPE = { PLAYER: 0, ITEM: 1, MERCHANT: 2, SIGN: 3, MOB: 4, DOOR: 5 };
 
@@ -27,6 +29,13 @@ export const storageReach = (ent, me) => Math.abs(ent.x - me.x) <= 1 && Math.abs
 // can also remove things ("unset", or "storage remove" standing on it).
 export function entityActions(ent, me) {
   const acts = playerActions(ent, me);
+  // NPCs with something to say (me.talkers: lower-case names, from the
+  // server's "talk names") get Talk first, from up to two squares away.
+  const name = bareName(ent.name ?? '');
+  if (ent.type !== TYPE.PLAYER && me.talkers?.has(name.toLowerCase())) {
+    const near = Math.abs(ent.x - me.x) <= 2 && Math.abs(ent.y - me.y) <= 2;
+    acts.unshift(near ? { label: 'Talk', cmd: talkCommand(ent.id) } : { label: `Go talk to ${name}`, cmd: `goto ${ent.x} ${ent.y}` });
+  }
   if (!me.god || ent.type === TYPE.PLAYER) return acts;
   if (isStorage(ent)) {
     if (ent.x === me.x && ent.y === me.y) acts.push({ label: 'Remove (god)', cmd: 'storage remove', god: true });
@@ -67,8 +76,9 @@ function playerActions(ent, me) {
       return ent.x === me.x && ent.y === me.y
         ? [{ label: 'Shop', shop: true }, look]
         : [{ label: 'Go to shop', cmd: `goto ${ent.x} ${ent.y}` }, look];
+    // Signs and props are both type 3: signs are read, the rest looked at.
     case TYPE.SIGN:
-      return [{ label: 'Read', cmd: `look ${ent.id}` }];
+      return [{ label: /sign$/i.test(bareName(ent.name ?? '')) ? 'Read' : 'Look', cmd: `look ${ent.id}` }];
     default:
       return [look];
   }

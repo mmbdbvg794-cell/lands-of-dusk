@@ -1074,3 +1074,29 @@ dialog::backdrop { background: #000a; }
 .cs-fact.exp .cs-val { color: #b69cff; }
 .cs-conds { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .cs-cond { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--accent-dim); color: var(--text); }
+
+/* ---- what NPCs say ---- */
+
+#speech {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 6;
+  width: min(440px, calc(100% - 24px));
+  transform: translateX(-50%);
+  padding: 10px 14px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px #000c;
+}
+.speech-head { display: flex; align-items: baseline; gap: 6px; }
+#speech-who { font-size: 15px; }
+#speech-verb { flex: 1; color: var(--muted); font-size: 12px; }
+#speech-close { padding: 0 8px; font-size: 16px; line-height: 1.2; }
+#speech-text { margin: 6px 0 8px; line-height: 1.4; }
+#speech-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+#speech-choices:empty { display: none; }
+#speech-choices button { text-transform: capitalize; }
+#speech.nudge { animation: speech-nudge 0.4s; }
+@keyframes speech-nudge { 25% { transform: translateX(calc(-50% - 6px)); } 75% { transform: translateX(calc(-50% + 6px)); } }

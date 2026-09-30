@@ -1,8 +1,10 @@
 """Patches the CFR decompile of the live server's Commands and DuskServer
 classes so they compile again, and hooks in Storage (server/Storage.java):
 
-  Commands.parseCommand   hands each command to Storage.command first
-  DuskServer()            calls Storage.load before accepting players
+  Commands.parseCommand   hands each command to Storage.command, then
+                          Talk.command (server/Talk.java), first
+  DuskServer()            calls Storage.load and Talk.start before
+                          accepting players
   "<prop", "<mob"         find mob and prop files whatever their case
                           (server/CaseFix.java)
   new DuskEngine()        becomes new FixedEngine(), which fixes garbled
@@ -78,6 +80,10 @@ patch('Commands.java', [
             if (storageReply != null) {
                 return storageReply;
             }
+            String talkReply = Talk.command(livingThing, duskEngine, (String)object);
+            if (talkReply != null) {
+                return talkReply.length() == 0 ? null : talkReply;
+            }
             Player player = null;''', 1),
     # "<prop name" and "<mob name": find the file whatever its case (the
     # command is lowercased; many mob and prop files have capitals).
@@ -101,5 +107,6 @@ patch('DuskServer.java', [
     ('''    public DuskServer() {
         try {''', '''    public DuskServer() {
         Storage.load(this.engGame);
+        Talk.start(this.engGame);
         try {''', 1),
 ])

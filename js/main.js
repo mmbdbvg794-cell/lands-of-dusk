@@ -14,6 +14,7 @@ import { gearFromEquipment } from './gear.js';
 import { StorageReader, isStorage, lookCommand } from './storage.js';
 import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList } from './god.js';
+import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
 import { GodPanel } from './godpanel.js';
 import { Minimap } from './minimap.js';
 import { Panels, setBar } from './panels.js';
@@ -125,9 +126,68 @@ const entityMenu = new EntityMenu(
     runCommand(cmd);
     if (/^unset \d/.test(cmd)) god.removed();
   },
-  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id }),
+  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id, talkers }),
 );
 entityMenu.onStorage = (action, id) => (action === 'open' ? openStorage(id) : panels.setStorage(null));
+
+// ---- NPCs talking (see talk.js) ----
+//
+// What an NPC says shows in a box on the map. When its script is waiting
+// for an answer ("(training/world)"), the answers are buttons, and walking
+// is paused so an arrow key isn't taken as the answer.
+
+let talkers = new Set(); // lower-case names of NPCs with something to say
+let speechAwaiting = false;
+let speechTimer = null;
+
+function showSpeech(sp) {
+  clearTimeout(speechTimer);
+  $('speech-who').textContent = sp.who;
+  $('speech-verb').textContent = sp.verb;
+  $('speech-text').textContent = sp.text;
+  const choices = $('speech-choices');
+  const buttons = sp.choices.map((c) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = c;
+    b.addEventListener('click', () => runCommand(c));
+    return b;
+  });
+  // Someone calling out to you: offer to talk to them.
+  if (!sp.choices.length && talkers.has(sp.who.toLowerCase())) {
+    const npc = nearestNamed(sp.who);
+    if (npc) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = `Talk to ${sp.who}`;
+      b.addEventListener('click', () => runCommand(talkCommand(npc.id)));
+      buttons.push(b);
+    }
+  }
+  choices.replaceChildren(...buttons);
+  speechAwaiting = sp.choices.length > 0;
+  $('speech').hidden = false;
+  speechTimer = setTimeout(hideSpeech, speechAwaiting ? 120000 : 12000);
+}
+
+function hideSpeech() {
+  clearTimeout(speechTimer);
+  $('speech').hidden = true;
+  speechAwaiting = false;
+}
+$('speech-close').addEventListener('click', hideSpeech);
+
+// The closest entity with this name, for answering a shout.
+function nearestNamed(name) {
+  let best = null;
+  let bestD = Infinity;
+  for (const e of world.entities.values()) {
+    if (e.type === 0 || bareName(e.name).toLowerCase() !== name.toLowerCase()) continue;
+    const d = Math.max(Math.abs(e.x - world.locX), Math.abs(e.y - world.locY));
+    if (d < bestD) { best = e; bestD = d; }
+  }
+  return best;
+}
 
 // Opens a barrel or chest you can reach, and asks what's in it.
 function openStorage(id) {
@@ -696,6 +756,13 @@ document.addEventListener('keydown', (e) => {
   const dir = typing || inOtherField ? null : ARROWS[e.key] ?? (inInput ? null : WASD[e.key.toLowerCase()]);
   if (dir && canAct()) {
     e.preventDefault();
+    // An NPC is waiting for an answer: a step would be taken as one.
+    if (speechAwaiting) {
+      $('speech').classList.remove('nudge');
+      void $('speech').offsetWidth;
+      $('speech').classList.add('nudge');
+      return;
+    }
     conn.send(dir);
   }
 });
@@ -835,6 +902,11 @@ function handle(msg) {
 
   switch (msg.op) {
     case OP.TEXT: {
+      // The "talk names" answer is for the menu, not the chat.
+      const names = parseTalkers(msg.text);
+      if (names) { talkers = names; break; }
+      const sp = parseSpeech(msg.text);
+      if (sp) showSpeech(sp);
       const st = panels.storage ? storageReader.feed(msg.text) : null;
       if (st?.listing) panels.setStorageListing(st.listing);
       if (!st?.hide && !(isGod && god.expecting(msg.text))) addText(msg.text);
@@ -913,7 +985,10 @@ async function loadGraphics(address) {
     pixelSheets = sheets;
     await applyArt();
   }
-  if (conn === c) c.send('playerloaded true');
+  if (conn === c) {
+    c.send('playerloaded true');
+    c.send(TALKERS); // which NPCs have something to say
+  }
 }
 
 // ---- art style ---------------------------------------------------------------
@@ -1046,6 +1121,13 @@ function targetCommand(cmd) {
 // typed.
 function runCommand(cmd) {
   if (!conn?.connected) return;
+  // Anything sent answers an NPC that was waiting.
+  if (speechAwaiting) {
+    speechAwaiting = false;
+    $('speech-choices').replaceChildren();
+    clearTimeout(speechTimer);
+    speechTimer = setTimeout(hideSpeech, 6000);
+  }
   conn.send(cmd);
   echoLine(cmd);
   noteSent(cmd);
@@ -1127,7 +1209,7 @@ function serverLine(text) {
     Object.assign(losses, loss);
     $('death-loss').textContent = lossSentence(losses);
   }
-  if (isYesNo(text)) {
+  if (isYesNo(text) && !parseSpeech(text)) {
     $('prompt-text').textContent = text.trim().replace(/\s*\(yes\/no\)\s*$/i, '');
     $('prompt-bar').hidden = false;
   }
@@ -1177,6 +1259,7 @@ function submitInput() {
   conn.send(text);
   echoLine(secret ? '*'.repeat(text.length) : text);
   $('prompt-bar').hidden = true; // typed an answer instead
+  if (speechAwaiting) { speechAwaiting = false; $('speech-choices').replaceChildren(); }
   if (!secret) noteSent(text);
   if (!secret && text.trim()) {
     if (history[history.length - 1] !== text) history.push(text);

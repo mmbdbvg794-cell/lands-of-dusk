@@ -1,0 +1,20 @@
+// Run with: node test/talk.test.mjs
+import assert from 'node:assert/strict';
+import { parseSpeech, parseTalkers, talkCommand, TALKERS } from '../js/talk.js';
+
+assert.deepEqual(parseSpeech("Drill Sergeant says: Hey you! Get to training now... unless you think you're ready for the world? (training/world)"), {
+  who: 'Drill Sergeant', verb: 'says', text: "Hey you! Get to training now... unless you think you're ready for the world?", choices: ['training', 'world'],
+});
+assert.deepEqual(parseSpeech('Drill Sergeant shouts: Hey you! Yes, you!'), { who: 'Drill Sergeant', verb: 'shouts', text: 'Hey you! Yes, you!', choices: [] });
+assert.deepEqual(parseSpeech('Old Man asks: Will you help? (yes/no/maybe later)').choices, ['yes', 'no', 'maybe later']);
+// Brackets that aren't a choice stay in the text.
+assert.equal(parseSpeech('Bob says: I found it (finally).').text, 'I found it (finally).');
+assert.equal(parseSpeech('You feel hungry.'), null);
+assert.equal(parseSpeech('flan: hello there'), null);
+
+assert.deepEqual(parseTalkers('Talkers: Drill Sergeant, Bank Teller'), new Set(['drill sergeant', 'bank teller']));
+assert.deepEqual(parseTalkers('Talkers: '), new Set());
+assert.equal(parseTalkers('Talk to whom?'), null);
+assert.equal(talkCommand(12), 'talk 12');
+assert.equal(TALKERS, 'talk names');
+console.log('ok - talk');

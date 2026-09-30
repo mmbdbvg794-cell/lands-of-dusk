@@ -41,4 +41,12 @@ const barrel = { id: 4, name: 'Water barrel', type: TYPE.SIGN, x: 11, y: 10 };
 assert.deepEqual(entityActions(barrel, me), [{ label: 'Open', storage: 'open' }]);
 assert.deepEqual(entityActions(barrel, { ...me, storageOpen: 4 }), [{ label: 'Close', storage: 'close' }]);
 assert.deepEqual(entityActions({ ...barrel, x: 14 }, me), [{ label: 'Go to the barrel', cmd: 'goto 14 10' }]);
+// NPCs with something to say get Talk (from two squares), others don't.
+const sarge = { id: 30, name: 'Drill Sergeant', type: TYPE.SIGN, x: 12, y: 10 };
+const talkers = new Set(['drill sergeant']);
+assert.deepEqual(entityActions(sarge, { ...me, talkers })[0], { label: 'Talk', cmd: 'talk 30' });
+assert.deepEqual(entityActions({ ...sarge, x: 14 }, { ...me, talkers })[0], { label: 'Go talk to Drill Sergeant', cmd: 'goto 14 10' });
+assert.equal(entityActions(sarge, me).some((a) => a.label === 'Talk'), false);
+assert.equal(entityActions({ id: 5, name: 'drill sergeant', type: TYPE.PLAYER, x: 11, y: 10 }, { ...me, talkers }).some((a) => a.label === 'Talk'), false, 'not players');
+assert.deepEqual(entityActions(sarge, me), [{ label: 'Look', cmd: 'look 30' }], 'props are looked at, signs read');
 console.log('ok - entity actions');

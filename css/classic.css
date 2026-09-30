@@ -314,3 +314,28 @@ body.classic #map-wrap canvas#map { background: #000; }
 /* Unchosen tabs: light parchment, not grey on the grey stone. */
 body.classic [role="tab"] { color: #e4dcc6; text-shadow: 0 1px 2px #000, 0 0 1px #000; }
 body.classic [role="tab"] .count { color: var(--gold); }
+
+/* What NPCs say: a parchment scroll. */
+body.classic #speech {
+  color: var(--ink);
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 16px;
+  background: radial-gradient(ellipse at 20% 0%, #fff6dc88, transparent 60%), linear-gradient(180deg, #efe2c2, #e2cfa2);
+  border: 1px solid #8a6a3a;
+  border-top: 6px solid #6b4a24;
+  border-bottom: 6px solid #6b4a24;
+  border-radius: 4px;
+}
+body.classic #speech-who { font-family: "Cinzel", serif; color: var(--ink-red); text-shadow: none; }
+body.classic #speech-verb { color: var(--ink-soft); font-style: italic; }
+body.classic #speech button {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 15px;
+  color: var(--ink);
+  background: #f6ecd2;
+  border: 1px solid #a07a48;
+  border-radius: 999px;
+  text-shadow: none;
+}
+body.classic #speech button:hover:not(:disabled) { background: #fff6de; border-color: var(--ink-red); filter: none; }
+body.classic #speech #speech-close { background: none; border: none; }

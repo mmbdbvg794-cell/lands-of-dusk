@@ -124,6 +124,15 @@
       <div id="map-stage">
         <canvas id="map" aria-label="Map view"></canvas>
         <div id="entity-menu" role="menu" aria-label="Actions" hidden></div>
+        <!-- What an NPC says to you, with its answers as buttons. -->
+        <div id="speech" role="dialog" aria-labelledby="speech-who" hidden>
+          <div class="speech-head">
+            <strong id="speech-who"></strong><span id="speech-verb"></span>
+            <button type="button" id="speech-close" class="ghost" aria-label="Close">×</button>
+          </div>
+          <p id="speech-text"></p>
+          <div id="speech-choices"></div>
+        </div>
         <canvas id="minimap" role="img" aria-label="Minimap of explored area" title="Click to zoom, drag to move"></canvas>
       </div>
     </div>

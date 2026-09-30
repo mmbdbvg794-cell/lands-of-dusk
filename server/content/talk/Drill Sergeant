@@ -1,0 +1,15 @@
+#The Drill Sergeant in the starting area (see server/Talk.java).
+#Talk to him and he sends you to training, or wishes you luck.
+chat trigger "Drill Sergeant says: Hey you! Get to training now... unless you think you're ready for the world? (training/world)"
+input trigger answer
+if strequals answer "training"
+	chat trigger "Drill Sergeant says: Good. Off you go, and don't come back until you can swing a sword properly!"
+	set trigger locxy 34 22
+	endscript
+end
+if strequals answer "world"
+	chat trigger "Drill Sergeant says: Ha! Brave words. The world won't go easy on you. Good luck out there."
+	endscript
+end
+chat trigger "Drill Sergeant says: Speak up, recruit! Training, or the world?"
+endscript

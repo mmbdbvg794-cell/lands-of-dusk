@@ -681,7 +681,7 @@ function propPerson(ctx, n) {
   const look = { skin: '#c89468', hair: '#4a2e18', top: fabric(n), trim: '#3a2414', legs: '#3e3a2c', boots: '#2a1c10', style: 'plain' };
   let gear = {};
   let s = 0.82;
-  if (/guard|soldier|lava guard/.test(n)) {
+  if (/guard|soldier|sergeant/.test(n)) {
     Object.assign(look, { top: '#8a8e98', trim: '#c8b060', legs: '#6a6e78', style: 'armour', helm: '#8a8e98' });
     gear = { weapon: { kind: 'spear', colour: '#c8ccd4' }, shield: { colour: '#c8b060' } };
   } else if (/thief|spy/.test(n)) {
@@ -812,7 +812,7 @@ const PROPS = [
   [/^(box|box of stuff|goods|junk)$/, box],
   [/^chest$/, chest],
   [/^food$/, sandwich],
-  [/statue|guard|soldier|thief|spy|cook|bouncer|innkeeper|bar tender|prisoner|villager|hermit|woman|girl|child|dark elf|crazyoldman|oldcrazyman|old demon woman|kat$|jenova/, propPerson],
+  [/statue|guard|soldier|sergeant|thief|spy|cook|bouncer|innkeeper|bar tender|prisoner|villager|hermit|woman|girl|child|dark elf|crazyoldman|oldcrazyman|old demon woman|kat$|jenova/, propPerson],
 ];
 
 export function propPainterFor(name) {
