@@ -830,6 +830,7 @@ async function loadGraphics(address) {
 
 let pixelSheets = null;
 let paintedSheets = null;
+let paintedNamed = null; // { sheet, index } once loaded, false if unavailable
 let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
 // Two switches, kept in step: Pixel | Painted in the top bar, and a menu in
 // Settings (shown instead on phones).
@@ -864,6 +865,19 @@ async function applyArt() {
     };
   }
   if (!sheets) return;
+  // Creatures drawn by name, in the Painted style.
+  if (artStyle === 'painted') {
+    if (paintedNamed === null) {
+      const [sheet, index] = await Promise.all([
+        loadSheet('art/painted/named.png'),
+        fetch('art/painted/named.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      ]);
+      paintedNamed = sheet && index ? { sheet, index: new Map(Object.entries(index)) } : false;
+    }
+    renderer.named = paintedNamed || null;
+  } else {
+    renderer.named = null;
+  }
   renderer.setSheets(sheets);
   minimap.setSheet(sheets.map);
   if (sheets.players) playerSheet = sheets.players;

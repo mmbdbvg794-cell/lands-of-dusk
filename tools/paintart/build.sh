@@ -6,6 +6,8 @@
 #   art/painted/sprites.png  creatures, items and props: the most common
 #                            drawn fresh (creatures.js), the rest filtered
 #                            (figures.js)
+#   art/painted/named.png    creatures by name, for names in a family
+#   art/painted/named.json   (bestiary.js): the index from name to frame
 #
 #   sh tools/paintart/build.sh
 #
@@ -19,7 +21,9 @@ CHROME=${CHROME:-$(ls -d "$HOME"/.cache/ms-playwright/chromium_headless_shell-*/
 
 work=$(mktemp -d)
 trap 'kill $server 2>/dev/null; rm -rf "$work"' EXIT
-cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js tools/paintart/people.js tools/paintart/creatures.js "$work/"
+cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js tools/paintart/people.js tools/paintart/creatures.js tools/paintart/bestiary.js "$work/"
+# The server's creature names, for the named sheet.
+ssh -o BatchMode=yes duskserver 'cd ~/DuskRPG && python3 -c "import os, json; print(json.dumps(sorted(m for m in os.listdir(\"defMobs\") if not m.endswith(\".dsko\"))))"' > "$work/mobnames.json"
 for name in map players sprites; do
   curl -s -f -m 20 -o "$work/$name.gif" "$RC/images/$name.gif"
 done
@@ -34,7 +38,7 @@ mkdir -p art/painted
   python3 -c '
 import base64, os, re, sys
 page = sys.stdin.read()
-for name in ("map", "players", "sprites"):
+for name in ("map", "players", "sprites", "named"):
     m = re.search(r"<pre id=\"%s\">data:image/png;base64,([^<]+)</pre>" % name, page)
     if not m:
         sys.exit("painter produced no %s image" % name)
@@ -42,4 +46,9 @@ for name in ("map", "players", "sprites"):
     open(tmp, "wb").write(base64.b64decode(m.group(1)))
     os.replace(tmp, "art/painted/%s.png" % name)
     print("painted %s: %d KB" % (name, os.path.getsize("art/painted/%s.png" % name) // 1024))
+import html, json
+m = re.search(r"<pre id=\"namedIndex\">([^<]*)</pre>", page)
+index = json.loads(html.unescape(m.group(1))) if m else {}
+json.dump(index, open("art/painted/named.json", "w"), sort_keys=True)
+print("creatures drawn by name: %d" % len(index))
 '

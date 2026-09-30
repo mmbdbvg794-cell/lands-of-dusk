@@ -2,7 +2,7 @@
 // drawEntity(): tiles first, then entities in list order, each with its
 // selection box, sprite and name.
 
-import { HIT_MS } from './world.js';
+import { HIT_MS, bareName } from './world.js';
 import { drawEffect } from './effects.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
@@ -17,6 +17,9 @@ export class Renderer {
     this.world = world;
     this.sheets = null;
     this.showNames = true;
+    // Painted style only: creature art by name ({ sheet, index: Map }),
+    // for creatures that share a picture with others (see bestiary.js).
+    this.named = null;
     this.cell = 0;
     this.pending = false;
     new ResizeObserver(() => this.resize()).observe(box);
@@ -105,7 +108,9 @@ export class Renderer {
       }
 
       const step = world.frameStep(e, now);
-      if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
+      const byName = step === -1 && e.type === 4 && this.named?.index.get(bareName(e.name).toLowerCase());
+      if (byName !== undefined && byName !== false) this.named.sheet.draw(ctx, byName, px, py, c);
+      else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
       else players?.draw(ctx, e.image * 8 + step, px, py, c);
 
       if (names && !e.hideName) {
