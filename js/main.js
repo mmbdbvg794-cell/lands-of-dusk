@@ -126,8 +126,10 @@ serverUrl.value =
   new URLSearchParams(location.search).get('server') ||
   (SECURE && savedServer?.startsWith('ws://') ? null : savedServer) ||
   DEFAULT_BRIDGE;
-traceBox.checked = storage('get', 'dusk.trace') === '1';
-traceBox.addEventListener('change', () => storage('set', 'dusk.trace', traceBox.checked ? '1' : '0'));
+// The protocol trace is for debugging, so it starts off on every visit
+// rather than being remembered (it floods the chat with raw messages).
+traceBox.checked = false;
+storage('set', 'dusk.trace', '0');
 namesBox.checked = storage('get', 'dusk.names') !== '0';
 renderer.showNames = namesBox.checked;
 namesBox.addEventListener('change', () => {
