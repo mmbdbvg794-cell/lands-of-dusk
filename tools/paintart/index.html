@@ -10,6 +10,7 @@
   import { paintSheet } from './painter.js';
   import { paintFigureSheet } from './figures.js';
   import { paintPeopleSheet } from './people.js';
+  import { paintCreatures } from './creatures.js';
   const load = (src) => new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
@@ -25,7 +26,8 @@
   out('map', paintSheet(await load('map.gif')));
   const players = await load('players.gif');
   out('players', paintPeopleSheet(Math.round(players.naturalWidth / players.naturalHeight / 8)));
-  out('sprites', paintFigureSheet(await load('sprites.gif')));
+  // Creatures with a painter are drawn fresh; the rest keep the filter.
+  out('sprites', paintCreatures(paintFigureSheet(await load('sprites.gif'))));
   const done = document.createElement('pre');
   done.id = 'done';
   document.body.append(done);
