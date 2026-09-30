@@ -1008,10 +1008,12 @@ function handleCastReply(text) {
   }
 }
 
-// The server's "target" command with -1 clears it and drops the old one.
+// Clears the target here only. This server has no way to clear one:
+// "target -1 <id>" throws ArrayIndexOutOfBoundsException on it (the
+// reference code handled it; the running server doesn't), and the Java
+// client never sent it either.
 function clearTarget() {
   if (targetId === -1) return;
-  conn?.send(`target -1 ${targetId}`);
   targetId = -1;
   updateTarget();
 }

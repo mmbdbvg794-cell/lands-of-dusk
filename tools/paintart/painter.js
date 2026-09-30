@@ -580,6 +580,98 @@ function paintRocks(ctx, px, groundFill) {
   }
 }
 
+// Restyling: for the tiles with real structure (castle walls and their
+// doorways, stairs, doors, the chest and torch, the ship), keep the
+// original's shapes and light and change what they're made of. Each pixel
+// is sorted into a material, the material map is upscaled with smooth
+// edges, each material is painted with its own texture, and the
+// original's shading (blurred) is laid back over solid materials.
+
+const RESTYLE = ['void', 'stone', 'wood', 'deck', 'brass', 'water', 'grass', 'meadow', 'snow'];
+// Rubble walls: small rounded stones, like the originals.
+const wallStone = stones(7, 131, [[96, 96, 100], [132, 130, 128]], [52, 50, 50], 0.1);
+const RESTYLE_PAINT = {
+  void: (u, v) => mix([10, 10, 14], [22, 22, 28], fbm(u, v, 141, 4, 2)),
+  stone: wallStone,
+  wood: (u, v) => planks(u, v, { count: 5, colours: [[86, 50, 26], [116, 72, 38]], seed: 143 }),
+  deck: (u, v) => planks(u, v, { across: true, count: 4, colours: [[140, 100, 62], [166, 124, 80]], seed: 145 }),
+  brass: (u, v) => mix([176, 132, 44], [244, 214, 116], fbm(u, v, 147, 6, 3)),
+  water: PAINT.water,
+  grass: PAINT.grass,
+  meadow: PAINT.meadow,
+  snow: PAINT.snow,
+};
+// Solid things take the original's shading; open ground doesn't (its old
+// ripples and grain would show through).
+const SHADED = new Set(['stone', 'wood', 'deck', 'brass', 'void']);
+
+function materialOf(r, g, b) {
+  const lum = (r + g + b) / 3, sat = Math.max(r, g, b) - Math.min(r, g, b);
+  if (lum < 30) return 'void';
+  if (b > r + 30 && b >= g) return 'water';
+  if (lum > 222 && sat < 30) return 'snow';
+  if (g > r + 8 && g > b + 25) return 'grass';
+  if (sat < 32) return 'stone';
+  if (r > 170 && g > 130 && b < 100 && r - b > 90) return 'brass';
+  if (r >= g && g >= b) {
+    if (Math.abs(r - g) < 16 && b < g - 40 && lum < 130) return 'meadow';
+    return lum > 130 ? 'deck' : 'wood';
+  }
+  return 'stone';
+}
+
+// `allowed` limits the materials a tile can have (anything else counts as
+// stone), so a grey wall's odd brown pixel isn't read as wood.
+// Options: `fallback` for pixels outside `allowed` (default stone), `paint`
+// to swap in textures for some materials, `shade` the shading range.
+function restyle(ctx, px, allowed = RESTYLE, { fallback = 'stone', paint = {}, shade = [0.6, 1.35] } = {}) {
+  const labels = new Array(32 * 32), lum = new Float32Array(32 * 32);
+  for (let i = 0; i < 32 * 32; i++) {
+    const r = px[i * 4], g = px[i * 4 + 1], b = px[i * 4 + 2];
+    let m = materialOf(r, g, b);
+    if (!allowed.includes(m)) m = m === 'grass' && allowed.includes('meadow') ? 'meadow' : fallback;
+    labels[i] = RESTYLE.indexOf(m);
+    lum[i] = (r + g + b) / 3;
+  }
+  // Each material's average brightness, to measure shading against.
+  const sum = new Float32Array(RESTYLE.length), cnt = new Float32Array(RESTYLE.length);
+  labels.forEach((l, i) => { sum[l] += lum[i]; cnt[l]++; });
+  const mean = [...sum].map((s, k) => (cnt[k] ? s / cnt[k] : 128));
+  // Blur the brightness a little so the old dithering doesn't come back.
+  const soft = new Float32Array(32 * 32);
+  for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
+    let s = 0, n = 0;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const xx = Math.min(31, Math.max(0, x + dx)), yy = Math.min(31, Math.max(0, y + dy));
+      if (labels[yy * 32 + xx] === labels[y * 32 + x]) { s += lum[yy * 32 + xx]; n++; }
+    }
+    soft[y * 32 + x] = s / n;
+  }
+  const { out, edge } = upscaleLabels(labels);
+  const img = ctx.createImageData(OUT, OUT);
+  for (let Y = 0; Y < OUT; Y++) {
+    for (let X = 0; X < OUT; X++) {
+      const i = Y * OUT + X, k = out[i], name = RESTYLE[k];
+      let c = (paint[name] ?? RESTYLE_PAINT[name])(X / OUT, Y / OUT);
+      if (SHADED.has(name)) {
+        // Bilinear shading from the blurred original.
+        const fx = (X + 0.5) / 4 - 0.5, fy = (Y + 0.5) / 4 - 0.5;
+        const x0 = Math.max(0, Math.min(31, Math.floor(fx))), y0 = Math.max(0, Math.min(31, Math.floor(fy)));
+        const x1 = Math.min(31, x0 + 1), y1 = Math.min(31, y0 + 1), tx = Math.max(0, fx - x0), ty = Math.max(0, fy - y0);
+        const l = soft[y0 * 32 + x0] * (1 - tx) * (1 - ty) + soft[y0 * 32 + x1] * tx * (1 - ty)
+          + soft[y1 * 32 + x0] * (1 - tx) * ty + soft[y1 * 32 + x1] * tx * ty;
+        const m = Math.max(shade[0], Math.min(shade[1], l / mean[k]));
+        c = c.map((v) => v * m);
+      }
+      // A soft dark line where materials meet, like the rest of the style.
+      if (edge[i] > 0) c = mix(c, [16, 12, 8], edge[i] * 0.45);
+      const o = i * 4;
+      img.data[o] = clamp(c[0]); img.data[o + 1] = clamp(c[1]); img.data[o + 2] = clamp(c[2]); img.data[o + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
 // Which surface each remaining tile gets. Tiles not listed here, in TREES
 // or in GROUND keep the original art for now.
 const SURFACES = {
@@ -629,6 +721,96 @@ const SURFACES = {
 // Cobbles meeting grass or sand along a diagonal (50-57): the textured
 // half is cobble, told apart from the smooth half by how busy it is.
 for (const i of range(50, 57)) SURFACES[i] = (ctx, px) => paintCobbleEdge(ctx, px);
+// Walls and doorways, the chest, the torch, stairs, the snowy cliff, the
+// ship and the well: restyled, keeping their shapes and light.
+const WALL = ['void', 'stone', 'meadow', 'grass', 'water', 'snow'];
+const STONEWORK = ['void', 'stone'];
+const FITTINGS = ['void', 'stone', 'wood', 'brass'];
+const SHIP = ['void', 'wood', 'deck', 'water'];
+for (const i of [...range(11, 22), 20, ...range(152, 157)]) SURFACES[i] = (ctx, px) => restyle(ctx, px, WALL);
+// Stairs: smooth stone and strong shading, so each step shows.
+const smoothStone = (u, v) => marble(u, v, [[96, 96, 98], [128, 126, 124]], 151);
+for (const i of [106, 107, 123, 126]) SURFACES[i] = (ctx, px) => restyle(ctx, px, STONEWORK, { paint: { stone: smoothStone }, shade: [0.45, 1.5] });
+SURFACES[125] = (ctx, px) => restyle(ctx, px, ['void', 'stone', 'snow']);
+// Doors and the torch are too fine to restyle: the wall behind them is
+// restyled, and they're painted fresh where the original ones are.
+SURFACES[23] = (ctx, px) => withFitting(ctx, px, 'door');
+SURFACES[158] = (ctx, px) => withFitting(ctx, px, 'door');
+SURFACES[159] = (ctx, px) => withFitting(ctx, px, 'door');
+SURFACES[24] = (ctx, px) => withFitting(ctx, px, 'torch');
+for (const i of [...range(131, 148), 151]) SURFACES[i] = (ctx, px) => restyle(ctx, px, SHIP, { fallback: 'deck' });
+
+// Where a fitting is: the bounding box of its wood and brass pixels.
+function fittingBox(px) {
+  let x0 = 32, y0 = 32, x1 = -1, y1 = -1;
+  for (let i = 0; i < 32 * 32; i++) {
+    const m = materialOf(px[i * 4], px[i * 4 + 1], px[i * 4 + 2]);
+    if (m !== 'wood' && m !== 'brass' && m !== 'deck') continue;
+    const x = i % 32, y = (i / 32) | 0;
+    x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+  }
+  return x1 < 0 ? null : { x: x0 * 4, y: y0 * 4, w: (x1 - x0 + 1) * 4, h: (y1 - y0 + 1) * 4 };
+}
+
+function withFitting(ctx, px, kind) {
+  restyle(ctx, px, WALL);
+  const box = fittingBox(px);
+  if (!box) return;
+  if (kind === 'door') paintDoor(ctx, box);
+  else paintTorch(ctx, box);
+}
+
+function paintDoor(ctx, { x, y, w, h }) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+  ctx.fillRect(x - 2, y - 2, w + 4, h + 4);
+  // Planks.
+  const n = Math.max(3, Math.round(w / 14));
+  for (let i = 0; i < n; i++) {
+    const px0 = x + (w / n) * i;
+    const g = ctx.createLinearGradient(px0, 0, px0 + w / n, 0);
+    const t = hash(i, 3, 161) * 0.3;
+    g.addColorStop(0, `rgb(${130 - t * 60},${82 - t * 40},${44 - t * 20})`);
+    g.addColorStop(1, `rgb(${96 - t * 60},${58 - t * 40},${30 - t * 20})`);
+    ctx.fillStyle = g;
+    ctx.fillRect(px0 + 1, y, w / n - 2, h);
+  }
+  // Iron bands with rivets, and a ring handle.
+  for (const by of [y + h * 0.22, y + h * 0.72]) {
+    ctx.fillStyle = '#2e2c2a'; ctx.fillRect(x, by - 3, w, 6);
+    ctx.fillStyle = '#6e6a64'; ctx.fillRect(x, by - 3, w, 2);
+    ctx.fillStyle = '#9a948a';
+    for (let rx = x + 5; rx < x + w - 3; rx += 12) { ctx.beginPath(); ctx.arc(rx, by, 1.6, 0, Math.PI * 2); ctx.fill(); }
+  }
+  ctx.strokeStyle = '#c8a050'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(x + w * 0.72, y + h * 0.5, Math.max(3, w * 0.07), 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+}
+
+function paintTorch(ctx, { x, y, w, h }) {
+  const cx = x + w / 2, top = y + h * 0.15, base = y + h;
+  ctx.save();
+  // Warm light on the wall around it.
+  const glow = ctx.createRadialGradient(cx, top + 6, 2, cx, top + 6, 46);
+  glow.addColorStop(0, 'rgba(255, 190, 90, 0.5)');
+  glow.addColorStop(1, 'rgba(255, 150, 60, 0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, OUT, OUT);
+  // Iron bracket and wooden handle.
+  ctx.fillStyle = '#2a2622'; ctx.fillRect(cx - 9, base - 10, 18, 5);
+  ctx.fillStyle = '#6a4a28'; ctx.fillRect(cx - 3, top + 10, 6, base - top - 12);
+  ctx.fillStyle = '#3a3430'; ctx.fillRect(cx - 5, top + 8, 10, 5);
+  // Flame: layered teardrops, orange outside to white-yellow inside.
+  for (const [r, col] of [[11, '#e2541a'], [8, '#ff9a2a'], [5, '#ffe07a'], [2.5, '#fffbe0']]) {
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.moveTo(cx, top - r * 1.6);
+    ctx.quadraticCurveTo(cx + r, top + r * 0.2, cx, top + r * 0.9 + 4);
+    ctx.quadraticCurveTo(cx - r, top + r * 0.2, cx, top - r * 1.6);
+    ctx.fill();
+  }
+  ctx.restore();
+}
 
 function framed(u, v, c) {
   const e = Math.min(u, v, 1 - u, 1 - v);
