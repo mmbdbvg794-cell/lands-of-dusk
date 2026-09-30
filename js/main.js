@@ -13,7 +13,7 @@ import { Explored } from './explored.js';
 import { gearFromEquipment } from './gear.js';
 import { StorageReader, isStorage, lookCommand, isBoxLine, isTeller } from './storage.js';
 import { storageReach } from './actions.js';
-import { GOD_PROMPT, listKind, cleanList } from './god.js';
+import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS } from './god.js';
 import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
 import { GodPanel } from './godpanel.js';
 import { Minimap } from './minimap.js';
@@ -956,6 +956,8 @@ function handle(msg) {
       // The "talk names" answer is for the menu, not the chat.
       const names = parseTalkers(msg.text);
       if (names) { talkers = names; break; }
+      const looks = parseLooks(msg.text);
+      if (looks) { renderer.propLooks = looks; renderer.invalidate(); break; }
       const sp = parseSpeech(msg.text);
       if (sp) showSpeech(sp);
       else if (Date.now() < speechFollow && !$('speech').hidden && msg.text.trim()) noteSpeech(msg.text.trim());
@@ -1045,6 +1047,7 @@ async function loadGraphics(address) {
   if (conn === c) {
     c.send('playerloaded true');
     c.send(TALKERS); // which NPCs have something to say
+    c.send(PROP_LOOKS); // props with names of their own, and what they look like
   }
 }
 

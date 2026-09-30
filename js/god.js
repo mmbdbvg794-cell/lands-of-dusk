@@ -56,6 +56,8 @@ export const place = {
   item: (name) => `<${name}`,
   mob: (name, level) => (Number(level) > 0 ? `<${name} lev: ${Math.floor(Number(level))}` : `<${name}`),
   prop: (name) => `<prop ${name}`,
+  // A prop that looks like `base` but has a name of its own (server/Props.java).
+  namedProp: (base, name) => `nameprop ${base}|${name.replace(/\|/g, ' ')}`,
   sign: (text) => `<sign ${text}`,
   merchant: (name) => (name ? `<merchant ${name}` : '<merchant'),
   tile: (n) => `>${Math.floor(Number(n))}`,
@@ -63,6 +65,18 @@ export const place = {
 };
 
 export const SAVE_MAP = '<s';
+// "Looks: George=Villager Man; ..." for props with names of their own.
+export const PROP_LOOKS = 'prop looks';
+export function parseLooks(line) {
+  const m = /^Looks:\s*(.*)$/.exec(line.trim());
+  if (!m) return null;
+  const looks = new Map();
+  for (const pair of m[1].split(';')) {
+    const i = pair.indexOf('=');
+    if (i > 0) looks.set(pair.slice(0, i).trim().toLowerCase(), pair.slice(i + 1).trim().toLowerCase());
+  }
+  return looks;
+}
 export const listCommand = (kind) => `list ${kind}`;
 export const unset = (id) => `unset ${id}`;
 export const teleport = (x, y) => `teleport ${Math.floor(Number(x))} ${Math.floor(Number(y))}`;

@@ -4,7 +4,7 @@
 // map. Shown only to gods (see god.js). The commands are the server's
 // own; this panel just builds them.
 
-import { place, SAVE_MAP, listCommand, search, teleport, wizinvis, addWare, removeWare, SAVED_KINDS } from './god.js';
+import { place, SAVE_MAP, listCommand, search, teleport, wizinvis, addWare, removeWare, SAVED_KINDS, PROP_LOOKS } from './god.js';
 
 const KINDS = [
   ['item', 'Item'], ['mob', 'Mob'], ['prop', 'Prop'], ['storage', 'Storage'],
@@ -85,7 +85,11 @@ export class GodPanel {
       if (li) { this.chosen[this.kind] = li.dataset.name; this.placeChosen(); }
     });
     $.listNote = h('p', { className: 'empty' });
-    $.listBox = h('div', { className: 'god-listbox' }, h('div', { className: 'god-row' }, $.search, $.level), $.list, $.listNote);
+    // A prop can be given a name of its own ("George"): it looks like the
+    // prop picked, and can have its own conversation (talk/<name>).
+    $.propName = h('input', { type: 'text', placeholder: 'Name it (optional), e.g. George', autocomplete: 'off', spellcheck: false, className: 'god-text', maxLength: 40 });
+    $.propNameRow = h('div', { className: 'god-row' }, $.propName);
+    $.listBox = h('div', { className: 'god-listbox' }, h('div', { className: 'god-row' }, $.search, $.level), $.list, $.listNote, $.propNameRow);
 
     // Sign, merchant and storage: a text box or two.
     $.text = h('input', { type: 'text', autocomplete: 'off', className: 'god-text' });
@@ -263,6 +267,7 @@ export class GodPanel {
     const listed = !!LISTED[kind];
     $.listBox.hidden = !listed;
     $.level.hidden = kind !== 'mob';
+    $.propNameRow.hidden = kind !== 'prop';
     $.textBox.hidden = !['sign', 'merchant', 'storage'].includes(kind);
     $.storageKind.hidden = kind !== 'storage';
     $.text.placeholder = { sign: 'What the sign says', merchant: 'Merchant name (optional)', storage: 'Label (optional), e.g. Guild' }[kind] ?? '';
@@ -349,8 +354,9 @@ export class GodPanel {
     if (LISTED[k]) {
       const name = this.chosen[k];
       if (!name) return this.note(`Pick a ${k} from the list first.`);
-      cmd = k === 'mob' ? place.mob(name, $.level.value) : place[k](name);
-      what = name;
+      const own = k === 'prop' ? $.propName.value.trim() : '';
+      cmd = k === 'mob' ? place.mob(name, $.level.value) : own ? place.namedProp(name, own) : place[k](name);
+      what = own ? `${own} (a ${name})` : name;
     } else if (k === 'tile') {
       if (this.chosen.tile == null) return this.note('Pick a tile first.');
       cmd = place.tile(this.chosen.tile);
@@ -368,8 +374,13 @@ export class GodPanel {
       what = `a ${$.storageKind.value}`;
     }
     this.run(cmd, k);
-    // The server says nothing when placing works, so say it here.
-    if (k !== 'storage') this.note(`Placed ${what}${at}.`);
+    // The server says nothing when placing works, so say it here (a named
+    // prop and storage answer for themselves).
+    const named = k === 'prop' && $.propName.value.trim();
+    if (named) {
+      this.send(PROP_LOOKS, { quiet: true }); // so it's drawn right away
+      $.propName.value = '';
+    } else if (k !== 'storage') this.note(`Placed ${what}${at}.`);
   }
 
   renderUnsaved() {

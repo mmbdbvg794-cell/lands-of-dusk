@@ -24,6 +24,9 @@ export class Renderer {
     // creatures and merchants: off by default, or a room of couches reads
     // "couch couch couch".
     this.showObjectNames = false;
+    // Props with names of their own -> the prop they look like (lower case),
+    // from the server's "prop looks".
+    this.propLooks = new Map();
     // Painted style only: creature art by name ({ sheet, index: Map }),
     // for creatures that share a picture with others (see bestiary.js).
     this.named = null;
@@ -127,7 +130,9 @@ export class Renderer {
       const storage = step === -1 && isStorage(e);
       // Props (type 3: furniture, people) by name too, as "prop <name>".
       const art = step !== -1 ? null : e.type === 4 ? this.named : e.type === 1 || e.type === 3 ? this.items : null;
-      const key = storage ? `storage ${storageKind(bareName(e.name))}` : e.type === 3 ? `prop ${bareName(e.name).toLowerCase()}` : bareName(e.name).toLowerCase();
+      // A prop with a name of its own is drawn as the prop it copies.
+      const propName = e.type === 3 ? bareName(e.name).toLowerCase() : '';
+      const key = storage ? `storage ${storageKind(bareName(e.name))}` : e.type === 3 ? `prop ${this.propLooks.get(propName) ?? propName}` : bareName(e.name).toLowerCase();
       const byName = art?.index.get(key);
       if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);

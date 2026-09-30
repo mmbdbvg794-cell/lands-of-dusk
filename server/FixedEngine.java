@@ -31,6 +31,28 @@ public class FixedEngine extends DuskEngine {
         super();
     }
 
+    // 3. The game loop (moving everyone, mobs, regeneration) runs here;
+    //    anything it throws used to kill it for good, freezing the game
+    //    until a restart (a walk-on script that teleports onto its own
+    //    square recursed until the stack ran out). Now it's logged and the
+    //    loop starts again.
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                super.run();
+                return;
+            } catch (Throwable t) {
+                Log.logError(t instanceof Exception ? (Exception) t : new Exception(t), "The game loop crashed and was restarted", false);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+        }
+    }
+
     @Override
     void removeDuskObject(DuskObject duskObject) {
         closing.set(duskObject);

@@ -1,5 +1,6 @@
 // Run with: node test/god.test.mjs
 import assert from 'node:assert/strict';
+import { parseLooks, PROP_LOOKS } from '../js/god.js';
 import { GOD_PROMPT, listKind, cleanList, search, place, SAVE_MAP, unset, teleport, wizinvis, addWare, removeWare, SAVED_KINDS } from '../js/god.js';
 
 assert.ok(GOD_PROMPT.test('Do you want players to be able to see your presence? (yes/no)'));
@@ -35,4 +36,10 @@ assert.equal(wizinvis(true), 'wizinvis on');
 assert.equal(addWare('apple'), 'madd apple');
 assert.equal(removeWare('apple'), 'mremove apple');
 assert.ok(SAVED_KINDS.has('mob') && !SAVED_KINDS.has('item') && !SAVED_KINDS.has('storage'));
+assert.equal(place.namedProp('Villager Man', 'George'), 'nameprop Villager Man|George');
+assert.equal(place.namedProp('Guard', 'A|B'), 'nameprop Guard|A B');
+assert.deepEqual(parseLooks('Looks: George=Villager Man; Military Captain=Guard'), new Map([['george', 'villager man'], ['military captain', 'guard']]));
+assert.deepEqual(parseLooks('Looks: '), new Map());
+assert.equal(parseLooks('You look around.'), null);
+assert.equal(PROP_LOOKS, 'prop looks');
 console.log('god tests passed');

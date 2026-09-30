@@ -2,7 +2,8 @@
 classes so they compile again, and hooks in Storage (server/Storage.java):
 
   Commands.parseCommand   hands each command to Storage.command, then
-                          Talk.command (server/Talk.java), first
+                          Talk.command (server/Talk.java) and
+                          Props.command (server/Props.java), first
   DuskServer()            calls Storage.load and Talk.start before
                           accepting players
   "<prop", "<mob"         find mob and prop files whatever their case
@@ -83,6 +84,10 @@ patch('Commands.java', [
             String talkReply = Talk.command(livingThing, duskEngine, (String)object);
             if (talkReply != null) {
                 return talkReply.length() == 0 ? null : talkReply;
+            }
+            String propsReply = Props.command(livingThing, duskEngine, (String)object);
+            if (propsReply != null) {
+                return propsReply;
             }
             Player player = null;''', 1),
     # "<prop name" and "<mob name": find the file whatever its case (the
