@@ -198,6 +198,24 @@ backups; see `server/`.
 - **The world map is saved on the server**, so it follows you to another
   browser or device.
 
+- **Item pictures and details**: every item in the Backpack, Storage and
+  Shop has its picture; tap one for its type, damage or armour, uses and
+  value.
+- **Quest journal**: a Journal tab with your quests, in progress and done.
+  Gods write the entries (God tab → Quest journal…), one per quest flag.
+- **Friends**: a Friends tab with who's online, a note when a friend logs
+  in, and Whisper buttons; add friends by name or from a player's menu.
+- **Whispers**: a Whispers chat tab; click a whisper to answer it.
+- **Trading**: a trade window between two players (items and gold, both
+  press Ready, any change un-readies both).
+- **World map pins**: banks, shops and people with something to say, where
+  you've explored; and your own notes ("+ Note"), kept on the server.
+- **Night and weather**: a two-hour day with dusk, night (a lantern's
+  light around you) and dawn; rain, storms with lightning and thunder, and
+  snow on snowy ground, the same for everyone. Optional quiet music.
+- **Install as an app**: add Dusk to your phone's home screen or your
+  computer as an app.
+
 ## Website
 
 - **Play Now** goes to the browser client (`/play/`). The "Requires
