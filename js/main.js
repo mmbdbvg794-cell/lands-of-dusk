@@ -980,6 +980,26 @@ else $('login-name').focus();
 
 // ---- connection ------------------------------------------------------------
 
+// A random ID this browser keeps, sent to the bridge so gods can ban a
+// device as well as an account (server/Bans.java).
+function deviceId() {
+  let id = storage('get', 'dusk.device');
+  if (!/^[a-z0-9-]{8,64}$/.test(id ?? '')) {
+    id = crypto.randomUUID?.() ?? Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('');
+    storage('set', 'dusk.device', id);
+  }
+  return id;
+}
+function withDevice(url) {
+  try {
+    const u = new URL(url);
+    u.searchParams.set('device', deviceId());
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 function connect(url) {
   if (!/^wss?:\/\//.test(url)) {
     errLine('Bridge address should start with ws:// or wss://');
@@ -1001,7 +1021,7 @@ function connect(url) {
   setState('pending');
   sysLine(`Connecting to ${url}…`);
 
-  conn = new DuskConnection(url);
+  conn = new DuskConnection(withDevice(url));
   conn.holdNotDead = () => speechAwaiting || Date.now() < talkHold;
   conn.addEventListener('open', () => {
     setState('on');

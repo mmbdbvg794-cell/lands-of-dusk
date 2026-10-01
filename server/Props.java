@@ -63,6 +63,8 @@ public class Props {
         String trimmed = line.trim();
         String lower = trimmed.toLowerCase();
         try {
+            String bans = Bans.command(who, engine, trimmed);
+            if (bans != null) return bans;
             if (lower.equals("prop looks")) return "Looks: " + looks();
             if (lower.startsWith("worn ")) return worn(who, engine, trimmed.substring(5).trim());
             if (lower.startsWith("flags ")) return flags(who, engine, trimmed.substring(6).trim(), null, null);

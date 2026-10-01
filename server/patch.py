@@ -8,6 +8,9 @@ classes so they compile again, and hooks in Storage (server/Storage.java):
                           accepting players
   "<prop", "<mob"         find mob and prop files whatever their case
                           (server/CaseFix.java)
+  accept()                wraps each connection in BridgedSocket (the
+                          player's real address, from the bridge) and turns
+                          away banned devices (server/Bans.java)
   new DuskEngine()        becomes new FixedEngine(), which fixes garbled
                           entity messages and IDs freed twice
                           (server/FixedEngine.java)
@@ -102,6 +105,14 @@ patch('DuskServer.java', [
     # The engine with the addEntity and killDuskObject fixes
     # (server/FixedEngine.java).
     ('''DuskEngine engGame = new DuskEngine();''', '''DuskEngine engGame = new FixedEngine();''', 1),
+    # Real addresses from the bridge (server/BridgedSocket.java), and banned
+    # devices turned away (server/Bans.java).
+    ('''                    this.sckStore = this.srvServer.accept();
+                    this.sckStore.setSoTimeout(30000);
+                    new Player(this.sckStore, this.engGame);''', '''                    this.sckStore = BridgedSocket.wrap(this.srvServer.accept());
+                    this.sckStore.setSoTimeout(30000);
+                    if (Bans.refuse(this.sckStore)) continue;
+                    new Player(this.sckStore, this.engGame);''', 1),
     # CFR leaves a break after the endless accept loop.
     ('''                continue;
             }
@@ -113,6 +124,8 @@ patch('DuskServer.java', [
         try {''', '''    public DuskServer() {
         Storage.load(this.engGame);
         Props.loadSignNames(this.engGame);
+        BridgedSocket.start();
+        Bans.load();
         Talk.start(this.engGame);
         try {''', 1),
 ])
