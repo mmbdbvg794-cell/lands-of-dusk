@@ -1025,7 +1025,7 @@ function handle(msg) {
       const names = parseTalkers(msg.text);
       if (names) { talkers = names; renderer.talkers = names; renderer.invalidate(); break; }
       const worn = parseWorn(msg.text);
-      if (worn) { if (worn.id != null) renderer.setOtherGear(worn.id, gearFromEquipment(worn.equipment)); break; }
+      if (worn) { if (worn.id != null) { wornAnswered.add(worn.id); renderer.setOtherGear(worn.id, gearFromEquipment(worn.equipment)); } break; }
       const dlgReply = parseDialogueReply(msg.text);
       if (dlgReply) { dialogueEditor.loaded(dlgReply); break; }
       const flagsReply = parseFlags(msg.text);
@@ -1171,18 +1171,23 @@ for (const b of document.querySelectorAll('#art-toggle [data-art]')) b.setAttrib
 
 // Other players' gear (Painted style): asked for as they come into view,
 // and again every so often while they're visible.
+// A question sent while logging in can go unanswered, so one with no
+// answer is asked again after a few seconds rather than half a minute.
 const wornAsked = new Map(); // entity ID -> when last asked
+const wornAnswered = new Set(); // entity IDs answered since last asked
 function askWorn(now = Date.now(), every = 30000) {
   if (artStyle !== 'painted' || !conn?.connected) return;
   const self = world.self();
   for (const e of world.entities.values()) {
     if (e.type !== 0 || e === self) continue;
-    if (now - (wornAsked.get(e.id) ?? 0) < every) continue;
+    const wait = wornAnswered.has(e.id) ? every : 4000;
+    if (now - (wornAsked.get(e.id) ?? 0) < wait) continue;
     wornAsked.set(e.id, now);
+    wornAnswered.delete(e.id);
     conn.send(wornCommand(e.id));
   }
 }
-setInterval(() => askWorn(), 10000);
+setInterval(() => askWorn(), 3000);
 
 // In the Painted style your own character wears what you have equipped.
 function dressSelf() {
