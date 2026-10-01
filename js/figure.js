@@ -23,7 +23,7 @@ export const LOOKS = [
   { skin: '#c89468', top: '#d8a030', trim: '#f4d870', legs: '#b86a20', boots: '#6a3a14', style: 'armour', helm: '#c8902a' },
   { skin: '#c89468', top: '#c02a22', trim: '#f0c050', legs: '#8a1a16', boots: '#3a1410', style: 'armour', helm: '#a82018' },
   { skin: '#c89468', top: '#2a4ab0', trim: '#d8303a', legs: '#1a2a78', boots: '#10183a', style: 'armour', helm: '#2440a0', emblem: '#e0343c' },
-  { skin: '#5aa83a', belly: '#e8d050', top: '#5aa83a', trim: '#3a7a24', legs: '#4a9a30', boots: '#3a7a24', style: 'lizard' },
+  { skin: '#5e7d3c', belly: '#c4b283', top: '#5e7d3c', trim: '#5a3e22', legs: '#587639', boots: '#4c6832', style: 'lizard' },
   { skin: '#c8a888', top: '#8a8278', trim: '#5a544c', legs: '#4a4640', boots: '#2a2622', style: 'plain', helm: '#b0aca0', horns: true, beard: '#8a6a44' },
 ];
 
@@ -174,6 +174,117 @@ export function drawShield(ctx, s, x, y, { edgeOn = false, back = false } = {}) 
   ctx.restore();
 }
 
+// Scales: rows of small overlapping arcs, a shade darker, over whatever
+// path is clipped.
+function scales(ctx, colour, x0, y0, x1, y1) {
+  ctx.strokeStyle = shade(colour, 0.7);
+  ctx.globalAlpha = 0.55;
+  ctx.lineWidth = 0.9;
+  for (let y = y0, row = 0; y < y1; y += 3.6, row++) {
+    for (let x = x0 + (row % 2) * 2.6; x < x1; x += 5.2) {
+      ctx.beginPath(); ctx.arc(x, y, 2.6, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+// Pale claws: from the front (pointing down) or the side (pointing ahead).
+function claws(ctx, points, facing) {
+  ctx.fillStyle = '#e6dcc0';
+  for (const [x, y] of points) {
+    ctx.beginPath();
+    if (facing === 's') { ctx.moveTo(x - 1.4, y - 2); ctx.lineTo(x, y + 2.4); ctx.lineTo(x + 1.4, y - 2); }
+    else { ctx.moveTo(x - 2, y - 1.6); ctx.lineTo(x + 3, y); ctx.lineTo(x - 2, y + 1.4); }
+    ctx.closePath(); ctx.fill();
+  }
+}
+
+// A lizardman's head: a long wedge of a snout, heavy brows, slit-pupilled
+// eyes set to the sides, nostrils and a jaw line, with spines down the neck.
+function lizardHead(ctx, look, { cx, headY, side, dir, shoulderY }) {
+  const skin = look.skin;
+  const dark = shade(skin, 0.6);
+  // Neck.
+  part(ctx, roundRect(ctx, cx - 6 + (side ? -2 : 0), headY + 4, 12, shoulderY - headY, 4), skin, { x0: cx - 6, x1: cx + 6, edge: false });
+  let head;
+  if (side) {
+    head = () => {
+      ctx.beginPath();
+      ctx.moveTo(cx - 11, headY + 2);
+      ctx.bezierCurveTo(cx - 11, headY - 12, cx + 2, headY - 13, cx + 8, headY - 8);
+      ctx.quadraticCurveTo(cx + 18, headY - 5, cx + 25, headY + 1);
+      ctx.quadraticCurveTo(cx + 28, headY + 5, cx + 23, headY + 7);
+      ctx.lineTo(cx + 8, headY + 11);
+      ctx.quadraticCurveTo(cx - 6, headY + 14, cx - 11, headY + 2);
+      ctx.closePath();
+    };
+  } else {
+    // From the front the snout comes towards you, so the head narrows
+    // down to it; from behind it's just the back of the skull.
+    head = () => {
+      ctx.beginPath();
+      ctx.moveTo(cx - 12, headY - 2);
+      ctx.bezierCurveTo(cx - 13, headY - 14, cx + 13, headY - 14, cx + 12, headY - 2);
+      if (dir === 's') {
+        ctx.bezierCurveTo(cx + 11, headY + 6, cx + 8, headY + 13, cx + 5, headY + 15);
+        ctx.quadraticCurveTo(cx, headY + 17, cx - 5, headY + 15);
+        ctx.bezierCurveTo(cx - 8, headY + 13, cx - 11, headY + 6, cx - 12, headY - 2);
+      } else {
+        ctx.bezierCurveTo(cx + 12, headY + 8, cx - 12, headY + 8, cx - 12, headY - 2);
+      }
+      ctx.closePath();
+    };
+  }
+  part(ctx, head, skin, { x0: cx - 13, x1: cx + (side ? 27 : 13) });
+  ctx.save(); head(); ctx.clip();
+  scales(ctx, skin, cx - 14, headY - 14, cx + 28, headY + 18);
+  // A paler throat and jaw.
+  ctx.fillStyle = shade(look.belly, 0.95);
+  ctx.globalAlpha = 0.55;
+  if (side) { ctx.beginPath(); ctx.moveTo(cx - 6, headY + 13); ctx.quadraticCurveTo(cx + 8, headY + 7, cx + 23, headY + 6); ctx.lineTo(cx + 23, headY + 9); ctx.lineTo(cx - 6, headY + 16); ctx.fill(); }
+  else if (dir === 's') { ctx.beginPath(); ctx.ellipse(cx, headY + 13, 6, 4, 0, 0, Math.PI * 2); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  const eye = (ex, ey) => {
+    ctx.fillStyle = '#d8a428';
+    ctx.beginPath(); ctx.ellipse(ex, ey, 2.8, 2.4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#120c06';
+    ctx.beginPath(); ctx.ellipse(ex, ey, 0.8, 2.2, 0, 0, Math.PI * 2); ctx.fill();
+    // A heavy brow ridge over it.
+    ctx.strokeStyle = dark; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(ex - 3.6, ey - 2.4); ctx.quadraticCurveTo(ex, ey - 4.8, ex + 3.8, ey - 2.6); ctx.stroke();
+  };
+  ctx.lineCap = 'round';
+  if (side) {
+    eye(cx + 5, headY - 4);
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.arc(cx + 23, headY + 1, 1, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = dark; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(cx + 25, headY + 5); ctx.quadraticCurveTo(cx + 12, headY + 7, cx + 1, headY + 5); ctx.stroke();
+  } else if (dir === 's') {
+    eye(cx - 7, headY - 3);
+    eye(cx + 7, headY - 3);
+    ctx.fillStyle = dark;
+    for (const nx of [cx - 2.4, cx + 2.4]) { ctx.beginPath(); ctx.ellipse(nx, headY + 11, 0.9, 1.3, 0, 0, Math.PI * 2); ctx.fill(); }
+    ctx.strokeStyle = dark; ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.moveTo(cx - 7, headY + 9); ctx.quadraticCurveTo(cx - 6, headY + 15, cx, headY + 15.5); ctx.quadraticCurveTo(cx + 6, headY + 15, cx + 7, headY + 9); ctx.stroke();
+  }
+  ctx.lineCap = 'butt';
+  // Spines down the back of the head and neck.
+  if (dir !== 's') {
+    ctx.fillStyle = dark;
+    for (let i = 0; i < 4; i++) {
+      const y = headY - 10 + i * 6;
+      const x = side ? cx - 9 - i * 1.2 : cx;
+      ctx.beginPath();
+      if (side) { ctx.moveTo(x + 1, y - 1); ctx.lineTo(x - 5, y + 2); ctx.lineTo(x + 1, y + 4); }
+      else { ctx.moveTo(x - 2.5, y + 4); ctx.lineTo(x, y - 3); ctx.lineTo(x + 2.5, y + 4); }
+      ctx.closePath(); ctx.fill();
+    }
+  }
+}
+
 // One frame. dir: 'n' | 's' | 'w' | 'e'; walking: the stride frame; gear:
 // what's worn (gear.js), drawn over the look.
 export function paintPerson(ctx, look, dir, walking, gear = {}) {
@@ -215,9 +326,45 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
   if (cape && dir !== 'n') part(ctx, capePath, shade(cape, 0.8), { x0: bx - 9, x1: bx + bodyW + 9 });
 
   // Lizard tail, behind everything but the shadow.
-  if (look.style === 'lizard' && dir !== 's') {
-    const tx = side ? cx - 18 : cx;
-    part(ctx, () => { ctx.beginPath(); ctx.moveTo(tx - 6, hipY - 4); ctx.quadraticCurveTo(tx - (side ? 26 : 4), hipY + 22, tx - (side ? 34 : 2), feet - 2); ctx.lineTo(tx + 4, hipY + 6); ctx.closePath(); }, look.skin);
+  let lizardTail = null;
+  if (look.style === 'lizard') {
+    const sway = walking ? 4 : 0;
+    let tail;
+    if (side) {
+      tail = () => {
+        ctx.beginPath();
+        ctx.moveTo(cx - 4, hipY - 8);
+        ctx.bezierCurveTo(cx - 22, hipY + 2, cx - 34, feet - 18, cx - 50 - sway, feet - 4);
+        ctx.quadraticCurveTo(cx - 34, feet - 6, cx - 18, hipY + 22);
+        ctx.quadraticCurveTo(cx - 8, hipY + 14, cx + 4, hipY + 8);
+        ctx.closePath();
+      };
+    } else if (dir === 'n') {
+      tail = () => {
+        ctx.beginPath();
+        ctx.moveTo(cx - 9, hipY - 4);
+        ctx.bezierCurveTo(cx - 10, hipY + 20, cx + 4 + sway, feet - 14, cx + 18 + sway, feet - 2);
+        ctx.quadraticCurveTo(cx + 2, feet - 6, cx + 9, hipY - 4);
+        ctx.closePath();
+      };
+    } else {
+      // From the front, just the tip curling out beside a leg.
+      tail = () => {
+        ctx.beginPath();
+        ctx.moveTo(cx + 8, feet - 26);
+        ctx.quadraticCurveTo(cx + 26, feet - 18, cx + 34 + sway, feet - 6);
+        ctx.quadraticCurveTo(cx + 22, feet - 10, cx + 8, feet - 16);
+        ctx.closePath();
+      };
+    }
+    lizardTail = () => {
+      part(ctx, tail, look.skin, { x0: cx - 50, x1: cx + 34 });
+      ctx.save(); tail(); ctx.clip();
+      scales(ctx, look.skin, cx - 52, hipY - 10, cx + 36, feet);
+      ctx.restore();
+    };
+    // Seen from behind it's in front of everything, so it's drawn last.
+    if (dir !== 'n') lizardTail();
   }
 
   // Legs and boots.
@@ -236,6 +383,7 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
       if (dark < 1) { ctx.fillStyle = 'rgba(0,0,0,0.2)'; roundRect(ctx, lx, hipY, legW, feet - hipY - 8, 5)(); ctx.fill(); }
       // Boots with the toe pointing the way they walk.
       part(ctx, () => { ctx.beginPath(); ctx.roundRect(lx - 1, feet - 15, legW + 2, 13, [4, 4, 2, 3]); ctx.roundRect(lx + legW - 6, feet - 9, 11, 7, [4, 5, 2, 2]); }, look.boots, { x0: lx, x1: lx + legW + 6 });
+      if (look.style === 'lizard') claws(ctx, [[lx + legW + 5, feet - 4], [lx + legW + 2, feet - 2]], 'e');
     }
   } else {
     const lift = stride ? 5 : 0;
@@ -243,6 +391,7 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
       part(ctx, roundRect(ctx, lx, hipY, legW, feet - hipY - 8 - up, 5), legs, { x0: lx, x1: lx + legW });
       if (dir === 's') knee(lx, hipY + 18 - up * 0.5);
       part(ctx, roundRect(ctx, lx - 1, feet - 14 - up, legW + 2, 12, 4), look.boots, { x0: lx, x1: lx + legW + 2 });
+      if (look.style === 'lizard' && dir === 's') claws(ctx, [0, 1, 2].map((i) => [lx + 2 + i * 4.5, feet - 2 - up]), 's');
     }
   }
 
@@ -293,8 +442,30 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
   // Body.
   const bodyPath = torso(ctx, bx, shoulderY, bodyW, hipY - shoulderY + 6);
   part(ctx, bodyPath, top, { x0: bx, x1: bx + bodyW });
-  if (look.style === 'lizard' && dir !== 'n' && !armour) {
-    part(ctx, roundRect(ctx, bx + (side ? 10 : 8), shoulderY + 8, bodyW - (side ? 12 : 16), hipY - shoulderY - 6, 8), look.belly, { x0: bx, x1: bx + bodyW, edge: false });
+  if (look.style === 'lizard' && !armour) {
+    ctx.save(); bodyPath(); ctx.clip();
+    scales(ctx, top, bx, shoulderY, bx + bodyW, hipY + 6);
+    ctx.restore();
+    if (dir !== 'n') {
+      // The belly: pale, in bands.
+      const belly = roundRect(ctx, bx + (side ? 12 : 9), shoulderY + 6, bodyW - (side ? 13 : 18), hipY - shoulderY - 4, side ? [2, 8, 8, 2] : 9);
+      part(ctx, belly, look.belly, { x0: bx, x1: bx + bodyW, edge: false });
+      ctx.save(); belly(); ctx.clip();
+      ctx.strokeStyle = shade(look.belly, 0.72); ctx.lineWidth = 1;
+      for (let y = shoulderY + 11; y < hipY; y += 5) { ctx.beginPath(); ctx.moveTo(bx, y); ctx.quadraticCurveTo(cx, y + 2, bx + bodyW, y); ctx.stroke(); }
+      ctx.restore();
+    }
+    if (dir === 'n' || side) {
+      // Spines down the back.
+      ctx.fillStyle = shade(look.skin, 0.62);
+      const sx = side ? bx + 2 : cx;
+      for (let y = shoulderY + 2; y < hipY - 4; y += 7) {
+        ctx.beginPath();
+        if (side) { ctx.moveTo(sx, y); ctx.lineTo(sx - 5, y + 2); ctx.lineTo(sx, y + 5); }
+        else { ctx.moveTo(sx - 2.5, y + 4); ctx.lineTo(sx, y - 2); ctx.lineTo(sx + 2.5, y + 4); }
+        ctx.closePath(); ctx.fill();
+      }
+    }
   }
   ctx.save();
   bodyPath();
@@ -366,8 +537,9 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
     }
   }
 
-  // From behind, a cape covers the back and arms.
+  // From behind, a cape covers the back and arms, and a tail hangs over it.
   if (cape && dir === 'n') part(ctx, capePath, cape, { x0: bx - 9, x1: bx + bodyW + 9 });
+  if (dir === 'n') lizardTail?.();
 
   // Head.
   const headR = 13;
@@ -382,16 +554,8 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
     }
   };
   if (look.style === 'lizard') {
-    // A lizard head with a snout pointing the way it faces.
-    const snout = side ? [cx + 14, headY + 4] : dir === 's' ? [cx, headY + 12] : [cx, headY - 2];
-    part(ctx, ellipse(ctx, cx, headY, headR, headR - 1), look.skin, { x0: cx - headR, x1: cx + headR });
-    part(ctx, ellipse(ctx, snout[0], snout[1], side ? 11 : 9, side ? 7 : 8), look.skin, { x0: snout[0] - 10, x1: snout[0] + 10 });
-    if (dir !== 'n') {
-      ctx.fillStyle = '#f0e040';
-      for (const ex of side ? [cx + 5] : [cx - 6, cx + 6]) { ctx.beginPath(); ctx.arc(ex, headY - 3, 2.6, 0, Math.PI * 2); ctx.fill(); }
-      ctx.fillStyle = '#101010';
-      for (const ex of side ? [cx + 5] : [cx - 6, cx + 6]) { ctx.beginPath(); ctx.arc(ex, headY - 3, 1.1, 0, Math.PI * 2); ctx.fill(); }
-    }
+    lizardHead(ctx, look, { cx, headY, side, dir, shoulderY });
+    if (helm) drawHelm(ctx, helm, { cx, hx, headY: headY - 3, headR: 12, side, dir });
   } else {
     // Neck, head, and features for faces seen from the front or side.
     part(ctx, roundRect(ctx, cx - 5, headY + 8, 10, 10, 3), look.skin, { x0: cx - 5, x1: cx + 5, edge: false });

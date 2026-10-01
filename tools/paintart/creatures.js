@@ -146,20 +146,20 @@ function hooded(ctx) {
   fill(ctx, ell(ctx, 128, 150, 12, 8), '#b89070', [116, 142, 140, 158], 1.5);
 }
 
-// 28: an upright green lizard.
+// 28: an upright lizard, olive with a pale belly (as the lizardman race).
 function lizard(ctx) {
   shadow(ctx, 124, 222, 54, 12);
-  const skin = '#4aa034';
+  const skin = '#5e7d3c';
   fill(ctx, () => { ctx.beginPath(); ctx.moveTo(124, 176); ctx.quadraticCurveTo(170, 200, 206, 214); ctx.quadraticCurveTo(168, 212, 118, 196); ctx.closePath(); }, skin, [118, 176, 206, 214]);
-  for (const [x, f] of [[106, 0.8], [136, 1]]) limb(ctx, [[x, 170], [x - 4, 196], [x + 4, 218]], 16, 12, f < 1 ? '#3a8428' : skin);
+  for (const [x, f] of [[106, 0.8], [136, 1]]) limb(ctx, [[x, 170], [x - 4, 196], [x + 4, 218]], 16, 12, f < 1 ? '#4c6832' : skin);
   fill(ctx, ell(ctx, 122, 140, 30, 42), skin, [92, 98, 152, 182]);
-  fill(ctx, ell(ctx, 124, 146, 16, 30), '#d8d060', [108, 116, 140, 176], 0);
-  for (const [x, f] of [[92, 0.8], [152, 1]]) limb(ctx, [[x, 116], [x + (x < 120 ? -10 : 10), 146], [x + (x < 120 ? -4 : 14), 166]], 12, 8, f < 1 ? '#3a8428' : skin);
+  fill(ctx, ell(ctx, 124, 146, 16, 30), '#c4b283', [108, 116, 140, 176], 0);
+  for (const [x, f] of [[92, 0.8], [152, 1]]) limb(ctx, [[x, 116], [x + (x < 120 ? -10 : 10), 146], [x + (x < 120 ? -4 : 14), 166]], 12, 8, f < 1 ? '#4c6832' : skin);
   fill(ctx, () => { ctx.beginPath(); ctx.moveTo(104, 96); ctx.quadraticCurveTo(110, 66, 134, 66); ctx.quadraticCurveTo(166, 68, 172, 86); ctx.quadraticCurveTo(160, 98, 136, 100); ctx.quadraticCurveTo(114, 104, 104, 96); }, skin, [104, 66, 172, 104]);
-  ctx.fillStyle = '#f0e040'; ctx.beginPath(); ctx.arc(138, 78, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#d8a428'; ctx.beginPath(); ctx.arc(138, 78, 5, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#101010'; ctx.beginPath(); ctx.ellipse(139, 78, 1.6, 4, 0, 0, Math.PI * 2); ctx.fill();
   // Scales: a scatter of darker dabs.
-  ctx.fillStyle = 'rgba(20,60,16,0.35)';
+  ctx.fillStyle = 'rgba(30,44,16,0.4)';
   for (let i = 0; i < 26; i++) {
     const a = (i * 2.4) % (Math.PI * 2), r = 10 + ((i * 7) % 20);
     ctx.beginPath(); ctx.arc(120 + Math.cos(a) * r, 136 + Math.sin(a) * r * 1.4, 2.2, 0, Math.PI * 2); ctx.fill();
