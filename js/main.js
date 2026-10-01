@@ -1763,7 +1763,7 @@ function socialLine(text) {
   let r = journalReader.feed(text);
   if (r) { if (r.done) socialUI.setJournal(r.done); return true; }
   r = journalDefReader.feed(text);
-  if (r) { if (r.done) journalEditor.loaded(r.done); return true; }
+  if (r) { if (r.done) { journalEditor.loaded(r.done); dialogueEditor.journalLoaded(r.done); } return true; }
   r = notesReader.feed(text);
   if (r) { if (r.done) { worldMap.notes = r.done; worldMap.invalidate(); } return true; }
   const friends = parseFriends(text);

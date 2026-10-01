@@ -2,7 +2,8 @@
 // what they do, for one NPC. Opened from the God tab or an NPC's click
 // menu; saved as the NPC's talk script (js/dialogue.js turns it into one).
 
-import { newDialogue, saveCommand, loadCommand, MAX_DEPTH } from './dialogue.js';
+import { newDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal } from './dialogue.js';
+import { journalSet, JOURNAL_ALL } from './social.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
 const EFFECTS = [
@@ -13,11 +14,14 @@ const NEEDS = [['none', 'Needs nothing'], ['gold', 'Needs gold'], ['item', 'Need
 
 export class DialogueEditor {
   // el: the #dialogue-editor dialog; send(cmd, opts) runs a command;
-  // items(): item names for suggestions.
+  // items(): item names for suggestions. A "Set flag" effect can carry its
+  // quest journal entry too (server/Social.java): the journal is fetched
+  // when the editor opens (journalLoaded) and saved with the dialogue.
   constructor(el, { send, items }) {
     this.el = el;
     this.send = send;
     this.items = items;
+    this.journal = new Map(); // flag (lower case) -> { title, text, done }
     this.name = null;
     this.dlg = null;
     this.body = el.querySelector('.de-body');
@@ -38,6 +42,8 @@ export class DialogueEditor {
     this.el.querySelector('.de-warn').hidden = true;
     this.body.replaceChildren(Object.assign(document.createElement('p'), { className: 'empty', textContent: 'Loading…' }));
     this.el.hidden = false;
+    this.journalFilled = false;
+    this.send(JOURNAL_ALL, { quiet: true });
     this.send(loadCommand(name), { quiet: true });
     // No answer (a server without the editor's part, or not restarted since
     // it was installed): say so rather than loading forever.
@@ -57,6 +63,7 @@ export class DialogueEditor {
     clearTimeout(this.timer);
     this.dlg = dialogue ?? newDialogue();
     this.el.querySelector('.de-warn').hidden = !handWritten;
+    if (this.journal.size) { fillJournal(this.dlg, this.journal); this.journalFilled = true; }
     this.render();
   }
 
@@ -64,9 +71,22 @@ export class DialogueEditor {
     this.el.hidden = true;
   }
 
+  // The journal's entries ([{ flag, title, text, done }]), from "journal all".
+  journalLoaded(entries) {
+    this.journal = new Map(entries.map((e) => [e.flag.toLowerCase(), e]));
+    // Filled in once, when it arrives after the dialogue (never over edits).
+    if (this.open && this.dlg && !this.journalFilled) {
+      fillJournal(this.dlg, this.journal);
+      this.journalFilled = true;
+      this.render();
+    }
+  }
+
   save() {
     if (!this.dlg) return;
     this.send(saveCommand(this.name, this.dlg));
+    // The journal entries written on its "Set flag" effects.
+    for (const entry of journalEntriesOf(this.dlg)) this.send(journalSet(entry), { quiet: true });
     this.close();
   }
 
@@ -115,10 +135,21 @@ export class DialogueEditor {
         if (e.kind === 'give' || e.kind === 'take') fields.push(input(e.item, 'item name', (v) => { e.item = v; }, { list: 'de-items' }));
         if (e.kind === 'gold' || e.kind === 'takegold' || e.kind === 'exp') fields.push(input(e.amount, 'amount', (v) => { e.amount = v; }, { type: 'number', min: 1, className: 'de-num' }));
         if (e.kind === 'flag' || e.kind === 'unflag') fields.push(input(e.flag, 'flag name', (v) => { e.flag = v; }));
+        // Setting a flag can write the quest's journal entry for it.
+        const journal = e.kind === 'flag'
+          ? h('div', { className: 'de-row de-journal' },
+            h('span', { className: 'de-label-text', textContent: '📖 Journal' }),
+            input(e.journal?.title, 'Quest title (leave empty for none)', (v) => { (e.journal ??= {}).title = v; }, { className: 'de-jtitle' }),
+            input(e.journal?.text, 'What the player should do next', (v) => { (e.journal ??= {}).text = v; }),
+            h('label', { className: 'toggle de-jdone', title: 'The journal shows this quest as done' },
+              (() => { const c = h('input', { type: 'checkbox', checked: !!e.journal?.done }); c.addEventListener('change', () => { (e.journal ??= {}).done = c.checked; }); return c; })(),
+              ' finishes it'))
+          : null;
         if (e.kind === 'teleport') fields.push(input(e.x, 'x', (v) => { e.x = v; }, { type: 'number', className: 'de-num' }), input(e.y, 'y', (v) => { e.y = v; }, { type: 'number', className: 'de-num' }));
-        return h('div', { className: 'de-row de-effect' },
+        const row = h('div', { className: 'de-row de-effect' },
           select(EFFECTS, e.kind, (v) => { a.effects[ei] = { kind: v }; again(); }), ...fields,
           button('✕', () => { a.effects.splice(ei, 1); again(); }, 'ghost de-x'));
+        return journal ? h('div', { className: 'de-effect-group' }, row, journal) : row;
       });
       const need = a.needs ?? { kind: 'none', value: '' };
       const needValue = need.kind === 'none' ? null

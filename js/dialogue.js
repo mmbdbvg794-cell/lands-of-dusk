@@ -139,6 +139,41 @@ export function flagsOf(dlg) {
   return [...flags];
 }
 
+// The journal entries written on "Set flag" effects (e.journal: { title,
+// text, done }), one per flag: [{ flag, title, text, done }].
+export function journalEntriesOf(dlg) {
+  const out = new Map();
+  const walk = (node) => {
+    for (const a of node.answers ?? []) {
+      for (const e of a.effects ?? []) {
+        const flag = cleanFlag(e.flag);
+        if (e.kind === 'flag' && flag && e.journal?.title?.trim()) {
+          out.set(flag, { flag, title: e.journal.title.trim(), text: (e.journal.text ?? '').trim(), done: !!e.journal.done });
+        }
+      }
+      if (a.next) walk(a.next);
+    }
+  };
+  for (const stage of dlg.stages ?? []) walk(stage);
+  return [...out.values()];
+}
+
+// Fills each "Set flag" effect's journal fields from the journal (entries
+// by flag, lower case), where the journal has one.
+export function fillJournal(dlg, entries) {
+  const walk = (node) => {
+    for (const a of node.answers ?? []) {
+      for (const e of a.effects ?? []) {
+        const j = e.kind === 'flag' && entries.get(cleanFlag(e.flag).toLowerCase());
+        if (j) e.journal = { title: j.title, text: j.text, done: j.done };
+      }
+      if (a.next) walk(a.next);
+    }
+  };
+  for (const stage of dlg.stages ?? []) walk(stage);
+  return dlg;
+}
+
 // Base64 for UTF-8 text (the editor's files travel in one command line).
 export const toBase64 = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
 export const fromBase64 = (b) => new TextDecoder().decode(Uint8Array.from(atob(b), (c) => c.charCodeAt(0)));

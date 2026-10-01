@@ -187,3 +187,17 @@ assert.deepEqual(parseTileReply(`TileAction: 127_372|${toBase64(JSON.stringify(d
 assert.deepEqual(parseTileReply('TileAction: 5_6|'), { x: 5, y: 6, rules: [newRule()], walk: newWalk(), other: false });
 assert.equal(parseTileReply('TileAction: 38_32|!').other, true);
 console.log('ok - dialogue');
+
+// Journal entries on "Set flag" effects.
+{
+  const { journalEntriesOf, fillJournal } = await import('../js/dialogue.js');
+  const dlg = { shouts: [], stages: [{ when: { kind: 'always' }, says: 'Help?', answers: [
+    { label: 'yes', reply: 'Thanks', effects: [{ kind: 'flag', flag: 'wolves', journal: { title: "Martha's Wolves", text: 'Bring her a wolf pelt.' } }, { kind: 'gold', amount: 5 }],
+      next: { says: 'Hurry', answers: [{ label: 'ok', reply: '', effects: [{ kind: 'flag', flag: 'wolves_hurry', journal: { title: '  ', text: 'x' } }] }] } },
+    { label: 'no', reply: 'Oh', effects: [{ kind: 'flag', flag: 'refused' }] },
+  ] }] };
+  assert.deepEqual(journalEntriesOf(dlg), [{ flag: 'wolves', title: "Martha's Wolves", text: 'Bring her a wolf pelt.', done: false }], 'only flags with a title');
+  const filled = fillJournal(JSON.parse(JSON.stringify(dlg)), new Map([['refused', { title: 'Refused', text: 'You said no.', done: true }]]));
+  assert.deepEqual(filled.stages[0].answers[1].effects[0].journal, { title: 'Refused', text: 'You said no.', done: true });
+  console.log('ok - dialogue journal');
+}
