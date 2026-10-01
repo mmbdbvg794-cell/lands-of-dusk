@@ -90,7 +90,7 @@ patch('Commands.java', [
             }
             String propsReply = Props.command(livingThing, duskEngine, (String)object);
             if (propsReply != null) {
-                return propsReply;
+                return propsReply.length() == 0 ? null : propsReply;
             }
             Player player = null;''', 1),
     # "<prop name" and "<mob name": find the file whatever its case (the

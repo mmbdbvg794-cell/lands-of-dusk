@@ -12,7 +12,8 @@ import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
 import { gearFromEquipment, parseWorn, wornCommand } from './gear.js';
 import { chatKind, alsoGeneral, CombatTally } from './chatlog.js';
-import { StorageReader, isStorage, lookCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
+import { MapSync } from './mapsync.js';
+import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS, parseFlags } from './god.js';
 import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
@@ -194,6 +195,14 @@ entityMenu.onSign = (what, id) => {
   if (!answer?.trim()) return;
   runCommand(`${what === 'name' ? 'signname' : 'signtext'} ${id}|${answer.trim().replace(/\|/g, ' ')}`);
   if (what === 'text') god.removed(); // counts as an unsaved change: "<s" keeps it
+};
+// Gods lock a chest to a key item: only someone carrying it can open it.
+entityMenu.onLock = (id) => {
+  const ent = world.entities.get(id);
+  const key = window.prompt(`Lock ${ent ? bareName(ent.name) : 'this chest'} so it only opens for someone carrying which item? (e.g. iron key)`);
+  if (!key?.trim()) return;
+  runCommand(lockCommand(id, key.trim()));
+  if (panels.storage?.entity?.id === id) conn?.send(lookCommand(id));
 };
 entityMenu.onStorage = (action, id) => (action === 'open' ? openStorage(id) : panels.setStorage(null));
 
@@ -385,6 +394,33 @@ const minimapDrag = makeDraggable($('minimap'), $('map-stage'), {
 $('minimap-reset').addEventListener('click', () => minimapDrag.reset());
 $('minimap').addEventListener('click', () => minimap.cycleZoom());
 setInterval(saveExplored, SAVE_EXPLORED_MS);
+
+// The explored map is kept on the server too (js/mapsync.js), so it
+// follows you to another device: fetched a moment after logging in, and
+// what changes is sent back every so often.
+const MAP_LOAD_DELAY_MS = 3000;
+const MAP_RETRY_MS = 10000;
+const MAP_SYNC_MS = 15000;
+const mapSync = new MapSync({
+  send: (cmd) => { if (conn?.connected) conn.send(cmd); },
+  explored: () => minimap.explored,
+  onMerged: () => {
+    minimap.setExplored(minimap.explored);
+    worldMap.invalidate();
+    saveExplored();
+  },
+});
+let mapLoadTimer = 0;
+function loadServerMap() {
+  clearTimeout(mapLoadTimer);
+  const ask = () => {
+    if (mapSync.loaded || mapSync.asked >= 2 || !conn?.connected) return;
+    mapSync.load();
+    mapLoadTimer = setTimeout(ask, MAP_RETRY_MS);
+  };
+  mapLoadTimer = setTimeout(ask, MAP_LOAD_DELAY_MS);
+}
+setInterval(() => mapSync.tick(), MAP_SYNC_MS);
 
 // Sound: the speaker button and the Settings checkbox both mute; the two
 // volume sliders (top bar, and Settings on phones) stay in step.
@@ -1015,6 +1051,7 @@ function connect(url) {
   saveExplored();
   exploredKey = loginName = null;
   minimap.setExplored(new Explored());
+  mapSync.reset();
   world = newWorld();
   renderer.world = world;
   renderer.resize();
@@ -1101,6 +1138,8 @@ function handle(msg) {
       // The "talk names" answer is for the menu, not the chat.
       const names = parseTalkers(msg.text);
       if (names) { talkers = names; renderer.talkers = names; renderer.invalidate(); break; }
+      // The server's copy of the explored map: never shown in chat.
+      if (mapSync.feed(msg.text)) break;
       const worn = parseWorn(msg.text);
       if (worn) { if (worn.id != null) { wornAnswered.add(worn.id); renderer.setOtherGear(worn.id, gearFromEquipment(worn.equipment)); } break; }
       const dlgReply = parseDialogueReply(msg.text);
@@ -1529,6 +1568,7 @@ function useExploredFor(name) {
     minimap.explored.merge(Explored.deserialize(saved));
     minimap.setExplored(minimap.explored);
   }
+  loadServerMap();
 }
 
 // Stays dirty if the write fails (storage full or blocked), so it's retried.

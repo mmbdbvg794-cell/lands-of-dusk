@@ -1332,3 +1332,6 @@ dialog::backdrop { background: #000a; }
   #chat-tabs button { padding: 6px 10px; }
   #combat-tally { font-size: 11px; gap: 2px 8px; }
 }
+
+.store-locked { margin: 4px 12px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel-2); }
+.store-size { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 12px; color: var(--muted); font-size: 13px; }

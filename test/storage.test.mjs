@@ -47,3 +47,25 @@ assert.ok(isTeller({ type: 3, name: 'Bank Teller' }) && !isTeller({ type: 3, nam
 assert.equal(boxPut(9), 'box put 9');
 assert.equal(boxTake('iron sword'), 'box take iron sword');
 console.log('storage tests passed');
+
+// Locks and box sizes.
+{
+  const { StorageReader, isBoxLine, lockCommand, unlockCommand, isChest, BOX_UPGRADE } = await import('../js/storage.js');
+  const r = new StorageReader();
+  assert.deepEqual(r.feed('Storage lock: iron key'), { listing: null, hide: true });
+  assert.equal(r.feed('The Old chest holds 1 item:').listing, null);
+  assert.deepEqual(r.feed('- red potion').listing, { name: 'Old chest', items: ['red potion'], lock: 'iron key' });
+  assert.deepEqual(r.feed('The Old chest is locked. It takes a iron key to open.').listing, { name: 'Old chest', items: [], locked: 'iron key' });
+  assert.deepEqual(r.feed('The Old chest is locked. It takes an amber key to open.').listing.locked, 'amber key');
+  assert.deepEqual(r.feed('Deposit box size: 60 (next: 80 for 4000 gp)'), { listing: null, hide: true });
+  assert.deepEqual(r.feed('The deposit box is empty.').listing, { name: 'deposit box', items: [], size: 60, next: 80, price: 4000 });
+  r.feed('Deposit box size: 100');
+  assert.deepEqual(r.feed('The deposit box is empty.').listing, { name: 'deposit box', items: [], size: 100, next: null, price: null });
+  assert.deepEqual(r.feed('The barrel is empty.').listing, { name: 'barrel', items: [] }, 'nothing left over');
+  assert.ok(isBoxLine('Deposit box size: 40 (next: 60 for 1500 gp)'));
+  assert.equal(lockCommand(7, 'iron key'), 'storage #7 lock iron key');
+  assert.equal(unlockCommand(7), 'storage #7 unlock');
+  assert.equal(BOX_UPGRADE, 'box upgrade');
+  assert.ok(isChest({ type: 3, name: 'Old chest' }) && !isChest({ type: 3, name: 'Water Barrel' }));
+  console.log('storage lock tests passed');
+}

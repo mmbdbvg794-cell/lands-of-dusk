@@ -7,7 +7,7 @@
 // Commands follow the server's Commands.java: "a" and "look" take an ID,
 // "get" a name, "opendoor" an ID.
 
-import { isStorage, storageKind, isTeller, BOX, TELLER_REACH } from './storage.js';
+import { isStorage, isChest, storageKind, isTeller, unlockCommand, BOX, TELLER_REACH } from './storage.js';
 import { talkCommand } from './talk.js';
 import { bareName } from './world.js';
 
@@ -55,6 +55,12 @@ export function entityActions(ent, me) {
   else if (!isStorage(ent) && (ent.type === TYPE.SIGN || ent.type === TYPE.MOB || ent.type === TYPE.MERCHANT)) acts.push({ label: 'Edit dialogue (god)', dialogue: name, god: true });
   // Props: what "Look" says about them.
   if (ent.type === TYPE.SIGN && !isSign(ent) && !isStorage(ent)) acts.push({ label: 'Edit description (god)', describe: true, god: true });
+  // Chests can be locked to a key item (barrels stay open).
+  if (isChest(ent)) {
+    const near = storageReach(ent, me);
+    acts.push(near ? { label: 'Lock with a key… (god)', lock: true, god: true } : { label: 'Lock with a key… (god)', disabled: true, hint: 'stand next to it', god: true });
+    acts.push(near ? { label: 'Unlock (god)', cmd: `${unlockCommand(ent.id)}`, god: true } : { label: 'Unlock (god)', disabled: true, hint: 'stand next to it', god: true });
+  }
   if (isStorage(ent)) {
     if (ent.x === me.x && ent.y === me.y) acts.push({ label: 'Remove (god)', cmd: 'storage remove', god: true });
     else acts.push({ label: 'Remove (god)', disabled: true, hint: 'stand on it', god: true });

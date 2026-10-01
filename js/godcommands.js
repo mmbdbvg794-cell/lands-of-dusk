@@ -55,6 +55,7 @@ export const GOD_COMMANDS = [
   { group: 'Building', use: 'storage place barrel <label>', desc: 'Shared storage on your square (or chest).', level: 5 },
   { group: 'Building', use: 'storage remove', desc: 'Remove the empty storage on your square.', level: 5 },
   { group: 'Building', use: 'storage list', desc: 'Every storage and how full it is.', level: 5 },
+  { group: 'Building', use: 'storage lock <key item>', desc: 'Lock the chest next to you: it opens only for someone carrying that item (storage unlock to undo).', level: 5 },
   { group: 'Building', use: 'tilemsg <speaker>|<text>', desc: 'A message for whoever steps on your square (the Tile action editor does more).', level: 3 },
   { group: 'Building', use: 'tilemsg clear', desc: "Remove your square's message or tile action.", level: 3 },
   { group: 'Building', use: '<s', desc: 'Save the map: tiles, mobs, props, signs, merchants.', level: 3 },

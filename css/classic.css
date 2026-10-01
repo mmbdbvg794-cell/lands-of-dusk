@@ -360,3 +360,6 @@ body.classic .tab:not(#tab-god) .skill-value { font-family: "EB Garamond", Georg
   body.classic .brand { font-size: 17px; }
   body.classic #topbar button, body.classic #settings summary { font-size: 11px; padding: 5px 8px; }
 }
+
+body.classic .store-locked { background: #efe2c2; border-color: #b08a5a; color: var(--ink); }
+body.classic .store-size { color: var(--ink-soft); }

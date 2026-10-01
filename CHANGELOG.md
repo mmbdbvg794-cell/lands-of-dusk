@@ -175,6 +175,29 @@ backups; see `server/`.
 - **Condition files fixed.** Empty conditions were filled, and missing ones
   created.
 
+## Later additions
+
+- **Chat tabs**: General and Combat, a combat summary (kills, damage dealt
+  and taken, best hit, hit rate, dodges, exp, gold) and chat options (text
+  size, times, combat in General, clear).
+- **Touch controls**: on-screen arrows (hold to keep walking) and a phone
+  layout that fits the screen.
+- **Lizardman** redrawn: olive scales, banded belly, a wedge snout, slit
+  eyes, spines and claws.
+- **Other players' gear** shows within seconds of meeting them.
+- **Banning that works**: players' real addresses reach the server through
+  the bridge, so `whois`, login history and `banip` see them; `ban`,
+  `banip` and `unban` can no longer ban 127.0.0.1 (which locked everyone
+  out); new `bandevice`, `unbandevice` and `bans`.
+- **Walk-on scripts**: 84 more fixed (missing endings, a broken teleport,
+  a shop that didn't push you back out).
+- **Bigger deposit boxes**: upgrade at a teller from 40 to 60, 80 and 100
+  items (1,500, 4,000 and 8,000 gp).
+- **Lockable chests**: gods lock a chest to a key item; only someone
+  carrying it can open it. Barrels stay open.
+- **The world map is saved on the server**, so it follows you to another
+  browser or device.
+
 ## Website
 
 - **Play Now** goes to the browser client (`/play/`). The "Requires

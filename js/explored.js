@@ -13,6 +13,7 @@ export class Explored {
   constructor() {
     this.chunks = new Map(); // "cx,cy" -> Uint16Array(CHUNK*CHUNK), UNKNOWN where unseen
     this.dirty = false; // changed since last saved; the saver clears it
+    this.touched = new Set(); // chunk keys changed since the server last had them (js/mapsync.js)
   }
 
   chunkAt(cx, cy, create = false) {
@@ -49,6 +50,7 @@ export class Explored {
         const i = mod(wy, CHUNK) * CHUNK + mod(wx, CHUNK);
         if (c[i] === t) continue;
         c[i] = t;
+        this.touched.add(key(Math.floor(wx / CHUNK), Math.floor(wy / CHUNK)));
         changed.push([wx, wy, t]);
       }
     }

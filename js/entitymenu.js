@@ -23,6 +23,7 @@ export class EntityMenu {
       else if (btn.dataset.dialogue) this.onDialogue?.(btn.dataset.dialogue);
       else if (btn.dataset.describe) this.onDescribe?.(Number(btn.dataset.describe));
       else if (btn.dataset.flags) this.onFlags?.(Number(btn.dataset.flags));
+      else if (btn.dataset.lock) this.onLock?.(Number(btn.dataset.lock));
       else this.send(btn.dataset.cmd);
     });
     el.addEventListener('keydown', (e) => {
@@ -116,6 +117,7 @@ export class EntityMenu {
           if (act.dialogue) b.dataset.dialogue = act.dialogue;
           if (act.describe) b.dataset.describe = String(ent.id);
           if (act.flags) b.dataset.flags = String(ent.id);
+          if (act.lock) b.dataset.lock = String(ent.id);
           if (act.sign) {
             b.dataset.sign = act.sign;
             b.dataset.ent = String(ent.id);

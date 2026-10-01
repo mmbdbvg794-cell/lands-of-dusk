@@ -6,7 +6,7 @@
 import { slotForType, command } from './player.js';
 import { parseStats, playerConditions } from './stats.js';
 import { buyCommand, sellCommand } from './shop.js';
-import { putCommand, takeCommand, groupContents, BOX_BUY, boxPut, boxTake } from './storage.js';
+import { putCommand, takeCommand, groupContents, BOX_BUY, BOX_UPGRADE, boxPut, boxTake } from './storage.js';
 
 const SLOT_LABELS = {
   wield: 'Wield', arms: 'Arms', legs: 'Legs', torso: 'Torso', waist: 'Waist',
@@ -61,6 +61,7 @@ export class Panels {
       const st = this.storage;
       if (!st) return;
       if (btn.dataset.store === 'buy') return this.send(BOX_BUY);
+      if (btn.dataset.store === 'upgrade') return this.send(BOX_UPGRADE);
       // A deposit box has its own commands; storage names the one clicked.
       if (st.box) this.send(btn.dataset.store === 'take' ? boxTake(btn.dataset.name) : boxPut(btn.dataset.id));
       else this.send(btn.dataset.store === 'take' ? takeCommand(btn.dataset.name, st.entity.id) : putCommand(btn.dataset.id, st.entity.id));
@@ -394,13 +395,28 @@ export class Panels {
     const name = st.box ? 'deposit box' : st.listing?.name ?? st.entity.name.replace(/^(<[^>]*>)+/, '');
     // A deposit box is private; shared storage says so.
     this.$('#tab-store .store-note').innerHTML = '';
-    this.$('#tab-store .store-note').append(st.box ? 'Your own: only you can see what\'s in your ' : 'Shared: anyone can see and take what\'s in the ', Object.assign(document.createElement('span'), { className: 'store-name' }), '.');
+    const keyed = st.listing?.lock || st.listing?.locked;
+    this.$('#tab-store .store-note').append(st.box ? 'Your own: only you can see what\'s in your ' : keyed ? 'Shared by everyone with the key to the ' : 'Shared: anyone can see and take what\'s in the ', Object.assign(document.createElement('span'), { className: 'store-name' }), '.');
     this.$('#store-buy').hidden = !st.listing?.noBox;
     if (st.listing?.noBox) this.$('#store-buy').textContent = `Buy a deposit box (${st.listing.noBox} gp)`;
     for (const el of this.$('#tab-store').querySelectorAll('.store-name')) el.textContent = name;
     const items = st.listing?.items ?? [];
+    // A locked chest: who can open it (gods see this too), or why you can't.
+    const locked = st.listing?.locked;
+    const lockNote = this.$('#store-locked');
+    lockNote.hidden = !locked && !st.listing?.lock;
+    lockNote.textContent = locked ? `🔒 Locked. It takes a ${locked} to open.` : st.listing?.lock ? `🔒 Locked: it opens for anyone carrying a ${st.listing.lock}.` : '';
+    // A deposit box: how full, and the next size up.
+    const sized = st.box && st.listing?.size;
+    this.$('#store-size').hidden = !sized;
+    if (sized) {
+      this.$('#store-size .store-count').textContent = `${items.length} of ${st.listing.size} spaces used`;
+      const up = this.$('#store-upgrade');
+      up.hidden = !st.listing.next;
+      if (st.listing.next) up.textContent = `Upgrade to ${st.listing.next} (${st.listing.price.toLocaleString()} gp)`;
+    }
     this.$('#store-waiting').hidden = !!st.listing;
-    this.$('#store-in-empty').hidden = !st.listing || items.length > 0;
+    this.$('#store-in-empty').hidden = !st.listing || items.length > 0 || !!locked;
     const act = (label, kind, data) => {
       const b = document.createElement('button');
       b.type = 'button';
@@ -413,12 +429,12 @@ export class Panels {
       [text('span', 'name', g.name), g.count > 1 && text('span', 'count', `×${g.count}`)],
       [act('Take', 'take', { name: g.name })],
     )));
-    const mine = this.player.groupedItems();
+    const mine = locked ? [] : this.player.groupedItems();
     this.$('#store-mine').replaceChildren(...mine.map((g) => row(
       [text('span', 'name', g.name), g.ids.length > 1 && text('span', 'count', `×${g.ids.length}`)],
       [act('Put in', 'put', { id: g.ids[0] })],
     )));
-    this.$('#store-mine-empty').hidden = mine.length > 0;
+    this.$('#store-mine-empty').hidden = mine.length > 0 || !!locked;
   }
 
   renderShopSummary() {

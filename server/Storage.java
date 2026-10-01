@@ -12,6 +12,9 @@
  *   storage place barrel|chest [label]   (gods) place one here
  *   storage remove             (gods) remove the empty one here
  *   storage list               (gods) every storage and where it is
+ *   storage lock <key item>    (gods) lock the chest here (or #<id>): only
+ *                              someone carrying that item can open it
+ *   storage unlock             (gods) unlock it again
  *
  * A storage is a Prop, so the client draws it as a prop (type 3) and "get"
  * never picks it up. Commands.parseCommand hands every command to
@@ -45,6 +48,7 @@ public class Storage extends Prop {
     static boolean broken = false;
 
     String kind; // "barrel" or "chest"
+    String key = null; // a locked chest: the item that opens it
     final Vector contents = new Vector(); // Items
 
     Storage(DuskEngine engine, String kind, String label, int x, int y) {
@@ -108,6 +112,11 @@ public class Storage extends Prop {
         if (lower.startsWith("place")) return place(who, engine, args.substring(5).trim());
         if (lower.equals("remove")) return remove(who, engine);
         if (lower.equals("list")) return list(who);
+        if (lower.startsWith("lock ") || lower.equals("unlock")) {
+            Storage here = near(who);
+            if (here == null) return "There's no storage here.";
+            return lower.equals("unlock") ? here.unlock(who) : here.lock(who, engine, args.substring(5).trim());
+        }
 
         // "#<id>" first picks which storage (the one clicked on in the
         // client); without it, the one here or next to you.
@@ -123,6 +132,9 @@ public class Storage extends Prop {
             s = near(who);
         }
         if (s == null) return "There's no storage here.";
+        if (lower.startsWith("lock ")) return s.lock(who, engine, args.substring(5).trim());
+        if (lower.equals("unlock")) return s.unlock(who);
+        if (s.key != null && !s.canOpen(who)) return "The " + s.strName + " is locked. It takes a " + s.key + " to open.";
         if (lower.length() == 0 || lower.equals("look")) return s.listing();
         if (lower.startsWith("put ")) return s.put(who, args.substring(4).trim());
         if (lower.startsWith("take ")) return s.take(who, args.substring(5).trim());
@@ -157,9 +169,41 @@ public class Storage extends Prop {
         return null;
     }
 
+    // A locked chest opens for anyone carrying its key, and for gods.
+    boolean canOpen(LivingThing who) {
+        if (key == null || who.privs > 2) return true;
+        return who.items.getItem(key, 0) != null;
+    }
+
+    String lock(LivingThing who, DuskEngine engine, String keyName) throws Exception {
+        if (who.privs < GOD_PRIVS) return "Only gods can lock storage.";
+        if (!kind.equals("chest")) return "Only chests can be locked; barrels stay open to everyone.";
+        if (keyName.length() == 0) return "Lock it with which item? storage lock <key item>";
+        Item it = engine.getItem(CaseFix.file("defItems", keyName));
+        if (it == null) return "There's no item called " + keyName + ".";
+        key = it.strName;
+        save();
+        Log.logEvent(who.strName + " locked " + strName + " at " + intLocX + "," + intLocY + " with " + key);
+        return "The " + strName + " is locked now: it opens for anyone carrying a " + key + ".";
+    }
+
+    String unlock(LivingThing who) throws Exception {
+        if (who.privs < GOD_PRIVS) return "Only gods can unlock storage.";
+        if (key == null) return "The " + strName + " isn't locked.";
+        key = null;
+        save();
+        Log.logEvent(who.strName + " unlocked " + strName + " at " + intLocX + "," + intLocY);
+        return "The " + strName + " is unlocked: anyone can open it.";
+    }
+
     // What the client reads: a header line, then one "- name" line per
-    // item.
+    // item; a locked chest says so first ("Storage lock: <key>").
     String listing() {
+        if (key != null) return "Storage lock: " + key + "\n" + contentsListing();
+        return contentsListing();
+    }
+
+    String contentsListing() {
         if (contents.isEmpty()) return "The " + strName + " is empty.";
         StringBuffer b = new StringBuffer("The " + strName + " holds " + contents.size() + (contents.size() == 1 ? " item:" : " items:"));
         for (int i = 0; i < contents.size(); i++) b.append("\n- ").append(((Item) contents.elementAt(i)).strName);
@@ -236,7 +280,8 @@ public class Storage extends Prop {
         for (int i = 0; i < all.size(); i++) {
             Storage s = (Storage) all.elementAt(i);
             b.append("\n").append(s.strName).append(" at ").append(s.intLocX).append(",").append(s.intLocY)
-             .append(": ").append(s.contents.size()).append("/").append(s.capacity());
+             .append(": ").append(s.contents.size()).append("/").append(s.capacity())
+             .append(s.key != null ? " (locked: " + s.key + ")" : "");
         }
         return b.toString();
     }
@@ -249,11 +294,15 @@ public class Storage extends Prop {
     //   box buy          buy one (BOX_PRICE gp)
     //   box put <item>   put an item in (inventory ID or name)
     //   box take <item>  take one out (by name)
+    //   box upgrade      make it bigger (BOX_SIZES, for UPGRADE_PRICES)
     // Saved to the game's "boxes" file, like storage.
 
     static final String BOX_FILE = "boxes";
     static final int BOX_PRICE = 500;
-    static final int BOX_SIZE = 40;
+    static final int BOX_SIZE = 40; // to start with
+    static final int[] BOX_SIZES = { 40, 60, 80, 100 };
+    static final int[] UPGRADE_PRICES = { 1500, 4000, 8000 }; // to the next size
+    static final Hashtable<String, Integer> boxSizes = new Hashtable<String, Integer>();
     static final int TELLER_REACH = Props.TELLER_REACH;
     static final Hashtable<String, Vector> boxes = new Hashtable<String, Vector>();
     static boolean boxesBroken = false;
@@ -266,7 +315,7 @@ public class Storage extends Prop {
         Vector box = boxes.get(key);
         String lower = args.toLowerCase();
         if (lower.equals("buy")) {
-            if (box != null) return "You already have a deposit box.\n" + boxListing(box);
+            if (box != null) return "You already have a deposit box.\n" + boxListing(key, box);
             if (who.cash < BOX_PRICE) return "A deposit box costs " + BOX_PRICE + " gp, and you're carrying " + who.cash + " gp.";
             // Saved in the order that can't make anything from nothing.
             who.cash -= BOX_PRICE;
@@ -276,23 +325,38 @@ public class Storage extends Prop {
             saveBoxes();
             who.updateStats();
             Log.logEvent(who.strName + " bought a deposit box for " + BOX_PRICE + " gp");
-            return "You buy a deposit box for " + BOX_PRICE + " gp. It's yours at every bank.\n" + boxListing(box);
+            return "You buy a deposit box for " + BOX_PRICE + " gp. It's yours at every bank.\n" + boxListing(key, box);
         }
         if (box == null) return "You don't have a deposit box yet. One costs " + BOX_PRICE + " gp.";
-        if (lower.length() == 0 || lower.equals("look")) return boxListing(box);
+        if (lower.length() == 0 || lower.equals("look")) return boxListing(key, box);
+        if (lower.equals("upgrade")) {
+            int size = boxSize(key);
+            int tier = 0;
+            while (tier < BOX_SIZES.length - 1 && BOX_SIZES[tier] < size) tier++;
+            if (tier >= BOX_SIZES.length - 1) return "Your deposit box is as big as they come (" + size + " items).\n" + boxListing(key, box);
+            int price = UPGRADE_PRICES[tier], bigger = BOX_SIZES[tier + 1];
+            if (who.cash < price) return "A bigger box (" + bigger + " items) costs " + price + " gp, and you're carrying " + who.cash + " gp.\n" + boxListing(key, box);
+            who.cash -= price;
+            who.savePlayer();
+            boxSizes.put(key, bigger);
+            saveBoxes();
+            who.updateStats();
+            Log.logEvent(who.strName + " upgraded their deposit box to " + bigger + " for " + price + " gp");
+            return "Your deposit box holds " + bigger + " items now, for " + price + " gp.\n" + boxListing(key, box);
+        }
         if (lower.startsWith("put ")) {
             String what = args.substring(4).trim();
             Item item = isNumber(what) ? who.items.getItem(Integer.parseInt(what)) : who.items.getItem(what, 0);
             if (item == null) return "You don't have that.";
             if (item.intCost == 0 || !new File("defItems/" + item.strName.toLowerCase()).exists()) return "The " + item.strName + " can't be stored.";
-            if (box.size() >= BOX_SIZE) return "Your deposit box is full.";
+            if (box.size() >= boxSize(key)) return "Your deposit box is full.";
             who.items.remove((Object) item);
             who.savePlayer();
             box.addElement(item);
             saveBoxes();
             who.updateItems();
             Log.logEvent(who.strName + " put " + item.strName + " in their deposit box");
-            return "You put the " + item.strName + " in your deposit box.\n" + boxListing(box);
+            return "You put the " + item.strName + " in your deposit box.\n" + boxListing(key, box);
         }
         if (lower.startsWith("take ")) {
             String what = args.substring(5).trim();
@@ -308,15 +372,26 @@ public class Storage extends Prop {
             who.savePlayer();
             who.updateItems();
             Log.logEvent(who.strName + " took " + item.strName + " from their deposit box");
-            return "You take the " + item.strName + " from your deposit box.\n" + boxListing(box);
+            return "You take the " + item.strName + " from your deposit box.\n" + boxListing(key, box);
         }
         return "Box: look, buy, put <item> or take <item>.";
     }
 
-    // Worded like storage's, so the client reads both the same way.
-    static String boxListing(Vector box) {
-        if (box.isEmpty()) return "The deposit box is empty.";
-        StringBuffer b = new StringBuffer("The deposit box holds " + box.size() + (box.size() == 1 ? " item:" : " items:"));
+    static int boxSize(String owner) {
+        Integer n = boxSizes.get(owner);
+        return n == null ? BOX_SIZE : n;
+    }
+
+    // Worded like storage's, so the client reads both the same way, after
+    // a line with its size and the next upgrade (for the Storage tab).
+    static String boxListing(String owner, Vector box) {
+        int size = boxSize(owner);
+        int tier = 0;
+        while (tier < BOX_SIZES.length - 1 && BOX_SIZES[tier] < size) tier++;
+        String next = tier < BOX_SIZES.length - 1 ? " (next: " + BOX_SIZES[tier + 1] + " for " + UPGRADE_PRICES[tier] + " gp)" : "";
+        String head = "Deposit box size: " + size + next + "\n";
+        if (box.isEmpty()) return head + "The deposit box is empty.";
+        StringBuffer b = new StringBuffer(head + "The deposit box holds " + box.size() + (box.size() == 1 ? " item:" : " items:"));
         for (int i = 0; i < box.size(); i++) b.append("\n- ").append(((Item) box.elementAt(i)).strName);
         return b.toString();
     }
@@ -332,8 +407,9 @@ public class Storage extends Prop {
         return false;
     }
 
-    // Per box: "box1", the owner, the item count, then per item its name,
-    // durability and uses.
+    // Per box: "box2", the owner, its size, the item count, then per item
+    // its name, durability and uses ("box1" boxes, from before sizes, are
+    // BOX_SIZE).
     static void saveBoxes() throws Exception {
         if (boxesBroken) throw new Exception("boxes file unreadable; not saving over it");
         File tmp = new File(BOX_FILE + ".new");
@@ -342,7 +418,7 @@ public class Storage extends Prop {
             for (Enumeration<String> e = boxes.keys(); e.hasMoreElements();) {
                 String owner = e.nextElement();
                 Vector box = boxes.get(owner);
-                w.write("box1\n" + owner + "\n" + box.size() + "\n");
+                w.write("box2\n" + owner + "\n" + boxSize(owner) + "\n" + box.size() + "\n");
                 for (int j = 0; j < box.size(); j++) {
                     Item it = (Item) box.elementAt(j);
                     w.write(it.strName + "\n" + it.lngDurability + "\n" + it.intUses + "\n");
@@ -361,8 +437,9 @@ public class Storage extends Prop {
             BufferedReader r = new BufferedReader(new FileReader(f));
             try {
                 String line;
-                while ((line = r.readLine()) != null && line.equals("box1")) {
+                while ((line = r.readLine()) != null && (line.equals("box1") || line.equals("box2"))) {
                     String owner = r.readLine();
+                    if (line.equals("box2")) boxSizes.put(owner, Integer.parseInt(r.readLine()));
                     int count = Integer.parseInt(r.readLine());
                     Vector box = new Vector();
                     for (int j = 0; j < count; j++) {
@@ -393,8 +470,9 @@ public class Storage extends Prop {
 
     // ---- saving ----
 
-    // The file: per storage, "storage1", kind, name, x, y, item count, then
-    // per item its name, durability and uses. Written to a temporary file
+    // The file: per storage, "storage2", kind, name, x, y, key ("-" for
+    // none), item count, then per item its name, durability and uses
+    // ("storage1", from before locks, has no key line). Written to a temporary file
     // and moved into place, so a crash never leaves half a file.
     static void save() throws Exception {
         if (broken) throw new Exception("storage file unreadable; not saving over it");
@@ -403,7 +481,7 @@ public class Storage extends Prop {
         try {
             for (int i = 0; i < all.size(); i++) {
                 Storage s = (Storage) all.elementAt(i);
-                w.write("storage1\n" + s.kind + "\n" + s.strName + "\n" + s.intLocX + "\n" + s.intLocY + "\n" + s.contents.size() + "\n");
+                w.write("storage2\n" + s.kind + "\n" + s.strName + "\n" + s.intLocX + "\n" + s.intLocY + "\n" + (s.key == null ? "-" : s.key) + "\n" + s.contents.size() + "\n");
                 for (int j = 0; j < s.contents.size(); j++) {
                     Item it = (Item) s.contents.elementAt(j);
                     w.write(it.strName + "\n" + it.lngDurability + "\n" + it.intUses + "\n");
@@ -424,12 +502,14 @@ public class Storage extends Prop {
             BufferedReader r = new BufferedReader(new FileReader(f));
             try {
                 String line;
-                while ((line = r.readLine()) != null && line.equals("storage1")) {
+                while ((line = r.readLine()) != null && (line.equals("storage1") || line.equals("storage2"))) {
                     String kind = r.readLine(), name = r.readLine();
                     int x = Integer.parseInt(r.readLine()), y = Integer.parseInt(r.readLine());
+                    String key = line.equals("storage2") ? r.readLine() : "-";
                     int count = Integer.parseInt(r.readLine());
                     Storage s = new Storage(engine, kind, null, x, y);
                     s.strName = tidyName(kind, name);
+                    s.key = key.equals("-") ? null : key;
                     for (int j = 0; j < count; j++) {
                         String itemName = r.readLine();
                         long durability = Long.parseLong(r.readLine());
