@@ -57,6 +57,21 @@
         </div>
         <label class="toggle"><input id="hotbar-toggle" type="checkbox" checked> Hotbar</label>
         <label class="toggle"><input id="chat-bottom" type="checkbox" checked> Chat across the bottom</label>
+        <div class="toggle-row">
+          <label class="toggle" for="dpad-mode">On-screen arrows</label>
+          <select id="dpad-mode">
+            <option value="auto">On touch screens</option>
+            <option value="on">Always</option>
+            <option value="off">Never</option>
+          </select>
+        </div>
+        <div class="toggle-row settings-art">
+          <label class="toggle" for="look-style">Look</label>
+          <select id="look-style">
+            <option value="classic">Classic</option>
+            <option value="modern">Modern</option>
+          </select>
+        </div>
         <div class="toggle-row settings-art">
           <label class="toggle" for="art-style">Art style</label>
           <select id="art-style">
@@ -126,6 +141,13 @@
       <!-- Exactly the map's size, so the minimap and menu sit on the map itself. -->
       <div id="map-stage">
         <canvas id="map" aria-label="Map view"></canvas>
+        <!-- On-screen arrows for touch screens: hold one to keep walking. -->
+        <div id="dpad" aria-label="Walk" hidden>
+          <button type="button" data-dir="n" aria-label="Walk north">▲</button>
+          <button type="button" data-dir="w" aria-label="Walk west">◀</button>
+          <button type="button" data-dir="e" aria-label="Walk east">▶</button>
+          <button type="button" data-dir="s" aria-label="Walk south">▼</button>
+        </div>
         <div id="entity-menu" role="menu" aria-label="Actions" hidden></div>
         <!-- What an NPC says to you, with its answers as buttons. -->
         <div id="speech" role="dialog" aria-labelledby="speech-who" hidden>

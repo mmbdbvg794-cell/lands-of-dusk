@@ -1272,3 +1272,63 @@ dialog::backdrop { background: #000a; }
 .skill-value { text-align: right; font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .god-away { padding: 16px 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .god-away p { flex: 1 1 100%; margin: 0 0 4px; color: var(--muted); }
+
+/* ---- touch screens ---- */
+
+/* No double-tap zoom on the game's controls. */
+#map, #dpad button, #hotbar, #panel button, #chat-bar button, #topbar button { touch-action: manipulation; }
+
+/* On-screen arrows: a cross in the map's bottom-left corner. */
+#dpad {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(3, 46px);
+  grid-template-rows: repeat(3, 46px);
+  grid-template-areas: ". n ." "w . e" ". s .";
+  gap: 2px;
+  opacity: 0.8;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+#dpad button {
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  color: #fff;
+  background: rgba(10, 12, 16, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  touch-action: none;
+}
+#dpad button.held { background: rgba(106, 169, 255, 0.55); border-color: rgba(255, 255, 255, 0.6); }
+#dpad [data-dir="n"] { grid-area: n; }
+#dpad [data-dir="w"] { grid-area: w; }
+#dpad [data-dir="e"] { grid-area: e; }
+#dpad [data-dir="s"] { grid-area: s; }
+@media (max-width: 600px) {
+  #dpad { grid-template-columns: repeat(3, 42px); grid-template-rows: repeat(3, 42px); left: 6px; bottom: 6px; }
+}
+
+/* Phones: the page scrolls, with the map on top, the chat right under it
+   and your character below; the top bar fits the width. */
+@media (max-width: 600px) {
+  html, body { height: auto; min-height: 100%; }
+  #topbar { gap: 6px; padding: 4px 8px; flex-wrap: nowrap; }
+  #status-text, #look-toggle { display: none; }
+  #topbar button, #settings summary { padding: 5px 8px; font-size: 12px; }
+  .brand { font-size: 15px; }
+  body.playing #play-area {
+    flex: none;
+    grid-template-areas: "map" "log" "side";
+    grid-template-rows: auto clamp(220px, 38vh, 340px) auto;
+  }
+  body.playing #map-wrap { height: min(100vw, 56vh); }
+  body.playing #side { overflow: visible; padding-bottom: 12px; }
+  body.playing #panel { max-height: none; }
+  #chat-tabs button { padding: 6px 10px; }
+  #combat-tally { font-size: 11px; gap: 2px 8px; }
+}

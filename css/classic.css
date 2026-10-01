@@ -354,3 +354,9 @@ body.classic .wm-bar strong { font-family: "Cinzel", serif; color: var(--gold-br
 body.classic .tab:not(#tab-god) .skill-row { border-bottom: 1px dotted #b08a5a88; }
 body.classic .tab:not(#tab-god) .skill-bar { background: linear-gradient(90deg, #7a2e14 var(--pct), #d6c08e var(--pct)); }
 body.classic .tab:not(#tab-god) .skill-value { font-family: "EB Garamond", Georgia, serif; font-size: 14px; color: var(--ink-soft); }
+
+/* Phones: a smaller top bar. */
+@media (max-width: 600px) {
+  body.classic .brand { font-size: 17px; }
+  body.classic #topbar button, body.classic #settings summary { font-size: 11px; padding: 5px 8px; }
+}

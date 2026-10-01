@@ -875,16 +875,67 @@ document.addEventListener('keydown', (e) => {
   const dir = typing || inOtherField ? null : ARROWS[e.key] ?? (inInput ? null : WASD[e.key.toLowerCase()]);
   if (dir && canAct()) {
     e.preventDefault();
-    // An NPC is waiting for an answer: a step would be taken as one.
-    if (speechAwaiting) {
-      $('speech').classList.remove('nudge');
-      void $('speech').offsetWidth;
-      $('speech').classList.add('nudge');
-      return;
-    }
-    conn.send(dir);
+    walk(dir);
   }
 });
+
+// One step, from the keys or the on-screen arrows.
+function walk(dir) {
+  // An NPC is waiting for an answer: a step would be taken as one.
+  if (speechAwaiting) {
+    $('speech').classList.remove('nudge');
+    void $('speech').offsetWidth;
+    $('speech').classList.add('nudge');
+    return;
+  }
+  conn.send(dir);
+}
+
+// The on-screen arrows: a press takes a step, and holding keeps walking,
+// like holding an arrow key.
+const DPAD_FIRST_MS = 380;
+const DPAD_REPEAT_MS = 260;
+let dpadHeld = null; // { id, timer }
+function dpadRelease(e) {
+  if (!dpadHeld || (e && e.pointerId !== dpadHeld.id)) return;
+  clearTimeout(dpadHeld.timer);
+  dpadHeld.button.classList.remove('held');
+  dpadHeld = null;
+}
+for (const b of document.querySelectorAll('#dpad [data-dir]')) {
+  b.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (!canAct()) return;
+    dpadRelease();
+    try { b.setPointerCapture(e.pointerId); } catch {}
+    const again = () => {
+      if (!canAct()) return dpadRelease();
+      walk(b.dataset.dir);
+      dpadHeld.timer = setTimeout(again, DPAD_REPEAT_MS);
+    };
+    dpadHeld = { id: e.pointerId, button: b, timer: 0 };
+    b.classList.add('held');
+    walk(b.dataset.dir);
+    dpadHeld.timer = setTimeout(again, DPAD_FIRST_MS);
+  });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) b.addEventListener(ev, dpadRelease);
+  // Keyboard users (Enter / Space on a focused arrow) get one step.
+  b.addEventListener('click', (e) => { if (e.detail === 0 && canAct()) walk(b.dataset.dir); });
+  b.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+window.addEventListener('blur', () => dpadRelease());
+
+// Shown on touch screens unless Settings says otherwise.
+const dpadMode = $('dpad-mode');
+const coarse = window.matchMedia('(pointer: coarse)');
+function applyDpad() {
+  const mode = dpadMode.value;
+  $('dpad').hidden = !(mode === 'on' || (mode === 'auto' && coarse.matches));
+}
+dpadMode.value = ['auto', 'on', 'off'].includes(storage('get', 'dusk.dpad')) ? storage('get', 'dusk.dpad') : 'auto';
+dpadMode.addEventListener('change', () => { storage('set', 'dusk.dpad', dpadMode.value); applyDpad(); });
+coarse.addEventListener?.('change', applyDpad);
+applyDpad();
 
 // Clicking the map: an empty square walks there ("goto x y"), like
 // Dusk.java's mouseClicked(). Anything else opens a menu of what you can
@@ -1162,7 +1213,9 @@ function setLook(look) {
   document.body.classList.toggle('classic', look === 'classic');
   storage('set', 'dusk.look', look);
   for (const b of document.querySelectorAll('#look-toggle [data-look]')) b.setAttribute('aria-checked', String(b.dataset.look === look));
+  $('look-style').value = look;
 }
+$('look-style').addEventListener('change', (e) => setLook(e.target.value));
 setLook(storage('get', 'dusk.look') === 'modern' ? 'modern' : 'classic');
 $('look-toggle').addEventListener('click', (e) => {
   const b = e.target.closest('[data-look]');
