@@ -11,6 +11,14 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2e2e30">
+  <link rel="icon" href="img/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Dusk">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <!-- The Classic look (stone frames and parchment, like the website);
@@ -48,6 +56,10 @@
           <button type="button" id="report-bug" class="small">Report a bug…</button>
           <button type="button" id="forget-login" class="ghost small">Forget saved login</button>
         </div>
+        <div class="toggle-row" id="install-row" hidden>
+          <button type="button" id="install-app" class="small">Install as an app</button>
+          <span id="install-hint" class="muted-note"></span>
+        </div>
         <label class="toggle"><input id="names" type="checkbox" checked> Show names of people and creatures</label>
         <label class="toggle"><input id="npc-names" type="checkbox" checked> Show names of NPCs (shopkeepers, tellers, quest givers, villagers)</label>
         <label class="toggle"><input id="object-names" type="checkbox"> Show names of objects (furniture, items, signs)</label>
@@ -56,6 +68,10 @@
           <button type="button" id="minimap-reset" class="ghost small">Move to corner</button>
         </div>
         <label class="toggle"><input id="hotbar-toggle" type="checkbox" checked> Hotbar</label>
+        <div class="toggle-row">
+          <label class="toggle"><input id="weather-toggle" type="checkbox" checked> Night and weather</label>
+          <label class="toggle"><input id="music-toggle" type="checkbox"> Music</label>
+        </div>
         <label class="toggle"><input id="chat-bottom" type="checkbox" checked> Chat across the bottom</label>
         <div class="toggle-row">
           <label class="toggle" for="dpad-mode">On-screen arrows</label>
@@ -205,6 +221,9 @@
             <button type="button" role="tab" data-tab="shop" aria-controls="tab-shop" aria-selected="false" tabindex="-1" hidden>Shop</button>
             <button type="button" role="tab" data-tab="store" aria-controls="tab-store" aria-selected="false" tabindex="-1" hidden>Storage</button>
             <button type="button" role="tab" data-tab="stats" aria-controls="tab-stats" aria-selected="false" tabindex="-1">Skills</button>
+            <button type="button" role="tab" data-tab="journal" aria-controls="tab-journal" aria-selected="false" tabindex="-1">Journal</button>
+            <button type="button" role="tab" data-tab="friends" aria-controls="tab-friends" aria-selected="false" tabindex="-1">Friends <span id="tab-friends-count" class="count"></span></button>
+            <button type="button" role="tab" data-tab="trade" aria-controls="tab-trade" aria-selected="false" tabindex="-1" hidden>Trade</button>
             <button type="button" role="tab" data-tab="god" aria-controls="tab-god" aria-selected="false" tabindex="-1" hidden>God</button>
           </div>
           <select id="actions" aria-label="Actions" disabled><option value="">Action…</option></select>
@@ -267,6 +286,39 @@
           <ul id="store-mine" class="rows shop-list"></ul>
           <p id="store-mine-empty" class="empty">You aren't carrying anything.</p>
         </div>
+        <div id="tab-journal" class="tab" role="tabpanel" hidden>
+          <ul id="journal-list" class="journal"></ul>
+          <p id="journal-empty" class="empty">No quests yet. People with something to say may have work for you.</p>
+        </div>
+        <div id="tab-friends" class="tab" role="tabpanel" hidden>
+          <form id="friend-form" class="friend-form">
+            <input id="friend-name" type="text" placeholder="Add a friend by name" autocomplete="off" spellcheck="false" autocapitalize="off" maxlength="40" aria-label="Friend's name">
+            <button type="submit">Add</button>
+          </form>
+          <ul id="friends-list" class="rows"></ul>
+          <p id="friends-empty" class="empty">No friends yet. Add someone by name, or click a player and choose Add friend.</p>
+        </div>
+        <div id="tab-trade" class="tab" role="tabpanel" hidden>
+          <div class="store-head">
+            <p class="store-note">Trading with <strong class="trade-with"></strong>. Both press Ready to swap; any change un-readies you both.</p>
+            <button type="button" id="trade-cancel" class="ghost">Cancel</button>
+          </div>
+          <div class="trade-cols">
+            <section>
+              <h4 class="list-head">You give <span id="trade-mine-ready" class="trade-ready" hidden>ready</span></h4>
+              <ul id="trade-mine" class="rows"></ul>
+              <label class="trade-gold">Gold <input id="trade-gold" type="number" min="0" step="1" inputmode="numeric" value="0"></label>
+            </section>
+            <section>
+              <h4 class="list-head"><span class="trade-with"></span> gives <span id="trade-theirs-ready" class="trade-ready" hidden>ready</span></h4>
+              <ul id="trade-theirs" class="rows"></ul>
+              <p id="trade-theirs-gold" class="trade-gold"></p>
+            </section>
+          </div>
+          <p class="trade-go"><button type="button" id="trade-ready" class="primary">Ready</button></p>
+          <h4 class="list-head">Your things</h4>
+          <ul id="trade-pack" class="rows"></ul>
+        </div>
         <div id="tab-god" class="tab" role="tabpanel" hidden></div>
         <div id="tab-stats" class="tab" role="tabpanel" hidden>
           <div id="stats-body"></div>
@@ -279,6 +331,7 @@
         <div id="chat-tabs" role="tablist" aria-label="Chat">
           <button type="button" role="tab" data-chat="general" aria-selected="true">General<span class="unread" hidden></span></button>
           <button type="button" role="tab" data-chat="combat" aria-selected="false" tabindex="-1">Combat<span class="unread" hidden></span></button>
+          <button type="button" role="tab" data-chat="whisper" aria-selected="false" tabindex="-1">Whispers<span class="unread" hidden></span></button>
         </div>
         <div id="combat-tally" hidden>
           <span title="Creatures killed">Kills <b data-tally="kills">0</b></span>
@@ -350,6 +403,7 @@
       <button type="button" data-map="out" title="Zoom out">−</button>
       <button type="button" data-map="in" title="Zoom in">+</button>
       <button type="button" data-map="here">Here</button>
+      <button type="button" data-map="note" title="Then click the map where the note goes">+ Note</button>
       <button type="button" data-map="close" class="ghost" aria-label="Close">×</button>
     </div>
     <canvas aria-label="Explored world"></canvas>
@@ -397,6 +451,23 @@
       <form class="fl-form de-row">
         <input class="fl-new" type="text" placeholder="flag to give, e.g. tutorial" autocomplete="off" spellcheck="false">
         <button type="submit" class="primary">Give flag</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- The quest journal's entries, for gods (journaleditor.js). -->
+  <section id="journal-editor" class="editor-dialog" role="dialog" aria-label="Quest journal" hidden>
+    <div class="de-bar">
+      <strong class="de-title">Quest journal</strong>
+      <button type="button" data-je="close" class="ghost" aria-label="Close">×</button>
+    </div>
+    <div class="de-body">
+      <p class="de-hint">An entry belongs to a flag: players with that flag see it in their Journal. Give a quest's steps the same title and the newest step (or the one marked finished) is the one shown. Set flags with the dialogue editor's "Set flag" effect.</p>
+      <div class="je-list"></div>
+      <form class="je-form">
+        <div class="de-row"><input class="je-flag" type="text" placeholder="flag, e.g. wolfquest" autocomplete="off" spellcheck="false" required pattern="[A-Za-z0-9_]{1,40}"><input class="je-title" type="text" placeholder="Quest title, e.g. Martha's Wolves" required></div>
+        <div class="de-row"><textarea class="je-text" rows="2" placeholder="What the player should do (or what happened)"></textarea></div>
+        <div class="de-row"><label class="toggle"><input class="je-done" type="checkbox"> This step finishes the quest</label><span class="de-grow"></span><button type="submit" class="primary">Save entry</button></div>
       </form>
     </div>
   </section>

@@ -126,6 +126,7 @@ patch('DuskServer.java', [
         Props.loadSignNames(this.engGame);
         BridgedSocket.start();
         Bans.load();
+        Social.load();
         Talk.start(this.engGame);
         try {''', 1),
 ])

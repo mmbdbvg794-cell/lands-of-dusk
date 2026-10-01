@@ -6,6 +6,7 @@
 import { slotForType, command } from './player.js';
 import { parseStats, playerConditions } from './stats.js';
 import { buyCommand, sellCommand } from './shop.js';
+import { describeItem } from './iteminfo.js';
 import { putCommand, takeCommand, groupContents, BOX_BUY, BOX_UPGRADE, boxPut, boxTake } from './storage.js';
 
 const SLOT_LABELS = {
@@ -81,6 +82,16 @@ export class Panels {
       list.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-cmd]');
         if (btn) this.run(btn);
+      });
+    }
+    // Tapping an item (not its buttons) shows what it is; again hides it.
+    for (const list of [this.$('#inv-list'), this.$('#store-in'), this.$('#store-mine'), this.$('#shop-buy'), this.$('#shop-sell')]) {
+      list.addEventListener('click', (e) => {
+        if (e.target.closest('button, input')) return;
+        const li = e.target.closest('li[data-item]');
+        if (!li) return;
+        this.openItem = this.openItem === li.dataset.item ? null : li.dataset.item;
+        for (const other of this.$('#panel').querySelectorAll('li[data-item]')) this.showItemInfo(other);
       });
     }
   }
@@ -174,11 +185,11 @@ export class Panels {
       ...groups.map((g) => {
         const slot = slotForType(g.slot);
         const id = g.ids[0];
-        return row(
+        return this.itemRow(g.name, row(
           [text('span', 'name', g.name), g.ids.length > 1 && text('span', 'count', `×${g.ids.length}`),
             slot && text('span', 'pill', SLOT_LABELS[slot])],
           [slot ? button('Wear', 'wear', id) : button('Use', 'use', id, g.name), button('Drop', 'drop', id, g.name)],
-        );
+        ));
       }),
     );
     // The server resends the inventory often; keep a Drop that's waiting
@@ -354,7 +365,7 @@ export class Panels {
         [qtyBox(), tradeButton(trade === 'buy' ? (w.currency === 'exp' ? 'Train' : 'Buy') : 'Sell', trade, w.name)],
       );
       if (trade === 'buy' && !canAfford(w)) li.title = `You can't afford this yet`;
-      return li;
+      return this.itemRow(w.name, li);
     };
     this.$('#shop-buy').replaceChildren(...shop.wares.map((w) => tradeRow(w, 'buy')));
     this.$('#shop-sell').replaceChildren(...shop.sell.map((w) => tradeRow(w, 'sell')));
@@ -425,16 +436,73 @@ export class Panels {
       Object.assign(b.dataset, data);
       return b;
     };
-    this.$('#store-in').replaceChildren(...groupContents(items).map((g) => row(
+    this.$('#store-in').replaceChildren(...groupContents(items).map((g) => this.itemRow(g.name, row(
       [text('span', 'name', g.name), g.count > 1 && text('span', 'count', `×${g.count}`)],
       [act('Take', 'take', { name: g.name })],
-    )));
+    ))));
     const mine = locked ? [] : this.player.groupedItems();
-    this.$('#store-mine').replaceChildren(...mine.map((g) => row(
+    this.$('#store-mine').replaceChildren(...mine.map((g) => this.itemRow(g.name, row(
       [text('span', 'name', g.name), g.ids.length > 1 && text('span', 'count', `×${g.ids.length}`)],
       [act('Put in', 'put', { id: g.ids[0] })],
-    )));
+    ))));
     this.$('#store-mine-empty').hidden = mine.length > 0 || !!locked;
+  }
+
+  // An item's row: its picture first, and its details under it when it's
+  // the one tapped (this.openItem).
+  itemRow(name, li) {
+    li.dataset.item = name.toLowerCase();
+    const src = this.itemIcon(name);
+    const info = li.querySelector('.info');
+    if (src && info) {
+      const img = document.createElement('img');
+      img.className = 'item-icon';
+      img.src = src;
+      img.alt = '';
+      info.prepend(img);
+    }
+    if (info) info.classList.add('tappable');
+    this.showItemInfo(li);
+    return li;
+  }
+
+  // The painted picture for an item, drawn once and kept.
+  itemIcon(name) {
+    const art = this.itemArt?.();
+    const frame = art?.index.get(name.toLowerCase());
+    if (frame === undefined) return null;
+    this.icons ??= new Map();
+    let src = this.icons.get(frame);
+    if (!src) {
+      const c = document.createElement('canvas');
+      c.width = c.height = 56;
+      art.sheet.draw(c.getContext('2d'), frame, 0, 0, 56);
+      src = c.toDataURL();
+      this.icons.set(frame, src);
+    }
+    return src;
+  }
+
+  showItemInfo(li) {
+    li.querySelector('.item-details')?.remove();
+    const open = this.openItem === li.dataset.item;
+    li.classList.toggle('open', open);
+    if (!open) return;
+    const d = describeItem(this.itemInfo, li.dataset.item);
+    const box = document.createElement('div');
+    box.className = 'item-details';
+    if (!d) {
+      box.append(text('span', 'muted', 'Nothing more is known about this.'));
+    } else {
+      box.append(text('span', 'item-kind', d.kind));
+      for (const [label, value] of d.lines) {
+        const s = document.createElement('span');
+        s.append(text('span', 'muted', `${label} `), text('b', '', value));
+        box.append(s);
+      }
+      if (d.desc) box.append(text('span', 'item-desc', d.desc));
+    }
+    li.append(box);
   }
 
   renderShopSummary() {

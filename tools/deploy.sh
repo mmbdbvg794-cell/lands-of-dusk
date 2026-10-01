@@ -23,7 +23,7 @@ DIR=dusk-browser-client
 URL=http://192.168.4.61:8080
 
 echo "Rebuilding spell and race data from the server..."
-for name in spellinfo raceinfo; do
+for name in spellinfo raceinfo iteminfo; do
   ssh -o BatchMode=yes "$HOST" 'python3 - /home/flan/DuskRPG' < "tools/$name.py" > "js/$name.json.new"
   if [ -s "js/$name.json.new" ]; then
     mv "js/$name.json.new" "js/$name.json"
@@ -40,7 +40,7 @@ echo "Running tests..."
 for t in test/*.test.mjs; do node "$t"; done
 
 echo "Copying to $HOST..."
-tar czf - index.html css js img art/painted tools/spellinfo.py tools/raceinfo.py tools/rebuild-data.sh serve.py README.md server |
+tar czf - index.html manifest.json sw.js css js img art/painted tools/spellinfo.py tools/raceinfo.py tools/iteminfo.py tools/rebuild-data.sh serve.py README.md server |
   ssh -o BatchMode=yes "$HOST" "mkdir -p ~/$DIR && cd ~/$DIR && rm -rf css js art/smooth tools/smoothart.py && tar xzf - && sh tools/rebuild-data.sh \$HOME/DuskRPG"
 
 echo "Checking..."

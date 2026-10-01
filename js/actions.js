@@ -24,6 +24,8 @@ export function distance(ent, x, y) {
 }
 
 // Whether storage is within reach: on your square or next to it.
+// How near another player has to be to trade (server/Trade.java).
+export const TRADE_REACH = 3;
 export const storageReach = (ent, me) => Math.abs(ent.x - me.x) <= 1 && Math.abs(ent.y - me.y) <= 1;
 
 // Returns [{ label, cmd?, storage?, disabled?, hint?, god? }] for `ent`
@@ -89,8 +91,18 @@ function playerActions(ent, me) {
         look,
       ];
     }
-    case TYPE.PLAYER:
-      return self ? [{ label: 'Look at yourself', cmd: `look ${ent.id}` }] : [look];
+    case TYPE.PLAYER: {
+      if (self) return [{ label: 'Look at yourself', cmd: `look ${ent.id}` }];
+      // Another player: talk privately, trade, or keep as a friend.
+      const name = bareName(ent.name ?? '');
+      const friend = me.friends?.has(name.toLowerCase());
+      return [
+        look,
+        { label: 'Whisper', whisper: name },
+        distance(ent, me.x, me.y) <= TRADE_REACH ? { label: 'Trade', cmd: `trade ${name}` } : { label: 'Trade', disabled: true, hint: 'get closer' },
+        friend ? { label: 'Remove friend', cmd: `friend remove ${name}` } : { label: 'Add friend', cmd: `friend add ${name}` },
+      ];
+    }
     case TYPE.ITEM:
       return [{ label: 'Pick up', cmd: `get ${ent.name}` }, look];
     case TYPE.DOOR:

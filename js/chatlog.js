@@ -21,8 +21,9 @@ const UNTABBED = [
 const HIT = /^(.+?) did (\d+) to (.+)$/;
 const DODGE = /^(.+?) dodged (.+)'s attack$/;
 
-// 'combat' or 'general'.
+// 'combat', 'whisper' (a "/name ..." tell, either way) or 'general'.
 export function chatKind(text) {
+  if (/^\S+ tells you:|^You tell \S+:/.test(text.trim())) return 'whisper';
   if (/^\t\S/.test(text)) return 'combat';
   const t = text.trim();
   if (UNTABBED.some((re) => re.test(t))) return 'combat';

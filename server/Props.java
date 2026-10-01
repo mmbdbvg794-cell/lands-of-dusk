@@ -67,6 +67,10 @@ public class Props {
             if (bans != null) return bans;
             String map = MapStore.command(who, engine, trimmed);
             if (map != null) return map;
+            String social = Social.command(who, engine, trimmed);
+            if (social != null) return social;
+            String trade = Trade.command(who, engine, trimmed);
+            if (trade != null) return trade;
             if (lower.equals("prop looks")) return "Looks: " + looks();
             if (lower.startsWith("worn ")) return worn(who, engine, trimmed.substring(5).trim());
             if (lower.startsWith("flags ")) return flags(who, engine, trimmed.substring(6).trim(), null, null);

@@ -5,6 +5,7 @@
 import { HIT_MS, bareName } from './world.js';
 import { drawEffect } from './effects.js';
 import { LOOKS, OUT, paintFigureStrip } from './figure.js';
+import { outdoorShare } from './atmosphere.js';
 import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 
@@ -164,7 +165,17 @@ export class Renderer {
 
     this.drawEffects(where, now, c, toPx(cam.x, cam.y), toPx);
     this.drawHits(where, now, c);
-    if (world.animating(now)) this.invalidate();
+    // Night and weather over it all (js/atmosphere.js).
+    let weatherMoving = false;
+    if (this.atmosphere) {
+      const tiles = [];
+      for (let x = Math.floor(cam.x) - r; x <= Math.floor(cam.x) + r; x++) for (let y = Math.floor(cam.y) - r; y <= Math.floor(cam.y) + r; y++) tiles.push(world.tileAt(x, y, now));
+      const st = this.atmosphere.state(Date.now(), outdoorShare(tiles, this.snowTiles));
+      const [sx, sy] = toPx(cam.x, cam.y);
+      weatherMoving = this.atmosphere.draw(ctx, this.canvas.width, this.canvas.height, [sx + c / 2, sy + c / 2], c, st, now);
+      this.onWeather?.(st);
+    }
+    if (world.animating(now) || weatherMoving) this.invalidate();
   }
 
   // The player's own figure wearing their gear, painted once per change of

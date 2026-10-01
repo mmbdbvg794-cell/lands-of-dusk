@@ -1,0 +1,16 @@
+{
+  "name": "The Lands of Dusk",
+  "short_name": "Dusk",
+  "description": "A tile-based multiplayer world, alive since 2002.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#202022",
+  "theme_color": "#2e2e30",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

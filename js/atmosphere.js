@@ -1,0 +1,258 @@
+// Night, weather and quiet music, drawn over the map. Everyone sees the
+// same sky: the time of day and the weather come from the clock, not the
+// server, so all players agree without anything being sent.
+//
+//   A day is DAY_MS long (two hours): day, then dusk, night and dawn.
+//   The weather changes every WEATHER_MS (15 minutes): mostly clear, some
+//   rain, now and then a storm; snow instead where the ground is snowy.
+//   Rain and snow only fall outdoors (most of the view open ground).
+//
+// The pure parts (daylight, weatherAt, outdoorShare) are tested in node.
+
+export const DAY_MS = 2 * 60 * 60 * 1000;
+export const WEATHER_MS = 15 * 60 * 1000;
+// Open ground and trees (tools/paintart/painter.js's GROUND and TREES).
+const OUTDOOR = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 64, 102, 103, 124,
+  ...Array.from({ length: 25 }, (_, i) => 65 + i), ...Array.from({ length: 13 }, (_, i) => 109 + i)]);
+export const isOutdoorTile = (t) => OUTDOOR.has(t);
+
+// 1 by day, 0 at the depth of night, in between at dusk and dawn.
+export function daylight(now = Date.now()) {
+  const p = (((now % DAY_MS) + DAY_MS) % DAY_MS) / DAY_MS;
+  if (p < 0.55) return 1;
+  if (p < 0.65) return 1 - (p - 0.55) / 0.1; // dusk
+  if (p < 0.9) return 0; // night
+  return (p - 0.9) / 0.1; // dawn
+}
+
+// What time of day it is, in words.
+export function timeOfDay(now = Date.now()) {
+  const p = (((now % DAY_MS) + DAY_MS) % DAY_MS) / DAY_MS;
+  return p < 0.55 ? 'day' : p < 0.65 ? 'dusk' : p < 0.9 ? 'night' : 'dawn';
+}
+
+// A number from 0 to 1 that's the same for everyone in the same slot.
+function slotRandom(slot) {
+  let h = (slot * 2654435761) >>> 0;
+  h ^= h >>> 16; h = Math.imul(h, 2246822507) >>> 0; h ^= h >>> 13; h = Math.imul(h, 3266489909) >>> 0; h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
+}
+
+// 'clear', 'rain' or 'storm'.
+export function weatherAt(now = Date.now()) {
+  const r = slotRandom(Math.floor(now / WEATHER_MS));
+  return r < 0.62 ? 'clear' : r < 0.9 ? 'rain' : 'storm';
+}
+
+// The share of tiles (IDs) that are open ground, and that are snow.
+export function outdoorShare(tiles, snowTiles = new Set()) {
+  let out = 0, snow = 0, n = 0;
+  for (const t of tiles) {
+    if (t === null || t === undefined) continue;
+    n++;
+    if (OUTDOOR.has(t) || snowTiles.has(t)) out++;
+    if (snowTiles.has(t)) snow++;
+  }
+  return n ? { outdoor: out / n, snow: snow / n } : { outdoor: 0, snow: 0 };
+}
+
+// Which tiles in a tile sheet are snow (white, unsaturated), measured
+// from the picture once it's loaded.
+export function findSnowTiles(sheet) {
+  const snow = new Set();
+  const img = sheet?.img;
+  if (!img?.naturalWidth) return snow;
+  const size = sheet.size;
+  const c = document.createElement('canvas');
+  c.width = img.naturalWidth;
+  c.height = img.naturalHeight;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0);
+  // A picture from another server can't be read (the browser forbids it):
+  // no snow then, rather than an error.
+  try {
+    g.getImageData(0, 0, 1, 1);
+  } catch {
+    return null;
+  }
+  for (let i = 0; i < sheet.count; i++) {
+    const x = (i % sheet.cols) * size, y = Math.floor(i / sheet.cols) * size;
+    const d = g.getImageData(x, y, size, size).data;
+    let r = 0, gr = 0, b = 0;
+    for (let k = 0; k < d.length; k += 4) { r += d[k]; gr += d[k + 1]; b += d[k + 2]; }
+    const n = d.length / 4;
+    r /= n; gr /= n; b /= n;
+    if ((r + gr + b) / 3 > 215 && Math.max(r, gr, b) - Math.min(r, gr, b) < 30) snow.add(i);
+  }
+  return snow;
+}
+
+// Draws night and weather over the map.
+export class Atmosphere {
+  constructor() {
+    this.drops = [];
+    this.flash = 0;
+    this.nextFlash = 0;
+    this.last = 0;
+  }
+
+  // { weather, light, falling } for the view: falling is 'rain', 'snow'
+  // or null (clear, or indoors).
+  state(now, share) {
+    const weather = weatherAt(now);
+    const outdoors = share.outdoor >= 0.4;
+    const falling = weather === 'clear' || !outdoors ? null : share.snow >= 0.3 ? 'snow' : 'rain';
+    return { weather, light: daylight(now), falling, storm: weather === 'storm' && outdoors };
+  }
+
+  // ctx: the map canvas; w, h its size; centre: the player in pixels;
+  // cell: a tile in pixels. Returns true while it needs to keep drawing.
+  draw(ctx, w, h, centre, cell, st, nowPerf) {
+    const dt = Math.min(0.1, this.last ? (nowPerf - this.last) / 1000 : 0);
+    this.last = nowPerf;
+    let moving = false;
+    // Weather first, so night darkens it too.
+    if (st.falling) {
+      moving = true;
+      const want = Math.round((st.falling === 'snow' ? 140 : st.storm ? 260 : 150) * (w * h) / (640 * 640));
+      while (this.drops.length < want) this.drops.push(this.newDrop(w, h, true, st.falling));
+      if (this.drops.length > want) this.drops.length = want;
+      ctx.save();
+      if (st.falling === 'rain') {
+        ctx.strokeStyle = 'rgba(190, 210, 255, 0.45)';
+        ctx.lineWidth = Math.max(1, cell / 40);
+        ctx.beginPath();
+        for (const d of this.drops) {
+          d.y += d.v * dt * h;
+          d.x += d.v * dt * h * 0.18;
+          if (d.y > h || d.x > w) Object.assign(d, this.newDrop(w, h, false, 'rain'));
+          ctx.moveTo(d.x, d.y);
+          ctx.lineTo(d.x - d.len * 0.18, d.y - d.len);
+        }
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        for (const d of this.drops) {
+          d.y += d.v * dt * h * 0.12;
+          d.x += Math.sin((nowPerf / 1000 + d.phase) * 1.3) * dt * cell * 0.4;
+          if (d.y > h) Object.assign(d, this.newDrop(w, h, false, 'snow'));
+          ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      // A grey sky over rain and storms.
+      ctx.fillStyle = st.storm ? 'rgba(20, 24, 40, 0.25)' : 'rgba(40, 46, 60, 0.12)';
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    } else {
+      this.drops.length = 0;
+    }
+    // Lightning.
+    if (st.storm) {
+      if (!this.nextFlash) this.nextFlash = nowPerf + 4000 + Math.random() * 12000;
+      if (nowPerf > this.nextFlash) {
+        this.flash = 1;
+        this.nextFlash = nowPerf + 6000 + Math.random() * 16000;
+        this.onThunder?.();
+      }
+    }
+    if (this.flash > 0) {
+      moving = true;
+      ctx.fillStyle = `rgba(235, 240, 255, ${0.55 * this.flash})`;
+      ctx.fillRect(0, 0, w, h);
+      this.flash = Math.max(0, this.flash - dt * 3);
+    }
+    // Night: dark blue, with a lantern's light around you.
+    const dark = (1 - st.light) * 0.62;
+    if (dark > 0.01) {
+      const g = ctx.createRadialGradient(centre[0], centre[1], cell * 1.2, centre[0], centre[1], cell * 3.6);
+      g.addColorStop(0, 'rgba(8, 12, 34, 0)');
+      g.addColorStop(1, `rgba(8, 12, 34, ${dark})`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }
+    return moving;
+  }
+
+  newDrop(w, h, anywhere, kind) {
+    return {
+      x: Math.random() * w * 1.1 - w * 0.1,
+      y: anywhere ? Math.random() * h : -Math.random() * h * 0.2,
+      v: kind === 'snow' ? 0.6 + Math.random() * 0.6 : 1.4 + Math.random() * 0.8,
+      len: 6 + Math.random() * 10,
+      r: 1 + Math.random() * 1.8,
+      phase: Math.random() * 10,
+    };
+  }
+}
+
+// Rain on the ground, thunder, and (if wanted) a slow, quiet music: soft
+// chords that drift, brighter by day and lower at night. All made with Web
+// Audio through the game's Sound, so its volume and mute apply.
+export class AmbientSound {
+  constructor(sound) {
+    this.sound = sound;
+    this.rain = null; // { src, gain }
+    this.music = false;
+    this.musicTimer = 0;
+  }
+
+  setRain(level) {
+    const s = this.sound;
+    if (!s.ctx || !s.enabled) level = 0;
+    if (level > 0 && !this.rain) {
+      const ctx = s.ctx;
+      const len = ctx.sampleRate * 2;
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      const f = ctx.createBiquadFilter();
+      f.type = 'lowpass';
+      f.frequency.value = 1400;
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+      src.connect(f).connect(gain).connect(s.master);
+      src.start();
+      this.rain = { src, gain };
+    }
+    if (this.rain) {
+      const t = this.sound.ctx.currentTime;
+      this.rain.gain.gain.cancelScheduledValues(t);
+      this.rain.gain.gain.setTargetAtTime(level * 0.12, t, 1.5);
+      if (level === 0) {
+        const r = this.rain;
+        this.rain = null;
+        setTimeout(() => { try { r.src.stop(); } catch {} }, 6000);
+      }
+    }
+  }
+
+  thunder() {
+    const s = this.sound;
+    if (!s.ctx || !s.enabled) return;
+    const t = s.ctx.currentTime + 0.4 + Math.random() * 1.2;
+    s.noise(t, { dur: 2.2, gain: 0.35, filter: 'lowpass', freq: 160, to: 60 });
+  }
+
+  setMusic(on, mood = () => 1) {
+    this.music = on;
+    clearTimeout(this.musicTimer);
+    if (!on) return;
+    const DAY = [[261.6, 329.6, 392.0], [293.7, 370.0, 440.0], [220.0, 277.2, 329.6], [246.9, 311.1, 370.0]];
+    const NIGHT = [[220.0, 261.6, 329.6], [196.0, 246.9, 293.7], [174.6, 220.0, 261.6], [164.8, 196.0, 246.9]];
+    let i = 0;
+    const play = () => {
+      const s = this.sound;
+      if (this.music && s.ctx && s.enabled) {
+        const set = mood() > 0.5 ? DAY : NIGHT;
+        const chord = set[i++ % set.length];
+        const t = s.ctx.currentTime + 0.05;
+        chord.forEach((f, k) => s.tone(t + k * 0.08, { freq: f / 2, type: 'sine', dur: 7, gain: 0.025, attack: 2.5 }));
+      }
+      if (this.music) this.musicTimer = setTimeout(play, 8000);
+    };
+    play();
+  }
+}

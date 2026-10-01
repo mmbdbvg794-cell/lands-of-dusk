@@ -13,6 +13,11 @@ import { Explored } from './explored.js';
 import { gearFromEquipment, parseWorn, wornCommand } from './gear.js';
 import { chatKind, alsoGeneral, CombatTally } from './chatlog.js';
 import { MapSync } from './mapsync.js';
+import { loadItemInfo } from './iteminfo.js';
+import { JournalReader, JournalDefReader, NotesReader, TradeReader, parseFriends, parseMarkers, parseWhisper, MARKERS, MAP_NOTES, noteAdd, noteRemove } from './social.js';
+import { SocialUI } from './socialui.js';
+import { JournalEditor } from './journaleditor.js';
+import { Atmosphere, AmbientSound, findSnowTiles, daylight } from './atmosphere.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS, parseFlags } from './god.js';
@@ -35,7 +40,7 @@ import { World } from './world.js';
 const $ = (id) => document.getElementById(id);
 const output = $('output');
 // The chat's tabs (General, Combat): see the chat tabs section below.
-const lineCount = { general: 0, combat: 0 };
+const lineCount = { general: 0, combat: 0, whisper: 0 };
 const tally = new CombatTally();
 let chatView = 'general';
 const chatTabs = [...document.querySelectorAll('#chat-tabs [data-chat]')];
@@ -104,7 +109,8 @@ let historyPos = 0;
 const finePointer = window.matchMedia?.('(pointer: fine)');
 let player = new Player();
 const panels = new Panels(document.body, player, (cmd) => runCommand(cmd));
-panels.itemArt = () => renderer.items; // pictures for worn items
+panels.itemArt = () => paintedItems || null; // item pictures, in either art style
+loadItemInfo().then((info) => { panels.itemInfo = info; });
 const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
 let world = newWorld();
 const renderer = new Renderer($('map'), world, $('map-wrap'));
@@ -140,7 +146,30 @@ const god = new GodPanel($('tab-god'), {
     panels.setTabVisible('god', isGod);
     if (!out && isGod) panels.selectByName('god', true);
   },
+  onJournal: () => journalEditor.show(),
 });
+const quiet = (cmd) => { if (conn?.connected) conn.send(cmd); };
+// The quest journal's entries (gods), from the God tab.
+const journalEditor = new JournalEditor($('journal-editor'), { send: quiet });
+// The Journal, Friends and Trade tabs.
+const socialUI = new SocialUI({
+  panels,
+  quiet,
+  run: (cmd) => runCommand(cmd),
+  player: () => player,
+  whisper: (name) => startWhisper(name),
+  note: (t) => sysLine(t),
+});
+const journalReader = new JournalReader();
+const journalDefReader = new JournalDefReader();
+const notesReader = new NotesReader();
+const tradeReader = new TradeReader();
+// "/name " in the chat box, ready for the message.
+function startWhisper(name) {
+  input.value = `/${name} `;
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+}
 // The dialogue editor (gods): from an NPC's click menu or the God tab.
 const dialogueEditor = new DialogueEditor($('dialogue-editor'), {
   send: (cmd, opts) => {
@@ -176,7 +205,7 @@ const entityMenu = new EntityMenu(
     runCommand(cmd);
     if (/^unset \d/.test(cmd)) god.removed();
   },
-  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id, talkers, looks: renderer.propLooks }),
+  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id, talkers, looks: renderer.propLooks, friends: socialUI.friendNames }),
 );
 // Gods rename signs and change what they say.
 entityMenu.onDialogue = (name) => dialogueEditor.edit(name);
@@ -204,6 +233,7 @@ entityMenu.onLock = (id) => {
   runCommand(lockCommand(id, key.trim()));
   if (panels.storage?.entity?.id === id) conn?.send(lookCommand(id));
 };
+entityMenu.onWhisper = (name) => startWhisper(name);
 entityMenu.onStorage = (action, id) => (action === 'open' ? openStorage(id) : panels.setStorage(null));
 
 // ---- NPCs talking (see talk.js) ----
@@ -332,6 +362,61 @@ fetch('js/spellinfo.json')
   })
   .catch(() => {});
 const sound = new Sound();
+
+// Installing as an app (manifest.json, sw.js): Chrome and Edge offer it
+// themselves, through the Install button; on an iPhone or iPad it's
+// Share, then Add to Home Screen.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+let installPrompt = null;
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  installPrompt = e;
+  $('install-row').hidden = false;
+  $('install-app').hidden = false;
+  $('install-hint').textContent = '';
+});
+$('install-app').addEventListener('click', async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  await installPrompt.userChoice.catch(() => null);
+  installPrompt = null;
+  $('install-row').hidden = true;
+});
+if (!standalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+  $('install-row').hidden = false;
+  $('install-app').hidden = true;
+  $('install-hint').textContent = 'To install: tap Share, then Add to Home Screen.';
+}
+
+// Night, weather and music (js/atmosphere.js): on unless turned off;
+// music only if turned on.
+const atmosphere = new Atmosphere();
+const ambient = new AmbientSound(sound);
+atmosphere.onThunder = () => ambient.thunder();
+let rainLevel = -1;
+renderer.onWeather = (st) => {
+  const level = st.falling === 'rain' && sound.enabled ? (st.storm ? 1 : 0.6) : 0;
+  if (level !== rainLevel) { rainLevel = level; ambient.setRain(level); }
+};
+const weatherBox = $('weather-toggle');
+const musicBox = $('music-toggle');
+weatherBox.checked = storage('get', 'dusk.weather') !== '0';
+musicBox.checked = storage('get', 'dusk.music') === '1';
+function applyAtmosphere() {
+  renderer.atmosphere = weatherBox.checked ? atmosphere : null;
+  if (!weatherBox.checked && rainLevel > 0) { rainLevel = 0; ambient.setRain(0); }
+  renderer.invalidate();
+}
+applyAtmosphere();
+weatherBox.addEventListener('change', () => { storage('set', 'dusk.weather', weatherBox.checked ? '1' : '0'); applyAtmosphere(); });
+musicBox.addEventListener('change', () => { storage('set', 'dusk.music', musicBox.checked ? '1' : '0'); ambient.setMusic(musicBox.checked, () => daylight()); });
+// Music waits for the first press (browsers only play sound after one).
+addEventListener('pointerdown', () => { if (musicBox.checked && !ambient.music) ambient.setMusic(true, () => daylight()); }, { once: true, capture: true });
+// The sky changes slowly: redraw now and then even when nothing moves.
+setInterval(() => renderer.invalidate(), 30000);
 // localStorage key for this character's explored tiles, set once we know
 // who's logging in; until then tiles are only kept in memory.
 let exploredKey = null;
@@ -405,6 +490,10 @@ const mapSync = new MapSync({
   send: (cmd) => { if (conn?.connected) conn.send(cmd); },
   explored: () => minimap.explored,
   onMerged: () => {
+    // The rest that follows you about: notes, friends, map pins.
+    quiet(MAP_NOTES);
+    quiet(MARKERS);
+    socialUI.refreshFriends();
     minimap.setExplored(minimap.explored);
     worldMap.invalidate();
     saveExplored();
@@ -491,11 +580,13 @@ addEventListener('pagehide', saveExplored);
 const panelState = storage('get', 'dusk.panel');
 const [savedTab, savedOpen] = panelState ? panelState.split(':') : [];
 // Tabs that come and go (God, Shop, Storage) aren't reopened from last time.
-const steadyTab = ['inv', 'equip', 'book', 'stats'].includes(savedTab) ? savedTab : 'inv';
+const steadyTab = ['inv', 'equip', 'book', 'stats', 'journal', 'friends'].includes(savedTab) ? savedTab : 'inv';
 panels.selectByName(steadyTab, savedOpen ? savedOpen === '1' : window.innerWidth >= 800);
 panels.onToggle = (tab, open) => {
   storage('set', 'dusk.panel', `${tab}:${open ? 1 : 0}`);
   if (tab === 'god' && open) god.opened();
+  if (tab === 'journal' && open) socialUI.refreshJournal();
+  if (tab === 'friends' && open) socialUI.refreshFriends();
 };
 
 // ---- logging in --------------------------------------------------------------
@@ -738,6 +829,12 @@ function mailto(subject, body) {
 $('prompt-bar').addEventListener('click', (e) => {
   const b = e.target.closest('button[data-answer]');
   if (!b) return;
+  // A trade request: Accept or Decline.
+  if ($('prompt-bar').dataset.mode === 'trade') {
+    quiet(b.dataset.answer === 'yes' ? 'trade accept' : 'trade decline');
+    hideTradeRequest();
+    return;
+  }
   runCommand(b.dataset.answer);
   $('prompt-bar').hidden = true;
 });
@@ -1111,6 +1208,7 @@ function handle(msg) {
   const part = player.apply(msg);
   if (part) {
     panels.update(part);
+    if (part === 'items') socialUI.renderTrade();
     if (part === 'status') showPanels();
     if (part === 'equipment') dressSelf();
   }
@@ -1140,6 +1238,8 @@ function handle(msg) {
       if (names) { talkers = names; renderer.talkers = names; renderer.invalidate(); break; }
       // The server's copy of the explored map: never shown in chat.
       if (mapSync.feed(msg.text)) break;
+      // Journal, friends, map pins and notes, and trading (js/social.js).
+      if (socialLine(msg.text)) break;
       const worn = parseWorn(msg.text);
       if (worn) { if (worn.id != null) { wornAnswered.add(worn.id); renderer.setOtherGear(worn.id, gearFromEquipment(worn.equipment)); } break; }
       const dlgReply = parseDialogueReply(msg.text);
@@ -1339,6 +1439,12 @@ async function applyArt() {
     };
   }
   if (!sheets) return;
+  // Item pictures in the Backpack, Storage and Shop, whatever the style.
+  if (paintedItems === null) {
+    paintedItems = await loadNamed('items', 128);
+    panels.renderItems();
+    panels.update('equipment');
+  }
   // Creatures drawn by name, in the Painted style.
   if (artStyle === 'painted') {
     if (paintedNamed === null) paintedNamed = await loadNamed('named');
@@ -1351,6 +1457,14 @@ async function applyArt() {
     renderer.items = null;
   }
   dressSelf();
+  // Which tiles are snow, for snow instead of rain (measured once, from
+  // the painted tiles: the game's own picture is on another server, which
+  // the browser won't let a page read).
+  if (!renderer.snowTiles) {
+    renderer.snowTiles = new Set();
+    const measure = (sheet) => { const found = sheet && findSnowTiles(sheet); if (found) renderer.snowTiles = found; return !!found; };
+    if (!measure(paintedSheets?.map)) loadSheet('art/painted/map.png').then(measure).catch(() => {});
+  }
   renderer.setSheets(sheets);
   minimap.setSheet(sheets.map);
   if (sheets.players) playerSheet = sheets.players;
@@ -1628,12 +1742,82 @@ function appendLine(text, cls, color) {
     lineCount[kind]--;
   }
   if (kind === 'combat' && !cls && tally.feed(text, player.name)) renderTally();
-  if (!chatShows(div)) markUnread(kind);
+  // Whispers show in General too, and flag their own tab as well.
+  if (!chatShows(div) || (kind === 'whisper' && chatView !== 'whisper')) markUnread(kind);
   // What you type always brings you back to the latest.
   if (cls === 'echo') followLog = true;
   if (followLog) output.scrollTop = output.scrollHeight;
   else if (chatShows(div)) latestBtn.hidden = false;
 }
+
+// ---- journal, friends, map pins, trading ------------------------------------
+
+// A line for one of them: handled (and kept out of chat unless it says
+// something worth seeing), true; else false.
+function socialLine(text) {
+  let r = journalReader.feed(text);
+  if (r) { if (r.done) socialUI.setJournal(r.done); return true; }
+  r = journalDefReader.feed(text);
+  if (r) { if (r.done) journalEditor.loaded(r.done); return true; }
+  r = notesReader.feed(text);
+  if (r) { if (r.done) { worldMap.notes = r.done; worldMap.invalidate(); } return true; }
+  const friends = parseFriends(text);
+  if (friends) { socialUI.setFriends(friends); return true; }
+  const markers = parseMarkers(text);
+  if (markers) { worldMap.markers = markers; markersAt = Date.now(); worldMap.invalidate(); return true; }
+  r = tradeReader.feed(text);
+  if (!r) return false;
+  if (r.request) showTradeRequest(r.request);
+  if (r.table) { hideTradeRequest(); socialUI.setTrade(r.table); }
+  if (r.closed !== undefined || r.done !== undefined) {
+    hideTradeRequest();
+    socialUI.endTrade();
+    appendLine(r.closed ?? r.done, 'sys');
+  }
+  return true;
+}
+
+// Someone asks to trade: Accept / Decline in the prompt bar.
+function showTradeRequest(name) {
+  const bar = $('prompt-bar');
+  bar.dataset.mode = 'trade';
+  $('prompt-text').textContent = `${name} wants to trade with you.`;
+  bar.querySelector('[data-answer="yes"]').textContent = 'Accept';
+  bar.querySelector('[data-answer="no"]').textContent = 'Decline';
+  bar.hidden = false;
+}
+function hideTradeRequest() {
+  const bar = $('prompt-bar');
+  if (bar.dataset.mode !== 'trade') return;
+  delete bar.dataset.mode;
+  bar.querySelector('[data-answer="yes"]').textContent = 'Yes';
+  bar.querySelector('[data-answer="no"]').textContent = 'No';
+  bar.hidden = true;
+}
+
+// Clicking a whisper answers it.
+output.addEventListener('click', (e) => {
+  const line = e.target.closest('.line.k-whisper');
+  if (!line || window.getSelection()?.toString()) return;
+  const w = parseWhisper(line.textContent.replace(/^\d\d:\d\d /, ''));
+  if (w) startWhisper(w.who);
+});
+
+// World map notes, and the pins (fetched again when the map opens, if old).
+let markersAt = 0;
+worldMap.onAddNote = (x, y, text) => {
+  quiet(noteAdd(x, y, text));
+  worldMap.notes = [...worldMap.notes.filter((n) => n.x !== x || n.y !== y), { x, y, text }];
+  worldMap.invalidate();
+};
+worldMap.onRemoveNote = (x, y) => {
+  quiet(noteRemove(x, y));
+  worldMap.notes = worldMap.notes.filter((n) => n.x !== x || n.y !== y);
+  worldMap.invalidate();
+};
+worldMap.onShow = () => { if (Date.now() - markersAt > 120000) quiet(MARKERS); };
+// Friends' comings and goings.
+setInterval(() => { if (conn?.connected && loaded) socialUI.refreshFriends(); }, 30000);
 
 // ---- chat tabs and options --------------------------------------------------
 
@@ -1641,6 +1825,7 @@ function appendLine(text, cls, color) {
 // Whether a line shows in the current tab.
 function chatShows(line) {
   if (chatView === 'combat') return line.classList.contains('k-combat');
+  if (chatView === 'whisper') return line.classList.contains('k-whisper');
   return !line.classList.contains('k-combat') || line.classList.contains('k-both') || output.classList.contains('mixed');
 }
 
@@ -1711,7 +1896,7 @@ $('chat-clear').addEventListener('click', () => {
   for (const line of [...output.querySelectorAll('.line')]) {
     if (!chatShows(line)) continue;
     line.remove();
-    lineCount[line.classList.contains('k-combat') ? 'combat' : 'general']--;
+    lineCount[line.classList.contains('k-combat') ? 'combat' : line.classList.contains('k-whisper') ? 'whisper' : 'general']--;
   }
   $('chat-opts').open = false;
   toLatest();

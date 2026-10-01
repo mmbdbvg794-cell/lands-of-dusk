@@ -14,6 +14,8 @@ assert.equal(chatKind('flan: hello there'), 'general');
 assert.equal(chatKind('Drill Sergeant says: Hey you!'), 'general');
 assert.equal(chatKind('You feel hungry.'), 'general');
 assert.equal(chatKind(''), 'general');
+assert.equal(chatKind('bluntman tells you: hi'), 'whisper');
+assert.equal(chatKind('You tell bluntman: hey'), 'whisper');
 assert.equal(alsoGeneral('\tYou have died.'), true);
 assert.equal(alsoGeneral('You got a rat tail'), true);
 assert.equal(alsoGeneral('\trat is killed.'), false);
