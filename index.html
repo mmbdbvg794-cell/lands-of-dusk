@@ -251,7 +251,41 @@
       </section>
     </aside>
     <section id="log" class="card">
-      <main id="output" aria-live="polite"></main>
+      <div id="chat-bar">
+        <div id="chat-tabs" role="tablist" aria-label="Chat">
+          <button type="button" role="tab" data-chat="general" aria-selected="true">General<span class="unread" hidden></span></button>
+          <button type="button" role="tab" data-chat="combat" aria-selected="false" tabindex="-1">Combat<span class="unread" hidden></span></button>
+        </div>
+        <div id="combat-tally" hidden>
+          <span title="Creatures killed">Kills <b data-tally="kills">0</b></span>
+          <span title="Damage you did">Dealt <b data-tally="dealt">0</b></span>
+          <span title="Damage done to you">Taken <b data-tally="taken">0</b></span>
+          <span title="Your biggest hit">Best <b data-tally="best">0</b></span>
+          <span title="Your hits that did damage">Hit rate <b data-tally="rate">–</b></span>
+          <span title="Attacks you dodged">Dodged <b data-tally="dodged">0</b></span>
+          <span title="Experience from fights">Exp <b data-tally="exp">0</b></span>
+          <span title="Gold from fights">Gold <b data-tally="gold">0</b></span>
+          <button type="button" id="tally-reset" class="ghost small" title="Start counting again">Reset</button>
+        </div>
+        <details id="chat-opts">
+          <summary title="Chat options" aria-label="Chat options">⚙</summary>
+          <div class="chat-opts-menu">
+            <label>Text size
+              <select id="chat-size">
+                <option value="s">Small</option>
+                <option value="m" selected>Normal</option>
+                <option value="l">Large</option>
+                <option value="xl">Extra large</option>
+              </select>
+            </label>
+            <label class="toggle"><input id="chat-stamps" type="checkbox"> Show times</label>
+            <label class="toggle"><input id="chat-mixed" type="checkbox"> Show combat in General too</label>
+            <label class="toggle"><input id="chat-tally-toggle" type="checkbox" checked> Combat summary on the Combat tab</label>
+            <button type="button" id="chat-clear" class="small">Clear this tab</button>
+          </div>
+        </details>
+      </div>
+      <main id="output" aria-live="polite" data-view="general"></main>
       <button type="button" id="output-latest" hidden>New messages ↓</button>
       <div id="prompt-bar" role="group" aria-labelledby="prompt-text" hidden>
         <span id="prompt-text"></span>

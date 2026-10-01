@@ -23,7 +23,7 @@ export class Panels {
     this.player = player;
     this.send = send;
     this.$ = (sel) => root.querySelector(sel);
-    this.tabs = [...root.querySelectorAll('[role="tab"]')];
+    this.tabs = [...root.querySelectorAll('#panel [role="tab"]')];
     this.armedDrop = null; // { id, timer } while a Drop button awaits its second press
 
     for (const tab of this.tabs) tab.addEventListener('click', () => this.select(tab));

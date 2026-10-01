@@ -11,6 +11,7 @@ import { bareName } from './world.js';
 import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
 import { gearFromEquipment, parseWorn, wornCommand } from './gear.js';
+import { chatKind, alsoGeneral, CombatTally } from './chatlog.js';
 import { StorageReader, isStorage, lookCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS, parseFlags } from './god.js';
@@ -32,6 +33,11 @@ import { World } from './world.js';
 
 const $ = (id) => document.getElementById(id);
 const output = $('output');
+// The chat's tabs (General, Combat): see the chat tabs section below.
+const lineCount = { general: 0, combat: 0 };
+const tally = new CombatTally();
+let chatView = 'general';
+const chatTabs = [...document.querySelectorAll('#chat-tabs [data-chat]')];
 
 // The log follows the newest line unless you've scrolled up to read; then
 // a "New messages" button offers the way back down. Whether it's
@@ -1491,17 +1497,126 @@ function traceLine(msg) {
 }
 
 function appendLine(text, cls, color) {
+  // Server lines are sorted into General or Combat; our own are General.
+  const kind = cls ? 'general' : chatKind(text);
   const div = document.createElement('div');
-  div.className = cls ? `line ${cls}` : 'line';
+  div.className = `line k-${kind}${cls ? ` ${cls}` : ''}${kind === 'combat' && alsoGeneral(text) ? ' k-both' : ''}`;
   if (color) div.style.color = color;
-  div.textContent = text;
+  const stamp = document.createElement('span');
+  stamp.className = 'stamp';
+  stamp.textContent = new Date().toTimeString().slice(0, 5) + ' ';
+  div.append(stamp, kind === 'combat' ? text.replace(/^\t+/, '') : text);
   output.appendChild(div);
-  while (output.childElementCount > MAX_LINES) output.firstElementChild.remove();
+  lineCount[kind]++;
+  // Each kind keeps its own last MAX_LINES, so a long fight doesn't push
+  // the conversation out.
+  if (lineCount[kind] > MAX_LINES) {
+    output.querySelector(`.line.k-${kind}`)?.remove();
+    lineCount[kind]--;
+  }
+  if (kind === 'combat' && !cls && tally.feed(text, player.name)) renderTally();
+  if (!chatShows(div)) markUnread(kind);
   // What you type always brings you back to the latest.
   if (cls === 'echo') followLog = true;
   if (followLog) output.scrollTop = output.scrollHeight;
-  else latestBtn.hidden = false;
+  else if (chatShows(div)) latestBtn.hidden = false;
 }
+
+// ---- chat tabs and options --------------------------------------------------
+
+
+// Whether a line shows in the current tab.
+function chatShows(line) {
+  if (chatView === 'combat') return line.classList.contains('k-combat');
+  return !line.classList.contains('k-combat') || line.classList.contains('k-both') || output.classList.contains('mixed');
+}
+
+function markUnread(kind) {
+  if (kind === chatView || (kind === 'combat' && output.classList.contains('mixed'))) return;
+  const tab = chatTabs.find((t) => t.dataset.chat === kind);
+  if (tab) tab.querySelector('.unread').hidden = false;
+}
+
+function setChatView(view) {
+  chatView = view;
+  output.dataset.view = view;
+  for (const t of chatTabs) {
+    const on = t.dataset.chat === view;
+    t.setAttribute('aria-selected', String(on));
+    t.tabIndex = on ? 0 : -1;
+    if (on) t.querySelector('.unread').hidden = true;
+  }
+  $('combat-tally').hidden = view !== 'combat' || !$('chat-tally-toggle').checked;
+  toLatest();
+}
+for (const t of chatTabs) t.addEventListener('click', () => setChatView(t.dataset.chat));
+$('chat-tabs').addEventListener('keydown', (e) => {
+  const step = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+  if (!step) return;
+  const i = chatTabs.findIndex((t) => t.dataset.chat === chatView);
+  const next = chatTabs[(i + step + chatTabs.length) % chatTabs.length];
+  setChatView(next.dataset.chat);
+  next.focus();
+});
+
+let tallyQueued = false;
+function renderTally() {
+  if (tallyQueued) return;
+  tallyQueued = true;
+  requestAnimationFrame(() => {
+    tallyQueued = false;
+    const swings = tally.hits + tally.misses;
+    const values = { ...tally, rate: swings ? `${Math.round((100 * tally.hits) / swings)}%` : '–' };
+    for (const b of document.querySelectorAll('#combat-tally [data-tally]')) b.textContent = values[b.dataset.tally].toLocaleString();
+  });
+}
+$('tally-reset').addEventListener('click', () => { tally.reset(); renderTally(); });
+
+// Options, remembered on this device.
+const chatSize = $('chat-size');
+const chatStamps = $('chat-stamps');
+const chatMixed = $('chat-mixed');
+const chatTallyBox = $('chat-tally-toggle');
+function applyChatOptions() {
+  output.classList.remove('size-s', 'size-m', 'size-l', 'size-xl');
+  output.classList.add(`size-${chatSize.value}`);
+  output.classList.toggle('stamps', chatStamps.checked);
+  output.classList.toggle('mixed', chatMixed.checked);
+  $('combat-tally').hidden = chatView !== 'combat' || !chatTallyBox.checked;
+  if (followLog) output.scrollTop = output.scrollHeight;
+}
+chatSize.value = ['s', 'm', 'l', 'xl'].includes(storage('get', 'dusk.chatsize')) ? storage('get', 'dusk.chatsize') : 'm';
+chatStamps.checked = storage('get', 'dusk.chatstamps') === '1';
+chatMixed.checked = storage('get', 'dusk.chatmixed') === '1';
+chatTallyBox.checked = storage('get', 'dusk.chattally') !== '0';
+applyChatOptions();
+chatSize.addEventListener('change', () => { storage('set', 'dusk.chatsize', chatSize.value); applyChatOptions(); });
+chatStamps.addEventListener('change', () => { storage('set', 'dusk.chatstamps', chatStamps.checked ? '1' : '0'); applyChatOptions(); });
+chatMixed.addEventListener('change', () => { storage('set', 'dusk.chatmixed', chatMixed.checked ? '1' : '0'); applyChatOptions(); });
+chatTallyBox.addEventListener('change', () => { storage('set', 'dusk.chattally', chatTallyBox.checked ? '1' : '0'); applyChatOptions(); });
+$('chat-clear').addEventListener('click', () => {
+  for (const line of [...output.querySelectorAll('.line')]) {
+    if (!chatShows(line)) continue;
+    line.remove();
+    lineCount[line.classList.contains('k-combat') ? 'combat' : 'general']--;
+  }
+  $('chat-opts').open = false;
+  toLatest();
+});
+// The menu sits over everything (the chat box clips what overflows it),
+// below the button, or above it when there's no room below.
+$('chat-opts').addEventListener('toggle', () => {
+  const menu = $('chat-opts').querySelector('.chat-opts-menu');
+  if (!$('chat-opts').open) return;
+  const r = $('chat-opts').querySelector('summary').getBoundingClientRect();
+  const h = menu.offsetHeight;
+  menu.style.right = `${Math.max(8, window.innerWidth - r.right)}px`;
+  menu.style.top = r.bottom + 4 + h <= window.innerHeight - 8 ? `${r.bottom + 4}px` : `${Math.max(8, r.top - 4 - h)}px`;
+});
+// The options close when you click elsewhere.
+document.addEventListener('pointerdown', (e) => {
+  if ($('chat-opts').open && !e.target.closest('#chat-opts')) $('chat-opts').open = false;
+});
 
 // Server colors were picked for the Java client's white text area; lift
 // anything too dark to read on our dark background.

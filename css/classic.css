@@ -217,7 +217,7 @@ body.classic .doll-slot .remove { background: none; border: none; color: var(--i
 body.classic #log { padding: 0; }
 body.classic #output {
   font-family: "EB Garamond", Georgia, serif;
-  font-size: 15px;
+  font-size: calc(15px * var(--chat-scale, 1));
   background: rgba(8, 8, 10, 0.55);
   box-shadow: inset 0 0 12px #000;
 }
@@ -225,6 +225,13 @@ body.classic #output .echo { color: var(--gold-bright); }
 body.classic #output .sys { color: var(--stone-light); }
 body.classic #input { font-family: "EB Garamond", Georgia, serif; font-size: 15px; }
 body.classic #output-latest { font-size: 12px; }
+body.classic #chat-bar { border-bottom-color: rgba(203, 178, 106, 0.3); background: rgba(8, 8, 10, 0.35); }
+body.classic #chat-tabs button { font-family: "Cinzel", serif; font-size: 13px; letter-spacing: 0.04em; }
+body.classic #chat-tabs button[aria-selected="true"] { color: var(--gold-bright); border-bottom-color: var(--gold); }
+body.classic #chat-tabs .unread { background: var(--gold-bright); }
+body.classic #combat-tally { font-family: "EB Garamond", Georgia, serif; font-size: 14px; color: var(--stone-light); }
+body.classic #combat-tally b { color: var(--gold-bright); }
+body.classic .chat-opts-menu { background: #1c1c1f; border-color: rgba(203, 178, 106, 0.45); font-family: "EB Garamond", Georgia, serif; font-size: 15px; }
 
 /* ---- on the map ---- */
 
