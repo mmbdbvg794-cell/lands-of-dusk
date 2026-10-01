@@ -402,16 +402,21 @@ renderer.onWeather = (st) => {
   if (level !== rainLevel) { rainLevel = level; ambient.setRain(level); }
 };
 const weatherBox = $('weather-toggle');
+const nightBox = $('night-toggle');
 const musicBox = $('music-toggle');
 weatherBox.checked = storage('get', 'dusk.weather') !== '0';
+nightBox.checked = storage('get', 'dusk.night') !== '0';
 musicBox.checked = storage('get', 'dusk.music') === '1';
 function applyAtmosphere() {
-  renderer.atmosphere = weatherBox.checked ? atmosphere : null;
+  atmosphere.night = nightBox.checked;
+  atmosphere.weather = weatherBox.checked;
+  renderer.atmosphere = weatherBox.checked || nightBox.checked ? atmosphere : null;
   if (!weatherBox.checked && rainLevel > 0) { rainLevel = 0; ambient.setRain(0); }
   renderer.invalidate();
 }
 applyAtmosphere();
 weatherBox.addEventListener('change', () => { storage('set', 'dusk.weather', weatherBox.checked ? '1' : '0'); applyAtmosphere(); });
+nightBox.addEventListener('change', () => { storage('set', 'dusk.night', nightBox.checked ? '1' : '0'); applyAtmosphere(); });
 musicBox.addEventListener('change', () => { storage('set', 'dusk.music', musicBox.checked ? '1' : '0'); ambient.setMusic(musicBox.checked, () => daylight()); });
 // Music waits for the first press (browsers only play sound after one).
 addEventListener('pointerdown', () => { if (musicBox.checked && !ambient.music) ambient.setMusic(true, () => daylight()); }, { once: true, capture: true });

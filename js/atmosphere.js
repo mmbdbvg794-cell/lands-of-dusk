@@ -90,6 +90,8 @@ export function findSnowTiles(sheet) {
 // Draws night and weather over the map.
 export class Atmosphere {
   constructor() {
+    this.night = true; // darkness at night (else always day)
+    this.weather = true; // rain, storms and snow (else always clear)
     this.drops = [];
     this.flash = 0;
     this.nextFlash = 0;
@@ -99,10 +101,10 @@ export class Atmosphere {
   // { weather, light, falling } for the view: falling is 'rain', 'snow'
   // or null (clear, or indoors).
   state(now, share) {
-    const weather = weatherAt(now);
+    const weather = this.weather ? weatherAt(now) : 'clear';
     const outdoors = share.outdoor >= 0.4;
     const falling = weather === 'clear' || !outdoors ? null : share.snow >= 0.3 ? 'snow' : 'rain';
-    return { weather, light: daylight(now), falling, storm: weather === 'storm' && outdoors };
+    return { weather, light: this.night ? daylight(now) : 1, falling, storm: weather === 'storm' && outdoors };
   }
 
   // ctx: the map canvas; w, h its size; centre: the player in pixels;

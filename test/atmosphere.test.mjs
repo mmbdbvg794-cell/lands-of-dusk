@@ -27,4 +27,8 @@ const rainy = [...Array(200).keys()].map((i) => i * WEATHER_MS).find((x) => weat
 assert.equal(a.state(rainy, { outdoor: 0.8, snow: 0 }).falling, 'rain');
 assert.equal(a.state(rainy, { outdoor: 0.8, snow: 0.5 }).falling, 'snow');
 assert.equal(a.state(rainy, { outdoor: 0.2, snow: 0 }).falling, null, 'indoors stays dry');
+a.weather = false;
+assert.equal(a.state(rainy, { outdoor: 0.8, snow: 0 }).falling, null, 'weather off');
+a.night = false;
+assert.equal(a.state(DAY_MS * 0.7, { outdoor: 1, snow: 0 }).light, 1, 'night off: always day');
 console.log('ok - atmosphere');
