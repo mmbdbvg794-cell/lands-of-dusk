@@ -226,6 +226,17 @@ backups; see `server/`.
   fighting and utility skills, each with what it does; magic is in the
   Spellbook.
 
+- **MP heals properly**: the game loop healed MP by CON instead of WIS and
+  capped it at max HP instead of max MP; fixed in the engine.
+- **Monsters respawn**: killed monsters come back where they were placed
+  (after mobrespawnspeed seconds, or a monster's own "respawn" time).
+- **God tab → Monsters, props and items…**: open any definition as a form
+  (stats, picture, drops, skills, respawn, description...), save to change
+  every placed copy at once, or make a new one from a copy. Also from a
+  monster's or prop's click menu.
+- **Painted spell effects**: smooth, glowing versions of every spell effect
+  in the Painted style.
+
 ## Website
 
 - **Play Now** goes to the browser client (`/play/`). The "Requires
