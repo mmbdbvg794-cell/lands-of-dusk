@@ -457,6 +457,34 @@
     </div>
   </section>
 
+  <!-- Monsters, props and items, for gods (libraryeditor.js). -->
+  <section id="library-editor" class="editor-dialog" role="dialog" aria-label="Monsters, props and items" hidden>
+    <div class="de-bar">
+      <strong class="de-title">Monsters, props and items</strong>
+      <button type="button" data-le="close" class="ghost" aria-label="Close">×</button>
+    </div>
+    <div class="de-body">
+      <div class="de-row">
+        <select class="le-kind" aria-label="Kind">
+          <option value="mob">Monster</option>
+          <option value="prop">Prop</option>
+          <option value="item">Item</option>
+        </select>
+        <input class="le-name" type="text" list="le-names" placeholder="Name, e.g. training_dummy" autocomplete="off" spellcheck="false" aria-label="Name">
+        <datalist id="le-names"></datalist>
+        <button type="button" data-le="open">Open</button>
+        <button type="button" data-le="new">New…</button>
+      </div>
+      <p class="de-hint le-status"></p>
+      <div class="le-body"></div>
+    </div>
+    <div class="de-foot">
+      <button type="button" data-le="place" hidden>Place one here</button>
+      <span class="de-grow"></span>
+      <button type="button" data-le="save" class="primary" disabled>Save</button>
+    </div>
+  </section>
+
   <!-- The quest journal's entries, for gods (journaleditor.js). -->
   <section id="journal-editor" class="editor-dialog" role="dialog" aria-label="Quest journal" hidden>
     <div class="de-bar">

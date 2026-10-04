@@ -3,7 +3,7 @@
 // selection box, sprite and name.
 
 import { HIT_MS, bareName } from './world.js';
-import { drawEffect } from './effects.js';
+import { drawEffect, drawPaintedEffect } from './effects.js';
 import { LOOKS, OUT, paintFigureStrip } from './figure.js';
 import { outdoorShare } from './atmosphere.js';
 import { gearKey } from './gear.js';
@@ -223,7 +223,10 @@ export class Renderer {
     for (const fx of this.world.effects) {
       const at = typeof fx.on === 'object' ? toPx(fx.on.x, fx.on.y)
         : fx.on === 'self' ? (self && where.get(self.id)) ?? centre : where.get(fx.on);
-      if (at) drawEffect(this.ctx, fx, at[0], at[1], c, now, this.world.stepMs === 0);
+      if (!at) continue;
+      // Smooth in the Painted style (unless motion is reduced).
+      if (this.paintedEffects && this.world.stepMs !== 0) drawPaintedEffect(this.ctx, fx, at[0], at[1], c, now);
+      else drawEffect(this.ctx, fx, at[0], at[1], c, now, this.world.stepMs === 0);
     }
   }
 

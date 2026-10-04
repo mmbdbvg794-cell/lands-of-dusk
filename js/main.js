@@ -17,6 +17,8 @@ import { loadItemInfo } from './iteminfo.js';
 import { JournalReader, JournalDefReader, NotesReader, TradeReader, parseFriends, parseMarkers, parseWhisper, MARKERS, MAP_NOTES, noteAdd, noteRemove } from './social.js';
 import { SocialUI } from './socialui.js';
 import { JournalEditor } from './journaleditor.js';
+import { LibraryEditor } from './libraryeditor.js';
+import { parseLibReply } from './library.js';
 import { Atmosphere, AmbientSound, findSnowTiles, daylight } from './atmosphere.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
@@ -147,6 +149,16 @@ const god = new GodPanel($('tab-god'), {
     if (!out && isGod) panels.selectByName('god', true);
   },
   onJournal: () => journalEditor.show(),
+  onLibrary: () => libraryEditor.show(),
+});
+// Monsters, props and items (gods): from the God tab or a click menu.
+const libraryEditor = new LibraryEditor($('library-editor'), {
+  send: (cmd) => { if (conn?.connected) conn.send(cmd); },
+  run: (cmd) => runCommand(cmd),
+  lists: () => god.lists,
+  fetchLists: () => god.opened(),
+  sprites: () => renderer.sheets?.sprites ?? null,
+  note: (t) => sysLine(t),
 });
 const quiet = (cmd) => { if (conn?.connected) conn.send(cmd); };
 // The quest journal's entries (gods), from the God tab.
@@ -234,6 +246,7 @@ entityMenu.onLock = (id) => {
   if (panels.storage?.entity?.id === id) conn?.send(lookCommand(id));
 };
 entityMenu.onWhisper = (name) => startWhisper(name);
+entityMenu.onLibrary = (kind, name) => libraryEditor.show(kind, name);
 entityMenu.onStorage = (action, id) => (action === 'open' ? openStorage(id) : panels.setStorage(null));
 
 // ---- NPCs talking (see talk.js) ----
@@ -1245,6 +1258,10 @@ function handle(msg) {
       if (mapSync.feed(msg.text)) break;
       // Journal, friends, map pins and notes, and trading (js/social.js).
       if (socialLine(msg.text)) break;
+      // The definitions editor's answers.
+      const lib = isGod && parseLibReply(msg.text);
+      if (lib) { libraryEditor.reply(lib); break; }
+      if (isGod && libraryEditor.failed(msg.text)) break;
       const worn = parseWorn(msg.text);
       if (worn) { if (worn.id != null) { wornAnswered.add(worn.id); renderer.setOtherGear(worn.id, gearFromEquipment(worn.equipment)); } break; }
       const dlgReply = parseDialogueReply(msg.text);
@@ -1279,7 +1296,10 @@ function handle(msg) {
     case OP.EDIT_OR_LIST: {
       // Name lists for the God tab ("list items", ...).
       const kind = listKind(msg.title);
-      if (kind && isGod) god.setList(kind, cleanList(kind, msg.lines));
+      if (kind && isGod) {
+        god.setList(kind, cleanList(kind, msg.lines));
+        if (libraryEditor.open) libraryEditor.fillNames();
+      }
       break;
     }
     case OP.PLAY_SFX: {
@@ -1450,6 +1470,7 @@ async function applyArt() {
     panels.renderItems();
     panels.update('equipment');
   }
+  renderer.paintedEffects = artStyle === 'painted';
   // Creatures drawn by name, in the Painted style.
   if (artStyle === 'painted') {
     if (paintedNamed === null) paintedNamed = await loadNamed('named');

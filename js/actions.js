@@ -57,6 +57,9 @@ export function entityActions(ent, me) {
   else if (!isStorage(ent) && (ent.type === TYPE.SIGN || ent.type === TYPE.MOB || ent.type === TYPE.MERCHANT)) acts.push({ label: 'Edit dialogue (god)', dialogue: name, god: true });
   // Props: what "Look" says about them.
   if (ent.type === TYPE.SIGN && !isSign(ent) && !isStorage(ent)) acts.push({ label: 'Edit description (god)', describe: true, god: true });
+  // What it is, for every one of them (its definition file).
+  if (ent.type === TYPE.MOB) acts.push({ label: 'Edit this monster (god)', lib: 'mob', libName: name, god: true });
+  if (ent.type === TYPE.SIGN && !isSign(ent) && !isStorage(ent)) acts.push({ label: 'Edit this prop (god)', lib: 'prop', libName: name, god: true });
   // Chests can be locked to a key item (barrels stay open).
   if (isChest(ent)) {
     const near = storageReach(ent, me);

@@ -135,6 +135,7 @@ patch('DuskServer.java', [
         Bans.load();
         Social.load();
         Skills.start(this.engGame);
+        Library.startRespawning(this.engGame);
         Talk.start(this.engGame);
         try {''', 1),
 ])

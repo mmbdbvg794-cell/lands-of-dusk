@@ -71,6 +71,8 @@ public class Props {
             if (social != null) return social;
             String trade = Trade.command(who, engine, trimmed);
             if (trade != null) return trade;
+            String lib = Library.command(who, engine, trimmed);
+            if (lib != null) return lib;
             if (lower.equals("prop looks")) return "Looks: " + looks();
             if (lower.startsWith("worn ")) return worn(who, engine, trimmed.substring(5).trim());
             if (lower.startsWith("flags ")) return flags(who, engine, trimmed.substring(6).trim(), null, null);

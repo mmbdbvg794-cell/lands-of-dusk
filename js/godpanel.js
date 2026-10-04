@@ -24,8 +24,9 @@ export class GodPanel {
   // looks; onNpcPlaced(name) opens the dialogue editor for a new NPC.
   // onTileEdit(x, y) opens the tile editor for your square.
   // onUseCommand(text) puts a command in the chat box to finish typing.
-  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit, onUseCommand, onJournal }) {
+  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit, onUseCommand, onJournal, onLibrary }) {
     this.onJournal = onJournal;
+    this.onLibrary = onLibrary;
     this.tab = tab;
     this.onUseCommand = onUseCommand;
     this.onTileEdit = onTileEdit;
@@ -164,8 +165,11 @@ export class GodPanel {
       h('h4', { className: 'list-head' }, 'Tools'),
       h('div', { className: 'god-row' }, $.tx, $.ty, $.go),
       h('div', { className: 'god-row' }, h('span', { className: 'god-label', textContent: 'To players you are' }), $.show, $.hide),
-      h('div', { className: 'god-row' }, $.journal = h('button', { type: 'button', textContent: 'Quest journal…', title: 'What players see in their Journal for each quest flag' })));
+      h('div', { className: 'god-row' },
+        $.library = h('button', { type: 'button', textContent: 'Monsters, props and items…', title: 'Change what a monster, prop or item is, or make a new one' }),
+        $.journal = h('button', { type: 'button', textContent: 'Quest journal…', title: 'What players see in their Journal for each quest flag' })));
     $.journal.addEventListener('click', () => this.onJournal?.());
+    $.library.addEventListener('click', () => this.onLibrary?.());
 
     // Every god command, to look up or start typing.
     $.cmdSearch = h('input', { type: 'search', placeholder: 'Search commands…', autocomplete: 'off', className: 'god-search' });
