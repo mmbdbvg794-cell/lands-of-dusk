@@ -149,7 +149,7 @@ const god = new GodPanel($('tab-god'), {
     if (!out && isGod) panels.selectByName('god', true);
   },
   onJournal: () => journalEditor.show(),
-  onLibrary: () => libraryEditor.show(),
+  onLibrary: (kind) => libraryEditor.show(kind),
 });
 // Monsters, props and items (gods): from the God tab or a click menu.
 const libraryEditor = new LibraryEditor($('library-editor'), {

@@ -464,19 +464,25 @@
       <button type="button" data-le="close" class="ghost" aria-label="Close">×</button>
     </div>
     <div class="de-body">
-      <div class="de-row">
-        <select class="le-kind" aria-label="Kind">
-          <option value="mob">Monster</option>
-          <option value="prop">Prop</option>
-          <option value="item">Item</option>
-        </select>
-        <input class="le-name" type="text" list="le-names" placeholder="Name, e.g. training_dummy" autocomplete="off" spellcheck="false" aria-label="Name">
-        <datalist id="le-names"></datalist>
-        <button type="button" data-le="open">Open</button>
-        <button type="button" data-le="new">New…</button>
+      <select class="le-kind" aria-label="Kind" hidden>
+        <option value="mob">Monster</option>
+        <option value="prop">Prop</option>
+        <option value="item">Item</option>
+      </select>
+      <div class="le-layout">
+        <div class="le-browse">
+          <div class="de-row">
+            <input class="le-search" type="search" placeholder="Search…" autocomplete="off" spellcheck="false" aria-label="Search">
+          </div>
+          <button type="button" data-le="new" class="primary le-new">New…</button>
+          <div class="le-names" role="list"></div>
+        </div>
+        <div class="le-main">
+          <input class="le-name" type="hidden">
+          <p class="de-hint le-status"></p>
+          <div class="le-body"></div>
+        </div>
       </div>
-      <p class="de-hint le-status"></p>
-      <div class="le-body"></div>
     </div>
     <div class="de-foot">
       <button type="button" data-le="place" hidden>Place one here</button>

@@ -166,10 +166,15 @@ export class GodPanel {
       h('div', { className: 'god-row' }, $.tx, $.ty, $.go),
       h('div', { className: 'god-row' }, h('span', { className: 'god-label', textContent: 'To players you are' }), $.show, $.hide),
       h('div', { className: 'god-row' },
-        $.library = h('button', { type: 'button', textContent: 'Monsters, props and items…', title: 'Change what a monster, prop or item is, or make a new one' }),
+        $.libMob = h('button', { type: 'button', textContent: 'Monsters…', title: 'Change a monster (stats, drops, skills, respawn...) or make a new one' }),
+        $.libProp = h('button', { type: 'button', textContent: 'Props…', title: 'Change a prop or make a new one' }),
+        $.libItem = h('button', { type: 'button', textContent: 'Items…', title: 'Change an item or make a new one' })),
+      h('div', { className: 'god-row' },
         $.journal = h('button', { type: 'button', textContent: 'Quest journal…', title: 'What players see in their Journal for each quest flag' })));
     $.journal.addEventListener('click', () => this.onJournal?.());
-    $.library.addEventListener('click', () => this.onLibrary?.());
+    $.libMob.addEventListener('click', () => this.onLibrary?.('mob'));
+    $.libProp.addEventListener('click', () => this.onLibrary?.('prop'));
+    $.libItem.addEventListener('click', () => this.onLibrary?.('item'));
 
     // Every god command, to look up or start typing.
     $.cmdSearch = h('input', { type: 'search', placeholder: 'Search commands…', autocomplete: 'off', className: 'god-search' });

@@ -6,6 +6,8 @@ import { FIELDS, parseDef, writeDef, libGet, libSet, libNew } from './library.js
 import { place } from './god.js';
 
 const KIND_WORDS = { mob: 'monster', prop: 'prop', item: 'item' };
+const TITLES = { mob: 'Monsters', prop: 'Props', item: 'Items' };
+const SHOWN = 300; // names listed at once; searching narrows the rest
 const LISTS = { mob: 'mobs', prop: 'props', item: 'items' };
 
 export class LibraryEditor {
@@ -22,27 +24,43 @@ export class LibraryEditor {
     this.nameBox = el.querySelector('.le-name');
     this.status = el.querySelector('.le-status');
     el.querySelector('[data-le="close"]').addEventListener('click', () => this.close());
-    el.querySelector('[data-le="open"]').addEventListener('click', () => this.load(this.kindSel.value, this.nameBox.value.trim()));
+    this.search = el.querySelector('.le-search');
+    this.namesBox = el.querySelector('.le-names');
+    this.search.addEventListener('input', () => this.fillNames());
+    this.namesBox.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-name]');
+      if (b) this.load(this.kindSel.value, b.dataset.name);
+    });
     el.querySelector('[data-le="new"]').addEventListener('click', () => this.makeNew());
     el.querySelector('[data-le="save"]').addEventListener('click', () => this.save());
     el.querySelector('[data-le="place"]').addEventListener('click', () => {
       if (this.name && this.kind !== 'item') this.run(this.kind === 'mob' ? place.mob(this.name) : place.prop(this.name));
       else if (this.name) this.run(place.item(this.name));
     });
-    this.kindSel.addEventListener('change', () => this.fillNames());
-    this.nameBox.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.load(this.kindSel.value, this.nameBox.value.trim()); });
   }
 
   get open() {
     return !this.el.hidden;
   }
 
+  // Opens the editor for one kind: its list on the left, and a form.
   show(kind = this.kind, name = '') {
     this.el.hidden = false;
+    if (kind !== this.kindSel.value || !this.def || this.kind !== kind) {
+      this.def = null;
+      this.name = null;
+      this.body.replaceChildren();
+      this.el.querySelector('[data-le="save"]').disabled = true;
+      this.el.querySelector('[data-le="place"]').hidden = true;
+    }
     this.kindSel.value = kind;
+    this.kind = kind;
+    this.el.querySelector('.de-title').textContent = TITLES[kind];
+    this.el.querySelector('[data-le="new"]').textContent = `New ${KIND_WORDS[kind]}…`;
+    this.search.value = '';
     this.fillNames();
     if (name) this.load(kind, name);
-    else if (!this.def) this.say('Pick a monster, prop or item to change, or make a new one.');
+    else if (!this.def) this.say(`Pick a ${KIND_WORDS[kind]} from the list to change it, or make a new one. Saving changes every one of them in the game.`);
   }
 
   close() {
@@ -56,8 +74,24 @@ export class LibraryEditor {
   fillNames() {
     const kind = this.kindSel.value;
     const names = this.lists()?.[LISTS[kind]];
-    if (!names) this.fetchLists?.();
-    this.el.querySelector('#le-names').replaceChildren(...(names ?? []).map((n) => new Option(n)));
+    if (!names) {
+      this.fetchLists?.();
+      this.namesBox.replaceChildren(Object.assign(document.createElement('p'), { className: 'empty', textContent: 'Loading…' }));
+      return;
+    }
+    const q = this.search.value.trim().toLowerCase();
+    const hits = q ? names.filter((n) => n.toLowerCase().includes(q)) : names;
+    const rows = hits.slice(0, SHOWN).map((n) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `le-pick${this.name && n.toLowerCase() === this.name.toLowerCase() ? ' current' : ''}`;
+      b.dataset.name = n;
+      b.textContent = n;
+      return b;
+    });
+    if (hits.length > SHOWN) rows.push(Object.assign(document.createElement('p'), { className: 'empty', textContent: `…and ${hits.length - SHOWN} more: search to narrow it down.` }));
+    if (!hits.length) rows.push(Object.assign(document.createElement('p'), { className: 'empty', textContent: 'None match.' }));
+    this.namesBox.replaceChildren(...rows);
   }
 
   load(kind, name) {
@@ -99,6 +133,7 @@ export class LibraryEditor {
     this.kindSel.value = r.kind;
     this.nameBox.value = r.name;
     this.render();
+    this.fillNames();
     this.say(`Editing the ${KIND_WORDS[r.kind]} ${r.name}. Saving changes every one of them in the game.`);
   }
 
@@ -158,7 +193,9 @@ export class LibraryEditor {
         this.drawPicture(pic, input.value);
         continue;
       }
-      rows.push(h('div', { className: 'le-row' }, h('span', { className: 'le-label', textContent: label }), input));
+      const row = h('div', { className: 'le-row' }, h('span', { className: 'le-label', textContent: label }), input);
+      row.dataset.key = key;
+      rows.push(row);
     }
     const lists = [];
     if (this.kind === 'mob') {
@@ -167,8 +204,10 @@ export class LibraryEditor {
         items.forEach((it, i) => {
           const row = h('div', { className: 'le-row' });
           for (const [field, placeholder, attrs] of cols) {
-            const inp = h('input', { type: 'text', value: it[field] ?? '', placeholder, autocomplete: 'off', ...attrs });
-            if (attrs?.list) inp.setAttribute('list', attrs.list);
+            // "list" can only be set as an attribute (the property is read-only).
+            const { list, ...rest } = attrs ?? {};
+            const inp = h('input', { type: 'text', value: it[field] ?? '', placeholder, autocomplete: 'off', ...rest });
+            if (list) inp.setAttribute('list', list);
             inp.addEventListener('input', () => { it[field] = inp.value; });
             row.append(inp);
           }
@@ -182,8 +221,15 @@ export class LibraryEditor {
         box.append(add);
         return box;
       };
+      lists.push(h('p', { className: 'de-hint', textContent: 'Drops: what it leaves when it\'s killed (chance 1 = always, .5 = half the time). Skills: Dodge and Double / Triple / Quadruple Attack are what fights use.' }));
       lists.push(listOf('Drops', d.drops, [['item', 'item name', { list: 'de-items' }], ['chance', 'chance 0 to 1, e.g. .5', { className: 'le-num' }]], () => ({ item: '', chance: '1' })));
       lists.push(listOf('Skills', d.skills, [['name', 'skill, e.g. Dodge'], ['level', '0 to 100', { className: 'le-num' }]], () => ({ name: '', level: '50' })));
+    }
+    // Drops and skills right after the stats, where they're seen.
+    if (lists.length) {
+      const at = rows.findIndex((r) => r.dataset?.key === 'bravery');
+      rows.splice(at >= 0 ? at : rows.length, 0, ...lists);
+      lists.length = 0;
     }
     const extra = h('textarea', { rows: 3, value: d.extra.join('\n'), className: 'le-extra' });
     extra.addEventListener('input', () => { d.extra = extra.value.split('\n'); });
