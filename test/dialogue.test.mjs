@@ -201,3 +201,14 @@ console.log('ok - dialogue');
   assert.deepEqual(filled.stages[0].answers[1].effects[0].journal, { title: 'Refused', text: 'You said no.', done: true });
   console.log('ok - dialogue journal');
 }
+{
+  const { toTileScript } = await import('../js/dialogue.js');
+  const s = toTileScript([{ when: { kind: 'flag', value: 'x' }, speaker: '', says: '', effects: [{ kind: 'bind', x: 17, y: 10 }, { kind: 'teleport', x: 17, y: 10 }] }]);
+  assert.ok(/addCondition trigger bindnow\n\s*order trigger "bindat 17 10"\n\s*set trigger locxy 17 10/.test(s), s);
+  console.log('ok - bind effect');
+  const { toScript } = await import('../js/dialogue.js');
+  const sc = toScript('X', { shouts: [], stages: [{ when: { kind: 'always' }, says: 'Don\u2019t say I didn\u2019t warn you \u2014 \u201cbe careful\u201d\u2026', answers: [] }] });
+  assert.ok(sc.includes("Don't say I didn't warn you - 'be careful'..."), sc);
+  assert.ok(/^[\x09\x0a\x20-\x7e]*$/.test(sc), 'plain bytes only');
+  console.log('ok - plain punctuation');
+}

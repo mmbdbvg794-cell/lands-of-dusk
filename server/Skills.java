@@ -40,7 +40,39 @@ public class Skills {
         return name;
     }
 
+    // Setting someone's respawn point from a script. The script language's
+    // own "set trigger bindlocx" stores 0 in this server, so scripts give
+    // the player the hidden condition bindnow and then
+    //   order trigger "bindat <x> <y>"
+    // which comes here: it only works with that condition (which players
+    // can't give themselves), and takes it away.
+    public static String command(LivingThing who, DuskEngine engine, String line) {
+        String t = line.trim();
+        if (!t.toLowerCase().startsWith("bindat ")) return null;
+        if (!who.hasCondition(BIND_FLAG)) return "";
+        who.removeCondition(BIND_FLAG);
+        String[] p = t.substring(7).trim().split("\\s+");
+        if (p.length != 2 || !p[0].matches("-?\\d{1,5}") || !p[1].matches("-?\\d{1,5}")) return "";
+        who.bindLocX = Integer.parseInt(p[0]);
+        who.bindLocY = Integer.parseInt(p[1]);
+        try {
+            if (who instanceof Player) ((Player) who).savePlayer();
+        } catch (Exception e) {
+            // Saved later.
+        }
+        return "";
+    }
+
+    static final String BIND_FLAG = "bindnow";
+
     public static void start(final DuskEngine engine) {
+        // The hidden condition the bind effect uses.
+        try {
+            java.io.File cond = new java.io.File("defConditions", BIND_FLAG);
+            if (!cond.exists()) Talk.write(cond, "nodisplay\n.\n".getBytes("UTF-8"));
+        } catch (Exception e) {
+            Log.logError(e, "Skills: making defConditions/" + BIND_FLAG, false);
+        }
         try {
             fixTrainers(engine);
         } catch (Exception e) {
@@ -159,6 +191,18 @@ public class Skills {
             } catch (Exception e) {
                 // Gone.
             }
+        }
+    }
+
+    // Called first thing as a player logs out or drops (PlayerPatch.java):
+    // saved while they still count as working, which close() itself
+    // forgot to do.
+    public static void beforeClose(Player p, boolean save) {
+        if (!save || !p.blnWorking) return;
+        try {
+            p.savePlayer();
+        } catch (Exception e) {
+            Log.logError(e, "Saving " + p.strName + " at logout", false);
         }
     }
 

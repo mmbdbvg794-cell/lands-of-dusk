@@ -26,7 +26,11 @@ export const newDialogue = () => ({
 export const cleanFlag = (s) => String(s ?? '').trim().replace(/[^A-Za-z0-9_]/g, '_').slice(0, 40);
 
 // Text inside a script string: the script language has no escapes.
-const text = (s) => String(s ?? '').replace(/"/g, "'").replace(/[\r\n]+/g, ' ').trim();
+// The server reads scripts a byte at a time, so typographic punctuation
+// (from phones and word processors) would arrive garbled: plain versions.
+const PLAIN = { '\u2014': ' - ', '\u2013': '-', '\u2018': "'", '\u2019': "'", '\u201c': "'", '\u201d': "'", '\u2026': '...', '\u00a0': ' ' };
+const plain = (s) => String(s ?? '').replace(/[\u2014\u2013\u2018\u2019\u201c\u201d\u2026\u00a0]/g, (c) => PLAIN[c]).replace(/[^\x09\x0a\x0d\x20-\x7e]/g, '');
+const text = (s) => plain(s).replace(/"/g, "'").replace(/[\r\n]+/g, ' ').replace(/ {2,}/g, ' ').trim();
 // Answers are compared exactly, so they're kept lower case (the buttons
 // show them capitalised).
 export const cleanLabel = (s) => text(s).toLowerCase().replace(/[()/]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -52,6 +56,10 @@ function effect(e, pad) {
     case 'flag': return cleanFlag(e.flag) ? `${pad}addCondition trigger ${cleanFlag(e.flag)}` : null;
     case 'unflag': return cleanFlag(e.flag) ? `${pad}removeCondition trigger ${cleanFlag(e.flag)}` : null;
     case 'teleport': return Number.isFinite(Number(e.x)) && Number.isFinite(Number(e.y)) && e.x !== '' && e.y !== '' ? `${pad}set trigger locxy ${Math.floor(Number(e.x))} ${Math.floor(Number(e.y))}` : null;
+    // Where they come back to after dying. The script language's own "set
+    // trigger bindlocx" stores 0 on this server, so the server sets it
+    // (server/Skills.java): bindnow lets the order through, once.
+    case 'bind': return Number.isFinite(Number(e.x)) && Number.isFinite(Number(e.y)) && e.x !== '' && e.y !== '' ? `${pad}addCondition trigger bindnow\n${pad}order trigger "bindat ${Math.floor(Number(e.x))} ${Math.floor(Number(e.y))}"` : null;
     default: return null;
   }
 }

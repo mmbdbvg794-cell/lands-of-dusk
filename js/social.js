@@ -46,8 +46,9 @@ class ListReader {
   }
 }
 
-// The player's journal: [{ title, text, done }], one per quest (the done
-// entry wins over the others with the same title).
+// The player's journal: [{ title, text, done }], one per quest: the done
+// entry if there is one, else the latest step (entries come in the journal
+// file's order, steps written in turn).
 export class JournalReader extends ListReader {
   constructor() {
     super('Journal', (s) => {
@@ -67,7 +68,7 @@ export function mergeQuests(entries) {
   const byTitle = new Map();
   for (const e of entries) {
     const had = byTitle.get(e.title.toLowerCase());
-    if (!had || (e.done && !had.done)) byTitle.set(e.title.toLowerCase(), e);
+    if (!had || !had.done) byTitle.set(e.title.toLowerCase(), e);
   }
   // Open quests first, then finished ones, each in the order given.
   const all = [...byTitle.values()];

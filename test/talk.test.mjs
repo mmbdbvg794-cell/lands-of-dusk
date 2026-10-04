@@ -21,4 +21,6 @@ assert.equal(TALKERS, 'talk names');
 assert.deepEqual(parseSpeech('Tom says: Want to hear a story? (sure)').choices, ['sure']);
 assert.deepEqual(parseSpeech('Tom says: Once upon a time (long ago)').choices, ['long ago']);
 assert.deepEqual(parseSpeech('Tom says: That was Bob (The Brave)').choices, [], 'capitals: just brackets');
+assert.deepEqual(parseSpeech('Drill Sergeant says: Bring me some! (Stand beside it, then click.) (here, sir)').choices, ['here, sir'], 'punctuation in a single answer');
+assert.equal(parseSpeech('Drill Sergeant says: Bring me some! (Stand beside it, then click.) (here, sir)').text, 'Bring me some! (Stand beside it, then click.)');
 console.log('ok - talk');

@@ -17,10 +17,11 @@ export const isSign = (ent) => ent.type === 3 && (ent.image === 1 || /sign$/i.te
 
 export const TYPE = { PLAYER: 0, ITEM: 1, MERCHANT: 2, SIGN: 3, MOB: 4, DOOR: 5 };
 
-// Squares apart, counting diagonals as one, like a melee range of 1
-// reaching all eight neighbours.
+// Squares apart the way the server counts reach for an attack (and for
+// giving): steps across plus steps down, so a diagonal is 2 and a melee
+// range of 1 only reaches the four squares beside you.
 export function distance(ent, x, y) {
-  return Math.max(Math.abs(ent.x - x), Math.abs(ent.y - y));
+  return Math.abs(ent.x - x) + Math.abs(ent.y - y);
 }
 
 // Whether storage is within reach: on your square or next to it.

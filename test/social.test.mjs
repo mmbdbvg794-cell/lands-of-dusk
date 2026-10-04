@@ -15,6 +15,8 @@ assert.deepEqual(j.feed('Journal: end 3'), { done: [
 ], hide: true });
 assert.equal(j.feed('flan: Journal: hi'), null);
 assert.deepEqual(mergeQuests([]), []);
+assert.deepEqual(mergeQuests([{ title: 'T', text: 'step 1', done: false }, { title: 'T', text: 'step 3', done: false }]), [{ title: 'T', text: 'step 3', done: false }], 'the latest step');
+assert.deepEqual(mergeQuests([{ title: 'T', text: 'done', done: true }, { title: 'T', text: 'later', done: false }]), [{ title: 'T', text: 'done', done: true }], 'done wins');
 
 const d = new JournalDefReader();
 d.feed('JournalDef: wolfquest|Wolves|Kill 5 wolves.|0');

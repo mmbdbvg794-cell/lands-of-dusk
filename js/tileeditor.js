@@ -10,7 +10,7 @@ const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Pla
 const WALK = [['everyone', 'Everyone (as normal)'], ['flag', 'Only players with flag'], ['noflag', "Only players without flag"], ['nobody', 'Nobody']];
 const EFFECTS = [
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['give', 'Give item'], ['take', 'Take item'],
-  ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['teleport', 'Teleport to'],
+  ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
 ];
 
 export class TileEditor {
@@ -106,7 +106,7 @@ export class TileEditor {
         if (e.kind === 'give' || e.kind === 'take') fields.push(input(e.item, 'item name', (v) => { e.item = v; }, { list: 'te-items' }));
         if (e.kind === 'gold' || e.kind === 'takegold' || e.kind === 'exp') fields.push(input(e.amount, 'amount', (v) => { e.amount = v; }, { type: 'number', min: 1, className: 'de-num' }));
         if (e.kind === 'flag' || e.kind === 'unflag') fields.push(input(e.flag, 'flag name', (v) => { e.flag = v; }));
-        if (e.kind === 'teleport') fields.push(input(e.x, 'x', (v) => { e.x = v; }, { type: 'number', className: 'de-num' }), input(e.y, 'y', (v) => { e.y = v; }, { type: 'number', className: 'de-num' }));
+        if (e.kind === 'teleport' || e.kind === 'bind') fields.push(input(e.x, 'x', (v) => { e.x = v; }, { type: 'number', className: 'de-num' }), input(e.y, 'y', (v) => { e.y = v; }, { type: 'number', className: 'de-num' }));
         return h('div', { className: 'de-row de-effect' },
           select(EFFECTS, e.kind, (v) => { r.effects[ei] = { kind: v }; again(); }), ...fields,
           button('✕', () => { r.effects.splice(ei, 1); again(); }, 'ghost de-x'));

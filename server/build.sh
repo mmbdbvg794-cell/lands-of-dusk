@@ -34,4 +34,9 @@ ASM="--add-exports java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED --add-ex
 mkdir -p tools
 javac -nowarn $ASM -d tools "$SRC/EnginePatch.java"
 java $ASM -cp tools EnginePatch "$ENGINE" out/DuskEngine.class
+# Saving at logout, fixed in the compiled Player (PlayerPatch.java).
+PLAYER="$GAME/Player.class"
+[ -f "$GAME/storage-originals/Player.class" ] && PLAYER="$GAME/storage-originals/Player.class"
+javac -nowarn $ASM -d tools "$SRC/PlayerPatch.java"
+java $ASM -cp tools PlayerPatch "$PLAYER" out/Player.class
 ls out

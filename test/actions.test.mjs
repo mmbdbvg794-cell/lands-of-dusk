@@ -6,10 +6,11 @@ const me = { x: 10, y: 10, range: 1 };
 const labels = (acts) => acts.map((a) => (a.disabled ? `${a.label} (${a.hint})` : a.label));
 
 const slimer = { id: 77, name: 'slimer', type: TYPE.MOB, x: 11, y: 11 };
-assert.equal(distance(slimer, 10, 10), 1, 'diagonal counts as one');
-assert.deepEqual(entityActions(slimer, me), [{ label: 'Attack', cmd: 'a 77' }, { label: 'Look', cmd: 'look 77' }]);
+assert.equal(distance(slimer, 10, 10), 2, 'a diagonal is two steps, as the server counts');
+assert.deepEqual(entityActions({ ...slimer, y: 10 }, me), [{ label: 'Attack', cmd: 'a 77' }, { label: 'Look', cmd: 'look 77' }]);
+assert.deepEqual(entityActions(slimer, me)[0].disabled, true, 'diagonal: too far for melee');
 
-const far = { ...slimer, x: 13 };
+const far = { ...slimer, x: 13, y: 10 };
 assert.deepEqual(labels(entityActions(far, me)), ['Attack (too far)', 'Look']);
 assert.deepEqual(labels(entityActions(far, { ...me, range: 3 })), ['Attack', 'Look'], 'ranged weapons reach further');
 assert.deepEqual(labels(entityActions(far, { ...me, range: 0 })), ['Attack (too far)', 'Look'], 'range 0 still means adjacent');

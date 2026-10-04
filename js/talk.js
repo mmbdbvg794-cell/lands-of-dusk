@@ -16,7 +16,7 @@ const SPEECH = /^(.{1,40}?) (says|shouts|asks|whispers): (.+)$/;
 const CHOICES = /\s*\(([^()]+(?:\/[^()]+)+)\)\s*$/;
 // One answer on its own, as the dialogue editor writes it: lower case, at
 // the very end of the line ("Want to hear a story? (sure)").
-const ONE_CHOICE = /\s*\(([a-z0-9' -]{1,30})\)$/;
+const ONE_CHOICE = /\s*\(([a-z0-9',.?! -]{1,30})\)$/;
 
 // { who, verb, text, choices } for an NPC's line, or null.
 export function parseSpeech(line) {

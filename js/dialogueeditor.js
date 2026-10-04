@@ -8,7 +8,7 @@ import { journalSet, JOURNAL_ALL } from './social.js';
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
 const EFFECTS = [
   ['give', 'Give item'], ['take', 'Take item'], ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'],
-  ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['teleport', 'Teleport to'],
+  ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
 ];
 const NEEDS = [['none', 'Needs nothing'], ['gold', 'Needs gold'], ['item', 'Needs item'], ['flag', 'Needs flag']];
 
@@ -145,7 +145,7 @@ export class DialogueEditor {
               (() => { const c = h('input', { type: 'checkbox', checked: !!e.journal?.done }); c.addEventListener('change', () => { (e.journal ??= {}).done = c.checked; }); return c; })(),
               ' finishes it'))
           : null;
-        if (e.kind === 'teleport') fields.push(input(e.x, 'x', (v) => { e.x = v; }, { type: 'number', className: 'de-num' }), input(e.y, 'y', (v) => { e.y = v; }, { type: 'number', className: 'de-num' }));
+        if (e.kind === 'teleport' || e.kind === 'bind') fields.push(input(e.x, 'x', (v) => { e.x = v; }, { type: 'number', className: 'de-num' }), input(e.y, 'y', (v) => { e.y = v; }, { type: 'number', className: 'de-num' }));
         const row = h('div', { className: 'de-row de-effect' },
           select(EFFECTS, e.kind, (v) => { a.effects[ei] = { kind: v }; again(); }), ...fields,
           button('✕', () => { a.effects.splice(ei, 1); again(); }, 'ghost de-x'));

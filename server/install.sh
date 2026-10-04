@@ -21,6 +21,7 @@ if [ "${1:-}" = uninstall ]; then
   [ -f storage-originals/Commands.class ] || { echo "Storage isn't installed (no storage-originals)." >&2; exit 1; }
   cp storage-originals/Commands.class storage-originals/DuskServer.class .
   [ -f storage-originals/DuskEngine.class ] && cp storage-originals/DuskEngine.class .
+  [ -f storage-originals/Player.class ] && cp storage-originals/Player.class .
   rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class
   # Without BridgedSocket the bridge must stop sending addresses.
   rm -f conf/bridgesecret
@@ -42,12 +43,17 @@ if [ -f "$OUT/DuskEngine.class" ] && [ ! -f storage-originals/DuskEngine.class ]
   cp DuskEngine.class storage-originals/
   echo "Kept the original DuskEngine.class in storage-originals/"
 fi
+if [ -f "$OUT/Player.class" ] && [ ! -f storage-originals/Player.class ]; then
+  cp Player.class storage-originals/
+  echo "Kept the original Player.class in storage-originals/"
+fi
 b="backups/classes-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$b"
-cp Commands.class DuskServer.class DuskEngine.class "$b/"
+cp Commands.class DuskServer.class DuskEngine.class Player.class "$b/"
 for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library; do [ -f $c.class ] && cp $c.class "$b/"; done
 cp Talk\$*.class Trade\$*.class Skills\$*.class Library\$*.class "$b/" 2>/dev/null || true
 [ -f "$OUT/DuskEngine.class" ] && cp "$OUT/DuskEngine.class" .
+[ -f "$OUT/Player.class" ] && cp "$OUT/Player.class" .
 cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/FixedEngine.class" "$OUT/Talk.class" "$OUT"/Talk\$*.class "$OUT/Props.class" "$OUT/BridgedSocket.class" "$OUT/Bans.class" "$OUT/MapStore.class" "$OUT/Social.class" "$OUT/Trade.class" "$OUT"/Trade\$*.class "$OUT/Skills.class" "$OUT"/Skills\$*.class "$OUT/Library.class" "$OUT"/Library\$*.class "$OUT/Commands.class" "$OUT/DuskServer.class" .
 # Game content that goes with it (talk scripts, props), only where there
 # isn't a file of that name already: yours are never overwritten.
