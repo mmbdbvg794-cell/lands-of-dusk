@@ -28,7 +28,7 @@ import { GodPanel } from './godpanel.js';
 import { DialogueEditor } from './dialogueeditor.js';
 import { TileEditor } from './tileeditor.js';
 import { FlagsDialog } from './flagsdialog.js';
-import { parseDialogueReply, parseTileReply } from './dialogue.js';
+import { parseDialogueReply, parseTileReply, parseTileScriptReply } from './dialogue.js';
 import { Minimap } from './minimap.js';
 import { WorldMap, tileColours } from './worldmap.js';
 import { Panels, setBar } from './panels.js';
@@ -1292,6 +1292,9 @@ function handle(msg) {
       if (flagsReply) { flagsDialog.loaded(flagsReply); break; }
       const tileReply = parseTileReply(msg.text);
       if (tileReply) { tileEditor.loaded(tileReply); break; }
+      const tileScript = parseTileScriptReply(msg.text);
+      if (tileScript) { tileEditor.scriptReply(tileScript); break; }
+      if (isGod && tileEditor.scriptFailed(msg.text)) break;
       const looks = parseLooks(msg.text);
       if (looks) { renderer.propLooks = looks; renderer.invalidate(); break; }
       const sp = parseSpeech(msg.text);

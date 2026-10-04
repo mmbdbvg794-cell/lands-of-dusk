@@ -224,3 +224,14 @@ console.log('ok - dialogue');
   assert.equal(blockedText({ speaker: 'Guard', verb: 'shouts', says: 'Halt!' }), 'Guard shouts: Halt!');
   console.log('ok - verbs');
 }
+
+// Hand-written tile scripts.
+{
+  const { parseTileReply, parseTileScriptReply, tileScriptCommand } = await import('../js/dialogue.js');
+  const r = parseTileReply('TileAction: 3_4|!' + Buffer.from('set trigger locxy 1 1\nendscript\n').toString('base64'));
+  assert.deepEqual([r.other, r.script], [true, 'set trigger locxy 1 1\nendscript\n']);
+  assert.equal(parseTileReply('TileAction: 3_4|!').script, '', 'older servers: no text');
+  assert.deepEqual(parseTileScriptReply('TileScript: replaced 3_4'), { done: 'replaced', x: 3, y: 4 });
+  assert.ok(tileScriptCommand('endscript').startsWith('tilescript '));
+  console.log('ok - tile scripts');
+}

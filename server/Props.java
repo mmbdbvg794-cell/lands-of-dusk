@@ -25,7 +25,16 @@
  *   tilemsg clear              (gods) remove the one on your square
  * Tile actions, made in the God tab's tile editor (js/dialogue.js turns
  * rules into the script):
- *   tileget                  "TileAction: <x>_<y>|<base64 of its rules>"
+ *   tileget                  "TileAction: <x>_<y>|<base64 of its rules>", or
+ *                            "TileAction: <x>_<y>|!<base64 of the script>"
+ *                            for a walk-on script written by hand
+ *   tilescript <base64>      (gods) save a hand-written script on your
+ *                            square, if it passes a check (every "if" ended,
+ *                            quotes paired, known commands, ends with
+ *                            endscript); the old one is backed up
+ *   tilescript force <base64>  the same, without the check
+ *   tilescript replace       (gods) back it up and remove it, so the tile
+ *                            editor can make a new action there
  *                            (empty for none, "!" for another script)
  *   tileset <rules>|<script>|<flag,flag>[|<canmove>|<blocked>]   (base64)
  *                            your square's action; canmove is who may step
@@ -87,6 +96,7 @@ public class Props {
             if (lower.startsWith("tilemsg ")) return tileMessage(who, trimmed.substring(8).trim());
             if (lower.equals("tileget")) return tileGet(who);
             if (lower.startsWith("tileset ")) return tileSet(who, trimmed.substring(8).trim());
+            if (lower.startsWith("tilescript ")) return tileScript(who, engine, trimmed.substring(11).trim());
             if (lower.startsWith("propdesc ")) return propDesc(who, engine, trimmed.substring(9).trim());
         } catch (Exception e) {
             Log.logError(e, "Props command \"" + line + "\" by " + who.strName, false);
@@ -367,8 +377,40 @@ public class Props {
         String key = who.intLocX + "_" + who.intLocY;
         File script = new File("defMoveActions", key), rules = new File(ACTIONS_DIR, key + ".json");
         if (rules.isFile() && script.isFile()) return "TileAction: " + key + "|" + java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(rules.toPath()));
-        if (script.isFile() && !editorMade(script)) return "TileAction: " + key + "|!";
+        if (script.isFile() && !editorMade(script)) return "TileAction: " + key + "|!" + java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(script.toPath()));
         return "TileAction: " + key + "|";
+    }
+
+    // A hand-written walk-on script on the god's square: saved as written
+    // (once it compiles), or set aside for the tile editor.
+    static String tileScript(LivingThing who, DuskEngine engine, String arg) throws Exception {
+        if (who.privs < GOD_PRIVS) return "Only gods can edit walk-on scripts.";
+        String key = who.intLocX + "_" + who.intLocY;
+        File script = new File("defMoveActions", key);
+        if (script.isFile() && editorMade(script)) return "This square's action was made in the tile editor: change it there.";
+        File keep = new File("backups/tilescripts");
+        keep.mkdirs();
+        String stamp = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date());
+        if (arg.equalsIgnoreCase("replace")) {
+            if (!script.isFile()) return "TileScript: replaced " + key;
+            java.nio.file.Files.move(script.toPath(), new File(keep, key + "." + stamp).toPath());
+            new File(script.getPath() + ".dsko").delete();
+            Log.logEvent(who.strName + " set aside the walk-on script at " + key + " (kept in backups/tilescripts)");
+            return "TileScript: replaced " + key;
+        }
+        boolean force = arg.toLowerCase().startsWith("force ");
+        if (force) arg = arg.substring(6).trim();
+        String text = new String(java.util.Base64.getDecoder().decode(arg), "UTF-8").replace("\r", "");
+        if (!text.endsWith("\n")) text += "\n";
+        // The script compiler skips what it doesn't understand, so check it
+        // here, so a mistake doesn't quietly reach the square.
+        String problem = force ? null : scriptProblem(text);
+        if (problem != null) return "That script has a problem, so it wasn't saved: " + problem;
+        if (script.isFile()) java.nio.file.Files.copy(script.toPath(), new File(keep, key + "." + stamp).toPath());
+        Talk.write(script, text.getBytes("UTF-8"));
+        new File(script.getPath() + ".dsko").delete();
+        Log.logEvent(who.strName + " edited the walk-on script at " + key);
+        return "TileScript: saved " + key;
     }
 
     static String tileSet(LivingThing who, String args) throws Exception {
@@ -432,6 +474,34 @@ public class Props {
         } catch (Exception e) {
             Log.logError(e, "Props.blocked", false);
         }
+    }
+
+    // Commands a script line can start with (Script's compiler).
+    static final java.util.Set<String> SCRIPT_WORDS = new java.util.HashSet<String>(java.util.Arrays.asList(
+        "if", "end", "else", "endscript", "chat", "chatc", "gecho", "log", "inc", "set", "input", "number", "string", "livingthing",
+        "giveitem", "removeitem", "createitem", "createmob", "createoneusemob", "addcondition", "addconditionwithduration",
+        "removecondition", "addflag", "removeflag", "changetile", "order", "playsound", "runscript", "runscriptwithvariables",
+        "unwear", "battlecheck"));
+
+    // What's wrong with a script, or null: unknown commands, unpaired quotes,
+    // an "if" without its "end" (or the other way round), no endscript.
+    static String scriptProblem(String text) {
+        int depth = 0, n = 0;
+        String last = null;
+        for (String raw : text.split("\n")) {
+            n++;
+            String line = raw.trim();
+            if (line.isEmpty() || line.startsWith("#")) continue;
+            String word = line.split("\\s+")[0].toLowerCase();
+            if (!SCRIPT_WORDS.contains(word)) return "line " + n + " starts with \"" + word + "\", which isn't a script command.";
+            if ((line.length() - line.replace("\"", "").length()) % 2 != 0) return "line " + n + " has a quote that isn't closed.";
+            if (word.equals("if")) depth++;
+            if (word.equals("end") && --depth < 0) return "line " + n + " has an \"end\" without an \"if\".";
+            last = word;
+        }
+        if (depth > 0) return depth + " \"if\" " + (depth == 1 ? "has" : "have") + " no \"end\".";
+        if (!"endscript".equals(last)) return "it doesn't finish with endscript.";
+        return null;
     }
 
     // A walk-on script made here (a tile message or action), not by hand.

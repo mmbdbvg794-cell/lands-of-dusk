@@ -253,6 +253,10 @@ backups; see `server/`.
   italics: "The guard looks you up and down."). A conversation's last line
   offers OK to close it, and an answer with no reply simply ends the talk.
 
+- **Hand-written walk-on scripts are editable**: the tile editor shows a
+  script it didn't make as text to change and save (checked first, the old
+  one backed up), or sets it aside to build a tile action in its place.
+
 ## Website
 
 - **Play Now** goes to the browser client (`/play/`). The "Requires

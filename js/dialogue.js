@@ -280,11 +280,24 @@ export function tileSaveCommand({ rules, walk }) {
 // The server's answer to TILE_GET: "TileAction: <x>_<y>|<base64 data>",
 // empty for none, "!" for a script it didn't make. { x, y, rules, walk,
 // other }. (Saved before walking rules, the data was just the rules.)
+// Saving or setting aside a hand-written script: "TileScript: saved|replaced <x>_<y>".
+export const tileScriptCommand = (text, force = false) => `tilescript ${force ? 'force ' : ''}${toBase64(text)}`;
+export const TILE_SCRIPT_REPLACE = 'tilescript replace';
+export function parseTileScriptReply(line) {
+  const m = /^TileScript: (saved|replaced) (-?\d+)_(-?\d+)$/.exec(line.trim());
+  return m ? { done: m[1], x: Number(m[2]), y: Number(m[3]) } : null;
+}
+
 export function parseTileReply(line) {
   const m = /^TileAction: (-?\d+)_(-?\d+)\|(.*)$/.exec(line.trim());
   if (!m) return null;
   const [, x, y, data] = m;
-  if (data === '!') return { x: Number(x), y: Number(y), rules: [], walk: newWalk(), other: true };
+  // A script written by hand (with its text, from servers that send it).
+  if (data.startsWith('!')) {
+    let script = '';
+    try { script = data.length > 1 ? fromBase64(data.slice(1)) : ''; } catch { /* shown empty */ }
+    return { x: Number(x), y: Number(y), rules: [], walk: newWalk(), other: true, script };
+  }
   let rules = [newRule()];
   let walk = newWalk();
   if (data) {

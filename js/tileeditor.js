@@ -3,7 +3,7 @@
 // each can say something and do things (set flags, give items...).
 // js/dialogue.js turns them into the square's walk-on script.
 
-import { newRule, newWalk, tileSaveCommand, TILE_GET, VERBS } from './dialogue.js';
+import { newRule, newWalk, tileSaveCommand, TILE_GET, VERBS, tileScriptCommand, TILE_SCRIPT_REPLACE } from './dialogue.js';
 import { tileClear } from './god.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
@@ -47,15 +47,14 @@ export class TileEditor {
     }, 5000);
   }
 
-  loaded({ x, y, rules, walk, other }) {
+  loaded({ x, y, rules, walk, other, script }) {
     if (!this.open) return;
     clearTimeout(this.timer);
     this.el.querySelector('.de-title').textContent = `Tile action at ${x}, ${y}`;
     if (other) {
       this.rules = null;
-      this.warn.textContent = 'This square already has a walk-on script that the editor didn\'t make (a teleport, a healing square...). It\'s left alone: pick the square next to it.';
-      this.warn.hidden = false;
-      this.body.replaceChildren();
+      this.warn.hidden = true;
+      this.showScript(script ?? "");
       return;
     }
     this.rules = rules.length ? rules : [newRule()];
@@ -63,8 +62,62 @@ export class TileEditor {
     this.render();
   }
 
+  // A walk-on script written by hand (before the editor, or by hand since):
+  // change its text, or set it aside and make a tile action instead.
+  showScript(text) {
+    const h = (tag, props = {}, ...kids) => { const e = document.createElement(tag); Object.assign(e, props); e.append(...kids); return e; };
+    const area = h('textarea', { value: text, rows: 12, spellcheck: false, className: 'te-script' });
+    const save = h('button', { type: 'button', className: 'primary', textContent: 'Save script' });
+    // When the check finds a problem: save it as it is anyway.
+    this.forceSave = h('button', { type: 'button', className: 'ghost', textContent: 'Save anyway', hidden: true });
+    this.forceSave.addEventListener('click', () => {
+      this.forceSave.hidden = true;
+      this.scriptStatus.textContent = 'Saving…';
+      this.send(tileScriptCommand(area.value, true));
+    });
+    const replace = h('button', { type: 'button', textContent: 'Replace with a new tile action…' });
+    this.scriptStatus = h('p', { className: 'de-hint' });
+    save.addEventListener('click', () => {
+      this.scriptStatus.textContent = 'Saving…';
+      this.send(tileScriptCommand(area.value));
+    });
+    replace.addEventListener('click', () => {
+      if (!window.confirm('Set this script aside (it is kept in backups/tilescripts) and make a new tile action here instead?')) return;
+      this.scriptStatus.textContent = 'Setting it aside…';
+      this.send(TILE_SCRIPT_REPLACE);
+    });
+    this.body.replaceChildren(
+      h('p', { className: 'de-hint', textContent: "This square's walk-on script was written by hand (a teleport, a trap, a message...). Change it here and save (it's checked first, and the old one is backed up), or replace it with a tile action you can build in this editor." }),
+      area,
+      h('div', { className: 'de-row' }, save, this.forceSave, replace),
+      this.scriptStatus);
+    this.el.querySelector('[data-de="save"]').hidden = true;
+  }
+
+  // The server's answer to a script save or replace.
+  scriptReply(r) {
+    if (!this.open) return;
+    if (r.done === 'replaced') {
+      // Now an empty square for the editor.
+      this.el.querySelector('[data-de="save"]').hidden = false;
+      this.loaded({ x: r.x, y: r.y, rules: [], walk: newWalk(), other: false });
+      return;
+    }
+    if (this.scriptStatus) this.scriptStatus.textContent = 'Saved. Step off and back on to try it.';
+    if (this.forceSave) this.forceSave.hidden = true;
+  }
+
+  // A failure message for a script save, if it's ours.
+  scriptFailed(text) {
+    if (!this.open || !this.scriptStatus || !/^(That script has a problem|This square's action was made|Only gods can edit walk-on)/.test(text)) return false;
+    this.scriptStatus.textContent = text + (/^That script has a problem/.test(text) ? " If you're sure it's right, Save anyway." : '');
+    if (this.forceSave) this.forceSave.hidden = !/^That script has a problem/.test(text);
+    return true;
+  }
+
   close() {
     this.el.hidden = true;
+    this.el.querySelector('[data-de="save"]').hidden = false;
   }
 
   save() {
