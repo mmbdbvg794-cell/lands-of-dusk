@@ -78,12 +78,19 @@ function needs(n, who) {
 
 export const MAX_DEPTH = 4; // follow-up questions inside follow-up questions
 
+// How a line is spoken: "<who> says: ...", shouts, asks, whispers, or an
+// action ("<who> acts: The guard looks you up and down."), which the client
+// shows as just the words, in italics.
+export const VERBS = [['says', 'Says'], ['shouts', 'Shouts'], ['asks', 'Asks'], ['whispers', 'Whispers'], ['acts', 'Action']];
+const verbOf = (v) => (VERBS.some(([k]) => k === v) ? v : 'says');
+const spoken = (who, verb, words) => `${who} ${verbOf(verb)}: ${words}`;
+
 // A question: what's said, then its answers (each of which can ask a
 // follow-up question), at depth `depth` (0 for a stage's own question).
 function question(out, who, node, pad, depth) {
   const answers = (node.answers ?? []).filter((a) => cleanLabel(a.label));
   const choices = answers.length ? ` (${answers.map((a) => cleanLabel(a.label)).join('/')})` : '';
-  if (text(node.says) || choices) out.push(`${pad}chat trigger "${who} says: ${text(node.says)}${choices}"`);
+  if (text(node.says) || choices) out.push(`${pad}chat trigger "${spoken(who, node.verb, text(node.says) + choices)}"`);
   if (!answers.length) return;
   const v = depth ? `answer${depth + 1}` : 'answer';
   out.push(`${pad}input trigger ${v}`);
@@ -95,7 +102,7 @@ function question(out, who, node, pad, depth) {
       const line = effect(e, pad + '\t');
       if (line) out.push(line);
     }
-    if (text(a.reply)) out.push(`${pad}\tchat trigger "${who} says: ${text(a.reply)}"`);
+    if (text(a.reply)) out.push(`${pad}\tchat trigger "${spoken(who, a.replyVerb, text(a.reply))}"`);
     if (a.next && depth + 1 < MAX_DEPTH) question(out, who, a.next, pad + '\t', depth + 1);
     out.push(`${pad}\tendscript`, `${pad}end`);
   }
@@ -228,7 +235,7 @@ export function toTileScript(rules) {
       const line = effect(e, pad);
       if (line) out.push(line);
     }
-    if (text(r.says)) out.push(`${pad}chat trigger "${text(r.speaker) ? `${text(r.speaker)} says: ` : ''}${text(r.says)}"`);
+    if (text(r.says)) out.push(`${pad}chat trigger "${tileLine(r)}"`);
     out.push(`${pad}endscript`);
     if (cond) out.push('end');
     else break; // an "always" rule: nothing after it is reached
@@ -251,7 +258,12 @@ export function canMoveExpr(walk) {
     default: return '';
   }
 }
-export const blockedText = (walk) => (text(walk?.says) ? `${text(walk.speaker) ? `${text(walk.speaker)} says: ` : ''}${text(walk.says)}` : '');
+export const blockedText = (walk) => (text(walk?.says) ? tileLine(walk) : '');
+// A tile's message: from a speaker (said, shouted... or an action), or just
+// the words when no one says it.
+function tileLine(r) {
+  return text(r.speaker) ? spoken(text(r.speaker), r.verb, text(r.says)) : text(r.says);
+}
 
 export function tileFlagsOf(rules, walk) {
   const flags = new Set(flagsOf({ stages: (rules ?? []).map((r) => ({ when: r.when, answers: [{ label: 'x', effects: r.effects }] })) }));

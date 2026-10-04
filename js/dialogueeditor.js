@@ -2,7 +2,7 @@
 // what they do, for one NPC. Opened from the God tab or an NPC's click
 // menu; saved as the NPC's talk script (js/dialogue.js turns it into one).
 
-import { newDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal } from './dialogue.js';
+import { newDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS } from './dialogue.js';
 import { journalSet, JOURNAL_ALL } from './social.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
@@ -158,7 +158,8 @@ export class DialogueEditor {
       const follow = a.next
         ? h('div', { className: 'de-follow' },
           h('div', { className: 'de-row' },
-            h('span', { className: 'de-label-text', textContent: 'Then asks' }),
+            h('span', { className: 'de-label-text', textContent: 'Then' }),
+            select(VERBS, a.next.verb ?? 'says', (v) => { a.next.verb = v; }),
             area(a.next.says, 'A follow-up question', (v) => { a.next.says = v; }),
             button('✕', () => { delete a.next; again(); }, 'ghost de-x')),
           h('div', { className: 'de-answers' }, ...renderAnswers(a.next, depth + 1)),
@@ -167,7 +168,8 @@ export class DialogueEditor {
       return h('div', { className: 'de-answer' },
         h('div', { className: 'de-row' },
           input(a.label, 'Button, e.g. Yes', (v) => { a.label = v; }, { className: 'de-label' }),
-          input(a.reply, 'What they say back', (v) => { a.reply = v; }),
+          select(VERBS, a.replyVerb ?? 'says', (v) => { a.replyVerb = v; }),
+          input(a.reply, 'What they say back (empty: the answer just ends the talk)', (v) => { a.reply = v; }),
           button('✕', () => { node.answers.splice(ai, 1); again(); }, 'ghost de-x')),
         h('div', { className: 'de-row de-effect' },
           select(NEEDS, need.kind, (v) => { if (v === 'none') delete a.needs; else a.needs = { kind: v, value: '' }; again(); }), needValue),
@@ -192,7 +194,7 @@ export class DialogueEditor {
           si < d.stages.length - 1 ? button('↓', () => { d.stages.splice(si + 1, 0, d.stages.splice(si, 1)[0]); again(); }, 'ghost') : null,
           d.stages.length > 1 ? button('✕', () => { d.stages.splice(si, 1); again(); }, 'ghost') : null),
         h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'When' }), select(WHEN, st.when.kind, (v) => { st.when = { kind: v, value: '' }; again(); }), valueBox),
-        h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'Says' }), area(st.says, 'What they say', (v) => { st.says = v; })),
+        h('div', { className: 'de-row' }, select(VERBS, st.verb ?? 'says', (v) => { st.verb = v; }), area(st.says, 'What they say (an Action shows just these words, e.g. "The guard looks you up and down.")', (v) => { st.says = v; })),
         h('div', { className: 'de-answers' }, ...answers),
         h('div', { className: 'de-row' }, button('+ Answer button', () => { st.answers.push({ label: '', reply: '', effects: [] }); again(); }, 'de-small')));
     });

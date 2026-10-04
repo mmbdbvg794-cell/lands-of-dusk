@@ -264,8 +264,13 @@ let talkHold = 0; // until when keep-alive replies wait (see connection.js)
 function showSpeech(sp) {
   clearTimeout(speechTimer);
   $('speech-who').textContent = sp.who;
-  $('speech-verb').textContent = sp.verb;
+  // An action ("acts") is just the words, in italics: no "says".
+  const acting = sp.verb === 'acts';
+  $('speech-verb').textContent = acting ? '' : sp.verb;
   $('speech-text').textContent = sp.text;
+  $('speech-text').classList.toggle('acting', acting);
+  // In a conversation (just talked, or answered) rather than a shout.
+  const talking = Date.now() < talkHold || Date.now() < speechFollow;
   const choices = $('speech-choices');
   const buttons = sp.choices.map((c) => {
     const b = document.createElement('button');
@@ -274,8 +279,17 @@ function showSpeech(sp) {
     b.addEventListener('click', () => runCommand(c));
     return b;
   });
+  // The end of a conversation: OK closes it.
+  if (!sp.choices.length && talking) {
+    const ok = document.createElement('button');
+    ok.type = 'button';
+    ok.className = 'primary';
+    ok.textContent = 'OK';
+    ok.addEventListener('click', hideSpeech);
+    buttons.push(ok);
+  }
   // Someone calling out to you: offer to talk to them.
-  if (!sp.choices.length && talkers.has(sp.who.toLowerCase())) {
+  else if (!sp.choices.length && talkers.has(sp.who.toLowerCase())) {
     const npc = nearestNamed(sp.who);
     if (npc) {
       const b = document.createElement('button');
@@ -318,7 +332,9 @@ function answeredSpeech() {
   speechFollow = Date.now() + 4000;
   $('speech-choices').replaceChildren();
   clearTimeout(speechTimer);
-  speechTimer = setTimeout(hideSpeech, 6000);
+  // An answer the NPC doesn't reply to ends the talk: the box closes,
+  // unless a reply comes (showSpeech and noteSpeech keep it open).
+  speechTimer = setTimeout(hideSpeech, 1500);
 }
 
 // The closest entity with this name, for answering a shout.
@@ -1288,7 +1304,8 @@ function handle(msg) {
       }
       const st = panels.storage ? storageReader.feed(msg.text) : null;
       if (st?.listing) panels.setStorageListing(st.listing);
-      if (!st?.hide && !(isGod && god.expecting(msg.text))) addText(msg.text);
+      // An NPC's action reads as just its words in chat too.
+      if (!st?.hide && !(isGod && god.expecting(msg.text))) addText(sp?.verb === 'acts' ? `${sp.text}` : msg.text);
       serverLine(msg.text);
       break;
     }

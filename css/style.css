@@ -1402,3 +1402,4 @@ dialog::backdrop { background: #000a; }
 #library-editor .le-pic { width: 48px; height: 48px; background: #000; border-radius: 4px; image-rendering: pixelated; }
 #library-editor .le-extra { width: 100%; font-family: var(--mono); font-size: 12px; }
 #library-editor .le-list { margin: 8px 0; }
+#speech-text.acting { font-style: italic; }

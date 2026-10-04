@@ -12,7 +12,7 @@
 export const talkCommand = (id) => `talk ${id}`;
 export const TALKERS = 'talk names';
 
-const SPEECH = /^(.{1,40}?) (says|shouts|asks|whispers): (.+)$/;
+const SPEECH = /^(.{1,40}?) (says|shouts|asks|whispers|acts): (.+)$/;
 const CHOICES = /\s*\(([^()]+(?:\/[^()]+)+)\)\s*$/;
 // One answer on its own, as the dialogue editor writes it: lower case, at
 // the very end of the line ("Want to hear a story? (sure)").

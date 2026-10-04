@@ -248,6 +248,11 @@ backups; see `server/`.
   18 seconds of progress).
 - **Attack reach** matches the server: right beside, not diagonally.
 
+- **How lines are spoken**: every dialogue line and tile message can be
+  said, shouted, asked, whispered, or an Action (just the words, in
+  italics: "The guard looks you up and down."). A conversation's last line
+  offers OK to close it, and an answer with no reply simply ends the talk.
+
 ## Website
 
 - **Play Now** goes to the browser client (`/play/`). The "Requires

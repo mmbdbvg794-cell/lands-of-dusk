@@ -3,7 +3,7 @@
 // each can say something and do things (set flags, give items...).
 // js/dialogue.js turns them into the square's walk-on script.
 
-import { newRule, newWalk, tileSaveCommand, TILE_GET } from './dialogue.js';
+import { newRule, newWalk, tileSaveCommand, TILE_GET, VERBS } from './dialogue.js';
 import { tileClear } from './god.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
@@ -120,6 +120,7 @@ export class TileEditor {
         h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'When' }), select(WHEN, r.when.kind, (v) => { r.when = { kind: v, value: '' }; again(); }), valueBox),
         h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'Message' }),
           input(r.speaker, 'Who says it (optional)', (v) => { r.speaker = v; }, { className: 'de-label' }),
+          select(VERBS, r.verb ?? 'says', (v) => { r.verb = v; }),
           input(r.says, 'What they see (optional)', (v) => { r.says = v; })),
         ...effects,
         h('div', { className: 'de-row' }, button('+ Effect', () => { r.effects.push({ kind: 'flag' }); again(); }, 'de-small')));
@@ -133,6 +134,7 @@ export class TileEditor {
         w.kind === 'flag' || w.kind === 'noflag' ? input(w.flag, 'flag name, e.g. tutorial', (v) => { w.flag = v; }) : null),
       w.kind === 'everyone' ? null : h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'If not' }),
         input(w.speaker, 'Who says it (optional)', (v) => { w.speaker = v; }, { className: 'de-label' }),
+        select(VERBS, w.verb ?? 'says', (v) => { w.verb = v; }),
         input(w.says, 'What they\'re told, e.g. Talk to the Recruiter first.', (v) => { w.says = v; })),
       w.kind === 'everyone' ? null : h('p', { className: 'de-hint', textContent: 'Gods walk anywhere, so try this as a player.' }));
     this.body.replaceChildren(

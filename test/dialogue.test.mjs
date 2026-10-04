@@ -212,3 +212,15 @@ console.log('ok - dialogue');
   assert.ok(/^[\x09\x0a\x20-\x7e]*$/.test(sc), 'plain bytes only');
   console.log('ok - plain punctuation');
 }
+
+// How lines are spoken.
+{
+  const { toScript, toTileScript, blockedText } = await import('../js/dialogue.js');
+  const sc = toScript('Guard', { shouts: [], stages: [{ when: { kind: 'always' }, verb: 'acts', says: 'The guard looks you up and down.', answers: [{ label: 'ok', reply: 'Move along!', replyVerb: 'shouts', effects: [] }] }] });
+  assert.ok(sc.includes('chat trigger "Guard acts: The guard looks you up and down. (ok)"'), sc);
+  assert.ok(sc.includes('chat trigger "Guard shouts: Move along!"'), sc);
+  assert.ok(toScript('G', { shouts: [], stages: [{ when: { kind: 'always' }, says: 'Hi', answers: [] }] }).includes('"G says: Hi"'), 'says by default');
+  assert.ok(toTileScript([{ when: { kind: 'always' }, speaker: 'The Guard', verb: 'acts', says: 'looks you over', effects: [] }]).includes('"The Guard acts: looks you over"'));
+  assert.equal(blockedText({ speaker: 'Guard', verb: 'shouts', says: 'Halt!' }), 'Guard shouts: Halt!');
+  console.log('ok - verbs');
+}
