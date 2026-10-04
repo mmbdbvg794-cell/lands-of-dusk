@@ -216,6 +216,16 @@ backups; see `server/`.
 - **Install as an app**: add Dusk to your phone's home screen or your
   computer as an app.
 
+- **Training fixed**: trainers teach Strength, Intelligence, Dexterity,
+  Constitution and Wisdom by name (before, "Strength" made a useless skill
+  and "Stamina" did nothing). Old Strength points became STR; Stamina's
+  experience was refunded.
+- **Skills that do something**: Regeneration and Mana Regen heal faster
+  (some healing in battle too), Spell Power makes spells cheaper, Lock
+  Picking opens locked chests without the key. The Skills tab shows just
+  fighting and utility skills, each with what it does; magic is in the
+  Spellbook.
+
 ## Website
 
 - **Play Now** goes to the browser client (`/play/`). The "Requires
