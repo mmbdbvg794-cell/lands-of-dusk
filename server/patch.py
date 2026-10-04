@@ -63,6 +63,13 @@ patch('Commands.java', [
                 long l;
                 Object var11_185;
                 LivingThing livingThing9;''', 1),
+    # Trainers' stats by their full names, and Spell Power on casting
+    # (server/Skills.java).
+    ('''                        merchant.train((String)object, n, livingThing);''', '''                        merchant.train(Skills.statFor((String)object), n, livingThing);''', 1),
+    ('''merchant.train((String)object, n, livingThing.thnFollowing);''', '''merchant.train(Skills.statFor((String)object), n, livingThing.thnFollowing);''', 1),
+    ('''                livingThing.castSpell(string);
+                return null;''', '''                Skills.cast(livingThing, string);
+                return null;''', 1),
     # The live class adds to the inventory with Vector.add(Object), not
     # ItemVector.add(Item).
     ('''                livingThing.items.add(item);
@@ -127,6 +134,7 @@ patch('DuskServer.java', [
         BridgedSocket.start();
         Bans.load();
         Social.load();
+        Skills.start(this.engGame);
         Talk.start(this.engGame);
         try {''', 1),
 ])

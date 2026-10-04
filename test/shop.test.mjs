@@ -18,3 +18,10 @@ assert.equal(buyCommand('apple', 'x'), 'buy 1 apple');
 assert.equal(sellCommand('dagger', 2.7), 'sell 2 dagger');
 assert.equal(sellCommand('dagger', 5000), 'sell 999 dagger');
 console.log('ok - shop');
+{
+  const { wareLabel } = await import('../js/shop.js');
+  assert.equal(wareLabel('train:double attack'), 'Double Attack');
+  assert.equal(wareLabel('train:Dexterity'), 'Dexterity');
+  assert.equal(wareLabel('red potion'), 'red potion');
+  console.log('ok - wareLabel');
+}

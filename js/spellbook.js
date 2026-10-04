@@ -88,6 +88,7 @@ export class Spellbook {
       if (skill !== undefined) {
         const s = document.createElement('span');
         s.className = 'school-skill';
+        s.style.setProperty('--pct', `${Math.max(0, Math.min(100, skill))}%`);
         s.textContent = `${skill}%`;
         s.title = `Your skill in ${school}`;
         h.append(' ', s);

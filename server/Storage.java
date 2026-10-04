@@ -15,6 +15,8 @@
  *   storage lock <key item>    (gods) lock the chest here (or #<id>): only
  *                              someone carrying that item can open it
  *   storage unlock             (gods) unlock it again
+ *   storage pick               try to pick a locked chest's lock (the Lock
+ *                              Picking skill): open for you for a while
  *
  * A storage is a Prop, so the client draws it as a prop (type 3) and "get"
  * never picks it up. Commands.parseCommand hands every command to
@@ -49,6 +51,10 @@ public class Storage extends Prop {
 
     String kind; // "barrel" or "chest"
     String key = null; // a locked chest: the item that opens it
+    // Who has picked this chest's lock, and until when (lower-case name -> ms).
+    final Hashtable<String, Long> picked = new Hashtable<String, Long>();
+    static final Hashtable<String, Long> lastPick = new Hashtable<String, Long>();
+    static final long PICKED_MS = 120000, PICK_EVERY_MS = 8000;
     final Vector contents = new Vector(); // Items
 
     Storage(DuskEngine engine, String kind, String label, int x, int y) {
@@ -134,6 +140,7 @@ public class Storage extends Prop {
         if (s == null) return "There's no storage here.";
         if (lower.startsWith("lock ")) return s.lock(who, engine, args.substring(5).trim());
         if (lower.equals("unlock")) return s.unlock(who);
+        if (lower.equals("pick")) return s.pick(who);
         if (s.key != null && !s.canOpen(who)) return "The " + s.strName + " is locked. It takes a " + s.key + " to open.";
         if (lower.length() == 0 || lower.equals("look")) return s.listing();
         if (lower.startsWith("put ")) return s.put(who, args.substring(4).trim());
@@ -172,7 +179,27 @@ public class Storage extends Prop {
     // A locked chest opens for anyone carrying its key, and for gods.
     boolean canOpen(LivingThing who) {
         if (key == null || who.privs > 2) return true;
+        Long until = picked.get(who.strName.toLowerCase());
+        if (until != null && until > System.currentTimeMillis()) return true;
         return who.items.getItem(key, 0) != null;
+    }
+
+    // Lock Picking: a chance (three quarters of the skill, at most 75%) to
+    // open a locked chest without its key, for a couple of minutes.
+    String pick(LivingThing who) throws Exception {
+        if (key == null) return "The " + strName + " isn't locked.";
+        if (canOpen(who)) return listing();
+        int skill = who.getSkill("Lock Picking");
+        if (skill <= 0) return "You don't know how to pick locks. (A trainer can teach you Lock Picking.)";
+        String me = who.strName.toLowerCase();
+        Long last = lastPick.get(me);
+        long now = System.currentTimeMillis();
+        if (last != null && now - last < PICK_EVERY_MS) return "Your hands are still shaking. Wait a moment before trying again.";
+        lastPick.put(me, now);
+        if (Math.random() * 100 >= Math.min(75, skill * 0.75)) return "You try to pick the " + strName + "'s lock, but it doesn't give.";
+        picked.put(me, now + PICKED_MS);
+        Log.logEvent(who.strName + " picked the lock of " + strName + " at " + intLocX + "," + intLocY);
+        return "You pick the " + strName + "'s lock.\n" + listing();
     }
 
     String lock(LivingThing who, DuskEngine engine, String keyName) throws Exception {

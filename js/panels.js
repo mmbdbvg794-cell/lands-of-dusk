@@ -5,7 +5,7 @@
 
 import { slotForType, command } from './player.js';
 import { parseStats, playerConditions } from './stats.js';
-import { buyCommand, sellCommand } from './shop.js';
+import { buyCommand, sellCommand, wareLabel } from './shop.js';
 import { describeItem } from './iteminfo.js';
 import { putCommand, takeCommand, groupContents, BOX_BUY, BOX_UPGRADE, boxPut, boxTake } from './storage.js';
 
@@ -63,6 +63,7 @@ export class Panels {
       if (!st) return;
       if (btn.dataset.store === 'buy') return this.send(BOX_BUY);
       if (btn.dataset.store === 'upgrade') return this.send(BOX_UPGRADE);
+      if (btn.dataset.store === 'pick') return this.send(`storage #${st.entity.id} pick`);
       // A deposit box has its own commands; storage names the one clicked.
       if (st.box) this.send(btn.dataset.store === 'take' ? boxTake(btn.dataset.name) : boxPut(btn.dataset.id));
       else this.send(btn.dataset.store === 'take' ? takeCommand(btn.dataset.name, st.entity.id) : putCommand(btn.dataset.id, st.entity.id));
@@ -262,10 +263,16 @@ export class Panels {
     // conditions are under the bars now), each with its value and a bar.
     const spells = s.sections.find((sec) => /spell/i.test(sec.title));
     this.onSpells?.(spells?.items ?? []);
-    const skills = (s.sections.find((sec) => /skill/i.test(sec.title))?.items ?? [])
+    // Magic (the schools, "white magic group" and so on) is the
+    // Spellbook's; this tab is fighting and utility skills.
+    const all = (s.sections.find((sec) => /skill/i.test(sec.title))?.items ?? [])
       .map((line) => /^(.+?):\s*(-?\d+)$/.exec(line))
       .filter(Boolean)
-      .map(([, name, value]) => ({ name, value: Number(value) }))
+      .map(([, name, value]) => ({ name, value: Number(value) }));
+    this.skillLevels = new Map(all.map((sk) => [sk.name.toLowerCase(), sk.value]));
+    const magic = new Set((spells?.items ?? []).map((l) => /^\s*(.+?):\s*\d+%/.exec(l)?.[1]?.toLowerCase()).filter(Boolean));
+    const skills = all
+      .filter((sk) => !/group$/i.test(sk.name) && !magic.has(sk.name.toLowerCase()) && !/^(strength|stamina)$/i.test(sk.name))
       .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
     this.$('#stats-empty').hidden = skills.length > 0;
     this.$('#stats-empty').textContent = has ? 'No skills yet: train them at a trainer.' : 'No skills yet.';
@@ -275,7 +282,10 @@ export class Panels {
       const bar = document.createElement('span');
       bar.className = 'skill-bar';
       bar.style.setProperty('--pct', `${Math.max(0, Math.min(100, sk.value))}%`);
-      row.append(text('span', 'skill-name', sk.name), bar, text('span', 'skill-value', String(sk.value)));
+      const name = text('span', 'skill-name', sk.name);
+      const what = SKILL_WORDS[sk.name.toLowerCase()];
+      if (what) name.append(text('span', 'skill-what', what));
+      row.append(name, bar, text('span', 'skill-value', String(sk.value)));
       return row;
     }));
   }
@@ -361,7 +371,7 @@ export class Panels {
     const tradeRow = (w, trade) => {
       const price = w.price === null ? '' : `${w.price} ${w.currency}`;
       const li = row(
-        [text('span', 'name', w.name), price && text('span', `price ${w.currency}${trade === 'buy' && !canAfford(w) ? ' short' : ''}`, trade === 'sell' ? `worth ${price}` : price)],
+        [text('span', 'name', wareLabel(w.name)), price && text('span', `price ${w.currency}${trade === 'buy' && !canAfford(w) ? ' short' : ''}`, trade === 'sell' ? `worth ${price}` : price)],
         [qtyBox(), tradeButton(trade === 'buy' ? (w.currency === 'exp' ? 'Train' : 'Buy') : 'Sell', trade, w.name)],
       );
       if (trade === 'buy' && !canAfford(w)) li.title = `You can't afford this yet`;
@@ -417,6 +427,8 @@ export class Panels {
     const lockNote = this.$('#store-locked');
     lockNote.hidden = !locked && !st.listing?.lock;
     lockNote.textContent = locked ? `🔒 Locked. It takes a ${locked} to open.` : st.listing?.lock ? `🔒 Locked: it opens for anyone carrying a ${st.listing.lock}.` : '';
+    // Lock Picking: a go at it without the key.
+    this.$('#store-pick').hidden = !locked || !(this.skillLevels?.get('lock picking') > 0);
     // A deposit box: how full, and the next size up.
     const sized = st.box && st.listing?.size;
     this.$('#store-size').hidden = !sized;
@@ -546,6 +558,22 @@ function tradeButton(label, trade, name) {
   b.dataset.name = name;
   return b;
 }
+
+// What each skill does, shown under its name on the Skills tab.
+const SKILL_WORDS = {
+  dodge: 'A chance to dodge attacks',
+  'double attack': 'A chance of a second attack each round',
+  'triple attack': 'A chance of a third attack each round',
+  'quadruple attack': 'A chance of a fourth attack each round',
+  regeneration: 'Heal faster (at 100: twice as fast, and some healing in battle)',
+  'mana regen': 'Regain MP faster (by WIS; at 100: twice as fast)',
+  'spell power': 'Spells cost less MP (at 100: half)',
+  'lock picking': 'A chance to open locked chests without the key',
+  archery: 'Shooting with bows and crossbows',
+  'life tap': 'Draw life from your foes',
+  'mana tap': 'Draw mana from your foes',
+  'armor identification': 'Tell how good a piece of armour is',
+};
 
 function row(left, right) {
   const li = document.createElement('li');

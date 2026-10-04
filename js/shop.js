@@ -31,6 +31,13 @@ export function parseWares(lines) {
   return out;
 }
 
+// How a ware reads in the Shop: training ("train:double attack") as the
+// skill or stat's name ("Double Attack").
+export function wareLabel(name) {
+  const m = /^train:\s*(.+)$/i.exec(name);
+  return m ? m[1].replace(/\b\w/g, (c) => c.toUpperCase()) : name;
+}
+
 export function buyCommand(name, qty = 1) {
   return `buy ${clampQty(qty)} ${name}`;
 }

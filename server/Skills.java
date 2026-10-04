@@ -1,0 +1,182 @@
+/*
+ * Training and skills that work:
+ *
+ * Stats are trained by their full names: trainers offer Strength,
+ * Intelligence, Dexterity, Constitution and Wisdom (and HP, MP), and
+ * statFor() turns those into the server's stat codes (stre, inte, dext,
+ * cons, wisd) before Merchant.train sees them. Before, "Strength" wasn't
+ * a stat code, so training it made a useless skill called Strength;
+ * "Stamina" isn't a stat at all. At start-up every trainer's list is put
+ * right (Strength and Stamina out, the five stats in), and players who
+ * trained the old ones get their points back: Strength as STR, Stamina as
+ * the experience it cost.
+ *
+ * Skills that did nothing now do something, every TICK_MS (the same as the
+ * server's own healing):
+ *   Regeneration   extra HP healing: at 100, double the natural rate (out
+ *                  of battle), and half that in battle
+ *   Mana Regen     the same for MP (by WIS)
+ *   Spell Power    spells cost less MP: at 100, half (cast() refunds it)
+ *   Lock Picking   a chance to open a locked chest without its key (see
+ *                  Storage.pick)
+ *
+ * Part of the browser client project (dusk-browser-client/server).
+ */
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
+public class Skills {
+    static final int TICK_MS = 18000;
+    static final String[][] STATS = {
+        { "Strength", "stre" }, { "Intelligence", "inte" }, { "Dexterity", "dext" }, { "Constitution", "cons" }, { "Wisdom", "wisd" },
+    };
+
+    // A trainer's ware name -> what Merchant.train should raise.
+    public static String statFor(String name) {
+        if (name == null) return null;
+        String n = name.trim().toLowerCase();
+        for (String[] s : STATS) if (n.equals(s[0].toLowerCase()) || n.equals(s[1]) || n.equals(s[1].substring(0, 3))) return s[1];
+        return name;
+    }
+
+    public static void start(final DuskEngine engine) {
+        try {
+            fixTrainers(engine);
+        } catch (Exception e) {
+            Log.logError(e, "Skills.fixTrainers", false);
+        }
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(TICK_MS);
+                        Object[] players = engine.vctSockets.toArray();
+                        for (Object o : players) {
+                            LivingThing p = (LivingThing) o;
+                            convert(engine, p);
+                            regen(p);
+                        }
+                    } catch (InterruptedException e) {
+                        return;
+                    } catch (Exception e) {
+                        Log.logError(e, "Skills tick", false);
+                    }
+                }
+            }
+        }, "Skills");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // Every trainer that offered Strength or Stamina offers the five stats
+    // by name instead.
+    static void fixTrainers(DuskEngine engine) {
+        int fixed = 0;
+        for (Object o : engine.vctMerchants.toArray()) {
+            Merchant m = (Merchant) o;
+            List<String> wares = new ArrayList<String>();
+            for (Enumeration e = m.getAllItems(); e.hasMoreElements();) wares.add(String.valueOf(e.nextElement()));
+            boolean stats = false;
+            for (String w : wares) {
+                String l = w.toLowerCase();
+                if (!l.startsWith("train:")) continue;
+                String what = l.substring(6).trim();
+                boolean stat = what.equals("strength") || what.equals("stamina");
+                for (String[] s : STATS) if (what.equals(s[0].toLowerCase()) || what.equals(s[1]) || what.equals(s[1].substring(0, 3))) stat = true;
+                if (stat) {
+                    m.remove(w);
+                    stats = true;
+                }
+            }
+            if (stats) {
+                for (String[] s : STATS) m.add("train:" + s[0]);
+                fixed++;
+            }
+        }
+        if (fixed > 0) Log.logEvent("Skills: trainers now teach Strength, Intelligence, Dexterity, Constitution and Wisdom (" + fixed + " trainers)");
+    }
+
+    // Old Strength and Stamina "skills" become what they were paid for.
+    static void convert(DuskEngine engine, LivingThing p) {
+        int str = 0, stamina = 0;
+        synchronized (p.skillTable) {
+            for (Object k : p.skillTable.keySet().toArray()) {
+                String key = String.valueOf(k);
+                Skill s = (Skill) p.skillTable.get(k);
+                if (s == null) continue;
+                if (key.equalsIgnoreCase("strength")) { str += s.value; p.skillTable.remove(k); }
+                else if (key.equalsIgnoreCase("stamina")) { stamina += s.value; p.skillTable.remove(k); }
+            }
+        }
+        if (str == 0 && stamina == 0) return;
+        StringBuffer said = new StringBuffer();
+        if (str > 0) {
+            p.attributes.raiseStat("stre", str);
+            said.append("Your Strength training now counts as STR: +").append(str).append(" STR. ");
+        }
+        if (stamina > 0) {
+            long refund = (long) engine.traincost * stamina;
+            p.exp += refund;
+            said.append("Stamina training did nothing, so its ").append(refund).append(" exp has been given back.");
+        }
+        try {
+            p.savePlayer();
+            p.updateStats();
+            p.updateInfo();
+        } catch (Exception e) {
+            // Saved on the next tick or logout.
+        }
+        p.chatMessage(said.toString().trim());
+        Log.logEvent("Skills: converted " + p.strName + "'s old skills (Strength " + str + ", Stamina " + stamina + ")");
+    }
+
+    // Regeneration and Mana Regen: extra healing on the server's own rhythm.
+    static void regen(LivingThing p) {
+        int hp = p.attributes.getStat("hp");
+        if (hp <= 0) return;
+        boolean fighting = p.batBattle != null;
+        int r = p.getSkill("Regeneration");
+        if (r > 0) {
+            int cons = p.attributes.getStat("cons") + p.attributes.getStat(2, "consbon");
+            int base = p.blnSleep ? 3 + cons : 1 + cons / 2;
+            int extra = (int) Math.ceil(base * r / 100.0 / (fighting ? 2 : 1));
+            int max = p.attributes.getStat("maxhp") + p.attributes.getStat(2, "hpbon");
+            if (extra > 0 && hp < max) p.attributes.setStat("hp", Math.min(max, hp + extra));
+        }
+        int m = p.getSkill("Mana Regen");
+        if (m > 0) {
+            int wisd = p.attributes.getStat("wisd") + p.attributes.getStat(2, "wisdbon");
+            int base = p.blnSleep ? 3 + wisd : 1 + wisd / 2;
+            int extra = (int) Math.ceil(base * m / 100.0 / (fighting ? 2 : 1));
+            int mp = p.attributes.getStat("mp");
+            int max = p.attributes.getStat("maxmp") + p.attributes.getStat(2, "mpbon");
+            if (extra > 0 && mp < max) p.attributes.setStat("mp", Math.min(max, mp + extra));
+        }
+        if (r > 0 || m > 0) {
+            try {
+                p.updateInfo();
+            } catch (Exception e) {
+                // Gone.
+            }
+        }
+    }
+
+    // A spell cast (the "cast" command): Spell Power gives back part of
+    // the MP it cost.
+    public static void cast(LivingThing who, String spell) {
+        int before = who.attributes.getStat("mp");
+        who.castSpell(spell);
+        int cost = before - who.attributes.getStat("mp");
+        int power = who.getSkill("Spell Power");
+        if (cost <= 0 || power <= 0) return;
+        int refund = cost * Math.min(100, power) / 200;
+        if (refund <= 0) return;
+        who.attributes.raiseStat("mp", refund);
+        try {
+            who.updateInfo();
+        } catch (Exception e) {
+            // Gone.
+        }
+    }
+}
