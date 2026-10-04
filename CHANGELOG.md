@@ -237,6 +237,17 @@ backups; see `server/`.
 - **Painted spell effects**: smooth, glowing versions of every spell effect
   in the Painted style.
 
+- **Human tutorial finished**: humans start on the ship at 125,365. The
+  Recruiter offers training or the door; training goes Armorer, Drill
+  Sergeant (beat a dummy, bring its stuffing), Quartermaster (buy water and
+  a sandwich), then a teleport stone to the city (17,10), which becomes
+  their respawn point. Each step is gated and has its Journal line; the
+  quest "From Refugee to Soldier..." finishes on arrival.
+- **Race start points work** (they were ignored: everyone started at 4,4).
+- **Logging out saves** (closing the tab or a dropped connection lost up to
+  18 seconds of progress).
+- **Attack reach** matches the server: right beside, not diagonally.
+
 ## Website
 
 - **Play Now** goes to the browser client (`/play/`). The "Requires
