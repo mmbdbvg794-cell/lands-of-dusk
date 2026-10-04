@@ -129,7 +129,7 @@ $('map-btn').addEventListener('click', () => worldMap.toggle());
 let isGod = false;
 const god = new GodPanel($('tab-god'), {
   send: (cmd, opts) => {
-    if (opts?.quiet) { if (conn?.connected) conn.send(cmd); } else runCommand(cmd);
+    if (opts?.quiet) { if (conn?.connected) conn.background(cmd); } else runCommand(cmd);
   },
   note: (t) => sysLine(t),
   tileSheet: () => renderer.sheets?.map ?? null,
@@ -153,14 +153,14 @@ const god = new GodPanel($('tab-god'), {
 });
 // Monsters, props and items (gods): from the God tab or a click menu.
 const libraryEditor = new LibraryEditor($('library-editor'), {
-  send: (cmd) => { if (conn?.connected) conn.send(cmd); },
+  send: (cmd) => { if (conn?.connected) conn.background(cmd); },
   run: (cmd) => runCommand(cmd),
   lists: () => god.lists,
   fetchLists: () => god.opened(),
   sprites: () => renderer.sheets?.sprites ?? null,
   note: (t) => sysLine(t),
 });
-const quiet = (cmd) => { if (conn?.connected) conn.send(cmd); };
+const quiet = (cmd) => { if (conn?.connected) conn.background(cmd); };
 // The quest journal's entries (gods), from the God tab.
 const journalEditor = new JournalEditor($('journal-editor'), { send: quiet });
 // The Journal, Friends and Trade tabs.
@@ -185,23 +185,23 @@ function startWhisper(name) {
 // The dialogue editor (gods): from an NPC's click menu or the God tab.
 const dialogueEditor = new DialogueEditor($('dialogue-editor'), {
   send: (cmd, opts) => {
-    if (opts?.quiet) { if (conn?.connected) conn.send(cmd); } else runCommand(cmd);
+    if (opts?.quiet) { if (conn?.connected) conn.background(cmd); } else runCommand(cmd);
     // After a save, the new NPC may now have something to say.
-    if (/^talkedit set /.test(cmd) && conn?.connected) conn.send(TALKERS);
+    if (/^talkedit set /.test(cmd) && conn?.connected) conn.background(TALKERS);
   },
   items: () => god.lists.items ?? [],
 });
 // The tile editor (gods): what happens on the square you stand on.
 const tileEditor = new TileEditor($('tile-editor'), {
   send: (cmd, opts) => {
-    if (opts?.quiet) { if (conn?.connected) conn.send(cmd); } else runCommand(cmd);
+    if (opts?.quiet) { if (conn?.connected) conn.background(cmd); } else runCommand(cmd);
   },
   items: () => god.lists.items ?? [],
 });
 // A player's flags (gods): from the player's click menu.
 const flagsDialog = new FlagsDialog($('flags-dialog'), {
   send: (cmd, opts) => {
-    if (opts?.quiet) { if (conn?.connected) conn.send(cmd); } else runCommand(cmd);
+    if (opts?.quiet) { if (conn?.connected) conn.background(cmd); } else runCommand(cmd);
   },
 });
 function setGod(on) {
@@ -521,7 +521,7 @@ const MAP_LOAD_DELAY_MS = 3000;
 const MAP_RETRY_MS = 10000;
 const MAP_SYNC_MS = 15000;
 const mapSync = new MapSync({
-  send: (cmd) => { if (conn?.connected) conn.send(cmd); },
+  send: (cmd) => { if (conn?.connected) conn.background(cmd); },
   explored: () => minimap.explored,
   onMerged: () => {
     // The rest that follows you about: notes, friends, map pins.
@@ -1194,7 +1194,7 @@ function connect(url) {
   sysLine(`Connecting to ${url}…`);
 
   conn = new DuskConnection(withDevice(url));
-  conn.holdNotDead = () => speechAwaiting || Date.now() < talkHold;
+  conn.holdBackground = () => speechAwaiting || Date.now() < talkHold;
   conn.addEventListener('open', () => {
     setState('on');
     sysLine('Connected. Waiting for the server…');
@@ -1227,7 +1227,7 @@ function handle(msg) {
     if (msg.op === OP.MAP_SIZE) renderer.resize();
     else renderer.invalidate();
   }
-  for (const id of world.takeRement()) conn?.send(`rement ${id}`);
+  for (const id of world.takeRement()) conn?.background(`rement ${id}`);
   if (stepped && stepsBox.checked) sound.play('step');
   // One sound per combat line: a real hit beats a 0, which beats a dodge.
   const newHits = world.hits.slice(hitsBefore);
@@ -1453,7 +1453,7 @@ function askWorn(now = Date.now(), every = 30000) {
     if (now - (wornAsked.get(e.id) ?? 0) < wait) continue;
     wornAsked.set(e.id, now);
     wornAnswered.delete(e.id);
-    conn.send(wornCommand(e.id));
+    conn.background(wornCommand(e.id));
   }
 }
 setInterval(() => askWorn(), 3000);

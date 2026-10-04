@@ -683,7 +683,22 @@ function propPerson(ctx, n) {
   if (/villager man|^villager$|farmer|\bman$/.test(n) && !/woman/.test(n) && hashName(n + 'b') < 0.5) look.beard = look.hair;
   let gear = {};
   let s = 0.82;
-  if (/guard|soldier|sergeant/.test(n)) {
+  if (/\belf\b|elven/.test(n) && !/dark elf/.test(n)) {
+    // Elves (Aelindor): fair, pointed ears, long golden, silver or auburn
+    // hair, in greens and silvers; guards in leaf-green mail with a bow.
+    const hair = ['#e8d078', '#e0e0e8', '#a0502a', '#d8b860'][Math.floor(hashName(n + 'h') * 4)];
+    Object.assign(look, { skin: '#f0d8bc', hair, hairStyle: 'long', top: ['#3a6a3a', '#5a7a4a', '#c8ccc0', '#2e5a4a'][Math.floor(hashName(n + 't') * 4)], trim: '#c8b878', legs: '#4a5a3a', boots: '#5a4028', ears: true, beard: null });
+    if (/guard/.test(n)) {
+      Object.assign(look, { top: '#4a6a3a', trim: '#c8ccd4', legs: '#3a4a2e', style: 'armour', hairStyle: 'ponytail' });
+      gear = { weapon: { kind: 'bow', colour: '#8a5a2a' } };
+    } else if (/woman|maiden|lady/.test(n)) {
+      Object.assign(look, { skirt: ['#3a6a4a', '#c8ccc0', '#6a4a7a'][Math.floor(hashName(n + 'x') * 3)] });
+    } else if (/teller/.test(n)) {
+      Object.assign(look, { top: '#2e5a4a', trim: '#d8b050', legs: '#1e3a30' });
+    } else if (/elder|priest/.test(n)) {
+      Object.assign(look, { top: '#e8e8e0', trim: '#c8b060', hair: '#e8e8f0', hairStyle: 'long' });
+    }
+  } else if (/guard|soldier|sergeant/.test(n)) {
     Object.assign(look, { top: '#8a8e98', trim: '#c8b060', legs: '#6a6e78', style: 'armour', helm: '#8a8e98' });
     gear = { weapon: { kind: 'spear', colour: '#c8ccd4' }, shield: { colour: '#c8b060' } };
   } else if (/thief|spy/.test(n)) {
@@ -805,6 +820,7 @@ function coffin(ctx) {
 
 const PROPS = [
   [/teller|banker/, propPerson],
+  [/\belf\b|elven/, propPerson],
   [/throne/, throne],
   [/couch|sofa/, couch],
   [/chair|stool/, chair],

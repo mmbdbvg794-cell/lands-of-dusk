@@ -12,6 +12,7 @@ export class DuskConnection extends EventTarget {
     this.reader = new ByteReader();
     this.ctx = { mapSize: 11 }; // Dusk.java's default until opcode 19 arrives.
     this.ws = null;
+    this.waiting = []; // background lines held back (see background())
   }
 
   connect() {
@@ -43,6 +44,22 @@ export class DuskConnection extends EventTarget {
     const bytes = new Uint8Array(line.length);
     for (let i = 0; i < line.length; i++) bytes[i] = line.charCodeAt(i) & 0xff;
     this.ws.send(bytes);
+    return true;
+  }
+
+  // Lines the client sends on its own: map saving, lookups, polls. An
+  // NPC's script reading an answer ("input") takes the next line, whatever
+  // it is, so while one may be (holdBackground), they wait, and go out
+  // once it's answered.
+  background(text) {
+    if (!this.holdBackground?.()) return this.send(text);
+    if (!this.waiting.includes(text)) this.waiting.push(text);
+    this.flushTimer ??= setInterval(() => {
+      if (this.holdBackground?.() && this.connected) return;
+      clearInterval(this.flushTimer);
+      this.flushTimer = null;
+      for (const line of this.waiting.splice(0)) this.send(line);
+    }, 500);
     return true;
   }
 
@@ -79,7 +96,7 @@ export class DuskConnection extends EventTarget {
         // the next line, whatever it is, and the server pings right after
         // each answer (Script's stillThere). The server ignores "notdead"
         // anyway; it only keeps a quiet connection busy.
-        if (!this.holdNotDead?.()) this.send('notdead');
+        if (!this.holdBackground?.()) this.send('notdead');
         break;
     }
   }
