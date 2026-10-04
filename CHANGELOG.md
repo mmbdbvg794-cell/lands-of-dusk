@@ -257,6 +257,14 @@ backups; see `server/`.
   script it didn't make as text to change and save (checked first, the old
   one backed up), or sets it aside to build a tile action in its place.
 
+- **The world is four times bigger**: 2000 × 2000 squares, up from
+  1000 × 1000. Everything already built is exactly where it was, in the
+  north-west corner. Across a sea channel lie new lands: snowy mountains
+  and frozen lakes in the far north, oak forests, meadows and autumn woods
+  in the middle, deserts and palm coasts in the south, and 40 rivers
+  running down to the sea, all with fitted shores. Made by
+  `tools/world/generate.mjs`.
+
 ## Website
 
 - **Play Now** goes to the browser client (`/play/`). The "Requires
