@@ -12,7 +12,7 @@ import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
 import { gearFromEquipment, parseWorn, wornCommand } from './gear.js';
 import { chatKind, alsoGeneral, CombatTally } from './chatlog.js';
-import { MapSync } from './mapsync.js';
+import { MapSync, decodeChunk } from './mapsync.js';
 import { loadItemInfo } from './iteminfo.js';
 import { JournalReader, JournalDefReader, NotesReader, TradeReader, parseFriends, parseMarkers, parseWhisper, MARKERS, MAP_NOTES, noteAdd, noteRemove } from './social.js';
 import { SocialUI } from './socialui.js';
@@ -30,7 +30,7 @@ import { TileEditor } from './tileeditor.js';
 import { FlagsDialog } from './flagsdialog.js';
 import { parseDialogueReply, parseTileReply } from './dialogue.js';
 import { Minimap } from './minimap.js';
-import { WorldMap } from './worldmap.js';
+import { WorldMap, tileColours } from './worldmap.js';
 import { Panels, setBar } from './panels.js';
 import { Player } from './player.js';
 import { OP, opName } from './protocol.js';
@@ -1162,6 +1162,10 @@ function connect(url) {
   player = panels.player = new Player();
   panels.setOnMerchant(null);
   setGod(false);
+  // The whole-world view is for gods; fetched again if this login is one.
+  worldMap.full = null;
+  worldMap.overview = null;
+  godMap.asked = false;
   panels.renderAll();
   saveExplored();
   exploredKey = loginName = null;
@@ -1258,6 +1262,8 @@ function handle(msg) {
       if (mapSync.feed(msg.text)) break;
       // Journal, friends, map pins and notes, and trading (js/social.js).
       if (socialLine(msg.text)) break;
+      // Gods' whole world map.
+      if (isGod && godMapLine(msg.text)) break;
       // The definitions editor's answers.
       const lib = isGod && parseLibReply(msg.text);
       if (lib) { libraryEditor.reply(lib); break; }
@@ -1841,7 +1847,37 @@ worldMap.onRemoveNote = (x, y) => {
   worldMap.notes = worldMap.notes.filter((n) => n.x !== x || n.y !== y);
   worldMap.invalidate();
 };
-worldMap.onShow = () => { if (Date.now() - markersAt > 120000) quiet(MARKERS); };
+worldMap.onShow = () => {
+  if (Date.now() - markersAt > 120000) quiet(MARKERS);
+  // Gods see the whole world, fetched the first time they look.
+  if (isGod && !godMap.asked) {
+    godMap.asked = true;
+    godMap.full = new Explored();
+    godMap.pending = [];
+    worldMap.say('Loading the whole world…');
+    quiet('godmap');
+  }
+};
+const godMap = { asked: false, full: null, pending: [] };
+// The whole map's chunks ("GodMap: <cx,cy> <data>", then "GodMap: done").
+function godMapLine(text) {
+  const t = text.trim();
+  let m = /^GodMap: (-?\d+,-?\d+) (\S+)$/.exec(t);
+  if (m) {
+    const full = godMap.full;
+    godMap.pending.push(decodeChunk(m[2]).then((tiles) => { if (tiles && full) full.chunks.set(m[1], tiles); }));
+    return true;
+  }
+  if (/^GodMap: done \d+$/.test(t)) {
+    const full = godMap.full;
+    Promise.all(godMap.pending).then(async () => {
+      const sheet = paintedSheets?.map ?? await loadSheet('art/painted/map.png').catch(() => null);
+      if (full === godMap.full && isGod) { worldMap.say(null); worldMap.setFull(full, tileColours(sheet)); }
+    });
+    return true;
+  }
+  return false;
+}
 // Friends' comings and goings.
 setInterval(() => { if (conn?.connected && loaded) socialUI.refreshFriends(); }, 30000);
 

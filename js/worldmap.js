@@ -5,6 +5,9 @@
 // Banks, shops and people with something to say are pinned where you've
 // explored (markers, from the server), and so are your own notes: "+ Note"
 // then a click to add one, a click on one to read or remove it.
+// Gods see the whole world, no fog (setFull): a one-pixel-a-square
+// overview when zoomed out, and the real tiles for what's in view when
+// zoomed in.
 
 import { CHUNK } from './explored.js';
 
@@ -30,6 +33,9 @@ export class WorldMap {
     this.onAddNote = null; // (x, y, text)
     this.onRemoveNote = null; // (x, y)
     this.onShow = null;
+    this.full = null; // gods: the whole map (an Explored), else null
+    this.overview = null; // { canvas, x0, y0 }
+    this.fullBaked = new Map(); // "cx,cy" -> canvas, the most recent kept
     this.bindPointer();
     el.querySelector('[data-map="in"]').addEventListener('click', () => this.zoomBy(1));
     el.querySelector('[data-map="out"]').addEventListener('click', () => this.zoomBy(-1));
@@ -80,7 +86,70 @@ export class WorldMap {
   }
 
   // The zoom at which what you've explored fills most of the window.
+  // The map drawn: the whole world for gods, else what you've explored.
+  get source() {
+    return this.full ?? this.minimap.explored;
+  }
+
+  // Gods: the whole map, and each tile's colour (Uint8Array, rgb per tile
+  // ID) for the zoomed-out overview.
+  setFull(explored, colours) {
+    this.full = explored;
+    this.fullBaked.clear();
+    const keys = [...explored.chunks.keys()].map((k) => k.split(',').map(Number));
+    if (!keys.length) return;
+    const x0 = Math.min(...keys.map(([x]) => x)), y0 = Math.min(...keys.map(([, y]) => y));
+    const x1 = Math.max(...keys.map(([x]) => x)), y1 = Math.max(...keys.map(([, y]) => y));
+    const canvas = document.createElement('canvas');
+    canvas.width = (x1 - x0 + 1) * CHUNK;
+    canvas.height = (y1 - y0 + 1) * CHUNK;
+    const g = canvas.getContext('2d');
+    const img = g.createImageData(canvas.width, canvas.height);
+    for (const [k, tiles] of explored.chunks) {
+      const [cx, cy] = k.split(',').map(Number);
+      for (let ty = 0; ty < CHUNK; ty++) {
+        for (let tx = 0; tx < CHUNK; tx++) {
+          const t = tiles[ty * CHUNK + tx];
+          if (t === 0xffff) continue;
+          const i = (((cy - y0) * CHUNK + ty) * canvas.width + (cx - x0) * CHUNK + tx) * 4;
+          const c = colours && t * 3 + 2 < colours.length ? t * 3 : 0;
+          img.data[i] = colours ? colours[c] : 90;
+          img.data[i + 1] = colours ? colours[c + 1] : 90;
+          img.data[i + 2] = colours ? colours[c + 2] : 90;
+          img.data[i + 3] = 255;
+        }
+      }
+    }
+    g.putImageData(img, 0, 0);
+    this.overview = { canvas, x0: x0 * CHUNK, y0: y0 * CHUNK };
+    this.invalidate();
+  }
+
+  // A chunk of the whole map at full detail (kept for the last 200 drawn).
+  fullChunk(cx, cy) {
+    const k = `${cx},${cy}`;
+    let b = this.fullBaked.get(k);
+    if (b) {
+      this.fullBaked.delete(k);
+      this.fullBaked.set(k, b);
+      return b;
+    }
+    const tiles = this.full.chunkAt(cx, cy);
+    if (!tiles || !this.minimap.map) return null;
+    b = document.createElement('canvas');
+    b.width = b.height = CHUNK * 4;
+    const g = b.getContext('2d');
+    for (let ty = 0; ty < CHUNK; ty++) for (let tx = 0; tx < CHUNK; tx++) {
+      const t = tiles[ty * CHUNK + tx];
+      if (t !== 0xffff) this.minimap.bakeTile(g, tx, ty, t);
+    }
+    this.fullBaked.set(k, b);
+    if (this.fullBaked.size > 200) this.fullBaked.delete(this.fullBaked.keys().next().value);
+    return b;
+  }
+
   fitZoom() {
+    if (this.full) { this.zoom = 2; return; }
     const keys = [...this.minimap.explored.chunks.keys()].map((k) => k.split(',').map(Number));
     if (!keys.length) return;
     const xs = keys.map(([x]) => x), ys = keys.map(([, y]) => y);
@@ -122,7 +191,7 @@ export class WorldMap {
   }
 
   visibleMarkers() {
-    return this.markers.filter((m) => this.minimap.explored.tileAt(m.x, m.y) !== null);
+    return this.markers.filter((m) => this.source.tileAt(m.x, m.y) !== null);
   }
 
   click(e) {
@@ -201,6 +270,24 @@ export class WorldMap {
     const explored = this.minimap.explored;
     let tiles = 0;
     ctx.imageSmoothingEnabled = s < 4;
+    if (this.full) {
+      // Gods: the whole world. Zoomed out, the overview; zoomed in, the
+      // real tiles for the chunks in view.
+      const side = CHUNK * s;
+      if (this.zoom < 4 && this.overview) {
+        ctx.imageSmoothingEnabled = false;
+        const o = this.overview;
+        ctx.drawImage(o.canvas, Math.round(ox + o.x0 * s), Math.round(oy + o.y0 * s), Math.round(o.canvas.width * s), Math.round(o.canvas.height * s));
+      } else {
+        const c0 = Math.floor(-ox / side), c1 = Math.floor((w - ox) / side);
+        const r0 = Math.floor(-oy / side), r1 = Math.floor((h - oy) / side);
+        for (let cy = r0; cy <= r1; cy++) for (let cx = c0; cx <= c1; cx++) {
+          const b = this.fullChunk(cx, cy);
+          if (b) ctx.drawImage(b, Math.round(ox + cx * side), Math.round(oy + cy * side), Math.ceil(side), Math.ceil(side));
+        }
+      }
+    }
+    if (!this.full) {
     // A soft glow around explored land, so it reads as a lit region in
     // the fog rather than squares on black.
     ctx.shadowColor = 'rgba(210, 190, 140, 0.35)';
@@ -215,6 +302,7 @@ export class WorldMap {
     }
     ctx.shadowBlur = 0;
     for (const c of explored.chunks.values()) for (const t of c) if (t !== 0xffff) tiles++;
+    }
     // You.
     if (this.player) {
       const px = ox + (this.player.x + 0.5) * s, py = oy + (this.player.y + 0.5) * s;
@@ -248,8 +336,42 @@ export class WorldMap {
       this.el.querySelector('[data-map="info"]').textContent = this.message;
       return;
     }
+    if (this.full) {
+      this.el.querySelector('[data-map="info"]').textContent = `The whole world (god view)${this.player ? ` · you're at ${this.player.x}, ${this.player.y}` : ''}`;
+      return;
+    }
     this.el.querySelector('[data-map="info"]').textContent = tiles
       ? `${tiles.toLocaleString()} squares explored${this.player ? ` · you're at ${this.player.x}, ${this.player.y}` : ''}`
       : 'Nothing explored yet: walk around and the map fills in.';
   }
+}
+
+// Each tile's average colour, rgb per tile ID, from a tile sheet the page
+// may read (the painted one: the game's own is on another server).
+export function tileColours(sheet) {
+  const img = sheet?.img;
+  if (!img?.naturalWidth) return null;
+  const size = sheet.size;
+  const c = document.createElement('canvas');
+  c.width = img.naturalWidth;
+  c.height = img.naturalHeight;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0);
+  let data;
+  try {
+    data = g.getImageData(0, 0, c.width, c.height).data;
+  } catch {
+    return null;
+  }
+  const out = new Uint8Array(sheet.count * 3);
+  for (let i = 0; i < sheet.count; i++) {
+    const x0 = (i % sheet.cols) * size, y0 = Math.floor(i / sheet.cols) * size;
+    let r = 0, gr = 0, b = 0, n = 0;
+    for (let y = y0; y < y0 + size; y += 4) for (let x = x0; x < x0 + size; x += 4) {
+      const k = (y * c.width + x) * 4;
+      r += data[k]; gr += data[k + 1]; b += data[k + 2]; n++;
+    }
+    out[i * 3] = r / n; out[i * 3 + 1] = gr / n; out[i * 3 + 2] = b / n;
+  }
+  return out;
 }

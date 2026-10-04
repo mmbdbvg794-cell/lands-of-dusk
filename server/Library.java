@@ -11,6 +11,11 @@
  *                                     plain starting file if none)
  * kind: mob, prop or item. Gods only.
  *
+ *   godmap                            the whole world map, for gods' world
+ *                                     map (no fog): "GodMap: <cx,cy> z:<data>"
+ *                                     per 32x32 chunk, then "GodMap: done <n>"
+ *                                     (the format of MapStore's chunks)
+ *
  * Respawning: the engine moves a killed monster off the map with negative
  * HP, but nothing ever brought it back before a restart. Now it returns
  * to where it was placed, at full health, mobrespawnspeed seconds later
@@ -42,6 +47,7 @@ public class Library {
 
     public static String command(LivingThing who, DuskEngine engine, String line) {
         String t = line.trim();
+        if (t.equalsIgnoreCase("godmap")) return who.privs < GOD_PRIVS ? "Only gods can see the whole map." : godMap(who, engine);
         if (!t.toLowerCase().startsWith("lib ")) return null;
         if (who.privs < GOD_PRIVS) return "Only gods can edit the game's definitions.";
         try {
@@ -99,6 +105,38 @@ public class Library {
             Log.logError(e, "Library \"" + (t.length() > 60 ? t.substring(0, 60) : t) + "\" by " + who.strName, false);
             return "That didn't work: " + e.getMessage();
         }
+    }
+
+    static final int CHUNK = 32;
+
+    // Every chunk of the map, deflated, a line each.
+    static String godMap(LivingThing who, DuskEngine engine) {
+        short[][] map = engine.shrMap;
+        int cols = engine.mapColumns, rows = engine.mapRows, n = 0;
+        byte[] raw = new byte[CHUNK * CHUNK * 2];
+        byte[] buf = new byte[raw.length + 64];
+        Base64.Encoder b64 = Base64.getUrlEncoder().withoutPadding();
+        for (int cy = 0; cy * CHUNK < rows; cy++) {
+            for (int cx = 0; cx * CHUNK < cols; cx++) {
+                for (int ty = 0; ty < CHUNK; ty++) {
+                    for (int tx = 0; tx < CHUNK; tx++) {
+                        int x = cx * CHUNK + tx, y = cy * CHUNK + ty;
+                        int v = x < cols && y < rows ? map[x][y] & 0xffff : 0xffff;
+                        int i = (ty * CHUNK + tx) * 2;
+                        raw[i] = (byte) v;
+                        raw[i + 1] = (byte) (v >> 8);
+                    }
+                }
+                java.util.zip.Deflater d = new java.util.zip.Deflater(9, true);
+                d.setInput(raw);
+                d.finish();
+                int len = d.deflate(buf);
+                d.end();
+                who.chatMessage("GodMap: " + cx + "," + cy + " z:" + b64.encodeToString(java.util.Arrays.copyOf(buf, len)));
+                n++;
+            }
+        }
+        return "GodMap: done " + n;
     }
 
     static String starter(String kind) {
