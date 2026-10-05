@@ -4,7 +4,8 @@
 
 import { HIT_MS, bareName } from './world.js';
 import { drawShip } from './ships.js';
-import { drawBlends } from './blend.js';
+import { drawBlends, drawGroundDetail, groundFlip } from './blend.js';
+import { TREE_TILES, drawTrees } from './trees.js';
 import { drawEffect, drawPaintedEffect } from './effects.js';
 import { LOOKS, OUT, paintFigureStrip } from './figure.js';
 import { outdoorShare } from './atmosphere.js';
@@ -108,18 +109,35 @@ export class Renderer {
       const y0 = Math.floor(cam.y) - r;
       for (let x = x0; x <= x0 + n; x++) {
         for (let y = y0; y <= y0 + n; y++) {
-          const tile = world.tileAt(x, y, now);
+          let tile = world.tileAt(x, y, now);
           if (tile === null) continue;
+          // Big trees (the Painted style) stand on their ground.
+          if (this.bigTrees && TREE_TILES[tile]) tile = TREE_TILES[tile].ground;
           const [px, py] = toPx(x, y);
+          // Painted ground: mirrored square to square (js/blend.js).
+          const flip = this.blendGround ? groundFlip(x, y, tile) : 0;
+          if (flip) {
+            ctx.save();
+            ctx.translate(px + (flip & 1 ? c : 0), py + (flip & 2 ? c : 0));
+            ctx.scale(flip & 1 ? -1 : 1, flip & 2 ? -1 : 1);
+            map.draw(ctx, tile, 0, 0, c);
+            ctx.restore();
+            continue;
+          }
           // Java falls back to tile 0 when a tile ID can't be drawn.
           if (!map.draw(ctx, tile, px, py, c)) map.draw(ctx, 0, px, py, c);
         }
       }
       // The Painted style: ground of different kinds meets along wandering
       // lines instead of the squares' edges (js/blend.js).
+      const ground = this.bigTrees ? (x, y) => { const t = world.tileAt(x, y, now); return TREE_TILES[t]?.ground ?? t; } : (x, y) => world.tileAt(x, y, now);
       if (this.blendGround) {
-        drawBlends(ctx, { x0, y0, n, c, tileAt: (x, y) => world.tileAt(x, y, now), toPx, draw: (t, px, py, size) => map.draw(ctx, t, px, py, size) });
+        drawBlends(ctx, { x0, y0, n, c, tileAt: ground, toPx, draw: (t, px, py, size) => map.draw(ctx, t, px, py, size) });
       }
+      if (this.blendGround) drawGroundDetail(ctx, { x0, y0, n, c, tileAt: ground, toPx });
+      // Big trees over the ground, back to front, crowns spreading over
+      // their neighbours (js/trees.js).
+      if (this.bigTrees) drawTrees(ctx, { tileAt: (x, y) => world.tileAt(x, y, now), x0, y0, n, c, toPx });
     }
 
     // Ships at sea (js/ships.js), on the water and under whoever's aboard.

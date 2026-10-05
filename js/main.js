@@ -1557,6 +1557,7 @@ async function applyArt() {
   }
   renderer.paintedEffects = artStyle === 'painted';
   renderer.blendGround = artStyle === 'painted';
+  renderer.bigTrees = artStyle === 'painted';
   // Creatures drawn by name, in the Painted style.
   if (artStyle === 'painted') {
     if (paintedNamed === null) paintedNamed = await loadNamed('named');
