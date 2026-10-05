@@ -719,6 +719,11 @@ body.playing #map-wrap { display: flex; }
 }
 #hotbar .slot.empty { background: none; border-style: dashed; color: var(--faint); }
 #hotbar .slot .key { position: absolute; top: 2px; left: 5px; font-size: 10px; color: var(--muted); font-family: var(--mono); }
+/* A spell cooling down: dimmed, with the seconds left over it. */
+#hotbar .slot.cooling .icon, #hotbar .slot.cooling .label { opacity: .35; }
+#hotbar .slot .cd { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 600 15px var(--mono); color: #fff; text-shadow: 0 0 4px #000, 0 0 2px #000; pointer-events: none; }
+#tab-book .spell.cooling { opacity: .6; }
+#tab-book .spell .cd { margin-left: 8px; font: 700 12px var(--mono); color: #8a4b00; background: rgba(255, 210, 120, .5); border-radius: 4px; padding: 0 5px; }
 #hotbar .slot .aim { position: absolute; top: 1px; right: 4px; font-size: 10px; color: #ff9a9a; }
 #hotbar .slot .icon { font-size: 15px; line-height: 1; }
 #hotbar .slot .label {

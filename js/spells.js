@@ -44,6 +44,9 @@ const FAILED = [
   /^You do not see them here\.?$/i,
   /^Cast what\??$/i,
   /^You can't do that while you're sleeping/i,
+  // Cooling down (server/Skills.java).
+  /^You are still gathering your power \(\d+ seconds?\)\.$/i,
+  /^.+ is ready again in \d+ seconds?\.$/i,
 ];
 export function isCastFailure(text) {
   const t = text.trim();
@@ -165,3 +168,46 @@ export function parseSpellList(lines) {
   }
   return { spells, groups };
 }
+
+// ---- cooldowns ----
+// After a cast the server (server/Skills.java, web players only) says
+// "Cooldown: <spell>|<its own wait, s>|<the wait after any spell, s>".
+export function parseCooldown(line) {
+  const m = /^Cooldown: (.+)\|(\d+)\|(\d+)$/.exec(line.trim());
+  return m ? { spell: m[1].toLowerCase(), own: Number(m[2]), any: Number(m[3]) } : null;
+}
+
+// When each spell is ready again. left(spell, now) is the ms to wait (0 when
+// ready): its own wait or the one after any spell, whichever is longer.
+export class Cooldowns {
+  constructor() {
+    this.ready = new Map(); // spell (lower case) -> ms
+    this.anyReady = 0;
+  }
+
+  start({ spell, own, any }, now) {
+    this.anyReady = Math.max(this.anyReady, now + any * 1000);
+    if (own > 0) this.ready.set(spell, now + own * 1000);
+  }
+
+  left(spell, now) {
+    const own = this.ready.get(String(spell).toLowerCase()) ?? 0;
+    return Math.max(0, Math.max(own, this.anyReady) - now);
+  }
+
+  get active() {
+    return this.anyReady > 0 || this.ready.size > 0;
+  }
+
+  // Forgets waits that are over.
+  tidy(now) {
+    for (const [k, t] of this.ready) if (t <= now) this.ready.delete(k);
+    if (this.anyReady <= now) this.anyReady = 0;
+  }
+}
+
+// "12s", "1:05": a wait, short.
+export const waitLabel = (ms) => {
+  const s = Math.ceil(ms / 1000);
+  return s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : `${s}s`;
+};

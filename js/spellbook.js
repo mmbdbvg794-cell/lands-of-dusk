@@ -50,7 +50,28 @@ export class Spellbook {
   // Called when the target changes, to enable or grey out "At target".
   refreshTarget() {
     const has = this.hasTarget();
-    for (const b of this.el.querySelectorAll('button[data-act="target"]')) b.disabled = !has;
+    for (const b of this.el.querySelectorAll('button[data-act="target"]')) b.disabled = !has || b.closest('.cooling') != null;
+  }
+
+  // Spells cooling down: greyed, with how long is left. left(spell) -> ms.
+  showCooldowns(left, label) {
+    const has = this.hasTarget();
+    for (const art of this.el.querySelectorAll('article.spell[data-spell]')) {
+      const ms = left(art.dataset.spell);
+      art.classList.toggle('cooling', ms > 0);
+      let badge = art.querySelector('.cd');
+      if (ms > 0 && !badge) {
+        badge = document.createElement('span');
+        badge.className = 'cd';
+        art.querySelector('.spell-head')?.append(badge);
+      }
+      if (badge) {
+        if (ms > 0) { badge.textContent = label(ms); badge.title = `Ready again in ${label(ms)}`; } else badge.remove();
+      }
+      for (const b of art.querySelectorAll('button[data-act="self"], button[data-act="target"]')) {
+        b.disabled = ms > 0 || (b.dataset.act === 'target' && !has);
+      }
+    }
   }
 
   render() {
@@ -104,6 +125,7 @@ export class Spellbook {
     const kind = effectKind(spell);
     const div = document.createElement('article');
     div.className = `spell ${kind}`;
+    div.dataset.spell = spell;
     const head = document.createElement('div');
     head.className = 'spell-head';
     const glyph = document.createElement('span');

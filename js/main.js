@@ -4,7 +4,7 @@ import { Hotbar } from './hotbar.js';
 import { LoginFlow, isYesNo } from './login.js';
 import { isDeath, parseLoss, lossSentence } from './death.js';
 import { Sound } from './sound.js';
-import { parseCast, effectKind, isCastFailure, landedOnMe, castCommand, compileMessages, decodeFx, parseSpellList } from './spells.js';
+import { parseCast, effectKind, isCastFailure, landedOnMe, castCommand, compileMessages, decodeFx, parseSpellList, parseCooldown, Cooldowns, waitLabel } from './spells.js';
 import { Spellbook } from './spellbook.js';
 import { parseStats } from './stats.js';
 import { bareName } from './world.js';
@@ -167,6 +167,20 @@ const libraryEditor = new LibraryEditor($('library-editor'), {
   note: (t) => sysLine(t),
 });
 const quiet = (cmd) => { if (conn?.connected) conn.background(cmd); };
+// Spell cooldowns: the spellbook and hotbar grey a spell out, with a
+// countdown, until the server will let it be cast again.
+const cooldowns = new Cooldowns();
+let cooldownTimer = null;
+function showCooldowns() {
+  const now = Date.now();
+  const left = (spell) => cooldowns.left(spell, now);
+  spellbook.showCooldowns(left, waitLabel);
+  hotbar.showCooldowns(left, waitLabel);
+  cooldowns.tidy(now);
+  clearTimeout(cooldownTimer);
+  if (cooldowns.active) cooldownTimer = setTimeout(showCooldowns, 250);
+}
+
 // The quest wizard (gods), from the God tab.
 const questEditor = new QuestEditor($('quest-editor'), { send: quiet, lists: () => god.lists, fetchLists: () => god.opened() });
 // The quest journal's entries (gods), from the God tab.
@@ -1316,6 +1330,9 @@ function handle(msg) {
       if (isGod && libraryEditor.failed(msg.text)) break;
       const worn = parseWorn(msg.text);
       if (worn) { if (worn.id != null) { wornAnswered.add(worn.id); renderer.setOtherGear(worn.id, gearFromEquipment(worn.equipment)); } break; }
+      // A spell cooling down (server/Skills.java): greyed out until it's ready.
+      const cd = parseCooldown(msg.text);
+      if (cd) { cooldowns.start(cd, Date.now()); showCooldowns(); break; }
       const questReply = isGod && parseQuestReply(msg.text);
       if (questReply) { questEditor.reply(questReply); break; }
       if (isGod && questEditor.swallow(msg.text)) break;

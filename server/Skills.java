@@ -218,9 +218,36 @@ public class Skills {
     // the MP it cost.
     public static void cast(LivingThing who, String spell) {
         spell = telepathMessage(spell);
+        // Cooldowns (gods don't wait): the wait after any spell, and the
+        // spell's own.
+        String name = spellName(spell);
+        boolean waits = who.privs < 3 && name != null;
+        String me = who.strName == null ? "" : who.strName.toLowerCase();
+        long now = System.currentTimeMillis();
+        if (waits) {
+            Long any = readyAt.get(me + "|*");
+            if (any != null && any > now) {
+                who.chatMessage("You are still gathering your power (" + secs(any - now) + ").\n");
+                return;
+            }
+            Long own = readyAt.get(me + "|" + name);
+            if (own != null && own > now) {
+                who.chatMessage(cap(name) + " is ready again in " + secs(own - now) + ".\n");
+                return;
+            }
+        }
         int before = who.attributes.getStat("mp");
         who.castSpell(spell);
         int cost = before - who.attributes.getStat("mp");
+        // Cast (it cost MP): the waits start, and the client is told, to
+        // grey the spell out (js/spells.js parseCooldown).
+        if (waits && cost > 0) {
+            int any = cooldown("*", 2), own = cooldown(name, 0);
+            readyAt.put(me + "|*", now + any * 1000L);
+            if (own > 0) readyAt.put(me + "|" + name, now + own * 1000L);
+            // Only to the web client: in the Java client it would be a stray line.
+            if (who instanceof Player && ((Player) who).sckConnection instanceof BridgedSocket) who.chatMessage("Cooldown: " + name + "|" + own + "|" + any + "\n");
+        }
         int power = who.getSkill("Spell Power");
         if (cost <= 0 || power <= 0) return;
         int refund = cost * Math.min(100, power) / 200;
@@ -242,5 +269,75 @@ public class Skills {
         String[] p = t.split("\\s+", 3);
         if (p.length < 3 || p[2].startsWith("\"")) return spell;
         return p[0] + " " + p[1] + " \"" + p[2].replace("\"", "'") + "\"";
+    }
+
+    // ---- spell cooldowns ----
+    // The "spellcooldowns" file in the game directory: "<spell>|<seconds>"
+    // a line, "*" being the wait after any spell. Made with these defaults
+    // if it isn't there, and read again whenever it changes.
+    static final String COOLDOWNS = "spellcooldowns";
+    static final String DEFAULT_COOLDOWNS =
+        "#Seconds before a spell can be cast again (gods don't wait): <spell>|<seconds>.\n"
+        + "#\"*\" is the wait after any spell. Changes take effect at once.\n"
+        + "*|2\n"
+        + "#Damage\nbone shards|3\nthorns|3\nangel strike|4\nsummon snakes|5\nquake|6\ncorrupt|8\nsummon bahamut|10\nholy|12\nsummon wurm|15\nsummon leviathan|20\nsummon ultima bahamut|120\n"
+        + "#Healing\nmend|3\nhealing staff|3\nmeditation|8\nregenerate|30\n"
+        + "#Lasting effects\narmor|20\nbless|20\nfocus|20\ndetect invis|10\ninvis|30\ncamoflauge|30\nreflect|30\ncurse|10\ntire|15\nprayer|15\n"
+        + "#Other\nwarp|120\nquarter staff|5\n";
+    static final java.util.Map<String, Long> readyAt = new java.util.concurrent.ConcurrentHashMap<String, Long>();
+    static java.util.Map<String, Integer> cooldowns = new java.util.HashMap<String, Integer>();
+    static long cooldownsRead = -1;
+    static String[] spells = new String[0];
+
+    static synchronized void loadCooldowns() {
+        java.io.File f = new java.io.File(COOLDOWNS);
+        try {
+            if (!f.exists()) Talk.write(f, DEFAULT_COOLDOWNS.getBytes("UTF-8"));
+            if (f.lastModified() == cooldownsRead) return;
+            java.util.Map<String, Integer> m = new java.util.HashMap<String, Integer>();
+            for (String line : java.nio.file.Files.readAllLines(f.toPath())) {
+                if (line.startsWith("#")) continue;
+                String[] p = line.split("\\|");
+                if (p.length == 2 && p[1].trim().matches("\\d{1,5}")) m.put(p[0].trim().toLowerCase(), Integer.parseInt(p[1].trim()));
+            }
+            cooldowns = m;
+            cooldownsRead = f.lastModified();
+            String[] names = new java.io.File("defSpells").list();
+            spells = names == null ? new String[0] : names;
+        } catch (Exception e) {
+            Log.logError(e, "Reading " + COOLDOWNS, false);
+        }
+    }
+
+    static int cooldown(String spell, int otherwise) {
+        loadCooldowns();
+        Integer n = cooldowns.get(spell);
+        return n == null ? otherwise : n;
+    }
+
+    // The spell a "cast" names: quoted, or the longest spell name it starts with.
+    static String spellName(String spell) {
+        loadCooldowns();
+        String t = spell.trim().toLowerCase();
+        if (t.startsWith("\"")) {
+            int end = t.indexOf('"', 1);
+            return end > 1 ? t.substring(1, end) : null;
+        }
+        String best = null;
+        for (String s : spells) {
+            String n = s.toLowerCase();
+            if (n.endsWith(".dsko")) continue;
+            if ((t.equals(n) || t.startsWith(n + " ")) && (best == null || n.length() > best.length())) best = n;
+        }
+        return best;
+    }
+
+    static String secs(long ms) {
+        long s = (ms + 999) / 1000;
+        return s + (s == 1 ? " second" : " seconds");
+    }
+
+    static String cap(String s) {
+        return s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 }

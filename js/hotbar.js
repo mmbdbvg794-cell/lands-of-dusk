@@ -145,6 +145,18 @@ export class Hotbar {
     return id != null ? `use ${id}` : `use "${m[1].trim()}"`;
   }
 
+  // Spell slots cooling down: greyed, with how long is left.
+  showCooldowns(left, label) {
+    for (const b of this.el.querySelectorAll('button.slot.spell')) {
+      const s = this.slots[Number(b.dataset.i)];
+      const ms = s ? left(s.spell) : 0;
+      b.classList.toggle('cooling', ms > 0);
+      let cd = b.querySelector('.cd');
+      if (ms > 0 && !cd) b.append(cd = Object.assign(document.createElement('span'), { className: 'cd' }));
+      if (cd) { if (ms > 0) cd.textContent = label(ms); else cd.remove(); }
+    }
+  }
+
   render() {
     const grip = document.createElement('div');
     grip.className = 'grip';
