@@ -94,7 +94,19 @@ assert.equal(a.tileAt(10, 12, 1000 + a.stepMs), null, 'gone once the slide ends'
 // A step that lands mid-slide carries on from where it's drawn.
 a.apply({ op: OP.MOVE_WEST, id: 2 }, 2000);
 a.apply({ op: OP.MOVE_WEST, id: 2 }, 2000 + a.stepMs / 2);
-assert.deepEqual(a.entities.get(2).anim, { fx: 11.5, fy: 10, start: 2000 + a.stepMs / 2 });
+assert.deepEqual(a.entities.get(2).anim, { fx: 11.5, fy: 10, start: 2000 + a.stepMs / 2, ms: a.stepMs / 2 * 1.1 });
+// Steps a ferry's pace apart (125 ms) settle into slides that long (a
+// little over), so the ride glides; a walk's pace keeps a walk's slide.
+{
+  let t = 5000;
+  for (let i = 0; i < 12; i++, t += 125) a.apply({ op: i % 2 ? OP.MOVE_EAST : OP.MOVE_WEST, id: 2 }, t);
+  const ms = a.entities.get(2).anim.ms;
+  assert.ok(ms > 125 && ms < 150, `ferry slide ${ms}`);
+  t += 1000;
+  a.apply({ op: OP.MOVE_EAST, id: 2 }, t);
+  a.apply({ op: OP.MOVE_WEST, id: 2 }, t + 250);
+  assert.equal(a.entities.get(2).anim.ms, a.stepMs, 'a walk slides as before');
+}
 
 // Walking out of view: reported, but drawn until it has slid off.
 a.apply({ op: OP.MOVE_SOUTH, id: 2 }, 3000);

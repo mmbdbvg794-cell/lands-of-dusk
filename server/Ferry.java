@@ -30,6 +30,8 @@
  *                                  a line (the way back is the same,
  *                                  reversed); with a ship's name, that
  *                                  ship's own lane
+ *   step <ms>                      how long a ship takes over a square
+ *                                  (default 125: eight squares a second)
  * Two ships on one crossing start at opposite ends and keep in step: one
  * on a shorter lane waits in port for the difference.
  *   ship <name> <port> <port> ...  a ship and the ports it calls at,
@@ -54,7 +56,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Ferry {
     static final String FILE = "ferries";
-    static final long STEP_MS = 250;        // a square every quarter second
+    static final long STEP_MS = 125;        // a square every eighth of a second, unless the file says
+    static volatile long stepMs = STEP_MS;
     static final long DOCK_MS = 45000;      // time in port
     static final int SIGHT = 14;            // squares away a ship is seen
     static final int BOARD_RANGE = 10;      // squares from the docked ship to be taken aboard
@@ -108,7 +111,7 @@ public class Ferry {
                 long next = System.currentTimeMillis();
                 while (true) {
                     try {
-                        next += STEP_MS;
+                        next += stepMs;
                         long wait = next - System.currentTimeMillis();
                         if (wait > 0) Thread.sleep(wait);
                         else next = System.currentTimeMillis(); // fell behind: don't race to catch up
@@ -134,6 +137,7 @@ public class Ferry {
         loadedAt = f.lastModified();
         ports.clear();
         routes.clear();
+        stepMs = STEP_MS;
         List<String[]> shipLines = new ArrayList<String[]>();
         try {
             BufferedReader r = new BufferedReader(new FileReader(f));
@@ -160,6 +164,8 @@ public class Ferry {
                         for (int i = 0; i < path.length; i++) back[i] = path[path.length - 1 - i];
                         routes.put(who + p[2].toLowerCase() + ">" + p[1].toLowerCase(), back);
                     }
+                } else if (p[0].equals("step") && p.length == 2) {
+                    stepMs = Math.max(50, Math.min(1000, Long.parseLong(p[1])));
                 } else if (p[0].equals("ship") && p.length >= 4) {
                     shipLines.add(p);
                 }
@@ -306,7 +312,7 @@ public class Ferry {
         s.dockedSince = System.currentTimeMillis();
         // Wait for the difference if another ship's lane on this crossing
         // is longer, so ships sharing it stay in step.
-        s.dockMs = DOCK_MS + (long) Math.max(0, longest(from(s), to(s)) - s.path.length) * STEP_MS;
+        s.dockMs = DOCK_MS + (long) Math.max(0, longest(from(s), to(s)) - s.path.length) * stepMs;
         s.x = b[0]; s.y = b[1]; s.heading = b[2];
         s.leg++;
         for (Object o : online) {
@@ -422,7 +428,7 @@ public class Ferry {
                     long left = Math.max(0, s.dockMs - (now - s.dockedSince)) / 1000;
                     b.append("The ").append(s.name).append(" is in at ").append(a.name).append(", sailing for ").append(z.name).append(" in ").append(left).append(" seconds.");
                 } else {
-                    long left = (long) (s.path.length - 1 - s.step) * STEP_MS / 1000;
+                    long left = (long) (s.path.length - 1 - s.step) * stepMs / 1000;
                     b.append("The ").append(s.name).append(" is at sea, bound for ").append(z.name).append(": due in about ").append(Math.max(1, Math.round(left / 60.0))).append(" minute").append(Math.round(left / 60.0) <= 1 ? "" : "s").append(".");
                 }
                 who.chatMessage(b.toString());

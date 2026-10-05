@@ -3,7 +3,7 @@
 // "Ship: <id> gone"); they're drawn here, gliding from square to square
 // and turning smoothly, under whoever is standing on deck.
 
-const STEP_MS = 250; // the server's pace: a square every quarter second
+const STEP_MS = 250; // the slowest pace looked for: a square every quarter second
 const LOST_MS = 3000; // no word for this long: out of sight
 
 // { id, x, y, heading, name } or { id, gone: true } for a ship line.
@@ -28,16 +28,21 @@ export class Ships {
     }
     const v = this.visual(old, now);
     const moved = s.x !== old.x || s.y !== old.y;
-    Object.assign(old, { fromX: v.x, fromY: v.y, fromH: v.heading, x: s.x, y: s.y, heading: s.heading, name: s.name, at: now, moving: moved });
+    // Each glide lasts as long as the gap since the last word, a little
+    // over, eased: the server's pace (ferries file "step"), whatever it is,
+    // and a late line doesn't make her lurch.
+    const gap = now - old.at;
+    const ms = moved && gap < STEP_MS * 2 ? Math.max(40, (old.ms ?? gap * 1.1) * 0.6 + gap * 1.1 * 0.4) : old.ms ?? STEP_MS;
+    Object.assign(old, { fromX: v.x, fromY: v.y, fromH: v.heading, x: s.x, y: s.y, heading: s.heading, name: s.name, at: now, moving: moved, ms });
     if (moved) {
       old.wake.push({ x: v.x, y: v.y, t: now });
-      if (old.wake.length > 24) old.wake.shift();
+      if (old.wake.length > 48) old.wake.shift();
     }
   }
 
   // Where a ship is drawn now: between its last two squares.
   visual(s, now) {
-    const k = Math.min(1, (now - s.at) / STEP_MS);
+    const k = Math.min(1, (now - s.at) / (s.ms ?? STEP_MS));
     let d = s.heading - s.fromH;
     d = ((d + 540) % 360) - 180; // the short way round
     return { x: s.fromX + (s.x - s.fromX) * k, y: s.fromY + (s.y - s.fromY) * k, heading: s.fromH + d * Math.min(1, k * 0.5 + 0.1) };
@@ -51,7 +56,7 @@ export class Ships {
       const v = this.visual(s, now);
       // The heading keeps easing towards the latest between steps.
       s.fromH = v.heading;
-      out.push({ ...v, name: s.name, wake: s.wake, moving: s.moving && now - s.at < STEP_MS * 2 });
+      out.push({ ...v, name: s.name, wake: s.wake, moving: s.moving && now - s.at < (s.ms ?? STEP_MS) * 2 });
     }
     return out;
   }

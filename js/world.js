@@ -16,6 +16,10 @@ import { EFFECT_MS } from './effects.js';
 // (DuskEngine.run()); a slide lasts a little longer so a step that arrives
 // a few ms late joins the last one into a smooth walk.
 export const STEP_MS = 270;
+// Steps that come faster than that (riding a ferry: a square every
+// 125 ms) slide for as long as the gap between them, a little over, so
+// the ride is one steady glide instead of a lurch per square.
+export const MIN_SLIDE_MS = 60;
 // How long a damage number floats.
 export const HIT_MS = 1000;
 
@@ -108,7 +112,7 @@ export class World {
         const step = this.hasMap && Math.abs(msg.x - this.locX) + Math.abs(msg.y - this.locY) === 1 && this.stepMs > 0;
         if (step) {
           const from = this.camera(now);
-          this.cam = { fx: from.x, fy: from.y, start: now };
+          this.cam = { fx: from.x, fy: from.y, start: now, ms: this.pace(this.cam, now) };
           this.prevMap = { x: this.locX, y: this.locY, tiles: this.tiles, until: now + this.stepMs };
         } else {
           this.cam = null;
@@ -175,7 +179,7 @@ export class World {
         const from = this.visualPos(e, now);
         e.x += dx;
         e.y += dy;
-        e.anim = this.stepMs > 0 ? { fx: from.x, fy: from.y, start: now } : null;
+        e.anim = this.stepMs > 0 ? { fx: from.x, fy: from.y, start: now, ms: this.pace(e.anim, now) } : null;
         if (e.step !== -1) e.step = FACING[msg.op];
         if (!this.inView(e.x, e.y)) {
           this.entities.delete(msg.id);
@@ -257,28 +261,39 @@ export class World {
 
   // ---- animation --------------------------------------------------------
 
-  progress(start, now) {
-    return this.stepMs > 0 ? Math.min(1, Math.max(0, (now - start) / this.stepMs)) : 1;
+  progress(start, now, ms = this.stepMs) {
+    return this.stepMs > 0 ? Math.min(1, Math.max(0, (now - start) / ms)) : 1;
+  }
+
+  // How long a new step's slide lasts, from the last one (`last`: its
+  // { start, ms }): the gap between them when steps come quicker than a
+  // walk, eased so one late step doesn't jolt it; otherwise a walk's.
+  pace(last, now) {
+    const gap = last ? now - last.start : Infinity;
+    if (!(gap < this.stepMs * 0.9) || gap < MIN_SLIDE_MS / 2) return this.stepMs;
+    const want = Math.max(MIN_SLIDE_MS, gap * 1.1);
+    const was = last.ms ?? this.stepMs;
+    return Math.min(this.stepMs, was < this.stepMs ? was * 0.6 + want * 0.4 : want);
   }
 
   // Where an entity is drawn right now, in world coordinates.
   visualPos(e, now) {
     if (!e.anim) return { x: e.x, y: e.y };
-    const t = this.progress(e.anim.start, now);
+    const t = this.progress(e.anim.start, now, e.anim.ms);
     return { x: e.anim.fx + (e.x - e.anim.fx) * t, y: e.anim.fy + (e.y - e.anim.fy) * t };
   }
 
   // The players.gif step frame to draw, or -1 for sprites.
   frameStep(e, now) {
     if (e.step === -1) return -1;
-    const walking = e.anim && this.progress(e.anim.start, now) < 0.5;
+    const walking = e.anim && this.progress(e.anim.start, now, e.anim.ms) < 0.5;
     return walking ? e.step + 1 : e.step;
   }
 
   // The world coordinates at the centre of the view right now.
   camera(now) {
     if (!this.cam) return { x: this.locX, y: this.locY };
-    const t = this.progress(this.cam.start, now);
+    const t = this.progress(this.cam.start, now, this.cam.ms);
     return { x: this.cam.fx + (this.locX - this.cam.fx) * t, y: this.cam.fy + (this.locY - this.cam.fy) * t };
   }
 
@@ -306,6 +321,7 @@ export class World {
   animating(now) {
     const busy = (start) => now - start < this.stepMs;
     if (this.cam && busy(this.cam.start)) return true;
+    // (A quick slide is over sooner; drawing a moment longer is harmless.)
     if (this.leaving.size || this.hits.length) return true;
     this.effects = this.effects.filter((fx) => now - fx.start < (EFFECT_MS[fx.kind] ?? 1000));
     if (this.effects.length) return true;
