@@ -33,8 +33,8 @@ POTIONS = {
     "blue potion": ({"hp": 500, "mp": 500, "message": "You feel completely restored."}, "a blue potion that restores health and mana"),
     "ambrosia": ({"hp": 50, "mp": 50, "message": "The food of the gods. You feel wonderful."}, None),
     "soul": ({"hp": 50, "message": "You devour the soul. Strength returns to you."}, None),
-    "crisps": ({"food": 300, "message": "*Crunch crunch*"}, None),
-    "packed lunch": ({"food": 1200, "hp": 50, "message": "Andy's packed lunch. Delicious."}, None),
+    "crisps": ({"food": 2700, "message": "*Crunch crunch*"}, None),
+    "packed lunch": ({"food": 2700, "hp": 50, "message": "Andy's packed lunch. Delicious."}, None),
 }
 # Not a number the item maker knows: a hand-written script.
 ANTICURSE = ("anti-curse potion", 'chat trigger "The curse lifts from you."\nremoveCondition trigger cursed\nremoveitem trigger "anti-curse potion"\nendscript\n')

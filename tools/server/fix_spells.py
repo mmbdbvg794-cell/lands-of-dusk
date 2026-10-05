@@ -27,6 +27,20 @@ Spells (defSpellGroups/<n> <group>):
   warp              sent you into solid rock at 1,1; now it takes you back
                     to where you return after dying (or the town at 17,10)
 
+Then, as asked after the audit:
+  food and drink    keep hunger and thirst away for 45 minutes (2700 s)
+  telepath          the copy of each message goes to Flan (if online), not
+                    to Shifty02 and Cyril
+  herbology         its recipes printed money (a 20 gp mandrake made a
+                    potion that sells for 250, a mushroom a blue potion that
+                    sells for 3000) and its blue recipe was missing an "end";
+                    now it brews "brewed" potions that work like the shop
+                    ones but merchants won't buy
+  translate,        disabled for now (nothing uses translation, and nothing
+  counter poison    poisons anyone)
+  untrainable       spells whose group no trainer teaches are taken out
+                    (moved to the backup), so nobody has or sees them
+
 Everything it changes is copied to backups/spells-<time>/ first; running it
 again changes nothing. No restart needed for the scripts themselves.
 """
@@ -178,6 +192,78 @@ SCAN_GUARD = ("#Scan: shows someone's stats.\n"
               "\tendscript\n"
               "end\n")
 
+SPY = "flan"  # who gets a copy of telepathic messages
+
+SPELLS["0 telepathy group"] = (
+    "#Telepath: sends a telepathic message to someone.\n#\n#\n"
+    "if not variableisstring param0\n"
+    "\tchat caster \" You already know your thoughts.\"\n"
+    "\tendscript\n"
+    "end\n"
+    "livingthing target player param0\n"
+    "if not variableislivingthing target\n"
+    "\tchat caster \" They are not in this world.\"\n"
+    "\tendscript\n"
+    "end\n"
+    "if not variableisstring param1\n"
+    "\tchat caster \" What do you wish them to know?\"\n"
+    "\tendscript\n"
+    "end\n"
+    "chat target \"A voice echoes in your head:\"\n"
+    "chat target param1\n"
+    "chat caster concat name target \" knows your thoughts.\"\n"
+    f"livingthing spy player \"{SPY}\"\n"
+    "if variableislivingthing spy\n"
+    "\tchat spy concat concat concat name caster \" spoke to \" concat name target \" saying: '\" concat param1 \"'.\"\n"
+    "end\n"
+    "endscript\n")
+
+# Herbology: brewed potions (cost 0, so merchants won't buy them).
+BREWED = {
+    "brewed anti-curse potion": ("a hand-brewed potion that lifts curses; worth nothing to merchants", 'chat trigger "The curse lifts from you."\nremoveCondition trigger cursed\n'),
+    "brewed minor potion": ("a small hand-brewed healing potion; worth nothing to merchants", 'chat trigger "You feel better."\ninc trigger hp 25\n'),
+    "brewed red potion": ("a hand-brewed red potion; worth nothing to merchants", 'chat trigger "Your wounds close before your eyes."\ninc trigger hp 300\n'),
+    "brewed green potion": ("a hand-brewed green potion that restores mana; worth nothing to merchants", 'chat trigger "Power hums in your fingertips."\ninc trigger mp 300\n'),
+    "brewed blue potion": ("a hand-brewed blue potion that restores health and mana; worth nothing to merchants", 'chat trigger "You feel completely restored."\ninc trigger hp 500\ninc trigger mp 500\n'),
+}
+
+
+def brew(needs, makes, words, pad):
+    """One recipe: if the caster has every herb, they become the potion."""
+    out = ""
+    for i, n in enumerate(needs):
+        out += pad + "\t" * i + f"if hasitem caster \"{n}\"\n"
+    inner = pad + "\t" * len(needs)
+    out += f"{inner}chat caster \"{words}\"\n"
+    for n in needs:
+        out += f"{inner}removeitem caster \"{n}\"\n"
+    out += f"{inner}giveitem caster \"{makes}\"\n" + fx("heal", "caster", inner) + f"{inner}endscript\n"
+    for i in reversed(range(len(needs))):
+        out += pad + "\t" * i + "end\n"
+    return out
+
+
+SPELLS["2 alchemy group"] = (
+    "#Herbology: brews herbs into potions (merchants won't buy brewed ones).\n#\n#\n"
+    + brew(["brewed red potion", "brewed green potion", "azeala"], "brewed blue potion", "You mix the red and green potions with azeala and make a rare blue potion.", "")
+    + brew(["mandrake", "wolfsbane"], "brewed red potion", "You mix a wolfsbane and a mandrake to make a red potion.", "")
+    + brew(["lavendar", "wolfsbane"], "brewed green potion", "You mix the lavendar and wolfsbane together and make a green potion.", "")
+    + brew(["mandrake"], "brewed anti-curse potion", "You extract juices from a mandrake to make an anti-curse potion.", "")
+    + brew(["mushroom", "water"], "brewed minor potion", "You mix the mushroom with some water and make a minor potion.", "")
+    + "chat caster \"You don't have the right herbs. Mandrake: an anti-curse potion. Mandrake and wolfsbane: a red potion. Lavendar and wolfsbane: a green potion. Brewed red and green potions with azeala: a blue potion. A mushroom and water: a minor potion.\"\n"
+    "endscript\n")
+
+DISABLED = {
+    "1 alchemy group": "Translate",
+    "1 clerical group": "Counter Poison",
+}
+for _f, _name in DISABLED.items():
+    SPELLS[_f] = f"#{_name}: (disabled for now)\nchat caster \"{_name} has been disabled for now.\"\nendscript\n"
+
+# Food and drink: 45 minutes.
+FOOD = {"apple": "nohunger", "sandwich": "nohunger", "water": "nothirst", "ale": "nothirst", "crisps.use": "nohunger", "packed lunch.use": "nohunger"}
+FOOD_SECONDS = 2700
+
 CONDITIONS = {
     "cursed": "onstart\ncursestart\nonend\ncurseend\n.\n",
     "bless": "onstart\nblessstart\nonend\nblessend\n.\n",
@@ -237,6 +323,36 @@ def main():
         write(os.path.join("defConditions", name), text)
     for name, text in SCRIPTS.items():
         write(os.path.join("scripts", name), text)
+    # Brewed potions: their items and use scripts.
+    for item, (desc, effect) in BREWED.items():
+        write(os.path.join("defItems", item), f"type\nitem\ndescription\n{desc}\ncost\n0\nimage\n6\nonuse\n{item}.use\nuses\n1\n.\n")
+        write(os.path.join("scripts", item + ".use"), effect + f'removeitem trigger "{item}"\nendscript\n')
+    # Food and drink: how long they keep hunger and thirst away.
+    import re
+    for name, cond in FOOD.items():
+        path = os.path.join("scripts", name)
+        text = read(path)
+        if text is None:
+            continue
+        new = re.sub(r"(addconditionwithduration trigger %s )\d+" % cond, lambda m: m.group(1) + str(FOOD_SECONDS), text)
+        new = re.sub(r'("(?:food|drink)":)\d+', lambda m: m.group(1) + str(FOOD_SECONDS), new)
+        write(path, new)
+    # Spells whose group no trainer teaches: out (to the backup).
+    taught = set()
+    for line in (read("merchants") or "").split("\n"):
+        if line.lower().startswith("train:"):
+            taught.add(line[6:].strip().lower())
+    for name in sorted(os.listdir("defSpells")):
+        path = os.path.join("defSpells", name)
+        if name.endswith(".dsko") or not os.path.isfile(path):
+            continue
+        group = ((read(path) or "").split("\n") + [""])[0].strip().lower()
+        if group and group not in taught:
+            changed.append(path + " (removed: " + group + ")")
+            if not dry:
+                dest = os.path.join(backup, path)
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                shutil.move(path, dest)
     print(("Would change" if dry else "Changed") + " %d files" % len(changed) + ("" if dry or not changed else " (backups in %s)" % backup))
     for c in changed:
         print("  " + c)

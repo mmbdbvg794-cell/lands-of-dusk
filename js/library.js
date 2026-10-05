@@ -123,7 +123,7 @@ export function writeDef(kind, def) {
 // [key, label]: the use effects, then what wearing it adds.
 export const USE_EFFECTS = [
   ['hp', 'Heals HP'], ['mp', 'Restores MP'],
-  ['food', 'Keeps hunger away for (an apple: 600)'], ['drink', 'Keeps thirst away for (water: 1200)'],
+  ['food', 'Keeps hunger away for (seconds; food: 2700 = 45 min)'], ['drink', 'Keeps thirst away for (seconds; drink: 2700 = 45 min)'],
 ];
 export const WEAR_EFFECTS = [
   ['strengthbonus', 'STR'], ['dexteritybonus', 'DEX'], ['intelligencebonus', 'INT'], ['constitutionbonus', 'CON'], ['wisdombonus', 'WIS'],
@@ -188,7 +188,7 @@ export const ITEM_TEMPLATES = {
   bow: { fields: { type: 'ranged', mod: '4', range: '5', cost: '60', durability: '500', description: 'A new bow.' } },
   armour: { fields: { type: 'armor', kind: 'torso', mod: '10', cost: '50', durability: '500', description: 'A new piece of armour.' } },
   charm: { fields: { type: 'armor', kind: 'neck', mod: '0', cost: '200', durability: '-1', description: 'A new charm.' }, wear: { wisdombonus: 1 } },
-  food: { fields: { type: 'item', cost: '10', uses: '1', description: 'Something to eat.' }, use: { food: 600, message: '*Munch munch*', gone: true } },
-  drink: { fields: { type: 'item', cost: '10', uses: '1', description: 'Something to drink.' }, use: { drink: 1200, message: '*Gulp gulp*', gone: true } },
+  food: { fields: { type: 'item', cost: '10', uses: '1', description: 'Something to eat.' }, use: { food: 2700, message: '*Munch munch*', gone: true } },
+  drink: { fields: { type: 'item', cost: '10', uses: '1', description: 'Something to drink.' }, use: { drink: 2700, message: '*Gulp gulp*', gone: true } },
   potion: { fields: { type: 'item', cost: '50', uses: '1', description: 'A healing potion.' }, use: { hp: 25, message: 'You feel better.', gone: true } },
 };
