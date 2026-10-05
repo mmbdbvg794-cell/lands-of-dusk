@@ -283,14 +283,21 @@ backups; see `server/`.
   Underground there's no weather and it's always dark, lantern-lit.
   The world map keeps it apart: underground it shows only the caves;
   on the surface they're hidden (gods see sea there).
-- **Ferries**: ships between three ports for 50 gp: **Westsea Harbour**
-  in the old world (on the western sea north of the refugee ship, down a
-  new forest trail from the road south of the great walled city),
-  **Aelindor Landing** (the pier at the end of Aelindor's north road)
-  and **Eastreach** on the eastern continent. Talk to the captain, pick a
-  port, and you ride a ship out at sea for 20 seconds before stepping off
-  at the other end (server/Ferry.java; the network is in
-  tools/world/cities/ferry.mjs).
+- **Ferries that really sail**: three ports (**Westsea Harbour** in the
+  old world, on the western sea north of the refugee ship and down a new
+  forest trail from the road south of the great walled city; **Aelindor
+  Landing**, the pier at the end of Aelindor's north road; **Eastreach**
+  on the eastern continent) and one ship per route on a timetable: the
+  Seahawk (Westsea - Aelindor Landing, about 5 minutes), the Morning Star
+  (Aelindor Landing - Eastreach, about 7) and the Grey Gull (Eastreach -
+  Westsea, about 11). A captain sells a 50 gp ticket; wait on the pier and
+  you're taken aboard when the ship is in, then ride her across the sea,
+  the coast sliding past, and step off at your port. The ships are drawn
+  by the browser client (a galleon that turns with its course, sails full
+  under way, a wake behind); everyone nearby sees them come and go.
+  `ferry` says where each ship is and when it's due. (server/Ferry.java,
+  js/ships.js; the network is in tools/world/cities/ferry.mjs, routes
+  made by tools/world/sea-route.mjs.)
 - **Tile editor: walking rules by race** ("Only players of race",
   "Everyone but race").
 - **Conversations no longer cut short**: the client's own background
