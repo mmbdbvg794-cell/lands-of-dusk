@@ -38,7 +38,7 @@ public class Library {
     static final int MAX_FILE = 20000;
 
     static String dir(String kind) {
-        return kind.equals("mob") ? "defMobs" : kind.equals("prop") ? "defProps" : kind.equals("item") ? "defItems" : null;
+        return kind.equals("mob") ? "defMobs" : kind.equals("prop") ? "defProps" : kind.equals("item") ? "defItems" : kind.equals("script") ? "scripts" : null;
     }
 
     static boolean goodName(String name) {
@@ -52,10 +52,10 @@ public class Library {
         if (who.privs < GOD_PRIVS) return "Only gods can edit the game's definitions.";
         try {
             String[] p = t.substring(4).trim().split(" ", 3);
-            if (p.length < 3) return "Usage: lib get|set|new <mob|prop|item> <name>";
+            if (p.length < 3) return "Usage: lib get|set|new <mob|prop|item|script> <name>";
             String op = p[0].toLowerCase(), kind = p[1].toLowerCase(), rest = p[2];
             String d = dir(kind);
-            if (d == null) return "Kinds: mob, prop, item.";
+            if (d == null) return "Kinds: mob, prop, item, script.";
             if (op.equals("get")) {
                 String name = CaseFix.file(d, rest.trim());
                 File f = new File(d, name);
@@ -82,15 +82,18 @@ public class Library {
                 return "Lib: saved " + kind + "|" + name + "|0";
             }
             if (op.equals("set")) {
-                if (!f.isFile()) return "There's no " + kind + " called " + name + ".";
+                // Scripts (an item's use and wear scripts, from the item
+                // maker) may be new; definitions must be made first.
+                boolean script = kind.equals("script");
+                if (!f.isFile() && !script) return "There's no " + kind + " called " + name + ".";
                 byte[] body = Base64.getDecoder().decode(arg);
                 if (body.length == 0 || body.length > MAX_FILE) return "That file is empty or too big.";
                 String text = new String(body, "UTF-8").replace("\r", "");
                 if (!text.endsWith("\n")) text += "\n";
-                if (!text.trim().endsWith(".")) text += ".\n";
+                if (!script && !text.trim().endsWith(".")) text += ".\n";
                 File keep = new File("backups/library");
                 keep.mkdirs();
-                Files.copy(f.toPath(), new File(keep, kind + "-" + name + "." + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date())).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                if (f.isFile()) Files.copy(f.toPath(), new File(keep, kind + "-" + name + "." + new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date())).toPath(), StandardCopyOption.REPLACE_EXISTING);
                 Talk.write(f, text.getBytes("UTF-8"));
                 new File(d, name + ".dsko").delete();
                 int n = kind.equals("mob") ? refreshMobs(engine, name) : kind.equals("prop") ? refreshProps(engine, name) : 0;
@@ -98,7 +101,7 @@ public class Library {
                 Log.logEvent(who.strName + " edited " + kind + " " + name + " (" + n + " on the map updated)");
                 return "Lib: saved " + kind + "|" + name + "|" + n;
             }
-            return "Usage: lib get|set|new <mob|prop|item> <name>";
+            return "Usage: lib get|set|new <mob|prop|item|script> <name>";
         } catch (IllegalArgumentException e) {
             return "That didn't arrive in one piece; try again.";
         } catch (Exception e) {
@@ -141,6 +144,7 @@ public class Library {
 
     static String starter(String kind) {
         if (kind.equals("mob")) return "maxhp\n20\nmaxmp\n0\nstre\n5\ninte\n1\ndext\n5\ncons\n5\nwisd\n1\nimage\n0\ndescription\nA new creature.\n.\n";
+        if (kind.equals("script")) return "endscript\n";
         if (kind.equals("item")) return "type\nitem\ndescription\nA new item.\ncost\n10\nimage\n0\n.\n";
         return "image\n0\ndescription\nA new thing.\n.\n";
     }

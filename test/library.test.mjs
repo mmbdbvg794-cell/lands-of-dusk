@@ -1,6 +1,6 @@
 // Run with: node test/library.test.mjs
 import assert from 'node:assert/strict';
-import { parseDef, writeDef, parseLibReply, libSet, libGet, libNew } from '../js/library.js';
+import { parseDef, writeDef, parseLibReply, libSet, libGet, libNew, useScript, wearScripts, readMade, effectScriptName, ITEM_TEMPLATES } from '../js/library.js';
 
 const dummy = 'maxhp\n15\nmaxsp\n0\nstre\n1\ndext\n1\nwisd\n1\ninte\n1\ncons\n5\nimage\n54\ndescription\nA battered straw dummy.\nstationary\n.\n';
 const d = parseDef('mob', dummy);
@@ -36,4 +36,19 @@ assert.equal(parseLibReply('Library is closed'), null);
 assert.equal(libGet('mob', 'rat'), 'lib get mob rat');
 assert.equal(libNew('mob', 'big rat', 'rat'), 'lib new mob big rat|rat');
 assert.ok(libSet('item', 'x', 'é').startsWith('lib set item x|'));
+// The item maker: a potion's use script, read back.
+const potion = useScript('minor potion', { hp: '25', mp: '', message: 'You feel "better".', gone: true });
+assert.equal(potion, '#Made by the item maker: {"hp":25,"message":"You feel  better .","gone":true}\nchat trigger "You feel  better ."\ninc trigger hp 25\nremoveitem trigger "minor potion"\nendscript\n');
+assert.deepEqual(readMade(potion), { hp: 25, message: 'You feel  better .', gone: true });
+assert.equal(useScript('rock', {}), '', 'nothing to do, no script');
+// Wearing adds, taking off takes back (with the script's own minus).
+const ring = wearScripts({ strengthbonus: '2', acbonus: 5, wisdombonus: '' });
+assert.match(ring.wear, /inc trigger strengthbonus 2\ninc trigger acbonus 5\nendscript/);
+assert.match(ring.unwear, /inc trigger strengthbonus - 0 2\ninc trigger acbonus - 0 5\nendscript/);
+assert.deepEqual(readMade(ring.unwear), { strengthbonus: 2, acbonus: 5 });
+assert.equal(wearScripts({ strengthbonus: 0 }), null);
+assert.equal(readMade('chat trigger "hi"\nendscript\n'), null, 'a hand-written script');
+assert.equal(effectScriptName('minor potion', 'use'), 'minor potion.use');
+assert.equal(ITEM_TEMPLATES.potion.use.gone, true);
+assert.deepEqual(parseLibReply('Lib: saved script|minor potion.use|0'), { saved: true, kind: 'script', name: 'minor potion.use', updated: 0 });
 console.log('ok - library');

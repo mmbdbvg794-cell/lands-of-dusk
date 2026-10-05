@@ -37,15 +37,18 @@ export const FIELDS = {
     ['look', 'Looks like (another prop)', 'text'],
   ],
   item: [
-    ['type', 'Type', ['item', 'weapon', 'ranged', 'armor']],
+    ['type', 'Type', ['item', 'weapon', 'ranged', 'armor', 'food', 'drink']],
     ['kind', 'Worn on (armour)', ['', 'torso', 'skull', 'arms', 'legs', 'hands', 'waist', 'feet', 'neck', 'eyes']],
     ['description', 'Description', 'long'],
     ['image', 'Picture', 'image'],
     ['cost', 'Value (gp)', 'number'],
     ['mod', 'Damage / armour', 'number'],
     ['durability', 'Durability', 'number'],
+    ['range', 'Range (bows: squares it reaches)', 'number'],
     ['uses', 'Uses (0 = unlimited)', 'number'],
     ['onuse', 'Script when used', 'text'],
+    ['onwear', 'Script when worn', 'text'],
+    ['onunwear', 'Script when taken off', 'text'],
   ],
 };
 const TWO = new Set(['giveitem', 'skill']);
@@ -56,9 +59,9 @@ const ALIASES = { weilded: 'wield' };
 // <kind>|<name>|<n>" -> { saved: true, kind, name, updated }; else null.
 export function parseLibReply(line) {
   const t = line.trim();
-  let m = /^Lib: saved (mob|prop|item)\|(.+)\|(\d+)$/.exec(t);
+  let m = /^Lib: saved (mob|prop|item|script)\|(.+)\|(\d+)$/.exec(t);
   if (m) return { saved: true, kind: m[1], name: m[2], updated: Number(m[3]) };
-  m = /^Lib: (mob|prop|item)\|(.+)\|([A-Za-z0-9+/=]*)$/.exec(t);
+  m = /^Lib: (mob|prop|item|script)\|(.+)\|([A-Za-z0-9+/=]*)$/.exec(t);
   if (!m) return null;
   try {
     return { kind: m[1], name: m[2], text: fromB64(m[3]) };
@@ -109,3 +112,83 @@ export function writeDef(kind, def) {
   out.push('.');
   return out.join('\n') + '\n';
 }
+
+// ---- The item maker ----
+// What an item does when used (healing, food, drink, a message) or while
+// it's worn (stat bonuses), as plain numbers, and the scripts that do it:
+// scripts/<item>.use, .wear and .unwear (server/Library.java "lib set
+// script"). Each script starts with the numbers it was made from, so the
+// editor can read them back.
+
+// [key, label]: the use effects, then what wearing it adds.
+export const USE_EFFECTS = [
+  ['hp', 'Heals HP'], ['mp', 'Restores MP'],
+  ['food', 'Keeps hunger away for (an apple: 600)'], ['drink', 'Keeps thirst away for (water: 1200)'],
+];
+export const WEAR_EFFECTS = [
+  ['strengthbonus', 'STR'], ['dexteritybonus', 'DEX'], ['intelligencebonus', 'INT'], ['constitutionbonus', 'CON'], ['wisdombonus', 'WIS'],
+  ['hpbonus', 'Max HP'], ['mpbonus', 'Max MP'], ['acbonus', 'AC'], ['dammodbonus', 'Damage'],
+];
+const MADE = '#Made by the item maker: ';
+export const effectScriptName = (item, what) => `${item}.${what}`;
+
+const num = (v) => Math.trunc(Number(v) || 0);
+// A script string can't hold a double quote.
+const words = (v) => String(v ?? '').replace(/["\r\n]/g, ' ').trim();
+// The script language reads "-5" badly; "- 0 5" is its own minus.
+const signed = (n) => (n < 0 ? `- 0 ${-n}` : String(n));
+
+// { hp, mp, food, drink, message, gone } -> the use script, or '' if it
+// does nothing. gone: the item is used up (removed) when used.
+export function useScript(item, e) {
+  const lines = [MADE + JSON.stringify(cleanUse(e))];
+  if (words(e.message)) lines.push(`chat trigger "${words(e.message)}"`);
+  if (num(e.hp) > 0) lines.push(`inc trigger hp ${num(e.hp)}`);
+  if (num(e.mp) > 0) lines.push(`inc trigger mp ${num(e.mp)}`);
+  if (num(e.food) > 0) lines.push(`addconditionwithduration trigger nohunger ${num(e.food)}`);
+  if (num(e.drink) > 0) lines.push(`addconditionwithduration trigger nothirst ${num(e.drink)}`);
+  if (lines.length === 1) return '';
+  if (e.gone) lines.push(`removeitem trigger "${words(item)}"`);
+  lines.push('endscript');
+  return lines.join('\n') + '\n';
+}
+function cleanUse(e) {
+  const out = {};
+  for (const [k] of USE_EFFECTS) if (num(e?.[k]) > 0) out[k] = num(e[k]);
+  if (words(e?.message)) out.message = words(e.message);
+  if (e?.gone) out.gone = true;
+  return out;
+}
+
+// { strengthbonus: 2, acbonus: 5, ... } -> { wear, unwear } scripts, or
+// null if it adds nothing. Taking it off takes back what wearing gave.
+export function wearScripts(e) {
+  const bonuses = WEAR_EFFECTS.map(([k]) => [k, num(e?.[k])]).filter(([, n]) => n !== 0);
+  if (!bonuses.length) return null;
+  const head = MADE + JSON.stringify(Object.fromEntries(bonuses));
+  const make = (sign) => [head, ...bonuses.map(([k, n]) => `inc trigger ${k} ${signed(sign * n)}`), 'endscript'].join('\n') + '\n';
+  return { wear: make(1), unwear: make(-1) };
+}
+
+// A script the item maker made -> its numbers; null for any other script.
+export function readMade(text) {
+  const first = String(text ?? '').split('\n')[0];
+  if (!first.startsWith(MADE)) return null;
+  try {
+    return JSON.parse(first.slice(MADE.length));
+  } catch {
+    return null;
+  }
+}
+
+// Starting points for a new item: its fields, and what using or wearing
+// it does.
+export const ITEM_TEMPLATES = {
+  weapon: { fields: { type: 'weapon', mod: '5', cost: '50', durability: '500', description: 'A new weapon.' } },
+  bow: { fields: { type: 'ranged', mod: '4', range: '5', cost: '60', durability: '500', description: 'A new bow.' } },
+  armour: { fields: { type: 'armor', kind: 'torso', mod: '10', cost: '50', durability: '500', description: 'A new piece of armour.' } },
+  charm: { fields: { type: 'armor', kind: 'neck', mod: '0', cost: '200', durability: '-1', description: 'A new charm.' }, wear: { wisdombonus: 1 } },
+  food: { fields: { type: 'item', cost: '10', uses: '1', description: 'Something to eat.' }, use: { food: 600, message: '*Munch munch*', gone: true } },
+  drink: { fields: { type: 'item', cost: '10', uses: '1', description: 'Something to drink.' }, use: { drink: 1200, message: '*Gulp gulp*', gone: true } },
+  potion: { fields: { type: 'item', cost: '50', uses: '1', description: 'A healing potion.' }, use: { hp: 25, message: 'You feel better.', gone: true } },
+};
