@@ -139,6 +139,24 @@ commands that touch live.
   (faster ferries, restart, leaderboard) needs build/install + restart of
   duskserver AND dusk-web.
 
+## 2026-10-05 night
+
+- LIVE: painted big trees (js/trees.js, depth-sorted with people, fade
+  in at the edge, explored map beyond the view), pixel terrain blending
+  (js/terrain.js, cached per square), bundles (fix_bundles.py), item
+  scripts from ~/DarkStarDusk2002 (fix_items.py; god/test items left
+  plain), "use" message (LivingThingPatch), economy fixes.
+- Installed 23:14, needs a restart (no god save before it): Herbalist
+  Wenna at 32,126 and the hermit's new script (tools/world/cities/swamp.mjs,
+  quest "The Neon Rose"), swamp scripts fixed (fix_swamp.py, fumes floor
+  at 1 HP since script damage can't kill), and EquipmentPatch: the
+  engine's isWearing took an item ID, so every "isWearing trigger <name>"
+  script was dead (swamp, shovel 212_151, pick 467_54, flame robe 394_393).
+- Engine facts: script "inc trigger hp" can't kill (hp goes negative);
+  a script's stale .dsko beside it is run instead (install_city now
+  deletes it when replacing); the fairy glade (41-59 x 49-67, the Fairy
+  King) is sealed off from the rest of the world.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
