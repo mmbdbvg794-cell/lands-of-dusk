@@ -126,12 +126,18 @@ commands that touch live.
   smooth glides (world.js pace(), ships.js): tested aboard on scratch.
 - Music rewritten (atmosphere.js), on by default: measured audible.
 - God controls (server/Admin.java, God tab Server section, leaderboard.html,
-  js/leaderboard.js, serve.py serves leaderboard.json): built; on scratch
-  leaderboard.json is written. NOT yet tested in the browser: serverinfo
-  panel, restart countdown (exit code 3 -> systemd restarts).
-- Still to do: painted terrain blending like the user's friend's game
-  (screenshots pixel.png / smooth.png in the repo root: organic, noise-
-  warped edges between ground types instead of square tiles).
+  js/leaderboard.js, serve.py serves leaderboard.json): tested on scratch
+  (Server panel, restart 10 s countdown, exit; leaderboard.json written).
+- Painted ground blending (js/blend.js, renderer drawBlends): wandering
+  edges between plain ground kinds, rounded where boundaries turn,
+  checkerboard corners resolved by a hash. Tested by screenshots on
+  scratch; a few small straight bits remain in busy checkerboard spots.
+  Client only (deploy). The friend's screenshots: pixel.png / smooth.png
+  in the repo root (not committed).
+- Client deployed 21:3x with ferry glide, music, god panel; the blending
+  is committed after that deploy (needs another deploy). Server side
+  (faster ferries, restart, leaderboard) needs build/install + restart of
+  duskserver AND dusk-web.
 
 ## Open / ideas (ask the user before starting)
 
