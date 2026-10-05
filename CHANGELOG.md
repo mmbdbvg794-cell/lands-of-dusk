@@ -334,6 +334,13 @@ backups; see `server/`.
   Lizard Axemen with a scale to bring back ("The Sand Kings"). Rewards:
   leather gloves, a steel helmet, an iron sword and serpent scales.
 - **Healing Staff works** (it never had: its script didn't parse).
+- **Gold from nothing closed** (an economy check of every shop, script,
+  spell and monster): the CoL Bank took negative amounts ("withdraw
+  -1000000", then die until the debt shrinks: a free million), the Master
+  Quest Blade and Suit were given without the quest key, and the junk-pile
+  ruby, the thieves' chest opal and the bronze ore could be collected and
+  sold again and again. Shops themselves were sound: they buy at half
+  price whatever they sell. (tools/server/fix_economy.py)
 
 ## Website
 

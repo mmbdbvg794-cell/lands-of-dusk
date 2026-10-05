@@ -110,6 +110,13 @@ commands that touch live.
   shirt makes black dogs and slimers harmless; wolves and green blobs
   killed one); quest 4's Lizard Axemen (300 HP, str 40) are a hard
   finale by the user's choice.
+- Economy check done: `tools/server/fix_economy.py` (CoL bank negative
+  amounts = free gold, Master Quest items without the key, repeatable
+  ruby/opal/ore). Applied and tested on scratch; live awaits
+  `python3 fix_economy.py ~/DuskRPG --apply` (no restart). Not fixed,
+  reported: crystal box / nova package / bloody book (250-500k shop items)
+  have no use scripts; the fire orb / reward note chain (7_966, 25_974,
+  32_978) uses items that don't exist and 7_966 has an unclosed quote.
 - Client changes since the last deploy: the wizard's depth lookup and
   "an iron sword" (needs `tools/deploy.sh`).
 
