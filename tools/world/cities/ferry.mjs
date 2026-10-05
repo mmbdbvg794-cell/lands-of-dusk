@@ -10,18 +10,24 @@ import { readFileSync } from 'node:fs';
 
 export const FARE = 50;
 
-// pier: the square passengers step down onto; dock: where a ship's
-// centre waits, and which way it faces (degrees, 0 east, 90 south).
+// pier: the square passengers step down onto; berths: where the ship to
+// and from each other port waits, its centre and which way it faces
+// (degrees, 0 east, 90 south), one each side of the pier.
 export const PORTS = {
-  westsea: { name: 'Westsea Harbour', pier: [95, 357], dock: [100, 360, 0] },
-  landing: { name: 'Aelindor Landing', pier: [444, 1184], dock: [444, 1178, 0] },
-  eastreach: { name: 'Eastreach', pier: [1691, 1303], dock: [1694, 1300, 0] },
+  westsea: { name: 'Westsea Harbour', pier: [95, 357], berths: { landing: [100, 360, 0], eastreach: [90, 360, 180] } },
+  landing: { name: 'Aelindor Landing', pier: [444, 1184], berths: { westsea: [444, 1178, 0], eastreach: [444, 1173, 0] } },
+  eastreach: { name: 'Eastreach', pier: [1691, 1303], berths: { landing: [1694, 1300, 0], westsea: [1695, 1306, 0] } },
 };
 
-export const ROUTES = [['westsea', 'landing']];
-
-// Each ship and the ports it calls at, back and forth.
-export const SHIPS = [{ name: 'Seahawk', calls: ['westsea', 'landing'] }];
+// One ship per route, back and forth; each route's squares are in
+// tools/world/routes/<a>-<b>.txt (made by tools/world/sea-route.mjs from
+// berth to berth).
+export const ROUTES = [['westsea', 'landing'], ['landing', 'eastreach'], ['eastreach', 'westsea']];
+export const SHIPS = [
+  { name: 'Seahawk', calls: ['westsea', 'landing'] },
+  { name: 'Morning Star', calls: ['landing', 'eastreach'] },
+  { name: 'Grey Gull', calls: ['eastreach', 'westsea'] },
+];
 
 const routeFile = (a, b) => `ferryroutes/${a}-${b}`;
 
@@ -30,7 +36,7 @@ export function ferryFiles() {
   const lines = ['# Ferries (server/Ferry.java), made by tools/world/cities/ferry.mjs.'];
   for (const [key, p] of Object.entries(PORTS)) {
     lines.push(`port ${key} ${p.pier[0]} ${p.pier[1]} ${p.name}`);
-    lines.push(`dock ${key} ${p.dock.join(' ')}`);
+    for (const [other, b] of Object.entries(p.berths)) lines.push(`dock ${key} ${b.join(' ')} ${other}`);
   }
   const files = {};
   for (const [a, b] of ROUTES) {

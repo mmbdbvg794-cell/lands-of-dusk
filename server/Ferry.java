@@ -21,7 +21,10 @@
  *
  * The game's "ferries" file (re-read when it changes), a line each:
  *   port <key> <x> <y> <name>      the pier square passengers step onto
- *   dock <key> <x> <y> <heading>   where a ship's centre waits, facing
+ *   dock <key> <x> <y> <heading> [<other port>]
+ *                                  where a ship's centre waits, facing;
+ *                                  with another port, the berth for ships
+ *                                  sailing to and from it
  *   route <from> <to> <file>       the squares between two docks, "x y"
  *                                  a line (the way back is the same,
  *                                  reversed)
@@ -50,7 +53,7 @@ public class Ferry {
     static final long STEP_MS = 250;        // a square every quarter second
     static final long DOCK_MS = 45000;      // time in port
     static final int SIGHT = 14;            // squares away a ship is seen
-    static final int BOARD_RANGE = 8;       // squares from the dock to be taken aboard
+    static final int BOARD_RANGE = 10;      // squares from the docked ship to be taken aboard
     static final String[] SEA_LINES = {
         "The captain calls from the wheel: Fair winds today!",
         "Gulls wheel over the masts, and spray breaks over the bow.",
@@ -62,6 +65,11 @@ public class Ferry {
         String key, name;
         int x, y;               // the pier square
         int dockX, dockY, dockHeading;
+        final Map<String, int[]> berths = new HashMap<String, int[]>(); // other port -> x, y, heading
+        int[] berth(String other) {
+            int[] b = berths.get(other);
+            return b != null ? b : new int[] { dockX, dockY, dockHeading };
+        }
     }
 
     static final class Ship {
@@ -133,11 +141,11 @@ public class Ferry {
                     port.x = Integer.parseInt(p[2]);
                     port.y = Integer.parseInt(p[3]);
                     port.name = line.trim().split("\\s+", 5)[4];
-                } else if (p[0].equals("dock") && p.length == 5) {
+                } else if (p[0].equals("dock") && (p.length == 5 || p.length == 6)) {
                     Port port = portFor(p[1]);
-                    port.dockX = Integer.parseInt(p[2]);
-                    port.dockY = Integer.parseInt(p[3]);
-                    port.dockHeading = Integer.parseInt(p[4]);
+                    int[] b = { Integer.parseInt(p[2]), Integer.parseInt(p[3]), Integer.parseInt(p[4]) };
+                    if (p.length == 6) port.berths.put(p[5].toLowerCase(), b);
+                    else { port.dockX = b[0]; port.dockY = b[1]; port.dockHeading = b[2]; }
                 } else if (p[0].equals("route") && p.length == 4) {
                     int[][] path = readPath(new File(p[3]));
                     if (path.length > 1) {
@@ -167,8 +175,8 @@ public class Ferry {
                 s.name = name;
                 for (int i = 2; i < p.length; i++) if (ports.containsKey(p[i].toLowerCase())) s.calls.add(p[i].toLowerCase());
                 if (s.calls.size() < 2) continue;
-                Port home = ports.get(s.calls.get(0));
-                s.x = home.dockX; s.y = home.dockY; s.heading = home.dockHeading;
+                int[] b = ports.get(s.calls.get(0)).berth(s.calls.get(1));
+                s.x = b[0]; s.y = b[1]; s.heading = b[2];
                 s.docked = true;
                 s.dockedSince = System.currentTimeMillis();
             }
@@ -248,8 +256,14 @@ public class Ferry {
         for (Object o : online) {
             LivingThing p = (LivingThing) o;
             if (aboard.get(p.strName) != s) continue;
+            // Gone from the deck some other way (a god's teleport, death):
+            // no longer aboard.
+            if (Math.abs(p.intLocX - (nx - dx)) > 2 || Math.abs(p.intLocY - (ny - dy)) > 2) {
+                aboard.remove(p.strName);
+                s.passengers.remove(p.strName);
+                continue;
+            }
             int px = p.intLocX + dx, py = p.intLocY + dy;
-            // Keep them on the deck even if they'd wandered.
             if (Math.abs(px - nx) > 1 || Math.abs(py - ny) > 1) { px = nx; py = ny; }
             p.moveTo(px, py, dir);
             if (p.intLocX != px || p.intLocY != py) p.changeLocBypass(px, py);
@@ -265,9 +279,10 @@ public class Ferry {
 
     static void arrive(DuskEngine engine, Ship s, Object[] online) {
         Port port = ports.get(to(s));
+        int[] b = port.berth(from(s));
         s.docked = true;
         s.dockedSince = System.currentTimeMillis();
-        s.x = port.dockX; s.y = port.dockY; s.heading = port.dockHeading;
+        s.x = b[0]; s.y = b[1]; s.heading = b[2];
         s.leg++;
         for (Object o : online) {
             LivingThing p = (LivingThing) o;
@@ -299,11 +314,11 @@ public class Ferry {
     // Ticket holders for the ship's next port, near the dock, go aboard;
     // those waiting while she's at sea are told when she's due.
     static void board(DuskEngine engine, Ship s, Object[] online, long now) {
-        Port here = ports.get(from(s)), next = ports.get(to(s));
+        Port next = ports.get(to(s));
         for (Object o : online) {
             LivingThing p = (LivingThing) o;
             if (aboard.containsKey(p.strName)) continue;
-            if (Math.abs(p.intLocX - here.dockX) > BOARD_RANGE || Math.abs(p.intLocY - here.dockY) > BOARD_RANGE) continue;
+            if (Math.abs(p.intLocX - s.x) > BOARD_RANGE || Math.abs(p.intLocY - s.y) > BOARD_RANGE) continue;
             if (!p.hasCondition("voyage_" + next.key)) continue;
             int n = s.passengers.size();
             int px = s.x - 1 + n % 3, py = s.y - 1 + (n / 3) % 3;
@@ -373,19 +388,21 @@ public class Ferry {
         synchronized (Ferry.class) {
             if (ships.isEmpty()) return "No ships are sailing.";
             long now = System.currentTimeMillis();
-            StringBuilder b = new StringBuilder();
+            // A message per ship: a line break inside one would break the
+            // client's reading of the stream.
             for (Ship s : ships) {
-                if (b.length() > 0) b.append('\n');
+                StringBuilder b = new StringBuilder();
                 Port a = ports.get(from(s)), z = ports.get(to(s));
                 if (s.docked) {
                     long left = Math.max(0, DOCK_MS - (now - s.dockedSince)) / 1000;
                     b.append("The ").append(s.name).append(" is in at ").append(a.name).append(", sailing for ").append(z.name).append(" in ").append(left).append(" seconds.");
                 } else {
                     long left = (long) (s.path.length - 1 - s.step) * STEP_MS / 1000;
-                    b.append("The ").append(s.name).append(" is at sea, bound for ").append(z.name).append(": due in about ").append(Math.max(1, Math.round(left / 60.0))).append(" minute").append(Math.round(left / 60.0) == 1 ? "" : "s").append(".");
+                    b.append("The ").append(s.name).append(" is at sea, bound for ").append(z.name).append(": due in about ").append(Math.max(1, Math.round(left / 60.0))).append(" minute").append(Math.round(left / 60.0) <= 1 ? "" : "s").append(".");
                 }
+                who.chatMessage(b.toString());
             }
-            return b.toString();
+            return "";
         }
     }
 

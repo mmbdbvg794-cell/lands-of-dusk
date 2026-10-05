@@ -23,27 +23,39 @@ for (let h = 0; h < q.length; h++) { const i = q[h], x = Math.floor(i / R), y = 
 // A* on 8 directions, needing clearance 3 (2 near the docks).
 function route([sx, sy], [gx, gy]) {
   const need = (x, y) => Math.min(Math.hypot(x - sx, y - sy), Math.hypot(x - gx, y - gy)) < 10 ? 2 : 3;
-  const g = new Float32Array(C * R).fill(Infinity), from = new Int32Array(C * R).fill(-1);
-  const open = [[0, sx * R + sy]]; g[sx * R + sy] = 0;
+  const N = C * R;
+  const g = new Float32Array(N).fill(Infinity), from = new Int32Array(N).fill(-1), done = new Uint8Array(N);
   const h = (x, y) => { const dx = Math.abs(x - gx), dy = Math.abs(y - gy); return Math.max(dx, dy) + 0.414 * Math.min(dx, dy); };
-  // A binary heap.
-  const push = (e) => { open.push(e); let i = open.length - 1; while (i > 0) { const p = (i - 1) >> 1; if (open[p][0] <= open[i][0]) break; [open[p], open[i]] = [open[i], open[p]]; i = p; } };
-  const pop = () => { const top = open[0], last = open.pop(); if (open.length) { open[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < open.length && open[l][0] < open[m][0]) m = l; if (r < open.length && open[r][0] < open[m][0]) m = r; if (m === i) break; [open[m], open[i]] = [open[i], open[m]]; i = m; } } return top; };
-  open.length = 0; push([h(sx, sy), sx * R + sy]);
-  let n = 0;
-  while (open.length) {
-    const [, i] = pop(); const x = Math.floor(i / R), y = i % R; n++;
+  // A binary heap in typed arrays (keys, and the squares they're for).
+  let cap = 1 << 20, keys = new Float64Array(cap), vals = new Int32Array(cap), size = 0;
+  const push = (k, v) => {
+    if (size === cap) { cap *= 2; const nk = new Float64Array(cap); nk.set(keys); keys = nk; const nv = new Int32Array(cap); nv.set(vals); vals = nv; }
+    let i = size++;
+    while (i > 0) { const p = (i - 1) >> 1; if (keys[p] <= k) break; keys[i] = keys[p]; vals[i] = vals[p]; i = p; }
+    keys[i] = k; vals[i] = v;
+  };
+  const pop = () => {
+    const top = vals[0], k = keys[--size], v = vals[size];
+    let i = 0;
+    for (;;) { let m = 2 * i + 1; if (m >= size) break; if (m + 1 < size && keys[m + 1] < keys[m]) m++; if (keys[m] >= k) break; keys[i] = keys[m]; vals[i] = vals[m]; i = m; }
+    keys[i] = k; vals[i] = v;
+    return top;
+  };
+  g[sx * R + sy] = 0; push(h(sx, sy), sx * R + sy);
+  while (size) {
+    const i = pop(); if (done[i]) continue; done[i] = 1;
+    const x = Math.floor(i / R), y = i % R;
     if (x === gx && y === gy) break;
     for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
       if (!dx && !dy) continue; const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= C || ny >= R) continue;
-      const j = nx * R + ny; if (clear[j] < need(nx, ny)) continue;
+      const j = nx * R + ny; if (done[j] || clear[j] < need(nx, ny)) continue;
       const cost = g[i] + (dx && dy ? 1.414 : 1);
-      if (cost < g[j]) { g[j] = cost; from[j] = i; push([cost + h(nx, ny), j]); }
+      if (cost < g[j]) { g[j] = cost; from[j] = i; push(cost + h(nx, ny), j); }
     }
   }
+  if (from[gx * R + gy] < 0) return null;
   const pts = []; for (let i = gx * R + gy; i >= 0; i = from[i]) pts.push([Math.floor(i / R), i % R]);
   pts.reverse();
-  if (pts[0][0] !== sx || pts[0][1] !== sy) return null;
   // Into single N/S/E/W steps (a diagonal is two steps).
   const steps = [pts[0]];
   for (let k = 1; k < pts.length; k++) { const [px, py] = steps.at(-1), [x, y] = pts[k]; if (x !== px && y !== py) steps.push([x, py]); steps.push([x, y]); }
