@@ -13,6 +13,7 @@ backups/city-<name>-<time>/:
                   different (a god may have changed it) is kept unless
                   --force
   journal         quest journal lines for flags it doesn't have yet
+  other files     single values the plan sets (a race's start point)
   defConditions/  a hidden condition for each quest flag
 
 The server reads all of these when it starts, and writes the map and the
@@ -165,6 +166,23 @@ def main():
         new += 1
     said.append("files: %d written, %d unchanged, %d kept" % (new, same, kept))
 
+    # ---- values in the game's own files ----
+    for v in b.get("sets", []):
+        text = read(v["file"])
+        if text is None:
+            said.append("  can't set %s in %s: it isn't there" % (v["key"], v["file"]))
+            continue
+        lines = text.split("\n")
+        for i in range(len(lines) - 1):
+            if lines[i].strip() == v["key"]:
+                if lines[i + 1].strip() != v["value"]:
+                    lines[i + 1] = v["value"]
+                    write(v["file"], "\n".join(lines))
+                    said.append("set %s %s = %s" % (v["file"], v["key"], v["value"]))
+                break
+        else:
+            said.append("  can't set %s in %s: no such key" % (v["key"], v["file"]))
+
     # ---- journal and flags ----
     text = read("journal") or ""
     flags = {l.split("|", 1)[0].lower() for l in text.splitlines() if "|" in l}
@@ -175,7 +193,8 @@ def main():
     said.append("journal: %d lines added" % len(add))
     made = 0
     for flag in b["conditions"]:
-        path = os.path.join("defConditions", flag)
+        # The game looks conditions up in lower case.
+        path = os.path.join("defConditions", flag.lower())
         if not os.path.exists(path):
             write(path, "nodisplay\n.\n")
             made += 1

@@ -21,7 +21,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { toScript, toGreet, flagsOf, journalEntriesOf, tidyDialogue, toTileScript, canMoveExpr, blockedText } from '../../js/dialogue.js';
+import { toScript, toGreet, flagsOf, journalEntriesOf, tidyDialogue, toTileScript, canMoveExpr, blockedText, tileFlagsOf } from '../../js/dialogue.js';
 
 // Plan characters -> tiles. Paths and water are fitted to their
 // neighbours below; trees vary.
@@ -76,6 +76,7 @@ class Plan {
     this.props = []; this.merchants = []; this.signs = []; this.mobs = [];
     this.npcs = []; this.files = {}; this.notes = []; this.walks = [];
     this.far = []; // single squares anywhere on the map (map coordinates)
+    this.sets = []; // values to change in the game's own files
   }
   in(x, y) { return x >= 0 && y >= 0 && x < this.w && y < this.h; }
   at(x, y) { return this.in(x, y) ? this.grid[y][x] : ' '; }
@@ -141,6 +142,9 @@ class Plan {
   // legend character), and its walking rule and action (a cave mouth on a
   // far mountain, say).
   farTile(x, y, ch) { this.far.push({ x, y, ch }); }
+  // A value in one of the game's key/value files (a key line, then its
+  // value): e.g. where a race starts, in defRaces/<race>.
+  setValue(file, key, value) { this.sets.push({ file, key, value: String(value) }); }
   farWalk(x, y, rule) { this.square(x, y, true).walk = rule; }
   farAction(x, y, rules) { this.square(x, y, true).rules = rules; }
   // Someone to talk to: a prop called `name` that looks like the prop
@@ -287,6 +291,9 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
     if (canMoveExpr(w)) files[`defCanMoveScripts/${key}`] = `#Who can step here, made in the God tab.\n${canMoveExpr(w)}\n`;
     const told = blockedText(w);
     if (told) files[`tileactions/${key}.block`] = told;
+    // The flags its rules use, and journal lines on their "set flag"s.
+    for (const f of tileFlagsOf(rules, w)) conditions.add(f);
+    for (const j of journalEntriesOf({ stages: rules.map((r) => ({ answers: [{ label: 'x', effects: r.effects }] })) })) journal.push(j);
   }
   const bundle = {
     name: city.name,
@@ -299,8 +306,10 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
     mobs: plan.mobs.map(abs),
     files,
     copies: city.copies ?? [],
+    sets: plan.sets,
     // The journal shows a quest's last line, so a finished step goes last.
-    journal: [...journal.filter((j) => !j.done), ...journal.filter((j) => j.done)],
+    // One line per flag (the first written).
+    journal: [...journal.filter((j) => !j.done), ...journal.filter((j) => j.done)].filter((j, i, all) => all.findIndex((k) => k.flag.toLowerCase() === j.flag.toLowerCase()) === i),
     conditions: [...conditions],
   };
   mkdirSync(outDir, { recursive: true });

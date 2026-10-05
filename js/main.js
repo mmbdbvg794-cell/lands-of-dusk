@@ -1197,7 +1197,10 @@ function connect(url) {
   sysLine(`Connecting to ${url}…`);
 
   conn = new DuskConnection(withDevice(url));
-  conn.holdBackground = () => speechAwaiting || Date.now() < talkHold;
+  // Background lines wait while logging in (the server reads the next
+  // line as the answer to "Is that correct? (yes/no)" and the like) and
+  // while an NPC waits for an answer.
+  conn.holdBackground = () => !!loginFlow || speechAwaiting || Date.now() < talkHold;
   conn.addEventListener('open', () => {
     setState('on');
     sysLine('Connected. Waiting for the server…');

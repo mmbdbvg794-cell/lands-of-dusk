@@ -151,6 +151,122 @@ const GUARD = {
 const NALFEIN = { shouts: [], stages: [always('The Fire Well never goes out. They say it reaches down to the heart of the world.')] };
 const ZESSTRA = { shouts: [], stages: [always('Watch the side caves. The bats up north-west are the size of dogs, and twice as hungry.')] };
 
+// ---- the dark elf tutorial: "From Hatchling to Drow..." ----
+// New dark elves wake in a cell in a sealed cave complex south-west of
+// the city (defRaces/darkelf starts them there), and are trained step by
+// step like the humans' tutorial, each door opening on the step's flag;
+// or they skip it. Either way the Spider Stone takes them to the Fire
+// Well, which becomes where they come back to.
+
+const TUT = 'From Hatchling to Drow...';
+const WELL = [1345, 912]; // beside the Fire Well
+const START = [11, 110]; // the cell (plan coordinates)
+const jflag = (flag, text, done = false) => ({ kind: 'flag', flag, journal: { title: TUT, text, done } });
+const unflag = (flag) => ({ kind: 'unflag', flag });
+const TUT_FLAGS = ['drowTut1', 'drowTut2', 'drowTut3', 'drowTut4', 'drowTut5', 'drowTut6', 'drowSkip'];
+
+const TASKMISTRESS = {
+  shouts: ['You! Hatchling! Over here.'],
+  stages: [
+    ifFlag('drowSkip', 'The south passage. Go, before I change my mind.'),
+    ifFlag('drowTut2', 'Why are you still here? Armsmaster Quave is through the east door.'),
+    ifFlag('drowTut1', 'So, the newest hatchling of Velkarath crawls out of its cell. Will you be trained, or do you think yourself ready for the city?', [
+      { label: 'Train me', reply: 'Wise. Through the east door: Armsmaster Quave will arm you.', effects: [unflag('drowTut1'), jflag('drowTut2', 'Taskmistress Vhal sent me east, to Armsmaster Quave.')] },
+      { label: 'I am ready', reply: 'Arrogant. We shall see. The passage to the south leads to the Spider Stone; it will carry you to the city.', effects: [unflag('drowTut1'), jflag('drowSkip', 'I told Taskmistress Vhal I needed no training. The Spider Stone down the south passage leads to the city.')] },
+    ]),
+    always('Velkarath has no use for idlers.'),
+  ],
+};
+const ARMSMASTER = {
+  shouts: [],
+  stages: [
+    ifFlag('drowTut3', 'One set each, hatchling. The pit is through the east door.'),
+    ifFlag('drowTut2', 'Another blade for the House. Take these.', [
+      { label: 'Thank you', reply: 'Do not thank me; survive. Blademistress Zeerith waits in the pit, through the east door.', effects: [{ kind: 'give', item: 'cloth shirt' }, { kind: 'give', item: 'wooden dagger' }, unflag('drowTut2'), jflag('drowTut3', 'Armed and dressed. The Blademistress waits in the pit, through the east door.')] },
+    ]),
+    always('I arm hatchlings. You are not one I was sent.'),
+  ],
+};
+const BLADEMISTRESS = {
+  shouts: [],
+  stages: [
+    ifFlag('drowTut5', 'Go. The Provisioner is through the south door.'),
+    ifFlag('drowTut4', 'Well? Cut the stuffing out of a training dummy and bring it to me. (Stand right beside one, not diagonally, then click it and choose Attack.)', [
+      { label: 'Here it is', reply: 'Clean work. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut4'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')] },
+    ]),
+    ifFlag('drowTut3', 'Put on what Quave gave you (in your Backpack, press Wear beside each). Then we fight.', [
+      { label: 'I am ready', reply: 'Then strike a training dummy, and bring me its stuffing. (Stand beside one, click it and choose Attack.)', effects: [unflag('drowTut3'), jflag('drowTut4', 'The Blademistress wants the stuffing of a training dummy. Time to fight.')] },
+    ]),
+    always('The pit is for those in training.'),
+  ],
+};
+const PROVISIONER = {
+  shouts: ['Water and mushrooms!'],
+  stages: [
+    ifFlag('drowTut6', 'You have what you need. The Spider Stone is through the east door.'),
+    ifFlag('drowTut5', 'No one survives the city hungry. Buy a water and a mushroom from me: stand in front of my counter, open the Shop tab and press Buy. Then talk to me again.', [
+      {
+        label: 'I have them', reply: 'Show me...', needs: { kind: 'item', value: 'water' }, effects: [],
+        next: says('And the mushroom?', [
+          { label: 'Right here', reply: 'Good. Eat and drink from your Backpack when you need to. Now through the east door, and step on the Spider Stone.', needs: { kind: 'item', value: 'mushroom' }, effects: [unflag('drowTut5'), jflag('drowTut6', 'Supplies in hand. The Spider Stone, through the east door, leads to the city.')] },
+        ]),
+      },
+    ]),
+    always('Water and mushrooms, for those who can pay.'),
+  ],
+};
+// The Spider Stone: training done (or skipped), to the city, bound there.
+const spiderStone = (flag) => [{
+  when: { kind: 'flag', value: flag },
+  speaker: '',
+  says: '** You step onto the Spider Stone. Webs of light close around you... and you stand beside the Fire Well of Velkarath. **',
+  effects: [...TUT_FLAGS.map(unflag), jflag('drowTutDone', 'Training done (or skipped). Welcome to Velkarath.', true), { kind: 'bind', x: WELL[0], y: WELL[1] }, { kind: 'teleport', x: WELL[0], y: WELL[1] }],
+}];
+const door = (flag, speaker, words) => ({ kind: 'flag', flag, speaker, verb: 'says', says: words });
+
+function tutorial(p) {
+  // The cell, and the way out of it, where the quest begins.
+  p.fill(8, 108, 7, 5, 'k');
+  p.fill(15, 110, 4, 1, 'k');
+  p.action(16, 110, [{ when: { kind: 'noflag', value: 'drowWoke' }, speaker: '', says: '** You wake on cold stone in a cell beneath Velkarath. Somewhere ahead, a voice snaps orders. **', effects: [{ kind: 'flag', flag: 'drowWoke' }, jflag('drowTut1', 'I woke in a cell beneath Velkarath. Someone ahead is giving orders: find them.')] }]);
+  // The Hall of Choosing.
+  p.fill(19, 105, 11, 11, 'k');
+  for (const [x, y] of [[19, 105], [29, 105], [19, 115], [29, 115]]) p.set(x, y, 'C');
+  p.npc({ name: 'Taskmistress Vhal', look: 'Dark Elf Matron', desc: 'Taskmistress Vhal, who trains Velkarath\'s hatchlings, and is not patient about it.', x: 24, y: 107, dlg: TASKMISTRESS });
+  // Skipping: the south passage to a Spider Stone.
+  p.set(24, 116, 'D');
+  p.walk(24, 116, door('drowSkip', 'Taskmistress Vhal', 'Not that way, hatchling. Speak to me first.'));
+  p.fill(24, 117, 1, 4, 'k');
+  p.set(24, 121, 'C');
+  p.action(24, 121, spiderStone('drowSkip'));
+  // The armory.
+  p.set(30, 110, '>');
+  p.walk(30, 110, door('drowTut2', 'Taskmistress Vhal', 'Not that way, hatchling. Speak to me first.'));
+  p.fill(31, 106, 9, 9, 'M');
+  p.npc({ name: 'Armsmaster Quave', look: 'Dark Elf Man', desc: 'Armsmaster Quave, surrounded by racks of blades.', x: 35, y: 107, dlg: ARMSMASTER });
+  // The pit, with its dummies.
+  p.set(40, 110, '>');
+  p.fill(41, 104, 13, 13, 'e');
+  p.npc({ name: 'Blademistress Zeerith', look: 'Dark Elf Guard', desc: 'Blademistress Zeerith, watching your footwork with contempt.', x: 47, y: 105, dlg: BLADEMISTRESS });
+  p.mob('training_dummy', 1, 44, 113); p.mob('training_dummy', 1, 50, 113);
+  // The provisioner, behind a counter.
+  p.set(47, 117, 'D');
+  p.walk(47, 117, door('drowTut5', 'Blademistress Zeerith', 'Not yet! Bring me the stuffing of a training dummy first.'));
+  p.fill(43, 118, 9, 6, 'k');
+  p.fill(46, 120, 3, 1, 's');
+  p.npc({ name: 'Provisioner Nym', look: 'Dark Elf Woman', desc: 'Provisioner Nym, counting mushrooms.', x: 47, y: 119, dlg: PROVISIONER });
+  p.merchant(47, 121, ['water', 'mushroom']);
+  // The way out: the Spider Stone.
+  p.set(52, 121, '>');
+  p.walk(52, 121, door('drowTut6', 'Provisioner Nym', 'Supplies first! A water and a mushroom.'));
+  p.fill(53, 121, 3, 1, 'k');
+  p.set(56, 121, 'C');
+  p.action(56, 121, spiderStone('drowTut6'));
+  // New dark elves start in the cell.
+  p.setValue('defRaces/darkelf', 'x', ORIGIN[0] + START[0]);
+  p.setValue('defRaces/darkelf', 'y', ORIGIN[1] + START[1]);
+}
+
 const PROP = (image, desc) => `image\n${image}\ndescription\n${desc}\n.\n`;
 const BASE_PROPS = {
   'Dark Elf Man': PROP(5, 'A dark elf of Velkarath, watching you with red eyes.'),
@@ -173,8 +289,9 @@ export default {
   origin: ORIGIN,
   size: [170, 140],
   seed: 23,
-  // Only over the open sea it's carved out of.
-  mayBuild: (t) => t === 0,
+  // The block is all this plan's (carved out of open sea, nothing else
+  // near it), so it may build over anything in it, its own rock included.
+  mayBuild: () => true,
   copies: [
     { from: 'talk/Bank Teller', to: 'talk/Dark Elf Teller', replace: [['Bank Teller says', 'Dark Elf Teller says']] },
   ],
@@ -305,6 +422,9 @@ export default {
     p.npc({ name: 'Dark Elf Guard', look: null, x: 49, y: 65, dlg: GUARD });
     p.prop('Dark Elf Guard', 86, 95);
     p.prop('Dark Elf Guard', 125, 72);
+
+    // The tutorial's caves, sealed off from the rest.
+    tutorial(p);
 
     // Bats in the north-west cave.
     for (const [x, y] of [[34, 18], [40, 22], [44, 17], [32, 23]]) if (p.at(x, y) === 'k') p.mob('Bat', 1, x, y);

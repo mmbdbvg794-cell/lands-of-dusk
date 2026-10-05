@@ -300,6 +300,18 @@ backups; see `server/`.
   `ferry` says where each ship is and when it's due. (server/Ferry.java,
   js/ships.js; the network is in tools/world/cities/ferry.mjs, routes
   made by tools/world/sea-route.mjs.)
+- **Dark elf tutorial, "From Hatchling to Drow..."**: new dark elves wake
+  in a cell in a sealed cave complex beneath Velkarath and are trained
+  like the humans: Taskmistress Vhal (train, or skip straight to the
+  city), Armsmaster Quave (a shirt and a dagger), Blademistress Zeerith in
+  the pit (wear your gear, beat a training dummy, bring its stuffing),
+  Provisioner Nym (buy a water and a mushroom), then the Spider Stone to
+  the Fire Well, which becomes their respawn point. Each door opens on its
+  step, and every step has its Journal line.
+- **New characters could be refused**: while the server asked "Is that
+  correct? (yes/no)", the client's map sync could send its own line,
+  which the server took as the answer ("Then what IS your name?"). The
+  client now holds its background lines while you log in.
 - **Tile editor: walking rules by race** ("Only players of race",
   "Everyone but race").
 - **Conversations no longer cut short**: the client's own background
