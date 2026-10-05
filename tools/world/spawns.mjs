@@ -125,7 +125,9 @@ const bundle = {
   oldWorld: false,
   area: { x: 0, y: 0, w: COLS, h: ROWS },
   tiles: [], props: [], merchants: [], signs: [], mobs,
-  files: {}, copies: [], sets: [], journal: [], conditions: [],
+  // Imp's own file wears a demonSkin condition the game never had (its
+  // loading stopped with an error there): an empty one.
+  files: {}, copies: [], sets: [], journal: [], conditions: ['demonSkin'],
 };
 mkdirSync(outDir, { recursive: true });
 writeFileSync(`${outDir}/bundle.json`, JSON.stringify(bundle, null, 1));
