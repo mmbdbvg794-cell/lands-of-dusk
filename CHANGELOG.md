@@ -281,6 +281,8 @@ backups; see `server/`.
   Lantern inn, a bank, a weaponsmith, an alchemist, the training pit,
   homes, the Fire Well, and side caves (bats nest in the north-west one).
   Underground there's no weather and it's always dark, lantern-lit.
+  The world map keeps it apart: underground it shows only the caves;
+  on the surface they're hidden (gods see sea there).
 - **Tile editor: walking rules by race** ("Only players of race",
   "Everyone but race").
 - **Conversations no longer cut short**: the client's own background

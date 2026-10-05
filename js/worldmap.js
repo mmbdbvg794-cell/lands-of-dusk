@@ -8,8 +8,13 @@
 // Gods see the whole world, no fog (setFull): a one-pixel-a-square
 // overview when zoomed out, and the real tiles for what's in view when
 // zoomed in.
+// Underground places (js/atmosphere.js UNDERGROUND) are a world apart:
+// down there the map shows only them; up here they're hidden.
 
 import { CHUNK } from './explored.js';
+import { UNDERGROUND } from './atmosphere.js';
+
+const inBox = (u, x, y) => x >= u.x0 && x <= u.x1 && y >= u.y0 && y <= u.y1;
 
 const ZOOMS = [1, 2, 3, 4, 6, 8]; // CSS pixels per tile
 const PINS = { bank: ['#e8c45a', '$'], shop: ['#6fd08a', '⚖'], quest: ['#ffd84a', '!'] };
@@ -95,6 +100,7 @@ export class WorldMap {
   // ID) for the zoomed-out overview.
   setFull(explored, colours) {
     this.full = explored;
+    this.colours = colours;
     this.fullBaked.clear();
     const keys = [...explored.chunks.keys()].map((k) => k.split(',').map(Number));
     if (!keys.length) return;
@@ -150,7 +156,8 @@ export class WorldMap {
 
   fitZoom() {
     if (this.full) { this.zoom = 2; return; }
-    const keys = [...this.minimap.explored.chunks.keys()].map((k) => k.split(',').map(Number));
+    const keys = [...this.minimap.explored.chunks.keys()].map((k) => k.split(',').map(Number))
+      .filter(([x, y]) => this.shown(x * CHUNK + CHUNK / 2, y * CHUNK + CHUNK / 2));
     if (!keys.length) return;
     const xs = keys.map(([x]) => x), ys = keys.map(([, y]) => y);
     const tilesW = (Math.max(...xs) - Math.min(...xs) + 1) * CHUNK;
@@ -184,14 +191,27 @@ export class WorldMap {
       const sx = r.left + r.width / 2 + (x + 0.5 - this.cx) * this.zoom, sy = r.top + r.height / 2 + (y + 0.5 - this.cy) * this.zoom;
       return Math.hypot(sx - clientX, sy - clientY) <= 10;
     };
-    const note = this.notes.find((n) => near(n.x, n.y));
+    const note = this.notes.find((n) => this.shown(n.x, n.y) && near(n.x, n.y));
     if (note) return { note };
     const marker = this.visibleMarkers().find((m) => near(m.x, m.y));
     return marker ? { marker } : null;
   }
 
+  // The underground place you're in, or null on the surface.
+  get layer() {
+    const p = this.player;
+    return (p && UNDERGROUND.find((u) => inBox(u, p.x, p.y))) ?? null;
+  }
+
+  // Whether a square belongs on the map as it's drawn now (underground
+  // squares only underground, and only that place's).
+  shown(x, y) {
+    const u = this.layer;
+    return u ? inBox(u, x, y) : !UNDERGROUND.some((b) => inBox(b, x, y));
+  }
+
   visibleMarkers() {
-    return this.markers.filter((m) => this.source.tileAt(m.x, m.y) !== null);
+    return this.markers.filter((m) => this.shown(m.x, m.y) && this.source.tileAt(m.x, m.y) !== null);
   }
 
   click(e) {
@@ -270,6 +290,11 @@ export class WorldMap {
     const explored = this.minimap.explored;
     let tiles = 0;
     ctx.imageSmoothingEnabled = s < 4;
+    // Underground, nothing outside the place you're in.
+    const under = this.layer;
+    const boxRect = (u) => [ox + u.x0 * s, oy + u.y0 * s, (u.x1 - u.x0 + 1) * s, (u.y1 - u.y0 + 1) * s];
+    ctx.save();
+    if (under) { ctx.beginPath(); ctx.rect(...boxRect(under)); ctx.clip(); }
     if (this.full) {
       // Gods: the whole world. Zoomed out, the overview; zoomed in, the
       // real tiles for the chunks in view.
@@ -295,6 +320,9 @@ export class WorldMap {
     const side = CHUNK * s;
     for (const k of explored.chunks.keys()) {
       const [cx, cy] = k.split(',').map(Number);
+      // On the surface, chunks wholly underground aren't drawn at all (not
+      // even their glow).
+      if (!under && UNDERGROUND.some((u) => cx * CHUNK >= u.x0 && cx * CHUNK + CHUNK - 1 <= u.x1 && cy * CHUNK >= u.y0 && cy * CHUNK + CHUNK - 1 <= u.y1)) continue;
       const x = Math.round(ox + cx * side), y = Math.round(oy + cy * side);
       if (x > w || y > h || x + side < 0 || y + side < 0) continue;
       const b = this.minimap.bakedChunk(cx, cy);
@@ -302,6 +330,18 @@ export class WorldMap {
     }
     ctx.shadowBlur = 0;
     for (const c of explored.chunks.values()) for (const t of c) if (t !== 0xffff) tiles++;
+    }
+    ctx.restore();
+    // On the surface, underground places are covered: by the sea around
+    // them for gods (who'd otherwise see them in it), else by fog.
+    if (!under) {
+      const sea = this.colours && this.colours.length >= 3 ? `rgb(${this.colours[0]}, ${this.colours[1]}, ${this.colours[2]})` : '#1f3f8f';
+      ctx.fillStyle = this.full ? sea : '#0b0c10';
+      // Rounded out a pixel, so no edge of what's under it peeks through.
+      for (const u of UNDERGROUND) {
+        const [x, y, bw, bh] = boxRect(u);
+        ctx.fillRect(Math.floor(x) - 1, Math.floor(y) - 1, Math.ceil(bw) + 3, Math.ceil(bh) + 3);
+      }
     }
     // You.
     if (this.player) {
@@ -331,17 +371,17 @@ export class WorldMap {
       const [colour, glyph] = PINS[m.kind] ?? ['#ccc', '?'];
       pin(m.x, m.y, colour, glyph);
     }
-    for (const n of this.notes) pin(n.x, n.y, '#7ab8ff', '✎');
+    for (const n of this.notes) if (this.shown(n.x, n.y)) pin(n.x, n.y, '#7ab8ff', '✎');
     if (this.message) {
       this.el.querySelector('[data-map="info"]').textContent = this.message;
       return;
     }
     if (this.full) {
-      this.el.querySelector('[data-map="info"]').textContent = `The whole world (god view)${this.player ? ` · you're at ${this.player.x}, ${this.player.y}` : ''}`;
+      this.el.querySelector('[data-map="info"]').textContent = `${under ? 'Underground (god view)' : 'The whole world (god view)'}${this.player ? ` · you're at ${this.player.x}, ${this.player.y}` : ''}`;
       return;
     }
     this.el.querySelector('[data-map="info"]').textContent = tiles
-      ? `${tiles.toLocaleString()} squares explored${this.player ? ` · you're at ${this.player.x}, ${this.player.y}` : ''}`
+      ? `${under ? 'Underground · ' : ''}${tiles.toLocaleString()} squares explored${this.player ? ` · you're at ${this.player.x}, ${this.player.y}` : ''}`
       : 'Nothing explored yet: walk around and the map fills in.';
   }
 }
