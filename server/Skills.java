@@ -79,6 +79,8 @@ public class Skills {
         Who.start(engine);
         // Flag timers for conversations (server/Quests.java).
         Quests.start(engine);
+        // Conditions wearing off and ticking (server/Conditions.java).
+        Conditions.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

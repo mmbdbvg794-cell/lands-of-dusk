@@ -16,7 +16,7 @@ rm -rf "$WORK"
 mkdir -p "$WORK/classes" "$WORK/src" "$WORK/out"
 # The live classes as they are now (without any Storage from before).
 cp "$GAME"/*.class "$WORK/classes/"
-rm -f "$WORK/classes/Storage.class" "$WORK/classes/CaseFix.class" "$WORK/classes/FixedEngine.class" "$WORK/classes/Talk.class" "$WORK/classes/Talk\$1.class" "$WORK/classes/Props.class" "$WORK/classes/BridgedSocket.class" "$WORK/classes/Bans.class" "$WORK/classes/MapStore.class" "$WORK/classes/Social.class" "$WORK/classes/Skills.class" "$WORK/classes/Skills\$1.class" "$WORK/classes/Library.class" "$WORK/classes/Library\$1.class" "$WORK/classes/Ferry.class" "$WORK/classes/Ferry\$1.class" "$WORK/classes/Ferry\$Port.class" "$WORK/classes/Who.class" "$WORK/classes/Who\$1.class" "$WORK/classes/Quests.class" "$WORK/classes/Quests\$Goal.class" "$WORK/classes/Quests\$1.class" "$WORK/classes/Trade.class" "$WORK/classes/Trade\$Side.class" "$WORK/classes/Trade\$Session.class"
+rm -f "$WORK/classes/Storage.class" "$WORK/classes/CaseFix.class" "$WORK/classes/FixedEngine.class" "$WORK/classes/Talk.class" "$WORK/classes/Talk\$1.class" "$WORK/classes/Props.class" "$WORK/classes/BridgedSocket.class" "$WORK/classes/Bans.class" "$WORK/classes/MapStore.class" "$WORK/classes/Social.class" "$WORK/classes/Skills.class" "$WORK/classes/Skills\$1.class" "$WORK/classes/Library.class" "$WORK/classes/Library\$1.class" "$WORK/classes/Ferry.class" "$WORK/classes/Ferry\$1.class" "$WORK/classes/Ferry\$Port.class" "$WORK/classes/Who.class" "$WORK/classes/Who\$1.class" "$WORK/classes/Quests.class" "$WORK/classes/Quests\$Goal.class" "$WORK/classes/Quests\$1.class" "$WORK/classes/Conditions.class" "$WORK/classes/Conditions\$1.class" "$WORK/classes/Trade.class" "$WORK/classes/Trade\$Side.class" "$WORK/classes/Trade\$Session.class"
 cd "$WORK"
 # If Storage is installed already, decompile the originals it replaced.
 if [ -f "$GAME/storage-originals/Commands.class" ]; then
@@ -24,8 +24,8 @@ if [ -f "$GAME/storage-originals/Commands.class" ]; then
 fi
 java -jar "$SRC/cfr.jar" classes/Commands.class classes/DuskServer.class --outputdir src --silent true >/dev/null
 python3 "$SRC/patch.py" src
-cp "$SRC/Storage.java" "$SRC/CaseFix.java" "$SRC/FixedEngine.java" "$SRC/Talk.java" "$SRC/Props.java" "$SRC/BridgedSocket.java" "$SRC/Bans.java" "$SRC/MapStore.java" "$SRC/Social.java" "$SRC/Trade.java" "$SRC/Skills.java" "$SRC/Library.java" "$SRC/Ferry.java" "$SRC/Who.java" "$SRC/Quests.java" src/
-javac -nowarn -encoding UTF-8 -d out -cp classes src/Storage.java src/CaseFix.java src/FixedEngine.java src/Talk.java src/Props.java src/BridgedSocket.java src/Bans.java src/MapStore.java src/Social.java src/Trade.java src/Skills.java src/Library.java src/Ferry.java src/Who.java src/Quests.java src/Commands.java src/DuskServer.java
+cp "$SRC/Storage.java" "$SRC/CaseFix.java" "$SRC/FixedEngine.java" "$SRC/Talk.java" "$SRC/Props.java" "$SRC/BridgedSocket.java" "$SRC/Bans.java" "$SRC/MapStore.java" "$SRC/Social.java" "$SRC/Trade.java" "$SRC/Skills.java" "$SRC/Library.java" "$SRC/Ferry.java" "$SRC/Who.java" "$SRC/Quests.java" "$SRC/Conditions.java" src/
+javac -nowarn -encoding UTF-8 -d out -cp classes src/Storage.java src/CaseFix.java src/FixedEngine.java src/Talk.java src/Props.java src/BridgedSocket.java src/Bans.java src/MapStore.java src/Social.java src/Trade.java src/Skills.java src/Library.java src/Ferry.java src/Who.java src/Quests.java src/Conditions.java src/Commands.java src/DuskServer.java
 # The game loop's MP healing, fixed in the compiled engine (EnginePatch.java),
 # always from the original class.
 ENGINE="$GAME/DuskEngine.class"
@@ -44,4 +44,9 @@ BATTLE="$GAME/Battle.class"
 [ -f "$GAME/storage-originals/Battle.class" ] && BATTLE="$GAME/storage-originals/Battle.class"
 javac -nowarn $ASM -d tools "$SRC/BattlePatch.java"
 java $ASM -cp tools BattlePatch "$BATTLE" out/Battle.class
+# AC bonuses showing in the stats, in the compiled AttributeManager (AttributePatch.java).
+ATTR="$GAME/AttributeManager.class"
+[ -f "$GAME/storage-originals/AttributeManager.class" ] && ATTR="$GAME/storage-originals/AttributeManager.class"
+javac -nowarn $ASM -d tools "$SRC/AttributePatch.java"
+java $ASM -cp tools AttributePatch "$ATTR" out/AttributeManager.class
 ls out
