@@ -4,6 +4,7 @@
 
 import { HIT_MS, bareName } from './world.js';
 import { drawShip } from './ships.js';
+import { drawBlends } from './blend.js';
 import { drawEffect, drawPaintedEffect } from './effects.js';
 import { LOOKS, OUT, paintFigureStrip } from './figure.js';
 import { outdoorShare } from './atmosphere.js';
@@ -113,6 +114,11 @@ export class Renderer {
           // Java falls back to tile 0 when a tile ID can't be drawn.
           if (!map.draw(ctx, tile, px, py, c)) map.draw(ctx, 0, px, py, c);
         }
+      }
+      // The Painted style: ground of different kinds meets along wandering
+      // lines instead of the squares' edges (js/blend.js).
+      if (this.blendGround) {
+        drawBlends(ctx, { x0, y0, n, c, tileAt: (x, y) => world.tileAt(x, y, now), toPx, draw: (t, px, py, size) => map.draw(ctx, t, px, py, size) });
       }
     }
 

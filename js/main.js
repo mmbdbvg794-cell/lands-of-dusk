@@ -1556,6 +1556,7 @@ async function applyArt() {
     panels.update('equipment');
   }
   renderer.paintedEffects = artStyle === 'painted';
+  renderer.blendGround = artStyle === 'painted';
   // Creatures drawn by name, in the Painted style.
   if (artStyle === 'painted') {
     if (paintedNamed === null) paintedNamed = await loadNamed('named');
