@@ -240,12 +240,25 @@ export function treePlace(x, y, px, py, c) {
   return { left: fx - size / 2, top: fy - (FOOT / S) * size, size, variant: hash(x, y, 9) };
 }
 
-export function drawTrees(ctx, { tileAt, x0, y0, n, c, toPx }) {
+// The trees around the view, each with where its foot is (key: world y,
+// for drawing back to front with everyone else), its crown's box in
+// pixels (to see whether it hides someone) and a draw(ctx, alpha).
+export function treeDraws({ tileAt, x0, y0, n, c, toPx }) {
   const all = treeSprites();
-  for (const tr of treesAround(tileAt, x0, y0, n)) {
+  return treesAround(tileAt, x0, y0, n).map((tr) => {
     const [px, py] = toPx(tr.x, tr.y);
     const p = treePlace(tr.x, tr.y, px, py, c);
     const list = all[TREE_TILES[tr.tile].kind];
-    ctx.drawImage(list[Math.floor(p.variant * list.length)], p.left, p.top, p.size, p.size);
-  }
+    const img = list[Math.floor(p.variant * list.length)];
+    const foot = p.top + (FOOT / S) * p.size;
+    return {
+      key: tr.y + (foot - py) / c,
+      crown: { left: p.left + p.size * 0.15, right: p.left + p.size * 0.85, top: p.top + p.size * 0.12, bottom: foot - c * 0.35 },
+      draw(ctx, alpha = 1) {
+        if (alpha < 1) { ctx.save(); ctx.globalAlpha = alpha; }
+        ctx.drawImage(img, p.left, p.top, p.size, p.size);
+        if (alpha < 1) ctx.restore();
+      },
+    };
+  });
 }

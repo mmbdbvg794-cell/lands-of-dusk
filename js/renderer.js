@@ -4,8 +4,9 @@
 
 import { HIT_MS, bareName } from './world.js';
 import { drawShip } from './ships.js';
-import { drawBlends, drawGroundDetail, groundFlip } from './blend.js';
-import { TREE_TILES, drawTrees } from './trees.js';
+import { drawGroundDetail, groundFlip } from './blend.js';
+import { Terrain } from './terrain.js';
+import { TREE_TILES, treeDraws } from './trees.js';
 import { drawEffect, drawPaintedEffect } from './effects.js';
 import { LOOKS, OUT, paintFigureStrip } from './figure.js';
 import { outdoorShare } from './atmosphere.js';
@@ -23,6 +24,7 @@ export class Renderer {
     this.ctx = canvas.getContext('2d');
     this.world = world;
     this.sheets = null;
+    this.terrain = new Terrain(); // blended ground, kept (the Painted style)
     this.showNames = true;
     // Labels on things (items, props, signs, doors) as well as on people,
     // creatures and merchants: off by default, or a room of couches reads
@@ -103,6 +105,8 @@ export class Renderer {
     const toPx = (x, y) => [Math.round((x - cam.x + r) * c), Math.round((y - cam.y + r) * c)];
 
     const { map, players, sprites } = this.sheets;
+    let trees = [];
+    const ground = this.bigTrees ? (x, y) => { const t = world.tileAt(x, y, now); return TREE_TILES[t]?.ground ?? t; } : (x, y) => world.tileAt(x, y, now);
     if (map) {
       // One extra row/column so the edge coming into view is covered mid-slide.
       const x0 = Math.floor(cam.x) - r;
@@ -114,6 +118,12 @@ export class Renderer {
           // Big trees (the Painted style) stand on their ground.
           if (this.bigTrees && TREE_TILES[tile]) tile = TREE_TILES[tile].ground;
           const [px, py] = toPx(x, y);
+          // Painted ground where kinds meet: worked out pixel by pixel and
+          // kept (js/terrain.js).
+          if (this.blendGround) {
+            const img = this.terrain.cell(x, y, ground, map);
+            if (img) { ctx.imageSmoothingEnabled = true; ctx.drawImage(img, px, py, c, c); continue; }
+          }
           // Painted ground: mirrored square to square (js/blend.js).
           const flip = this.blendGround ? groundFlip(x, y, tile) : 0;
           if (flip) {
@@ -130,14 +140,9 @@ export class Renderer {
       }
       // The Painted style: ground of different kinds meets along wandering
       // lines instead of the squares' edges (js/blend.js).
-      const ground = this.bigTrees ? (x, y) => { const t = world.tileAt(x, y, now); return TREE_TILES[t]?.ground ?? t; } : (x, y) => world.tileAt(x, y, now);
-      if (this.blendGround) {
-        drawBlends(ctx, { x0, y0, n, c, tileAt: ground, toPx, draw: (t, px, py, size) => map.draw(ctx, t, px, py, size) });
-      }
       if (this.blendGround) drawGroundDetail(ctx, { x0, y0, n, c, tileAt: ground, toPx });
-      // Big trees over the ground, back to front, crowns spreading over
-      // their neighbours (js/trees.js).
-      if (this.bigTrees) drawTrees(ctx, { tileAt: (x, y) => world.tileAt(x, y, now), x0, y0, n, c, toPx });
+      // Big trees (js/trees.js): drawn below with everyone, back to front.
+      if (this.bigTrees) trees = treeDraws({ tileAt: (x, y) => world.tileAt(x, y, now), x0, y0, n, c, toPx });
     }
 
     // Ships at sea (js/ships.js), on the water and under whoever's aboard.
@@ -155,8 +160,29 @@ export class Renderer {
     const where = new Map();
     const self = this.gear ? world.self() : null;
     const dressing = !!this.gear; // the Painted style
-    for (const e of list) {
+    // Everyone and the big trees, back to front by where their feet are:
+    // someone behind a tree is under its crown. A crown over the player's
+    // own figure is see-through, so they're never lost.
+    const me = world.self();
+    const draws = list.map((e, i) => {
       const pos = world.visualPos(e, now);
+      return { e, pos, key: pos.y + 0.95, i };
+    });
+    let mine = null;
+    if (me && trees.length) {
+      const pos = world.visualPos(me, now);
+      const [mx, my] = toPx(pos.x, pos.y);
+      mine = { key: pos.y + 0.95, left: mx + c * 0.2, right: mx + c * 0.8, top: my, bottom: my + c };
+    }
+    for (const t of trees) {
+      const over = mine && t.key > mine.key && t.crown.left < mine.right && t.crown.right > mine.left && t.crown.top < mine.bottom && t.crown.bottom > mine.top;
+      draws.push({ tree: t, alpha: over ? 0.45 : 1, key: t.key, i: -1 });
+    }
+    draws.sort((a, b) => a.key - b.key || a.i - b.i);
+    const labels = [];
+    for (const d of draws) {
+      if (d.tree) { d.tree.draw(ctx, d.alpha); continue; }
+      const { e, pos } = d;
       const [px, py] = toPx(pos.x, pos.y);
       where.set(e.id, [px, py]);
 
@@ -186,13 +212,16 @@ export class Renderer {
       if (names && !e.hideName && (kind === 'object' ? this.showObjectNames : kind === 'npc' ? this.showNpcNames : this.showNames)) {
         // Java: black copy one pixel left, then white, baseline on the
         // tile's bottom edge.
-        const label = names.get(e.id) ?? e.name;
-        const nudge = Math.max(1, Math.round(c / 36));
-        ctx.fillStyle = '#000';
-        ctx.fillText(label, px - nudge, py + c - nudge);
-        ctx.fillStyle = '#fff';
-        ctx.fillText(label, px, py + c - nudge);
+        labels.push([names.get(e.id) ?? e.name, px, py]);
       }
+    }
+    // Names last, over everything (trees included).
+    const nudge = Math.max(1, Math.round(c / 36));
+    for (const [label, px, py] of labels) {
+      ctx.fillStyle = '#000';
+      ctx.fillText(label, px - nudge, py + c - nudge);
+      ctx.fillStyle = '#fff';
+      ctx.fillText(label, px, py + c - nudge);
     }
 
     this.drawEffects(where, now, c, toPx(cam.x, cam.y), toPx);
