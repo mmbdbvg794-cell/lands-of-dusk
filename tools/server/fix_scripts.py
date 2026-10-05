@@ -4,7 +4,9 @@
 or never did what it says:
 
   quotes    seven lines whose text never closes (or never opens), so the
-            reader runs to the end of the script: closed, by hand below.
+            reader runs to the end of the script: closed, by hand below;
+            and four typos that made a check fail ("has item", hasitem
+            without saying whose).
   ends      an "if" whose block finishes with "endscript" but no "end"
             before the next code: an "end" after that endscript. And an
             "if" still open at the end: closed there.
@@ -40,6 +42,11 @@ QUOTES = [
     ("commands/busy", 'order trigger concat concat " gecho " trigger name " is busy', 'order trigger concat concat " gecho " trigger name " is busy"'),
     ("scripts/baneslain_bloodsword", 'chat trigger " You equip the banslain_bloodsword', 'chat trigger " You equip the banslain_bloodsword"'),
     ("defMoveActions/7_966", 'giveitem trigger "Reward Note', 'giveitem trigger "Reward Note"'),
+    # Typos that made a check fail: "has item", and hasitem without whom.
+    ("defMoveActions/312_829", 'if ! has item trigger "Divine Scale"', 'if ! hasItem trigger "Divine Scale"'),
+    ("defMoveActions/312_829", 'if hasitem "Divine Scale"', 'if hasitem trigger "Divine Scale"'),
+    ("defMoveActions/710_695", 'if hasitem "tree climbing gear"', 'if hasitem trigger "tree climbing gear"'),
+    ("defMoveActions/710_695", 'chat trigger you "can climb these trees now"', 'chat trigger "You can climb these trees now."'),
 ]
 STRAYS = ["defMoveActions/267_337", "defMoveActions/269_337", "defMoveActions/303_835", "defMoveActions/476_384", "defMoveActions/28_19"]
 FOLDERS = ["defMoveActions", "scripts", "commands", "defSpellGroups", "talk"]
@@ -110,7 +117,7 @@ changes = {}
 for path, old, new in QUOTES:
     if not os.path.isfile(path):
         continue
-    text = open(path, encoding="latin-1").read()
+    text = changes.get(path) or open(path, encoding="latin-1").read()
     if new in text:
         continue
     if text.count(old) != 1:
