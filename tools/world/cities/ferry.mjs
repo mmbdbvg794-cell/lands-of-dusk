@@ -1,51 +1,66 @@
-// The ferry network: its ports, the ship at sea that passengers ride on,
-// and each port's captain. A captain takes the 50 gp fare, sets the
-// hidden flag voyage_<port> and puts you on the deck; server/Ferry.java
-// does the rest (a line from the crew, and 20 seconds later the pier).
-// Used by the plans that build the ports (westsea.mjs, eastreach.mjs,
-// aelindor.mjs); westsea.mjs writes the server's "ferries" file and the
-// ship.
+// The ferry network (server/Ferry.java): ports with their piers and
+// docks, the routes between docks (tools/world/routes, made by
+// tools/world/sea-route.mjs), and the ships that sail them on a timetable.
+// A port's captain sells a ticket (the 50 gp fare and the hidden flag
+// voyage_<port>); the ship takes ticket holders aboard when she's in, and
+// they ride her across the sea. westsea.mjs writes the server's "ferries"
+// file and the routes; the ports' plans place the captains.
+
+import { readFileSync } from 'node:fs';
 
 export const FARE = 50;
 
+// pier: the square passengers step down onto; dock: where a ship's
+// centre waits, and which way it faces (degrees, 0 east, 90 south).
 export const PORTS = {
-  westsea: { x: 95, y: 357, name: 'Westsea Harbour' },
-  landing: { x: 444, y: 1184, name: 'Aelindor Landing' },
-  eastreach: { x: 1691, y: 1303, name: 'Eastreach' },
+  westsea: { name: 'Westsea Harbour', pier: [95, 357], dock: [100, 360, 0] },
+  landing: { name: 'Aelindor Landing', pier: [444, 1184], dock: [444, 1178, 0] },
+  eastreach: { name: 'Eastreach', pier: [1691, 1303], dock: [1694, 1300, 0] },
 };
 
-// The ship out at sea (open water all round): its 6 x 3 squares, and
-// where passengers stand on its deck.
-export const DECK = { x0: 1262, y0: 1094, x1: 1267, y1: 1096, board: [1264, 1095] };
+export const ROUTES = [['westsea', 'landing']];
 
-// The ship's tiles, a row at a time (the moored ships at the piers too).
-export const SHIP_ROWS = [[131, 132, 133, 134, 135, 136], [137, 138, 139, 140, 141, 142], [143, 144, 145, 146, 147, 148]];
+// Each ship and the ports it calls at, back and forth.
+export const SHIPS = [{ name: 'Seahawk', calls: ['westsea', 'landing'] }];
 
-export function ferriesFile() {
-  const lines = ['# Ferry ports and the ship at sea (server/Ferry.java), made by tools/world/cities/ferry.mjs.'];
-  for (const [key, p] of Object.entries(PORTS)) lines.push(`port ${key} ${p.x} ${p.y} ${p.name}`);
-  lines.push(`deck ${DECK.x0} ${DECK.y0} ${DECK.x1} ${DECK.y1}`);
-  return lines.join('\n') + '\n';
+const routeFile = (a, b) => `ferryroutes/${a}-${b}`;
+
+// The server's "ferries" file and the route files it names.
+export function ferryFiles() {
+  const lines = ['# Ferries (server/Ferry.java), made by tools/world/cities/ferry.mjs.'];
+  for (const [key, p] of Object.entries(PORTS)) {
+    lines.push(`port ${key} ${p.pier[0]} ${p.pier[1]} ${p.name}`);
+    lines.push(`dock ${key} ${p.dock.join(' ')}`);
+  }
+  const files = {};
+  for (const [a, b] of ROUTES) {
+    lines.push(`route ${a} ${b} ${routeFile(a, b)}`);
+    files[routeFile(a, b)] = readFileSync(new URL(`../routes/${a}-${b}.txt`, import.meta.url), 'utf8');
+  }
+  for (const s of SHIPS) lines.push(`ship ${s.name.replace(/ /g, '_')} ${s.calls.join(' ')}`);
+  files.ferries = lines.join('\n') + '\n';
+  return files;
 }
 
-// A captain at `here`: a button for every other port.
+// A captain at `here`: a ticket to each port a ship from here calls at.
 export function captain(here, shout) {
-  const others = Object.entries(PORTS).filter(([k]) => k !== here);
+  const dests = new Map(); // port -> ship name
+  for (const s of SHIPS) if (s.calls.includes(here)) for (const k of s.calls) if (k !== here && !dests.has(k)) dests.set(k, s.name);
+  if (!dests.size) return { shouts: [], stages: [{ when: { kind: 'always', value: '' }, says: 'No ships call here yet. Come back another day.', answers: [] }] };
   return {
     shouts: [shout],
     stages: [{
       when: { kind: 'always', value: '' },
-      says: `Where are you bound? Passage is ${FARE} gold, and we sail as soon as you're aboard.`,
+      says: `Where are you bound? A ticket is ${FARE} gold. Then wait here on the pier, and you'll be taken aboard when the ship is in.`,
       answers: [
-        ...others.map(([key, p]) => ({
-          label: p.name,
-          reply: `${p.name} it is. Welcome aboard!`,
+        ...[...dests].map(([key, ship]) => ({
+          label: PORTS[key].name,
+          reply: `A ticket for ${PORTS[key].name}. Wait here on the pier: the ${ship} will take you aboard when she's in.`,
           needs: { kind: 'gold', value: String(FARE) },
           effects: [
             { kind: 'takegold', amount: FARE },
             ...Object.keys(PORTS).filter((k) => k !== key).map((k) => ({ kind: 'unflag', flag: `voyage_${k}` })),
             { kind: 'flag', flag: `voyage_${key}` },
-            { kind: 'teleport', x: DECK.board[0], y: DECK.board[1] },
           ],
         })),
         { label: 'Not today', reply: 'The sea will wait.', effects: [] },
@@ -54,7 +69,14 @@ export function captain(here, shout) {
   };
 }
 
-// The ship moored by a pier, from its top-left square (plan coordinates).
-export function mooredShip(p, x, y) {
-  SHIP_ROWS.forEach((row, j) => row.forEach((t, i) => p.tileNumber(x + i, y + j, t)));
+// Where the old standing ships were moored: water again (the ferries are
+// drawn by the client now). [x0, y0, water tile]
+export const OLD_MOORINGS = { westsea: [97, 359, 65], landing: [439, 1176, 0], eastreach: [1691, 1298, 0] };
+export function clearMooring(p, key) {
+  const [x0, y0, water] = OLD_MOORINGS[key];
+  for (let j = 0; j < 3; j++) for (let i = 0; i < 6; i++) p.farTile(x0 + i, y0 + j, water);
+}
+// The first ferries' ship at sea (passengers waited on it): gone too.
+export function clearOldDeck(p) {
+  for (let j = 0; j < 3; j++) for (let i = 0; i < 6; i++) p.farTile(1262 + i, 1094 + j, 0);
 }

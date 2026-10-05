@@ -20,6 +20,7 @@ import { JournalEditor } from './journaleditor.js';
 import { LibraryEditor } from './libraryeditor.js';
 import { parseLibReply } from './library.js';
 import { Atmosphere, AmbientSound, findSnowTiles, daylight } from './atmosphere.js';
+import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS, parseFlags } from './god.js';
@@ -116,6 +117,7 @@ loadItemInfo().then((info) => { panels.itemInfo = info; });
 const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
 let world = newWorld();
 const renderer = new Renderer($('map'), world, $('map-wrap'));
+renderer.ships = new Ships();
 let sheetsFor = null; // resource address the current sheets came from
 const minimap = new Minimap($('minimap'), new Explored());
 const worldMap = new WorldMap($('world-map'), minimap);
@@ -1188,6 +1190,7 @@ function connect(url) {
   minimap.setExplored(new Explored());
   mapSync.reset();
   world = newWorld();
+  renderer.ships?.clear();
   renderer.world = world;
   renderer.resize();
   setState('pending');
@@ -1281,6 +1284,9 @@ function handle(msg) {
       // Gods' whole world map.
       if (isGod && godMapLine(msg.text)) break;
       // The definitions editor's answers.
+      // Ferries at sea (js/ships.js): never shown in chat.
+      const ship = parseShip(msg.text);
+      if (ship) { renderer.ships.update(ship); renderer.invalidate(); break; }
       const lib = isGod && parseLibReply(msg.text);
       if (lib) { libraryEditor.reply(lib); break; }
       if (isGod && libraryEditor.failed(msg.text)) break;

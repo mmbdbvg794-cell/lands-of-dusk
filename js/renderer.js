@@ -3,6 +3,7 @@
 // selection box, sprite and name.
 
 import { HIT_MS, bareName } from './world.js';
+import { drawShip } from './ships.js';
 import { drawEffect, drawPaintedEffect } from './effects.js';
 import { LOOKS, OUT, paintFigureStrip } from './figure.js';
 import { outdoorShare } from './atmosphere.js';
@@ -115,6 +116,13 @@ export class Renderer {
       }
     }
 
+    // Ships at sea (js/ships.js), on the water and under whoever's aboard.
+    const ships = this.ships?.list(now) ?? [];
+    for (const s of ships) {
+      const [px, py] = toPx(s.x, s.y);
+      drawShip(ctx, px + c / 2, py + c / 2, c, s.heading, now, { ...s, toPx: (x) => toPx(x, 0)[0] + c / 2, toPy: (y) => toPx(0, y)[1] + c / 2 });
+    }
+
     const list = world.drawList(now);
     const names = this.showNames || this.showNpcNames || this.showObjectNames ? world.displayNames() : null;
     const fontPx = Math.max(9, Math.round(c * 0.3));
@@ -175,7 +183,7 @@ export class Renderer {
       weatherMoving = this.atmosphere.draw(ctx, this.canvas.width, this.canvas.height, [sx + c / 2, sy + c / 2], c, st, now);
       this.onWeather?.(st);
     }
-    if (world.animating(now) || weatherMoving) this.invalidate();
+    if (world.animating(now) || weatherMoving || ships.length) this.invalidate();
   }
 
   // The player's own figure wearing their gear, painted once per change of

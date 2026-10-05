@@ -54,9 +54,12 @@ public class FixedEngine extends DuskEngine {
     }
 
     // 4. A square that won't let a player on (a tile action's "who can step
-    //    here") says why, when they try.
+    //    here") says why, when they try; and ferry passengers may step about
+    //    their ship's deck, though it's over the sea.
     @Override
     boolean canMoveTo(int x, int y, LivingThing who) {
+        // Ferry passengers stand on a ship at sea (server/Ferry.java).
+        if (who != null && Ferry.allowMove(who, x, y)) return true;
         boolean ok = super.canMoveTo(x, y, who);
         if (!ok && who instanceof Player) Props.blocked((Player) who, x, y);
         return ok;
