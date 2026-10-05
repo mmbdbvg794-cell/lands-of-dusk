@@ -38,6 +38,7 @@ import { OP, opName } from './protocol.js';
 import { Renderer } from './renderer.js';
 import { loadSheets, loadSheet, SpriteSheet } from './sprites.js';
 import { describeRaces } from './races.js';
+import { describeWho } from './who.js';
 import { World } from './world.js';
 
 const $ = (id) => document.getElementById(id);
@@ -1147,6 +1148,15 @@ $('target-clear').addEventListener('click', clearTarget);
 setMode('login');
 if ($('login-name').value) $('login-pass').focus();
 else $('login-name').focus();
+
+// How many are playing, under the login (who.json, see who.html).
+fetch('who.json', { cache: 'no-store' })
+  .then((r) => (r.ok ? r.json() : null))
+  .then((data) => {
+    const w = describeWho(data, Date.now());
+    if (data?.updated && !w.count.startsWith("Can't")) $('login-who-count').textContent = `· ${w.count}`;
+  })
+  .catch(() => {});
 
 // ---- connection ------------------------------------------------------------
 

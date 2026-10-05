@@ -36,11 +36,20 @@ done
 echo "Painting the art (map, characters, creatures)..."
 sh tools/paintart/build.sh || echo "  (couldn't paint; keeping the current art/painted/map.png)"
 
+echo "Checking every script parses..."
+# The tests don't load main.js; a typo there would stop the page dead.
+T=$(mktemp -d)
+for f in js/*.js; do
+  cp "$f" "$T/check.mjs"
+  node --check "$T/check.mjs" || { echo "  $f doesn't parse"; rm -rf "$T"; exit 1; }
+done
+rm -rf "$T"
+
 echo "Running tests..."
 for t in test/*.test.mjs; do node "$t"; done
 
 echo "Copying to $HOST..."
-tar czf - index.html manifest.json sw.js css js img art/painted tools/spellinfo.py tools/raceinfo.py tools/iteminfo.py tools/rebuild-data.sh serve.py README.md server |
+tar czf - index.html who.html manifest.json sw.js css js img art/painted tools/spellinfo.py tools/raceinfo.py tools/iteminfo.py tools/rebuild-data.sh serve.py README.md server |
   ssh -o BatchMode=yes "$HOST" "mkdir -p ~/$DIR && cd ~/$DIR && rm -rf css js art/smooth tools/smoothart.py && tar xzf - && sh tools/rebuild-data.sh \$HOME/DuskRPG"
 
 echo "Checking..."
