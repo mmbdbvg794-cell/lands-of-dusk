@@ -84,6 +84,8 @@ public class Props {
             if (lib != null) return lib;
             String quest = Quests.command(who, engine, trimmed);
             if (quest != null) return quest;
+            String admin = Admin.command(who, engine, trimmed);
+            if (admin != null) return admin;
             String ferry = Ferry.command(who, engine, trimmed);
             if (ferry != null) return ferry;
             String skills = Skills.command(who, engine, trimmed);

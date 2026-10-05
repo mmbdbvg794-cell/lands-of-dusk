@@ -948,6 +948,12 @@ body.playing #map-wrap { display: flex; }
 .god-wares li { display: flex; justify-content: space-between; align-items: center; }
 .god-wares button { padding: 2px 8px; font-size: 12px; }
 .god-hint { margin: 8px 12px 0; font-size: 12px; color: var(--muted); }
+.god-warn { color: var(--warn); font-weight: 600; }
+.god-warn:empty { display: none; }
+.god-wrap { flex-wrap: wrap; }
+.god-row a { font-size: 13px; color: var(--accent); }
+.god-errors { display: flex; flex-direction: column; gap: 3px; margin: 4px 12px; }
+.god-error { display: block; font-size: 11px; color: var(--muted); white-space: pre-wrap; word-break: break-word; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 3px 6px; }
 .god-pop { padding: 2px 8px !important; font-size: 14px !important; }
 .god-float {
   position: fixed;

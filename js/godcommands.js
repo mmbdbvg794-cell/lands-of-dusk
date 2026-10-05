@@ -72,6 +72,9 @@ export const GOD_COMMANDS = [
   { group: 'Server', use: 'backup', desc: 'Back up the map.', level: 3 },
   { group: 'Server', use: 'reloadprefs', desc: 'Reload conf/prefs without restarting.', level: 5 },
   { group: 'Server', use: 'shutdown <seconds>', desc: 'Warn everyone, save them, and stop the server (it needs starting again).', level: 5 },
+  { group: 'Server', use: 'restart <seconds>', desc: 'Warn everyone, count down (default 60 s), save them and restart; back a few seconds later. The map is not saved.', level: 5 },
+  { group: 'Server', use: 'restart cancel', desc: 'Call off a coming restart.', level: 5 },
+  { group: 'Server', use: 'serverinfo', desc: 'How long the server has been up, who is on, memory, and today\'s errors (the God tab\'s Server section).', level: 3 },
 ];
 
 // The part to type before filling in the rest: "teleport ", "<", "nameprop ".

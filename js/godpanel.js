@@ -5,7 +5,7 @@
 // own; this panel just builds them.
 
 import { GOD_COMMANDS, commandStart } from './godcommands.js';
-import { place, SAVE_MAP, listCommand, search, teleport, wizinvis, addWare, removeWare, SAVED_KINDS, PROP_LOOKS, tileMessage, tileClear } from './god.js';
+import { place, SAVE_MAP, listCommand, search, teleport, wizinvis, addWare, removeWare, SAVED_KINDS, PROP_LOOKS, tileMessage, tileClear, describeServer } from './god.js';
 
 const KINDS = [
   ['npc', 'NPC'], ['item', 'Item'], ['mob', 'Mob'], ['prop', 'Prop'], ['storage', 'Storage'],
@@ -208,10 +208,60 @@ export class GodPanel {
       'Things are placed on your square. Click something on the map for Remove. ' +
       'Save map keeps mobs, props, signs, merchants and tiles after a restart; items on the ground are never kept, and storage keeps itself.' });
 
-    this.root = h('div', { className: 'god-root' }, head, $.kinds, $.listBox, $.textBox, $.tiles, placeRow, $.merchant, tools, commands, hint);
+    // The server: how it's doing, today's latest errors, a restart.
+    $.srvStatus = h('p', { className: 'god-hint', textContent: 'Open to see how the server is doing.' });
+    $.srvRestartIn = h('p', { className: 'god-hint god-warn' });
+    $.srvErrors = h('div', { className: 'god-errors' });
+    $.srvRefresh = h('button', { type: 'button', textContent: 'Refresh' });
+    $.srvSecs = h('input', { type: 'number', min: 10, max: 600, value: 60, className: 'god-num', title: 'Seconds of warning players get' });
+    $.srvRestart = h('button', { type: 'button', textContent: 'Restart server', title: 'Warns everyone, counts down, saves everyone and restarts (back a few seconds later). God level 5.' });
+    $.srvCancel = h('button', { type: 'button', textContent: 'Call it off' });
+    $.srvRefresh.addEventListener('click', () => this.refreshServer());
+    $.srvRestart.addEventListener('click', () => {
+      const secs = Math.max(10, Math.min(600, Math.floor(Number($.srvSecs.value) || 60)));
+      if (!window.confirm(`Restart the server in ${secs} seconds? Everyone is warned, then saved; the server is back a few seconds after. The map is not saved.`)) return;
+      this.run(`restart ${secs}`);
+      setTimeout(() => this.refreshServer(), 800);
+    });
+    $.srvCancel.addEventListener('click', () => { this.run('restart cancel'); setTimeout(() => this.refreshServer(), 800); });
+    const server = h('details', { className: 'god-sec' },
+      h('summary', { className: 'list-head', textContent: 'Server' }),
+      $.srvStatus, $.srvRestartIn,
+      h('div', { className: 'god-row god-wrap' }, $.srvRefresh, h('span', { className: 'god-label', textContent: 'Restart in' }), $.srvSecs, h('span', { className: 'god-label', textContent: 's' }), $.srvRestart, $.srvCancel),
+      $.srvErrors,
+      h('div', { className: 'god-row god-wrap' },
+        h('a', { href: 'leaderboard.html', target: '_blank', rel: 'noopener', textContent: 'Leaderboard' }),
+        h('a', { href: 'who.html', target: '_blank', rel: 'noopener', textContent: 'Who\'s online' })));
+    server.addEventListener('toggle', () => { if (server.open) this.refreshServer(); });
+    this.serverSec = server;
+
+    this.root = h('div', { className: 'god-root' }, head, $.kinds, $.listBox, $.textBox, $.tiles, placeRow, $.merchant, tools, server, commands, hint);
     this.tab.replaceChildren(this.root);
     this.setKind('npc');
     this.renderUnsaved();
+  }
+
+  refreshServer() {
+    this.srvLines = [];
+    this.send('serverinfo', { quiet: true });
+  }
+
+  // parseServerInfo's results.
+  serverReply(r) {
+    const $ = this.$;
+    if (r.info) {
+      const d = describeServer(r.info);
+      $.srvStatus.textContent = d.status;
+      $.srvRestartIn.textContent = d.restart;
+      this.srvLines = [];
+      return;
+    }
+    if (r.error) { (this.srvLines ??= []).push(r.error); return; }
+    if (r.done) {
+      const el = (tag, className, textContent) => Object.assign(document.createElement(tag), { className, textContent });
+      const errs = this.srvLines ?? [];
+      $.srvErrors.replaceChildren(...(errs.length ? [el('div', 'god-label', 'Latest errors today:'), ...errs.map((e) => el('code', 'god-error', e))] : []));
+    }
   }
 
   // Pops the panel out into a window of its own, which is dragged by its

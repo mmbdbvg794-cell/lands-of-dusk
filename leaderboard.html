@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leaderboard</title>
+  <meta name="description" content="The most experienced players in the world of Dusk.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { overflow: auto; }
+    .board { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
+    .board h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: .04em; }
+    .board .sub { color: var(--muted); margin: 0 0 20px; }
+    .board .wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
+    .board table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .board th, .board td { padding: 10px 12px; text-align: left; border-top: 1px solid var(--border); white-space: nowrap; }
+    .board thead th { border-top: none; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    .board td.num, .board th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .board .rank { color: var(--faint); width: 2em; }
+    .board tr.top .rank { color: var(--warn); font-weight: 700; }
+    .board .name { font-weight: 600; }
+    .board .title { color: var(--muted); font-weight: normal; margin-left: 6px; }
+    .board .empty { padding: 24px 16px; color: var(--muted); text-align: center; }
+    .board .foot { margin-top: 16px; color: var(--faint); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .board a { color: var(--accent); }
+    @media (max-width: 560px) { .board .hide-sm { display: none; } }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <h1>Leaderboard</h1>
+    <p class="sub" id="note">Looking…</p>
+    <div class="wrap">
+      <table aria-label="Top players">
+        <thead><tr><th class="rank">#</th><th>Player</th><th class="hide-sm">Race</th><th class="num">Experience</th><th class="num">Quests</th><th class="num hide-sm">Health</th><th class="num hide-sm">Stats</th><th class="num hide-sm">Played</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p class="foot"><a href="who.html">Who's online</a><a href="./">Play Dusk</a></p>
+  </main>
+  <script type="module">
+    import { describeBoard } from './js/leaderboard.js';
+    const $ = (id) => document.getElementById(id);
+    const td = (text, cls = '') => Object.assign(document.createElement('td'), { textContent: text, className: cls });
+    async function refresh() {
+      let data = null;
+      try {
+        const r = await fetch('leaderboard.json', { cache: 'no-store' });
+        if (r.ok) data = await r.json();
+      } catch {}
+      const b = describeBoard(data, Date.now());
+      $('note').textContent = b.note;
+      if (!b.rows.length) {
+        const tr = document.createElement('tr');
+        const cell = td(b.empty, 'empty');
+        cell.colSpan = 8;
+        tr.append(cell);
+        $('rows').replaceChildren(tr);
+        return;
+      }
+      $('rows').replaceChildren(...b.rows.map((p) => {
+        const tr = document.createElement('tr');
+        if (p.rank <= 3) tr.className = 'top';
+        const name = td(p.name, 'name');
+        if (p.title) name.append(Object.assign(document.createElement('span'), { className: 'title', textContent: p.title }));
+        tr.append(td(String(p.rank), 'rank'), name, td(p.race, 'hide-sm'), td(p.exp, 'num'), td(String(p.quests), 'num'), td(p.hp, 'num hide-sm'), td(p.stats, 'num hide-sm'), td(p.played, 'num hide-sm'));
+        return tr;
+      }));
+    }
+    refresh();
+    setInterval(refresh, 60000);
+  </script>
+</body>
+</html>

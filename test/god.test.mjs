@@ -53,4 +53,16 @@ assert.deepEqual(parseFlags('Flags: 2073|testerthree|nothirst,tutorial'), { id: 
 assert.deepEqual(parseFlags('Flags: 5|bob|'), { id: 5, name: 'bob', flags: [] });
 assert.deepEqual(parseFlags('Flags: 5||'), { id: 5, name: '', flags: [] });
 assert.equal(parseFlags('Talkers: a'), null);
+// The Server section.
+{
+  const { parseServerInfo, describeServer } = await import('../js/god.js');
+  const r = parseServerInfo('ServerInfo: 11520|2|140|256|0|-');
+  assert.deepEqual(r, { info: { up: 11520, players: 2, usedMb: 140, maxMb: 256, errors: 0, restartIn: null } });
+  assert.deepEqual(describeServer(r.info), { status: 'Up 3 h 12 min · 2 players · memory 140 of 256 MB · no errors today', restart: '' });
+  const c = parseServerInfo('ServerInfo: 90000|1|10|20|3|42').info;
+  assert.deepEqual(describeServer(c), { status: 'Up 1 d 1 h · 1 player · memory 10 of 20 MB · 3 errors today', restart: 'Restarting in 42 s.' });
+  assert.deepEqual(parseServerInfo('ServerError: [12:00] Error x|y'), { error: '[12:00] Error x|y' });
+  assert.deepEqual(parseServerInfo('ServerInfo: done'), { done: true });
+  assert.equal(parseServerInfo('Hello'), null);
+}
 console.log('god tests passed');

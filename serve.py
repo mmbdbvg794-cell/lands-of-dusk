@@ -14,16 +14,22 @@ import http.server
 import os
 
 
-# Who's online: the game server writes who.json in its own directory
-# (server/Who.java); the page asks for it beside itself.
+# Who's online and the leaderboard: the game server writes who.json
+# (server/Who.java) and leaderboard.json (server/Admin.java) in its own
+# directory; the pages ask for them beside themselves.
 WHO_FILE = os.environ.get("DUSK_WHO", os.path.expanduser("~/DuskRPG/who.json"))
+GAME_JSON = {
+    "who.json": WHO_FILE,
+    "leaderboard.json": os.path.join(os.path.dirname(WHO_FILE), "leaderboard.json"),
+}
 
 
 class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        if self.path.split("?")[0].endswith("/who.json"):
+        name = self.path.split("?")[0].rsplit("/", 1)[-1]
+        if name in GAME_JSON:
             try:
-                with open(WHO_FILE, "rb") as f:
+                with open(GAME_JSON[name], "rb") as f:
                     body = f.read()
             except OSError:
                 body = b'{"updated":null,"players":[]}\n'

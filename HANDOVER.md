@@ -120,6 +120,19 @@ commands that touch live.
 - Client changes since the last deploy: the wizard's depth lookup and
   "an iron sword" (needs `tools/deploy.sh`).
 
+## 2026-10-05 late (NOT live yet: needs deploy + server build/install + restart duskserver AND dusk-web)
+
+- Ferries 2x faster (Ferry.java step 125 ms, ferries file "step <ms>") and
+  smooth glides (world.js pace(), ships.js): tested aboard on scratch.
+- Music rewritten (atmosphere.js), on by default: measured audible.
+- God controls (server/Admin.java, God tab Server section, leaderboard.html,
+  js/leaderboard.js, serve.py serves leaderboard.json): built; on scratch
+  leaderboard.json is written. NOT yet tested in the browser: serverinfo
+  panel, restart countdown (exit code 3 -> systemd restarts).
+- Still to do: painted terrain blending like the user's friend's game
+  (screenshots pixel.png / smooth.png in the repo root: organic, noise-
+  warped edges between ground types instead of square tiles).
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).

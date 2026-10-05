@@ -104,3 +104,23 @@ export function parseFlags(line) {
   if (!m) return null;
   return { id: Number(m[1]), name: m[2], flags: m[3].split(',').map((f) => f.trim()).filter(Boolean) };
 }
+
+// The Server section (server/Admin.java "serverinfo"): a reply line ->
+// { info: { up, players, usedMb, maxMb, errors, restartIn } } | { error }
+// | { done: true } | null. restartIn is null when no restart is coming.
+export function parseServerInfo(line) {
+  const s = line.trim();
+  if (s === 'ServerInfo: done') return { done: true };
+  let m = /^ServerInfo: (\d+)\|(\d+)\|(\d+)\|(\d+)\|(\d+)\|(-|\d+)$/.exec(s);
+  if (m) return { info: { up: Number(m[1]), players: Number(m[2]), usedMb: Number(m[3]), maxMb: Number(m[4]), errors: Number(m[5]), restartIn: m[6] === '-' ? null : Number(m[6]) } };
+  m = /^ServerError: (.*)$/.exec(s);
+  return m ? { error: m[1] } : null;
+}
+
+// "Up 3 h 12 min · 2 players · memory 140 of 256 MB · no errors today"
+export function describeServer(i) {
+  const m = Math.floor(i.up / 60), h = Math.floor(m / 60), d = Math.floor(h / 24);
+  const up = d ? `${d} d ${h % 24} h` : h ? `${h} h ${m % 60} min` : `${m} min`;
+  const parts = [`Up ${up}`, i.players === 1 ? '1 player' : `${i.players} players`, `memory ${i.usedMb} of ${i.maxMb} MB`, i.errors ? `${i.errors} error${i.errors === 1 ? '' : 's'} today` : 'no errors today'];
+  return { status: parts.join(' · '), restart: i.restartIn == null ? '' : `Restarting in ${i.restartIn} s.` };
+}

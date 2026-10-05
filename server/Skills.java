@@ -81,6 +81,8 @@ public class Skills {
         Quests.start(engine);
         // Conditions wearing off and ticking (server/Conditions.java).
         Conditions.start(engine);
+        // The leaderboard, for the web page (server/Admin.java).
+        Admin.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

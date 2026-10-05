@@ -23,7 +23,7 @@ import { Atmosphere, AmbientSound, findSnowTiles, daylight } from './atmosphere.
 import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
-import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS, parseFlags } from './god.js';
+import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS, parseFlags, parseServerInfo } from './god.js';
 import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
 import { GodPanel } from './godpanel.js';
 import { DialogueEditor } from './dialogueeditor.js';
@@ -1345,6 +1345,8 @@ function handle(msg) {
       if (isGod && questEditor.swallow(msg.text)) break;
       const dlgReply = parseDialogueReply(msg.text);
       if (dlgReply) { if (!questEditor.dialogue(dlgReply)) dialogueEditor.loaded(dlgReply); break; }
+      const serverReply = isGod && parseServerInfo(msg.text);
+      if (serverReply) { god.serverReply(serverReply); break; }
       const flagsReply = parseFlags(msg.text);
       if (flagsReply) { flagsDialog.loaded(flagsReply); break; }
       const tileReply = parseTileReply(msg.text);
