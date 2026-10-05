@@ -7,6 +7,8 @@ import { drawShip } from './ships.js';
 import { drawGroundDetail, groundFlip } from './blend.js';
 import { Terrain } from './terrain.js';
 import { TREE_TILES, treeDraws } from './trees.js';
+
+const TREE_FADE_MS = 350; // a tree new to the edge of the view fades in this long
 import { drawEffect, drawPaintedEffect } from './effects.js';
 import { LOOKS, OUT, paintFigureStrip } from './figure.js';
 import { outdoorShare } from './atmosphere.js';
@@ -25,6 +27,7 @@ export class Renderer {
     this.world = world;
     this.sheets = null;
     this.terrain = new Terrain(); // blended ground, kept (the Painted style)
+    this.treeSeen = new Map(); // "x,y" -> when each big tree was first drawn (fading in)
     this.showNames = true;
     // Labels on things (items, props, signs, doors) as well as on people,
     // creatures and merchants: off by default, or a room of couches reads
@@ -106,7 +109,11 @@ export class Renderer {
 
     const { map, players, sprites } = this.sheets;
     let trees = [];
-    const ground = this.bigTrees ? (x, y) => { const t = world.tileAt(x, y, now); return TREE_TILES[t]?.ground ?? t; } : (x, y) => world.tileAt(x, y, now);
+    let treesFading = false;
+    // Outside the view, what was seen there before (the explored map), so
+    // trees and blends just beyond the edge are there before they're in view.
+    const seen = (x, y) => world.tileAt(x, y, now) ?? this.farTile?.(x, y) ?? null;
+    const ground = this.bigTrees ? (x, y) => { const t = seen(x, y); return TREE_TILES[t]?.ground ?? t; } : (x, y) => world.tileAt(x, y, now);
     if (map) {
       // One extra row/column so the edge coming into view is covered mid-slide.
       const x0 = Math.floor(cam.x) - r;
@@ -142,7 +149,24 @@ export class Renderer {
       // lines instead of the squares' edges (js/blend.js).
       if (this.blendGround) drawGroundDetail(ctx, { x0, y0, n, c, tileAt: ground, toPx });
       // Big trees (js/trees.js): drawn below with everyone, back to front.
-      if (this.bigTrees) trees = treeDraws({ tileAt: (x, y) => world.tileAt(x, y, now), x0, y0, n, c, toPx });
+      if (this.bigTrees) {
+        trees = treeDraws({ tileAt: seen, x0, y0, n, c, toPx });
+        // A tree first known now (a new row coming into view) fades in
+        // over a step's slide rather than popping up; not on the first
+        // view, nor one that's been away.
+        const was = this.treeSeen;
+        // A fresh view (logging in, a teleport): none of the trees from
+        // the last frame are still about, so they're all just there.
+        const first = !trees.some((t) => was.has(`${t.x},${t.y}`));
+        this.treeSeen = new Map();
+        for (const t of trees) {
+          const k = `${t.x},${t.y}`;
+          const at = was.get(k) ?? (first ? now - TREE_FADE_MS : now);
+          this.treeSeen.set(k, at);
+          t.fade = Math.min(1, (now - at) / TREE_FADE_MS);
+          if (t.fade < 1) treesFading = true;
+        }
+      }
     }
 
     // Ships at sea (js/ships.js), on the water and under whoever's aboard.
@@ -176,7 +200,7 @@ export class Renderer {
     }
     for (const t of trees) {
       const over = mine && t.key > mine.key && t.crown.left < mine.right && t.crown.right > mine.left && t.crown.top < mine.bottom && t.crown.bottom > mine.top;
-      draws.push({ tree: t, alpha: over ? 0.45 : 1, key: t.key, i: -1 });
+      draws.push({ tree: t, alpha: (over ? 0.45 : 1) * (t.fade ?? 1), key: t.key, i: -1 });
     }
     draws.sort((a, b) => a.key - b.key || a.i - b.i);
     const labels = [];
@@ -236,7 +260,7 @@ export class Renderer {
       weatherMoving = this.atmosphere.draw(ctx, this.canvas.width, this.canvas.height, [sx + c / 2, sy + c / 2], c, st, now);
       this.onWeather?.(st);
     }
-    if (world.animating(now) || weatherMoving || ships.length) this.invalidate();
+    if (world.animating(now) || weatherMoving || ships.length || treesFading) this.invalidate();
   }
 
   // The player's own figure wearing their gear, painted once per change of

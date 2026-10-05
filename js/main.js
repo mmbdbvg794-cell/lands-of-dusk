@@ -121,6 +121,7 @@ const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
 let world = newWorld();
 const renderer = new Renderer($('map'), world, $('map-wrap'));
 renderer.ships = new Ships();
+renderer.farTile = (x, y) => minimap.explored.tileAt(x, y); // squares seen before, beyond the view
 // For tests (localStorage dusk.debug = 1): the world and ships to read.
 if (storage('get', 'dusk.debug')) Object.defineProperty(window, '__dusk', { get: () => ({ world, ships: renderer.ships }) });
 let sheetsFor = null; // resource address the current sheets came from

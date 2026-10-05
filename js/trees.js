@@ -220,11 +220,11 @@ export function treeSprites() {
 }
 
 // The trees to draw around the view: [{ x, y, tile }] for tree squares in
-// x0-1..x0+n+1, y0-1..y0+n+2 (a crown reaches up and to the sides of its
-// square), back to front.
+// x0-2..x0+n+2, y0-1..y0+n+3 (a crown reaches up to about two and a half
+// squares above its square and two to either side), back to front.
 export function treesAround(tileAt, x0, y0, n) {
   const out = [];
-  for (let y = y0 - 1; y <= y0 + n + 2; y++) for (let x = x0 - 1; x <= x0 + n + 1; x++) {
+  for (let y = y0 - 1; y <= y0 + n + 3; y++) for (let x = x0 - 2; x <= x0 + n + 2; x++) {
     const t = tileAt(x, y);
     if (TREE_TILES[t]) out.push({ x, y, tile: t });
   }
@@ -252,6 +252,7 @@ export function treeDraws({ tileAt, x0, y0, n, c, toPx }) {
     const img = list[Math.floor(p.variant * list.length)];
     const foot = p.top + (FOOT / S) * p.size;
     return {
+      x: tr.x, y: tr.y,
       key: tr.y + (foot - py) / c,
       crown: { left: p.left + p.size * 0.15, right: p.left + p.size * 0.85, top: p.top + p.size * 0.12, bottom: foot - c * 0.35 },
       draw(ctx, alpha = 1) {
