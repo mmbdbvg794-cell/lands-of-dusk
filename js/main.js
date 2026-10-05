@@ -445,8 +445,7 @@ if (!standalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
   $('install-hint').textContent = 'To install: tap Share, then Add to Home Screen.';
 }
 
-// Night, weather and music (js/atmosphere.js): on unless turned off;
-// music only if turned on.
+// Night, weather and music (js/atmosphere.js): on unless turned off.
 const atmosphere = new Atmosphere();
 const ambient = new AmbientSound(sound);
 atmosphere.onThunder = () => ambient.thunder();
@@ -460,7 +459,7 @@ const nightBox = $('night-toggle');
 const musicBox = $('music-toggle');
 weatherBox.checked = storage('get', 'dusk.weather') !== '0';
 nightBox.checked = storage('get', 'dusk.night') !== '0';
-musicBox.checked = storage('get', 'dusk.music') === '1';
+musicBox.checked = storage('get', 'dusk.music') !== '0';
 function applyAtmosphere() {
   atmosphere.night = nightBox.checked;
   atmosphere.weather = weatherBox.checked;
@@ -472,8 +471,14 @@ applyAtmosphere();
 weatherBox.addEventListener('change', () => { storage('set', 'dusk.weather', weatherBox.checked ? '1' : '0'); applyAtmosphere(); });
 nightBox.addEventListener('change', () => { storage('set', 'dusk.night', nightBox.checked ? '1' : '0'); applyAtmosphere(); });
 musicBox.addEventListener('change', () => { storage('set', 'dusk.music', musicBox.checked ? '1' : '0'); ambient.setMusic(musicBox.checked, () => daylight()); });
-// Music waits for the first press (browsers only play sound after one).
-addEventListener('pointerdown', () => { if (musicBox.checked && !ambient.music) ambient.setMusic(true, () => daylight()); }, { once: true, capture: true });
+// Music waits for the first press or key (browsers only play sound after one).
+const startMusic = () => {
+  removeEventListener('pointerdown', startMusic, true);
+  removeEventListener('keydown', startMusic, true);
+  if (musicBox.checked && !ambient.music) ambient.setMusic(true, () => daylight());
+};
+addEventListener('pointerdown', startMusic, true);
+addEventListener('keydown', startMusic, true);
 // The sky changes slowly: redraw now and then even when nothing moves.
 setInterval(() => renderer.invalidate(), 30000);
 // localStorage key for this character's explored tiles, set once we know

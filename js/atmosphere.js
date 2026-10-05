@@ -207,6 +207,8 @@ export class AmbientSound {
     this.rain = null; // { src, gain }
     this.music = false;
     this.musicTimer = 0;
+    this.melodyTimer = 0;
+    this.musicBus = null;
   }
 
   setRain(level) {
@@ -249,23 +251,84 @@ export class AmbientSound {
     s.noise(t, { dur: 2.2, gain: 0.35, filter: 'lowpass', freq: 160, to: 60 });
   }
 
+  // Quiet music: a soft pad that drifts through four chords, a slow
+  // melody wandering a pentatonic scale over it (with rests), and a low
+  // root, all through a gentle echo. Brighter by day, minor at night.
+  // Pitched where laptop and phone speakers can play it.
   setMusic(on, mood = () => 1) {
     this.music = on;
     clearTimeout(this.musicTimer);
+    clearTimeout(this.melodyTimer);
     if (!on) return;
-    const DAY = [[261.6, 329.6, 392.0], [293.7, 370.0, 440.0], [220.0, 277.2, 329.6], [246.9, 311.1, 370.0]];
-    const NIGHT = [[220.0, 261.6, 329.6], [196.0, 246.9, 293.7], [174.6, 220.0, 261.6], [164.8, 196.0, 246.9]];
-    let i = 0;
-    const play = () => {
+    // Day: C major (C, G, Am, F); night: A minor (Am, F, C, Em). MIDI notes.
+    const DAY = { chords: [[60, 64, 67], [55, 59, 62], [57, 60, 64], [53, 57, 60]], scale: [60, 62, 64, 67, 69, 72, 74, 76] };
+    const NIGHT = { chords: [[57, 60, 64], [53, 57, 60], [48, 52, 55], [52, 55, 59]], scale: [57, 60, 62, 64, 67, 69, 72] };
+    const hz = (n) => 440 * 2 ** ((n - 69) / 12);
+    let bar = 0;
+    let at = 3; // where the melody is in its scale
+    const key = () => (mood() > 0.5 ? DAY : NIGHT);
+    const pad = () => {
       const s = this.sound;
-      if (this.music && s.ctx && s.enabled) {
-        const set = mood() > 0.5 ? DAY : NIGHT;
-        const chord = set[i++ % set.length];
+      if (this.music && this.bus()) {
         const t = s.ctx.currentTime + 0.05;
-        chord.forEach((f, k) => s.tone(t + k * 0.08, { freq: f / 2, type: 'sine', dur: 7, gain: 0.025, attack: 2.5 }));
+        const chord = key().chords[bar++ % 4];
+        for (const n of chord) for (const d of [-6, 6]) this.voice(t, hz(n), { type: 'triangle', dur: 9, gain: 0.03, attack: 2.5, detune: d, cutoff: 900 });
+        this.voice(t, hz(chord[0] - 12), { type: 'sine', dur: 8, gain: 0.06, attack: 1.5, cutoff: 400 });
       }
-      if (this.music) this.musicTimer = setTimeout(play, 8000);
+      if (this.music) this.musicTimer = setTimeout(pad, 8000);
     };
-    play();
+    const melody = () => {
+      const s = this.sound;
+      if (this.music && this.bus() && Math.random() < 0.7) {
+        const sc = key().scale;
+        at = Math.max(0, Math.min(sc.length - 1, at + [-2, -1, -1, 1, 1, 2][Math.floor(Math.random() * 6)]));
+        this.voice(s.ctx.currentTime + 0.02, hz(sc[at] + 12), { type: 'sine', dur: 2.6, gain: 0.06, attack: 0.04, cutoff: 3000 });
+      }
+      if (this.music) this.melodyTimer = setTimeout(melody, [1200, 1600, 2400][Math.floor(Math.random() * 3)]);
+    };
+    pad();
+    this.melodyTimer = setTimeout(melody, 2500);
+  }
+
+  // The music's own path to the speakers: a little echo, then the game's
+  // volume. Null until sound is allowed (and while it's turned off).
+  bus() {
+    const s = this.sound;
+    if (!s.ctx || !s.enabled) return null;
+    if (s.ctx.state === 'suspended') s.ctx.resume?.()?.catch?.(() => {});
+    if (this.musicBus?.ctx === s.ctx) return this.musicBus.in;
+    const ctx = s.ctx;
+    const input = ctx.createGain();
+    const delay = ctx.createDelay(2);
+    delay.delayTime.value = 0.42;
+    const fb = ctx.createGain();
+    fb.gain.value = 0.32;
+    const soften = ctx.createBiquadFilter();
+    soften.type = 'lowpass';
+    soften.frequency.value = 1800;
+    input.connect(s.master);
+    input.connect(delay).connect(soften).connect(fb).connect(delay);
+    soften.connect(s.master);
+    this.musicBus = { ctx, in: input };
+    return input;
+  }
+
+  // One note: an oscillator through a lowpass, swelling in and dying away.
+  voice(t, freq, { type = 'sine', dur = 2, gain = 0.05, attack = 0.05, detune = 0, cutoff = 2000 }) {
+    const ctx = this.sound.ctx;
+    const o = ctx.createOscillator();
+    o.type = type;
+    o.frequency.value = freq;
+    o.detune.value = detune;
+    const f = ctx.createBiquadFilter();
+    f.type = 'lowpass';
+    f.frequency.value = cutoff;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(f).connect(g).connect(this.musicBus.in);
+    o.start(t);
+    o.stop(t + dur + 0.1);
   }
 }
