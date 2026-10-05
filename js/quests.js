@@ -140,7 +140,7 @@ const same = (a, b) => t(a).toLowerCase() === t(b).toLowerCase();
 // The quest's stages for one NPC, tagged { quest: id }, in the order
 // they're checked: finished, its steps here, still running, the offer.
 export function questStagesFor(q, npc) {
-  const tag = { quest: q.id };
+  const tag = cleanQuestId(q.requires) ? { quest: q.id, requires: cleanQuestId(q.requires) } : { quest: q.id };
   const stages = [];
   const isGiver = same(npc, q.giver);
   if (isGiver && !q.repeatable) stages.push({ ...tag, when: { kind: 'flag', value: flagDone(q) }, says: t(q.after) || 'Thank you again.', answers: [] });
@@ -191,7 +191,9 @@ export function stripQuest(dlg, id) {
 // Where a quest stage goes among all the quests an NPC has, as the first
 // stage that fits is the one used: someone's step first (whatever quest it
 // is), then "still running", the offers, "not yet", and the thank-yous
-// last, so finishing one quest doesn't hide the next one's offer.
+// last, so finishing one quest doesn't hide the next one's offer. Among
+// the thank-yous, a quest that needs another goes first: the latest quest
+// of a chain gets the last word.
 function stageRank(st) {
   const id = st.quest, w = st.when ?? {};
   const v = cleanFlag(w.value).toLowerCase();
@@ -208,7 +210,11 @@ export function mergeQuest(dlg, q, npc) {
   const others = rest.filter((s) => s.quest);
   const own = rest.filter((s) => !s.quest);
   const mine = questStagesFor(q, npc);
-  const quests = [...others, ...mine].map((st, i) => [stageRank(st), i, st]).sort((x, y) => x[0] - y[0] || x[1] - y[1]).map((x) => x[2]);
+  const all = [...others, ...mine];
+  const needs = new Map(all.map((st) => [st.quest, st.requires]));
+  const depth = (id, seen = new Set()) => (needs.get(id) && !seen.has(id) ? 1 + depth(needs.get(id), seen.add(id)) : 0);
+  const key = (st) => (stageRank(st) === 4 ? -depth(st.quest) : 0);
+  const quests = all.map((st, i) => [stageRank(st), key(st), i, st]).sort((x, y) => x[0] - y[0] || x[1] - y[1] || x[2] - y[2]).map((x) => x[3]);
   const stages = [...quests, ...own];
   if (!own.length) stages.push({ when: { kind: 'always', value: '' }, says: '', answers: [] });
   return { ...dlg, stages };

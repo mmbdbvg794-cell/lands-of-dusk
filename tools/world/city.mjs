@@ -22,6 +22,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { toScript, toGreet, flagsOf, journalEntriesOf, tidyDialogue, toTileScript, canMoveExpr, blockedText, tileFlagsOf } from '../../js/dialogue.js';
+import { questProblems, questFlags, questJournal, killsFile, placesFile, tidyQuest } from '../../js/quests.js';
 
 // Plan characters -> tiles. Paths and water are fitted to their
 // neighbours below; trees vary.
@@ -77,6 +78,7 @@ class Plan {
     this.npcs = []; this.files = {}; this.notes = []; this.walks = [];
     this.far = []; // single squares anywhere on the map (map coordinates)
     this.sets = []; // values to change in the game's own files
+    this.quests = []; // quests in the wizard's shape (js/quests.js)
   }
   in(x, y) { return x >= 0 && y >= 0 && x < this.w && y < this.h; }
   at(x, y) { return this.in(x, y) ? this.grid[y][x] : ' '; }
@@ -147,6 +149,12 @@ class Plan {
   setValue(file, key, value) { this.sets.push({ file, key, value: String(value) }); }
   farWalk(x, y, rule) { this.square(x, y, true).walk = rule; }
   farAction(x, y, rules) { this.square(x, y, true).rules = rules; }
+  // A quest, as the God tab's quest wizard keeps it (js/quests.js): its
+  // files for server/Quests.java, journal lines and flags go in the bundle,
+  // so it opens in the wizard. Its stages go into the NPCs' conversations
+  // with mergeQuest, in the plan.
+  quest(q) { this.quests.push(tidyQuest(q)); }
+
   // Someone to talk to: a prop called `name` that looks like the prop
   // `look`, with a description and a conversation (the dialogue editor's
   // shape, see js/dialogue.js).
@@ -279,6 +287,15 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
       for (const f of flagsOf(npc.dlg)) conditions.add(f);
       for (const j of journalEntriesOf(npc.dlg)) journal.push(j);
     }
+  }
+  for (const q of plan.quests) {
+    const problems = questProblems(q);
+    if (problems.length) throw new Error(`quest ${q.id}: ${problems.join(' ')}`);
+    files[`quests/${q.id}.json`] = JSON.stringify({ ...q, flags: questFlags(q) });
+    files[`quests/${q.id}.kills`] = killsFile(q);
+    files[`quests/${q.id}.places`] = placesFile(q);
+    for (const f of questFlags(q)) conditions.add(f);
+    journal.push(...questJournal(q));
   }
   // Walking rules, written as the tile editor writes them (server/Props.java
   // tileSet), so they open there: the rules file, an empty walk-on script,

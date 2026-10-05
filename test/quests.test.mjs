@@ -125,10 +125,14 @@ assert.deepEqual(both.stages.map((s) => s.quest ?? '-'), ['watch', 'watch', 'wat
 const joeBoth = mergeQuest(mergeQuest(own, q, 'Farmer Joe'), { ...w, giver: 'Farmer Joe', steps: [w.steps[0], { ...w.steps[1], npc: 'Farmer Joe' }] }, 'Farmer Joe');
 assert.deepEqual(joeBoth.stages.map((s) => `${s.when.kind} ${s.when.value}`.trim()), [
   'flag wolf_trouble_3', 'flag watch_2', 'flag wolf_trouble_on', 'flag watch_on',
-  'noflag wolf_trouble_done', 'noflag watch_done', 'noflag wolf_trouble_done', 'flag wolf_trouble_done', 'flag watch_done', 'always']);
+  'noflag wolf_trouble_done', 'noflag watch_done', 'noflag wolf_trouble_done', 'flag watch_done', 'flag wolf_trouble_done', 'always']);
 // Saving the first again keeps steps first and thank-yous last.
 const again2 = mergeQuest(joeBoth, q, 'Farmer Joe');
 assert.deepEqual(again2.stages.map((s) => s.when.value).slice(0, 2).sort(), ['watch_2', 'wolf_trouble_3']);
-assert.deepEqual(again2.stages.slice(-3).map((s) => `${s.when.kind} ${s.when.value}`.trim()), ['flag watch_done', 'flag wolf_trouble_done', 'always']);
 assert.equal(again2.stages.length, joeBoth.stages.length);
+// The thank-yous: watch needs wolf_trouble, so its thanks come first,
+// however they were saved.
+assert.deepEqual(joeBoth.stages.filter((s) => /_done$/.test(s.when.value) && s.when.kind === 'flag').map((s) => s.when.value), ['watch_done', 'wolf_trouble_done']);
+assert.deepEqual(again2.stages.filter((s) => /_done$/.test(s.when.value) && s.when.kind === 'flag').map((s) => s.when.value), ['watch_done', 'wolf_trouble_done']);
+assert.equal(questStagesFor(w, 'Captain Ros')[0].requires, 'wolf_trouble');
 console.log('ok - quests');
