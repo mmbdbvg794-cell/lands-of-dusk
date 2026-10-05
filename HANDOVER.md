@@ -94,22 +94,30 @@ commands that touch live.
   `demonskin` condition was added after the 17:28 restart (Imps load
   cleanly from the next restart).
 
-## Built 2026-10-05 evening, NOT live yet
+## 2026-10-05 evening
 
-- Quest wizard: "Go to a place" steps (`quests/<id>.places`, checked
-  every 2 s by the FlagTimers thread in server/Quests.java; `quest set`
-  takes an optional 4th field), "Finish first" prerequisite + "not yet"
-  line, stage ordering across quests at one NPC (js/quests.js stageRank:
-  steps, running, offers, not yet, thank-yous), open Journal refreshes on
-  "Your journal has been updated.". Tested on scratch (quest silent_tower,
-  giver Thalia, hgate played it through). Needs: deploy + server
-  build/install + `sudo systemctl restart duskserver`. Existing quests
-  only get the new ordering when re-saved in the wizard.
+- LIVE (restart 17:53): quest wizard place steps, prerequisites, stage
+  ordering, Journal refresh. Live is missing the Healing Staff fix until
+  the user runs `tools/server/fix_healing_staff.py ~/DuskRPG --apply`
+  (no restart needed).
+- Eastreach Frontier quest chain (`tools/world/cities/frontier.mjs`,
+  built with `node tools/world/city.mjs <plan> <shortmap> <out> <props.json>`,
+  props.json = the defProps texts of Villager Woman, Guard, hermit, chair):
+  tested on scratch end to end (hgate). Install on live with
+  install_city.py, then restart (no god save in between). City plans can
+  carry quests (`plan.quest`); quests save their chain `depth` (thank-you
+  order). Quests 1-3 suit a fresh character in tutorial gear (a cloth
+  shirt makes black dogs and slimers harmless; wolves and green blobs
+  killed one); quest 4's Lizard Axemen (300 HP, str 40) are a hard
+  finale by the user's choice.
+- Client changes since the last deploy: the wizard's depth lookup and
+  "an iron sword" (needs `tools/deploy.sh`).
 
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
-- A first real quest chain; shop price / exploit check across shops.
+- Shop price / exploit check across shops. More quest chains (Aelindor,
+  Velkarath, the old world).
 - God tools: restart button, admin page; leaderboard; owned ships.
 - Not touched: god/test items with missing use scripts (alpha, coolaexp...).
 

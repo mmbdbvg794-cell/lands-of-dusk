@@ -325,6 +325,15 @@ backups; see `server/`.
   each other's way: steps come first, then reminders, offers, and the
   thank-yous last, so finishing one quest doesn't hide the next one's
   offer. An open Journal catches up when a step is done out in the world.
+- **The Eastreach Frontier**, the first quest chain, for every race, at
+  the Eastreach ferry port: Warden Marr at the new Warden's Post
+  ("Fresh Off the Boat": lizards in the dunes), the dark lookout on the
+  ridge and Scout Kell's wild dogs ("The Dark Lookout"), Old Tamsin's
+  remedy from the slimer marsh by her cabin ("Roots and Remedies"), and
+  the Sand Kings' camp far north in the dunes, a hard finale against
+  Lizard Axemen with a scale to bring back ("The Sand Kings"). Rewards:
+  leather gloves, a steel helmet, an iron sword and serpent scales.
+- **Healing Staff works** (it never had: its script didn't parse).
 
 ## Website
 
