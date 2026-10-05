@@ -217,6 +217,7 @@ public class Skills {
     // A spell cast (the "cast" command): Spell Power gives back part of
     // the MP it cost.
     public static void cast(LivingThing who, String spell) {
+        spell = telepathMessage(spell);
         int before = who.attributes.getStat("mp");
         who.castSpell(spell);
         int cost = before - who.attributes.getStat("mp");
@@ -230,5 +231,16 @@ public class Skills {
         } catch (Exception e) {
             // Gone.
         }
+    }
+
+    // "telepath <name> a message of several words": the server splits a
+    // spell's words into params, so only the first word arrived. Quoted,
+    // the whole message is one param.
+    static String telepathMessage(String spell) {
+        String t = spell.trim();
+        if (!t.toLowerCase().startsWith("telepath ")) return spell;
+        String[] p = t.split("\\s+", 3);
+        if (p.length < 3 || p[2].startsWith("\"")) return spell;
+        return p[0] + " " + p[1] + " \"" + p[2].replace("\"", "'") + "\"";
     }
 }
