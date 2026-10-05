@@ -25,6 +25,7 @@
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 public class Skills {
     static final int TICK_MS = 18000;
@@ -214,6 +215,39 @@ public class Skills {
         } catch (Exception e) {
             Log.logError(e, "Saving " + p.strName + " at logout", false);
         }
+    }
+
+    // What using an item is called (the patched LivingThing.useItem,
+    // server/LivingThingPatch.java): "You use the crystal box".
+    // The game's food and drink are plain items, so: food and drink types
+    // first, then what the use script does (takes away thirst or hunger),
+    // then the name; anything else (a box, a book, a scroll) is used.
+    public static String useVerb(Item item) {
+        if (item == null) return "use";
+        if (item.intType == 3) return "eat";
+        if (item.intType == 4) return "drink";
+        String script = useScriptText(item.strOnUseScript);
+        if (script.contains("nothirst")) return "drink";
+        if (script.contains("nohunger")) return "eat";
+        String n = item.strName == null ? "" : item.strName.toLowerCase();
+        if (n.matches(".*\\b(potion|water|ale|beer|wine|mead|milk|juice|tea|brew|elixir|tonic|draught)\\b.*")) return "drink";
+        if (n.matches(".*\\b(apple|bread|loaf|sandwich|mushroom|meat|fish|cake|pie|cheese|berry|berries|stew|carrot|egg|food|jerky|biscuit)\\b.*")) return "eat";
+        return "use";
+    }
+
+    static final Map<String, String> useScripts = new java.util.concurrent.ConcurrentHashMap<String, String>();
+
+    // A use script's text, lower case ("" if there's none); kept, as
+    // scripts rarely change and this runs on every use.
+    static String useScriptText(String name) {
+        if (name == null) return "";
+        return useScripts.computeIfAbsent(name, k -> {
+            try {
+                return new String(java.nio.file.Files.readAllBytes(new java.io.File("scripts", k).toPath()), "ISO-8859-1").toLowerCase();
+            } catch (Exception e) {
+                return "";
+            }
+        });
     }
 
     // A spell cast (the "cast" command): Spell Power gives back part of

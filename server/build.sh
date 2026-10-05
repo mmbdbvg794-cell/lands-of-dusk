@@ -49,4 +49,9 @@ ATTR="$GAME/AttributeManager.class"
 [ -f "$GAME/storage-originals/AttributeManager.class" ] && ATTR="$GAME/storage-originals/AttributeManager.class"
 javac -nowarn $ASM -d tools "$SRC/AttributePatch.java"
 java $ASM -cp tools AttributePatch "$ATTR" out/AttributeManager.class
+# Using an item says "use", not "eat", in the compiled LivingThing (LivingThingPatch.java).
+LIVING="$GAME/LivingThing.class"
+[ -f "$GAME/storage-originals/LivingThing.class" ] && LIVING="$GAME/storage-originals/LivingThing.class"
+javac -nowarn $ASM -d tools "$SRC/LivingThingPatch.java"
+java $ASM -cp tools LivingThingPatch "$LIVING" out/LivingThing.class
 ls out
