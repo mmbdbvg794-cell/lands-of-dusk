@@ -75,6 +75,8 @@ public class Skills {
         }
         // Ferries have their own clock (server/Ferry.java).
         Ferry.start(engine);
+        // Who's online, for the web page (server/Who.java).
+        Who.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

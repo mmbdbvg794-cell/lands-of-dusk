@@ -22,7 +22,7 @@ if [ "${1:-}" = uninstall ]; then
   cp storage-originals/Commands.class storage-originals/DuskServer.class .
   [ -f storage-originals/DuskEngine.class ] && cp storage-originals/DuskEngine.class .
   [ -f storage-originals/Player.class ] && cp storage-originals/Player.class .
-  rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class Ferry.class Ferry\$*.class
+  rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class Ferry.class Ferry\$*.class Who.class Who\$*.class
   # Without BridgedSocket the bridge must stop sending addresses.
   rm -f conf/bridgesecret
   echo "Original classes restored; restart the server to take effect."

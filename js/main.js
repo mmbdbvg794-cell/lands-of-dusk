@@ -873,12 +873,17 @@ $('prompt-bar').addEventListener('click', (e) => {
     hideTradeRequest();
     return;
   }
+  yesNoWaiting = false;
   runCommand(b.dataset.answer);
   $('prompt-bar').hidden = true;
 });
 
+// A yes/no question from the server is waiting for its answer.
+let yesNoWaiting = false;
+
 function startLogin(name, password, again = false) {
   creds = { name, password };
+  yesNoWaiting = false;
   quitting = false;
   dropReason = '';
   $('overlay').hidden = true;
@@ -1211,7 +1216,7 @@ function connect(url) {
   // Background lines wait while logging in (the server reads the next
   // line as the answer to "Is that correct? (yes/no)" and the like) and
   // while an NPC waits for an answer.
-  conn.holdBackground = () => !!loginFlow || speechAwaiting || Date.now() < talkHold;
+  conn.holdBackground = () => !!loginFlow || speechAwaiting || yesNoWaiting || Date.now() < talkHold;
   conn.addEventListener('open', () => {
     setState('on');
     sysLine('Connected. Waiting for the server…');
@@ -1595,6 +1600,11 @@ function runCommand(cmd) {
   }
   if (/^talk \d/.test(cmd)) talkHold = Date.now() + 4000;
   answeredSpeech();
+  // Anything typed answers a waiting yes/no question.
+  if (yesNoWaiting) {
+    yesNoWaiting = false;
+    $('prompt-bar').hidden = true;
+  }
   conn.send(cmd);
   echoLine(cmd);
   noteSent(cmd);
@@ -1679,6 +1689,9 @@ function serverLine(text) {
   if (isYesNo(text) && !parseSpeech(text)) {
     $('prompt-text').textContent = text.trim().replace(/\s*\(yes\/no\)\s*$/i, '');
     $('prompt-bar').hidden = false;
+    // The server takes the next line as the answer: nothing in the
+    // background (map sync, keep-alives) may go first.
+    yesNoWaiting = true;
   }
   if (DROP_REASONS.some((re) => re.test(text.trim()))) dropReason = text.trim();
   handleCastReply(text);

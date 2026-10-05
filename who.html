@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Who's Online</title>
+  <meta name="description" content="Who's playing Dusk right now.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { overflow: auto; }
+    .who { max-width: 640px; margin: 0 auto; padding: 32px 16px 48px; }
+    .who h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: .04em; }
+    .who .sub { color: var(--muted); margin: 0 0 24px; }
+    .who .count { font-size: 15px; margin: 0 0 12px; }
+    .who ul { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
+    .who li { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--border); }
+    .who li:first-child { border-top: none; }
+    .who .name { font-weight: 600; }
+    .who .title { color: var(--muted); }
+    .who .race { margin-left: auto; color: var(--muted); font-size: 13px; text-transform: capitalize; white-space: nowrap; }
+    .who .god { font-size: 11px; color: var(--warn); border: 1px solid var(--warn); border-radius: 4px; padding: 0 5px; }
+    .who .for { color: var(--faint); font-size: 12px; white-space: nowrap; }
+    .who .empty { padding: 24px 16px; color: var(--muted); text-align: center; }
+    .who .foot { margin-top: 16px; color: var(--faint); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .who a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="who">
+    <h1>Who's online</h1>
+    <p class="sub">Players in the world of Dusk right now.</p>
+    <p class="count" id="count" aria-live="polite">Looking…</p>
+    <ul id="list" aria-label="Players online"></ul>
+    <p class="foot"><span id="updated"></span><a href="./">Play Dusk</a></p>
+  </main>
+  <script type="module">
+    import { describeWho } from './js/who.js';
+    const $ = (id) => document.getElementById(id);
+    async function refresh() {
+      let data = null;
+      try {
+        const r = await fetch('who.json', { cache: 'no-store' });
+        if (r.ok) data = await r.json();
+      } catch {}
+      const w = describeWho(data, Date.now());
+      $('count').textContent = w.count;
+      $('updated').textContent = w.updated;
+      $('list').replaceChildren(...(w.rows.length ? w.rows.map((p) => {
+        const li = document.createElement('li');
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = p.name;
+        li.append(name);
+        if (p.god) li.append(Object.assign(document.createElement('span'), { className: 'god', textContent: 'God' }));
+        if (p.title) li.append(Object.assign(document.createElement('span'), { className: 'title', textContent: p.title }));
+        li.append(Object.assign(document.createElement('span'), { className: 'race', textContent: p.race }));
+        if (p.online) li.append(Object.assign(document.createElement('span'), { className: 'for', textContent: p.online }));
+        return li;
+      }) : [Object.assign(document.createElement('li'), { className: 'empty', textContent: w.empty })]));
+    }
+    refresh();
+    setInterval(refresh, 30000);
+  </script>
+</body>
+</html>

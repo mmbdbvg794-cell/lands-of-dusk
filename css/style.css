@@ -1020,6 +1020,8 @@ body.in-login #play-area { display: none; }
 .race-name { grid-area: name; font-weight: 600; text-transform: capitalize; }
 .race-tags { grid-area: tags; font-family: var(--mono); font-size: 11px; color: var(--ok); white-space: pre-wrap; }
 .race-note { grid-area: note; font-size: 11px; color: var(--warn); font-style: italic; }
+.login-who { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+.login-who a { color: var(--accent); }
 .login-server { margin: 10px 0 0; font-size: 11px; color: var(--faint); }
 .login-server code { font-family: var(--mono); color: var(--muted); }
 
