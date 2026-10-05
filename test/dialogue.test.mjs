@@ -171,6 +171,13 @@ assert.equal(canMoveExpr(gate), 'hasCondition trigger tutorial');
 assert.equal(canMoveExpr({ kind: 'noflag', flag: 'banished' }), '! hasCondition trigger banished');
 assert.equal(canMoveExpr({ kind: 'nobody' }), 'false');
 assert.equal(canMoveExpr(newWalk()), '');
+// Of a race, or with a flag (Aelindor's counters): the script's "or" is prefix.
+const friends = { kind: 'raceorflag', race: 'elf', flag: 'aelindor_done' };
+assert.equal(canMoveExpr(friends), 'or isRace trigger elf hasCondition trigger aelindor_done');
+assert.equal(canMoveExpr({ kind: 'raceorflag', race: 'elf', flag: '' }), 'isRace trigger elf');
+assert.deepEqual(tileFlagsOf([], friends), ['aelindor_done']);
+// Conversations and tile rules can ask about race too.
+assert.match(toScript('Sylwen', { shouts: [], stages: [{ when: { kind: 'norace', value: 'elf' }, says: 'Not for you.', answers: [] }] }), /if ! isRace trigger elf\n/);
 assert.equal(canMoveExpr({ kind: 'flag', flag: '' }), '');
 assert.equal(blockedText(gate), 'Guard says: Talk to the Recruiter first.');
 assert.equal(blockedText({ says: 'The way is barred.' }), 'The way is barred.');

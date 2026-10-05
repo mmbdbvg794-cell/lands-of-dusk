@@ -2,10 +2,10 @@
 // what they do, for one NPC. Opened from the God tab or an NPC's click
 // menu; saved as the NPC's talk script (js/dialogue.js turns it into one).
 
-import { newDialogue, tidyDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS } from './dialogue.js';
+import { newDialogue, tidyDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS, RACES } from './dialogue.js';
 import { journalSet, JOURNAL_ALL } from './social.js';
 
-const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
+const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)'], ['race', 'Player is race'], ['norace', "Player isn't race"]];
 const EFFECTS = [
   ['give', 'Give item'], ['take', 'Take item'], ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'],
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
@@ -182,7 +182,9 @@ export class DialogueEditor {
 
     // Stages.
     const stages = d.stages.map((st, si) => {
+      const raceWhen = st.when.kind === 'race' || st.when.kind === 'norace';
       const valueBox = st.when.kind === 'always' ? null
+        : raceWhen ? select(RACES, RACES.some(([r]) => r === st.when.value) ? st.when.value : (st.when.value = 'human'), (v) => { st.when.value = v; })
         : input(st.when.value, st.when.kind === 'item' ? 'item name' : st.when.kind === 'gold' ? 'gold' : 'flag name, e.g. wolfquest', (v) => { st.when.value = v; },
           st.when.kind === 'item' ? { list: 'de-items' } : st.when.kind === 'gold' ? { type: 'number', min: 1, className: 'de-num' } : {});
       const answers = renderAnswers(st, 0);

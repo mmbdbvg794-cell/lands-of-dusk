@@ -59,6 +59,9 @@ const text = (s) => plain(s).replace(/"/g, "'").replace(/[\r\n]+/g, ' ').replace
 // show them capitalised).
 export const cleanLabel = (s) => text(s).toLowerCase().replace(/[()/]/g, ' ').replace(/\s+/g, ' ').trim();
 
+// The races, for conditions and walking rules: [id, name].
+export const RACES = [['human', 'Human'], ['elf', 'Elf'], ['darkelf', 'Dark elf'], ['lizardman', 'Lizardman']];
+
 function condition(when) {
   const v = when?.value;
   switch (when?.kind) {
@@ -66,6 +69,8 @@ function condition(when) {
     case 'noflag': return cleanFlag(v) && `! hasCondition trigger ${cleanFlag(v)}`;
     case 'item': return text(v) && `hasItem trigger "${text(v)}"`;
     case 'gold': return Number(v) > 0 && `! < trigger cash ${Math.floor(Number(v))}`;
+    case 'race': return cleanFlag(v) && `isRace trigger ${cleanFlag(v).toLowerCase()}`;
+    case 'norace': return cleanFlag(v) && `! isRace trigger ${cleanFlag(v).toLowerCase()}`;
     default: return null;
   }
 }
@@ -269,7 +274,8 @@ export function toTileScript(rules) {
 }
 
 // Who can step onto the square (walk): { kind: 'everyone'|'flag'|'noflag'
-// |'race'|'norace'|'nobody', flag, speaker, says } -> the server's can-move expression
+// |'race'|'norace'|'raceorflag'|'nobody', flag, race, speaker, says } -> the
+// server's can-move expression
 // (empty for everyone) and what a player who can't is told. Gods walk
 // anywhere regardless.
 export const newWalk = () => ({ kind: 'everyone', flag: '', speaker: '', says: '' });
@@ -281,6 +287,12 @@ export function canMoveExpr(walk) {
     // The race is kept in .flag too (human, elf, darkelf, lizardman).
     case 'race': return f ? `isRace trigger ${f.toLowerCase()}` : '';
     case 'norace': return f ? `! isRace trigger ${f.toLowerCase()}` : '';
+    // Of the race, or with the flag (the script's "or" comes first).
+    case 'raceorflag': {
+      const r = cleanFlag(walk.race)?.toLowerCase();
+      if (r && f) return `or isRace trigger ${r} hasCondition trigger ${f}`;
+      return r ? `isRace trigger ${r}` : f ? `hasCondition trigger ${f}` : '';
+    }
     case 'nobody': return 'false';
     default: return '';
   }
@@ -294,7 +306,7 @@ export function tileLine(r) {
 
 export function tileFlagsOf(rules, walk) {
   const flags = new Set(flagsOf({ stages: (rules ?? []).map((r) => ({ when: r.when, answers: [{ label: 'x', effects: r.effects }] })) }));
-  if ((walk?.kind === 'flag' || walk?.kind === 'noflag') && cleanFlag(walk.flag)) flags.add(cleanFlag(walk.flag));
+  if ((walk?.kind === 'flag' || walk?.kind === 'noflag' || walk?.kind === 'raceorflag') && cleanFlag(walk.flag)) flags.add(cleanFlag(walk.flag));
   return [...flags];
 }
 

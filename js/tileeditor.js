@@ -3,12 +3,11 @@
 // each can say something and do things (set flags, give items...).
 // js/dialogue.js turns them into the square's walk-on script.
 
-import { newRule, newWalk, tileSaveCommand, TILE_GET, VERBS, tileScriptCommand, TILE_SCRIPT_REPLACE } from './dialogue.js';
+import { RACES, newRule, newWalk, tileSaveCommand, TILE_GET, VERBS, tileScriptCommand, TILE_SCRIPT_REPLACE } from './dialogue.js';
 import { tileClear } from './god.js';
 
-const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
-const WALK = [['everyone', 'Everyone (as normal)'], ['flag', 'Only players with flag'], ['noflag', "Only players without flag"], ['race', 'Only players of race'], ['norace', 'Everyone but race'], ['nobody', 'Nobody']];
-const RACES = [['human', 'Human'], ['elf', 'Elf'], ['darkelf', 'Dark elf'], ['lizardman', 'Lizardman']];
+const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)'], ['race', 'Player is race'], ['norace', "Player isn't race"]];
+const WALK = [['everyone', 'Everyone (as normal)'], ['flag', 'Only players with flag'], ['noflag', "Only players without flag"], ['race', 'Only players of race'], ['norace', 'Everyone but race'], ['raceorflag', 'Only players of race, or with flag'], ['nobody', 'Nobody']];
 const EFFECTS = [
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['give', 'Give item'], ['take', 'Take item'],
   ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
@@ -152,7 +151,9 @@ export class TileEditor {
     };
     const again = () => this.render();
     const rules = this.rules.map((r, ri) => {
+      const raceWhen = r.when.kind === 'race' || r.when.kind === 'norace';
       const valueBox = r.when.kind === 'always' ? null
+        : raceWhen ? select(RACES, RACES.some(([r]) => r === r.when.value) ? r.when.value : (r.when.value = 'human'), (v) => { r.when.value = v; })
         : input(r.when.value, r.when.kind === 'item' ? 'item name' : r.when.kind === 'gold' ? 'gold' : 'flag name, e.g. newplayertrain', (v) => { r.when.value = v; },
           r.when.kind === 'item' ? { list: 'te-items' } : r.when.kind === 'gold' ? { type: 'number', min: 1, className: 'de-num' } : {});
       const effects = r.effects.map((e, ei) => {
@@ -187,7 +188,10 @@ export class TileEditor {
         select(WALK, w.kind, (v) => { w.kind = v; again(); }),
         w.kind === 'flag' || w.kind === 'noflag' ? input(w.flag, 'flag name, e.g. tutorial', (v) => { w.flag = v; }) : null,
         // A race is kept in the same field as a flag.
-        w.kind === 'race' || w.kind === 'norace' ? select(RACES, RACES.some(([r]) => r === w.flag) ? w.flag : (w.flag = 'human'), (v) => { w.flag = v; }) : null),
+        w.kind === 'race' || w.kind === 'norace' ? select(RACES, RACES.some(([r]) => r === w.flag) ? w.flag : (w.flag = 'human'), (v) => { w.flag = v; }) : null,
+        // Either will do: the race in .race, the flag in .flag.
+        w.kind === 'raceorflag' ? select(RACES, RACES.some(([r]) => r === w.race) ? w.race : (w.race = 'elf'), (v) => { w.race = v; }) : null,
+        w.kind === 'raceorflag' ? input(w.flag, 'or flag, e.g. aelindor_done', (v) => { w.flag = v; }) : null),
       w.kind === 'everyone' ? null : h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'If not' }),
         input(w.speaker, 'Who says it (optional)', (v) => { w.speaker = v; }, { className: 'de-label' }),
         select(VERBS, w.verb ?? 'says', (v) => { w.verb = v; }),

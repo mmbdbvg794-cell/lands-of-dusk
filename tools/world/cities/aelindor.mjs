@@ -90,7 +90,13 @@ const PRIESTESS = {
   ],
 };
 
-const shop = (shouts, text, extra = []) => ({ shouts, stages: [always(text, [...extra, { label: 'Thank you', reply: 'Go well.' }])] });
+// Shopkeepers serve elves and friends of Aelindor; anyone else is sent to
+// the Elder (and the counter won't let them on, see friendsOnly below).
+const STRANGER = 'Forgive me, traveller, but I serve only the elves of Aelindor and those the Elder has named our friends. Speak with Elder Faelar, in his hall north-west of the Moonwell.';
+const shop = (shouts, text, extra = []) => {
+  const open = [...extra, { label: 'Thank you', reply: 'Go well.' }];
+  return { shouts, stages: [ifFlag('aelindor_done', text, open), { when: { kind: 'norace', value: 'elf' }, ...says(STRANGER) }, always(text, open)] };
+};
 
 const INNKEEPER = shop(
   ['Food and drink at the Silver Leaf!'],
@@ -242,6 +248,14 @@ export default {
     c.merchant(56, 32, WARES.train);
     c.mob('training_dummy', 1, 54, 35); c.mob('training_dummy', 1, 59, 35);
     c.sign('Training Glade', 'The Training Glade. Talk to Master Aerendyl to train.', 57, 28);
+
+    // Only elves, and friends of Aelindor (the Elder's quest done), may
+    // stand at a counter or the training stone to buy (gods walk anywhere).
+    const friendsOnly = (speaker) => ({ kind: 'raceorflag', race: 'elf', flag: 'aelindor_done', speaker, verb: 'says',
+      says: 'I serve the elves of Aelindor and their friends. Speak with Elder Faelar, in his hall north-west of the Moonwell.' });
+    for (const [x, y, who] of [[10, 21, 'Thalia'], [9, 32, 'Caelum'], [18, 32, 'Sylwen'], [47, 32, 'Miriel'], [56, 32, 'Master Aerendyl']]) {
+      p.walk(CITY.x + x, CITY.y + y, friendsOnly(who));
+    }
 
     // Homes along the south avenue.
     const home = (x, y, door, who) => {

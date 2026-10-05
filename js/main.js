@@ -271,8 +271,9 @@ function showSpeech(sp) {
   $('speech-verb').textContent = acting ? '' : sp.verb;
   $('speech-text').textContent = sp.text;
   $('speech-text').classList.toggle('acting', acting);
-  // In a conversation (just talked, or answered) rather than a shout.
-  const talking = Date.now() < talkHold || Date.now() < speechFollow;
+  // In a conversation (just talked, or answered) rather than a shout. Only
+  // a shout is someone calling out; anything said to you ends with OK.
+  const talking = sp.verb !== 'shouts' || Date.now() < talkHold || Date.now() < speechFollow;
   const choices = $('speech-choices');
   const buttons = sp.choices.map((c) => {
     const b = document.createElement('button');
