@@ -16,8 +16,8 @@
  *
  * Leaderboard: every 5 minutes, leaderboard.json in the game directory
  * (serve.py hands it out beside leaderboard.html): the top 50 players by
- * experience, from their saved files, gods and anyone named in the
- * "leaderboard.hide" file (a name a line) left out.
+ * experience, from their saved files; gods, anyone with no experience yet,
+ * and anyone named in the "leaderboard.hide" file (a name a line) left out.
  *
  *   { "updated": <ms>, "players": [ { "name", "race", "title", "exp",
  *     "maxhp", "stats" (str+dex+con+int+wis), "quests" (finished: flags
@@ -198,7 +198,7 @@ public class Admin {
                 String name = u.getName();
                 if (name.contains(".") || name.equals("default") || hide.contains(name.toLowerCase())) continue;
                 Row r = read(u);
-                if (r != null && r.privs < GOD_PRIVS) rows.add(r);
+                if (r != null && r.privs < GOD_PRIVS && r.exp > 0) rows.add(r);
             }
         }
         Collections.sort(rows, (a, b) -> Long.compare(b.exp, a.exp));
