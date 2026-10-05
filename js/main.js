@@ -182,7 +182,7 @@ function showCooldowns() {
 }
 
 // The quest wizard (gods), from the God tab.
-const questEditor = new QuestEditor($('quest-editor'), { send: quiet, lists: () => god.lists, fetchLists: () => god.opened() });
+const questEditor = new QuestEditor($('quest-editor'), { send: quiet, lists: () => god.lists, fetchLists: () => god.opened(), here: () => (world.hasMap ? { x: world.locX, y: world.locY } : null) });
 // The quest journal's entries (gods), from the God tab.
 const journalEditor = new JournalEditor($('journal-editor'), { send: quiet });
 // The Journal, Friends and Trade tabs.
@@ -1865,6 +1865,9 @@ function appendLine(text, cls, color) {
 // A line for one of them: handled (and kept out of chat unless it says
 // something worth seeing), true; else false.
 function socialLine(text) {
+  // A quest step done out in the world (kills, a place): an open Journal
+  // catches up. The line still shows.
+  if (text.trim() === 'Your journal has been updated.' && !$('tab-journal').hidden) socialUI.refreshJournal();
   let r = journalReader.feed(text);
   if (r) { if (r.done) socialUI.setJournal(r.done); return true; }
   r = journalDefReader.feed(text);

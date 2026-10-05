@@ -317,6 +317,14 @@ backups; see `server/`.
 - **Conversations no longer cut short**: the client's own background
   lines (map saving, lookups) used to be taken as your answer when an NPC
   was waiting for one; they now wait until you've answered.
+- **Quest wizard: places and prerequisites.** A step can be "Go to a
+  place": a spot (the god's own square with "Where I stand") and how near
+  counts; the server sees the player arrive, says the arriving line and
+  moves them on. A quest can need another to be finished first, with what
+  the giver says until then. Several quests at one NPC no longer get in
+  each other's way: steps come first, then reminders, offers, and the
+  thank-yous last, so finishing one quest doesn't hide the next one's
+  offer. An open Journal catches up when a step is done out in the world.
 
 ## Website
 

@@ -7,9 +7,12 @@
  *
  *   quest list                       (gods) "Quest: <id>|<title>" a line each, then "Quest: done"
  *   quest get <id>                   (gods) "QuestDef: <id>|<base64 of its json>"
- *   quest set <id>|<json>|<kills>    (gods, base64) saves quests/<id>.json and
+ *   quest set <id>|<json>|<kills>[|<places>]
+ *                                    (gods, base64) saves quests/<id>.json,
  *                                    quests/<id>.kills: a line per kill step,
- *                                    "flag|monster|count|next flag|what they are"
+ *                                    "flag|monster|count|next flag|what they are",
+ *                                    and quests/<id>.places: a line per place
+ *                                    step, "flag|x|y|radius|next flag|said on arriving"
  *   quest remove <id>                (gods) takes both out (backed up)
  *   quest who <id>                   (gods) "QuestWho: <id>|<player>|<flag>|<online 0/1>"
  *                                    for each player on one of its flags, then "QuestWho: done"
@@ -27,6 +30,10 @@
  * winning side who holds a kill step's flag counts it. Counts are kept in
  * the "questkills" file (player|flag|count); at the goal the step's flag
  * gives way to the next one, whose journal line says what's next.
+ *
+ * Places: every 2 seconds, an online player who holds a place step's flag
+ * and stands within its radius (squares either way) of x,y is told the
+ * arriving line, and the flag gives way to the next one.
  *
  * Part of the browser client project (dusk-browser-client/server).
  */
@@ -56,6 +63,16 @@ public class Quests {
 
     // Lower-case flag -> its kill goal, from every quests/*.kills.
     static final Map<String, Goal> goals = new HashMap<String, Goal>();
+
+    // A place step: hold `flag`, come within `radius` of x,y, then `next`.
+    static class Place {
+        String quest, flag, next, says;
+        int x, y, radius;
+    }
+
+    // Lower-case flag -> its place, from every quests/*.places.
+    static final Map<String, Place> places = new HashMap<String, Place>();
+    static final long PLACE_MS = 2000, TIMER_MS = 30000;
     // "player|flag" (lower case) -> kills so far.
     static final Map<String, Integer> counts = new LinkedHashMap<String, Integer>();
     static boolean loaded = false;
@@ -74,9 +91,13 @@ public class Quests {
         }
         Thread t = new Thread(new Runnable() {
             public void run() {
+                long lastTimers = System.currentTimeMillis();
                 while (true) {
                     try {
-                        Thread.sleep(30000);
+                        Thread.sleep(PLACE_MS);
+                        arrivals(engine);
+                        if (System.currentTimeMillis() - lastTimers < TIMER_MS) continue;
+                        lastTimers = System.currentTimeMillis();
                         expire(engine);
                     } catch (InterruptedException e) {
                         return;
@@ -160,9 +181,11 @@ public class Quests {
         if (loaded) return;
         loaded = true;
         goals.clear();
+        places.clear();
         File[] files = new File(DIR).listFiles();
         if (files != null) {
             for (File f : files) {
+                if (f.getName().endsWith(".places")) loadPlaces(f);
                 if (!f.getName().endsWith(".kills")) continue;
                 String quest = f.getName().substring(0, f.getName().length() - 6);
                 try {
@@ -194,6 +217,57 @@ public class Quests {
             }
         } catch (Exception e) {
             Log.logError(e, "Reading questkills", false);
+        }
+    }
+
+    static void loadPlaces(File f) {
+        String quest = f.getName().substring(0, f.getName().length() - 7);
+        try {
+            for (String line : Files.readAllLines(f.toPath())) {
+                String[] p = line.split("\\|", -1);
+                if (p.length < 6) continue;
+                Place pl = new Place();
+                pl.quest = quest;
+                pl.flag = p[0].trim();
+                pl.x = Integer.parseInt(p[1].trim());
+                pl.y = Integer.parseInt(p[2].trim());
+                pl.radius = Math.max(0, Math.min(20, Integer.parseInt(p[3].trim())));
+                pl.next = p[4].trim();
+                pl.says = p[5].trim();
+                if (pl.flag.length() > 0) places.put(pl.flag.toLowerCase(), pl);
+            }
+        } catch (Exception e) {
+            Log.logError(e, "Quest places " + f.getName(), false);
+        }
+    }
+
+    // Online players standing where a place step of theirs is.
+    static void arrivals(DuskEngine engine) {
+        List<Place> all;
+        synchronized (Quests.class) {
+            load();
+            if (places.isEmpty()) return;
+            all = new ArrayList<Place>(places.values());
+        }
+        List<Object> players;
+        synchronized (engine.vctSockets) {
+            players = new ArrayList<Object>(engine.vctSockets);
+        }
+        for (Object o : players) {
+            if (!(o instanceof Player)) continue;
+            Player p = (Player) o;
+            if (p.strName == null) continue;
+            for (Place pl : all) {
+                if (Math.abs(p.intLocX - pl.x) > pl.radius || Math.abs(p.intLocY - pl.y) > pl.radius) continue;
+                if (!p.hasCondition(pl.flag)) continue;
+                p.removeCondition(pl.flag);
+                if (pl.next.length() > 0) {
+                    Condition c = p.engGame.getCondition(pl.next);
+                    if (c != null) p.addCondition(c);
+                }
+                if (pl.says.length() > 0) p.chatMessage(pl.says + "\n");
+                p.chatMessage("Your journal has been updated.\n");
+            }
         }
     }
 
@@ -310,15 +384,17 @@ public class Quests {
             }
             if (la.startsWith("set ")) {
                 String[] p = args.substring(4).trim().split("\\|", -1);
-                if (p.length < 3) return "Usage: quest set <id>|<json>|<kills>";
+                if (p.length < 3) return "Usage: quest set <id>|<json>|<kills>[|<places>]";
                 String id = p[0].trim().toLowerCase();
                 if (!goodId(id)) return "Quest names are lower-case letters, numbers and _ (up to 30).";
                 byte[] json = Base64.getDecoder().decode(p[1].trim()), kills = Base64.getDecoder().decode(p[2].trim());
-                if (json.length == 0 || json.length > MAX_FILE || kills.length > MAX_FILE) return "That quest is empty or too big.";
+                byte[] where = p.length > 3 ? Base64.getDecoder().decode(p[3].trim()) : new byte[0];
+                if (json.length == 0 || json.length > MAX_FILE || kills.length > MAX_FILE || where.length > MAX_FILE) return "That quest is empty or too big.";
                 new File(DIR).mkdirs();
                 keep(id);
                 Talk.write(new File(DIR, id + ".json"), json);
                 Talk.write(new File(DIR, id + ".kills"), kills);
+                Talk.write(new File(DIR, id + ".places"), where);
                 synchronized (Quests.class) { loaded = false; }
                 load();
                 Log.logEvent(who.strName + " saved the quest " + id);
@@ -330,12 +406,13 @@ public class Quests {
                 keep(id);
                 new File(DIR, id + ".json").delete();
                 new File(DIR, id + ".kills").delete();
+                new File(DIR, id + ".places").delete();
                 synchronized (Quests.class) { loaded = false; }
                 Log.logEvent(who.strName + " removed the quest " + id);
                 return "QuestRemoved: " + id;
             }
             if (la.startsWith("who ")) return whoIsOn(who, engine, la.substring(4).trim());
-            return "Quest: quest list | get <id> | set <id>|<json>|<kills> | remove <id> | who <id>";
+            return "Quest: quest list | get <id> | set <id>|<json>|<kills>[|<places>] | remove <id> | who <id>";
         } catch (IllegalArgumentException e) {
             return "That didn't arrive in one piece; try again.";
         } catch (Exception e) {
@@ -348,7 +425,7 @@ public class Quests {
         File dir = new File("backups/quests");
         dir.mkdirs();
         String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
-        for (String ext : new String[] { ".json", ".kills" }) {
+        for (String ext : new String[] { ".json", ".kills", ".places" }) {
             File f = new File(DIR, id + ext);
             if (f.isFile()) Files.copy(f.toPath(), new File(dir, id + "-" + stamp + ext).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         }

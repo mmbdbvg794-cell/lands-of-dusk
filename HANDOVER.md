@@ -94,10 +94,21 @@ commands that touch live.
   `demonskin` condition was added after the 17:28 restart (Imps load
   cleanly from the next restart).
 
+## Built 2026-10-05 evening, NOT live yet
+
+- Quest wizard: "Go to a place" steps (`quests/<id>.places`, checked
+  every 2 s by the FlagTimers thread in server/Quests.java; `quest set`
+  takes an optional 4th field), "Finish first" prerequisite + "not yet"
+  line, stage ordering across quests at one NPC (js/quests.js stageRank:
+  steps, running, offers, not yet, thank-yous), open Journal refreshes on
+  "Your journal has been updated.". Tested on scratch (quest silent_tower,
+  giver Thalia, hgate played it through). Needs: deploy + server
+  build/install + `sudo systemctl restart duskserver`. Existing quests
+  only get the new ordering when re-saved in the wizard.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
-- Quest wizard: "go to a place" steps, prerequisites.
 - A first real quest chain; shop price / exploit check across shops.
 - God tools: restart button, admin page; leaderboard; owned ships.
 - Not touched: god/test items with missing use scripts (alpha, coolaexp...).

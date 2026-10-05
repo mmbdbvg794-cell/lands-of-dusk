@@ -2,18 +2,19 @@
 // written into its NPCs' conversations, the journal and the server's kill
 // goals in one go; and, for each quest, who is on which step.
 
-import { newQuest, newStep, questProblems, questJournal, questNpcs, mergeQuest, stripQuest, questSave, questGet, questRemove, questWho, QUEST_LIST, tidyQuest, describeFlag, cleanQuestId } from './quests.js';
+import { RADIUS_MAX, newQuest, newStep, questProblems, questJournal, questNpcs, mergeQuest, stripQuest, questSave, questGet, questRemove, questWho, QUEST_LIST, tidyQuest, describeFlag, cleanQuestId } from './quests.js';
 import { loadCommand, saveCommand, tidyDialogue } from './dialogue.js';
 import { journalSet, journalRemove } from './social.js';
 
-const STEP_KINDS = [['talk', 'Talk to someone'], ['bring', 'Bring an item to someone'], ['kill', 'Kill monsters']];
+const STEP_KINDS = [['talk', 'Talk to someone'], ['bring', 'Bring an item to someone'], ['kill', 'Kill monsters'], ['place', 'Go to a place']];
 const WAIT_MS = 8000;
 
 export class QuestEditor {
   // el: the #quest-editor dialog. send(cmd) sends quietly; lists(): the
-  // God tab's name lists (mobs, items, props), for suggestions.
-  constructor(el, { send, lists, fetchLists }) {
-    Object.assign(this, { el, send, lists, fetchLists });
+  // God tab's name lists (mobs, items, props), for suggestions. here():
+  // where the god stands now ({ x, y }), for a place step's "Here" button.
+  constructor(el, { send, lists, fetchLists, here }) {
+    Object.assign(this, { el, send, lists, fetchLists, here });
     this.quests = []; // [{ id, title }]
     this.quest = null; // the one being edited
     this.saved = null; // as it was last saved (to know whose talk to tidy)
@@ -265,7 +266,17 @@ export class QuestEditor {
         c.addEventListener('change', () => { q.repeatable = c.checked; });
         return h('label', { className: 'toggle le-row' }, c, ' Can be done again (no "finished" flag; offered again afterwards)');
       })(),
-    ];
+      (() => {
+        // Only quests that can't be repeated have a "finished" flag to need.
+        const others = this.quests.filter((o) => o.id !== q.id);
+        const pick = h('select', {}, new Option('(nothing: anyone can start it)', '', false, !q.requires),
+          ...others.map((o) => new Option(o.title ? `${o.title} (${o.id})` : o.id, o.id, false, o.id === q.requires)));
+        if (q.requires && !others.some((o) => o.id === q.requires)) pick.add(new Option(`${q.requires} (not found)`, q.requires, false, true));
+        pick.addEventListener('change', () => { q.requires = pick.value; again(); });
+        return h('div', { className: 'le-row' }, h('span', { className: 'le-label', textContent: 'Finish first' }), pick);
+      })(),
+      q.requires ? field('…until then they say', q.notYet, (v) => { q.notYet = v; }, { long: true, placeholder: '(empty: they talk as usual) e.g. Come back when you have proven yourself to the Elder.' }) : null,
+    ].filter(Boolean);
     const offer = [
       h('h4', { className: 'list-head', textContent: 'The offer' }),
       field('They ask', q.offer.says, (v) => { q.offer.says = v; }, { long: true, placeholder: 'Wolves keep taking my sheep. Will you thin them out?' }),
@@ -284,6 +295,21 @@ export class QuestEditor {
         rows.push(field('Monster', s.mob, (v) => { s.mob = v; }, { list: 'qe-mobs', placeholder: 'e.g. wolf' }));
         rows.push(field('How many', s.count, (v) => { s.count = v; }, { type: 'number' }));
         rows.push(field('Counted as', s.what, (v) => { s.what = v; }, { placeholder: 'e.g. wolves slain ("Wolves slain: 3 of 5")' }));
+      } else if (s.kind === 'place') {
+        rows.push(field('The place', s.what, (v) => { s.what = v; }, { placeholder: 'e.g. the old watchtower' }));
+        const x = h('input', { type: 'number', min: 0, value: s.x ?? '', placeholder: 'x' });
+        const y = h('input', { type: 'number', min: 0, value: s.y ?? '', placeholder: 'y' });
+        x.addEventListener('input', () => { s.x = x.value; });
+        y.addEventListener('input', () => { s.y = y.value; });
+        const here = button('Where I stand', () => {
+          const at = this.here?.();
+          if (!at) return;
+          s.x = x.value = at.x;
+          s.y = y.value = at.y;
+        }, 'ghost');
+        rows.push(h('div', { className: 'le-row' }, h('span', { className: 'le-label', textContent: 'At (x, y)' }), x, y, here));
+        rows.push(field(`Within (squares, up to ${RADIUS_MAX})`, s.radius, (v) => { s.radius = v; }, { type: 'number' }));
+        rows.push(field('On arriving', s.arrive, (v) => { s.arrive = v; }, { long: true, placeholder: `(empty: "You have reached ${s.what || 'the place'}.") e.g. The tower is silent. Something has been here.` }));
       } else {
         rows.push(field('Go to', s.npc, (v) => { s.npc = v; }, { list: 'qe-npcs' }));
         if (s.kind === 'bring') {
@@ -326,7 +352,7 @@ export class QuestEditor {
     this.body.replaceChildren(
       ...head, ...offer,
       h('h4', { className: 'list-head', textContent: 'Steps' }),
-      h('p', { className: 'de-hint', textContent: 'In order. A kill step counts by itself and moves on when it\'s done; the last step must be someone to talk to or bring something to, as that\'s where the reward comes.' }),
+      h('p', { className: 'de-hint', textContent: 'In order. Kill and place steps happen by themselves (the server counts the kills, or sees the player arrive) and move on when done; the last step must be someone to talk to or bring something to, as that\'s where the reward comes.' }),
       ...steps, addStep,
       ...reward,
       acts,

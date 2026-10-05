@@ -1,6 +1,6 @@
 // Run with: node test/quests.test.mjs
 import assert from 'node:assert/strict';
-import { newQuest, newStep, questProblems, questFlags, questJournal, killsFile, questStagesFor, mergeQuest, stripQuest, questNpcs, questSave, parseQuestReply, tidyQuest, rewardLine, describeFlag, cleanQuestId } from '../js/quests.js';
+import { placesFile, newQuest, newStep, questProblems, questFlags, questJournal, killsFile, questStagesFor, mergeQuest, stripQuest, questNpcs, questSave, parseQuestReply, tidyQuest, rewardLine, describeFlag, cleanQuestId } from '../js/quests.js';
 import { toScript, flagsOf, fromBase64 } from '../js/dialogue.js';
 
 // Farmer Joe's wolves: kill 5, see the hunter, bring a pelt back.
@@ -42,9 +42,9 @@ const twice = mergeQuest(once, q, 'Farmer Joe');
 assert.equal(twice.stages.length, 5);
 assert.equal(twice.stages.at(-1).says, 'Nice weather.');
 assert.deepEqual(stripQuest(twice, 'wolf_trouble').stages, own.stages);
-// Another quest's stages stay first.
+// Another quest's "still running" comes after this one's step, before its offer.
 const other = { ...twice, stages: [{ quest: 'other', when: { kind: 'flag', value: 'other_on' }, says: 'x', answers: [] }, ...twice.stages] };
-assert.equal(mergeQuest(other, q, 'Farmer Joe').stages[0].quest, 'other');
+assert.deepEqual(mergeQuest(other, q, 'Farmer Joe').stages.map((s) => s.when.value), ['wolf_trouble_3', 'other_on', 'wolf_trouble_on', 'wolf_trouble_done', 'wolf_trouble_done', '']);
 // A new NPC still ends with something.
 assert.equal(mergeQuest({ shouts: [], stages: [] }, q, 'Old Hunter').stages.at(-1).when.kind, 'always');
 // And it all becomes a talk script with its flags.
@@ -67,10 +67,11 @@ assert.ok(questProblems(killLast).some((p) => /last step/.test(p)));
 
 // The server's side.
 const save = questSave(q);
-const [id, json, kills] = save.slice('quest set '.length).split('|');
+const [id, json, kills, places] = save.slice('quest set '.length).split('|');
 assert.equal(id, 'wolf_trouble');
 assert.deepEqual(JSON.parse(fromBase64(json)).flags, questFlags(q));
 assert.equal(fromBase64(kills), killsFile(q));
+assert.equal(fromBase64(places), '');
 assert.deepEqual(parseQuestReply('Quest: wolf_trouble|Wolf Trouble'), { list: { id: 'wolf_trouble', title: 'Wolf Trouble' } });
 assert.deepEqual(parseQuestReply('Quest: done'), { listDone: true });
 assert.equal(parseQuestReply(`QuestDef: wolf_trouble|${json}`).def.steps.length, 3);
@@ -81,4 +82,53 @@ assert.equal(describeFlag(q, 'wolf_trouble_1 (3 of 5)'), 'Step 1: kill 5 wolf (3
 assert.equal(describeFlag(q, 'wolf_trouble_3'), 'Step 3: bring wolf pelt to Farmer Joe');
 assert.equal(describeFlag(q, 'wolf_trouble_done'), 'Finished');
 assert.equal(cleanQuestId('  The Lost Ring '), 'the_lost_ring');
+
+// A journey: go to the watchtower, then back to the captain, but only
+// after Wolf Trouble is done.
+const w = newQuest('watch');
+Object.assign(w, { title: 'The Silent Tower', giver: 'Captain Ros', requires: 'wolf_trouble', notYet: 'Help Farmer Joe first.' });
+w.offer.says = 'The tower went quiet. Go and look.';
+w.steps.push({ ...newStep('place'), x: 120, y: '340', what: 'the old watchtower', journal: 'Go to the old watchtower north of town.' });
+assert.ok(questProblems(w).some((p) => /last step/.test(p) && /journey/.test(p)));
+w.steps.push({ ...newStep('talk', 'Captain Ros'), says: 'Well?', journal: 'Tell Captain Ros what you found.' });
+assert.deepEqual(questProblems(w), []);
+assert.equal(placesFile(w), 'watch_1|120|340|3|watch_2|You have reached the old watchtower.\n');
+w.steps[0].arrive = 'The tower | is silent.';
+w.steps[0].radius = 99;
+assert.equal(placesFile(w), 'watch_1|120|340|20|watch_2|The tower   is silent.\n');
+assert.equal(killsFile(w), '');
+assert.deepEqual(questNpcs(w), ['Captain Ros']);
+assert.equal(describeFlag(w, 'watch_1'), 'Step 1: go to the old watchtower (120, 340)');
+const ros = questStagesFor(w, 'Captain Ros');
+assert.deepEqual(ros.map((s) => [s.when.kind, s.when.value]), [['flag', 'watch_done'], ['flag', 'watch_2'], ['flag', 'watch_on'], ['noflag', 'watch_done'], ['noflag', 'wolf_trouble_done']]);
+assert.deepEqual(ros[3].also, { kind: 'flag', value: 'wolf_trouble_done' });
+assert.equal(ros[4].says, 'Help Farmer Joe first.');
+// Its talk script asks for both conditions on the offer.
+assert.match(toScript('Captain Ros', mergeQuest({ stages: [] }, w, 'Captain Ros')), /hasCondition trigger wolf_trouble_done/);
+// Without a "not yet" line they just talk as usual.
+w.notYet = '';
+assert.equal(questStagesFor(w, 'Captain Ros').length, 4);
+// Problems: no place, needing itself.
+const bad = tidyQuest({ ...w, requires: 'watch', steps: [{ kind: 'place', x: '', y: 5, what: '', journal: 'x' }, w.steps[1]] });
+const probs = questProblems(bad).join(' ');
+assert.match(probs, /where\?/);
+assert.match(probs, /name the place/);
+assert.match(probs, /can't need itself/);
+assert.equal(fromBase64(questSave(w).split('|')[3]), placesFile(w));
+assert.equal(tidyQuest({ id: 'old' }).requires, '');
+// Both quests at one NPC: steps first, then running, offers, not yet,
+// and the thank-yous last (finishing one mustn't hide the next's offer).
+w.notYet = 'Help Farmer Joe first.';
+const both = mergeQuest(mergeQuest(own, q, 'Captain Ros'), w, 'Captain Ros');
+assert.deepEqual(both.stages.map((s) => s.when.value || s.says), ['watch_2', 'watch_on', 'watch_done', 'wolf_trouble_done', 'watch_done', 'Nice weather.']);
+assert.deepEqual(both.stages.map((s) => s.quest ?? '-'), ['watch', 'watch', 'watch', 'watch', 'watch', '-']);
+const joeBoth = mergeQuest(mergeQuest(own, q, 'Farmer Joe'), { ...w, giver: 'Farmer Joe', steps: [w.steps[0], { ...w.steps[1], npc: 'Farmer Joe' }] }, 'Farmer Joe');
+assert.deepEqual(joeBoth.stages.map((s) => `${s.when.kind} ${s.when.value}`.trim()), [
+  'flag wolf_trouble_3', 'flag watch_2', 'flag wolf_trouble_on', 'flag watch_on',
+  'noflag wolf_trouble_done', 'noflag watch_done', 'noflag wolf_trouble_done', 'flag wolf_trouble_done', 'flag watch_done', 'always']);
+// Saving the first again keeps steps first and thank-yous last.
+const again2 = mergeQuest(joeBoth, q, 'Farmer Joe');
+assert.deepEqual(again2.stages.map((s) => s.when.value).slice(0, 2).sort(), ['watch_2', 'wolf_trouble_3']);
+assert.deepEqual(again2.stages.slice(-3).map((s) => `${s.when.kind} ${s.when.value}`.trim()), ['flag watch_done', 'flag wolf_trouble_done', 'always']);
+assert.equal(again2.stages.length, joeBoth.stages.length);
 console.log('ok - quests');
