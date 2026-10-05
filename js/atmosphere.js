@@ -87,6 +87,13 @@ export function findSnowTiles(sheet) {
   return snow;
 }
 
+// Underground places (the Underdark city of Velkarath, built by
+// tools/world/cities/velkarath.mjs): no weather, and always dim, a
+// lantern's light around you, day or night.
+export const UNDERGROUND = [{ x0: 1260, y0: 850, x1: 1429, y1: 989 }];
+export const isUnderground = (x, y) => UNDERGROUND.some((u) => x >= u.x0 && x <= u.x1 && y >= u.y0 && y <= u.y1);
+const UNDERGROUND_LIGHT = 0; // as dark as the depth of night
+
 // Draws night and weather over the map.
 export class Atmosphere {
   constructor() {
@@ -100,7 +107,11 @@ export class Atmosphere {
 
   // { weather, light, falling } for the view: falling is 'rain', 'snow'
   // or null (clear, or indoors).
-  state(now, share) {
+  // where: [x, y] of the view's centre, for places underground.
+  state(now, share, where) {
+    if (where && isUnderground(where[0], where[1])) {
+      return { weather: 'clear', light: this.night ? UNDERGROUND_LIGHT : 1, falling: null, storm: false, underground: true };
+    }
     const weather = this.weather ? weatherAt(now) : 'clear';
     const outdoors = share.outdoor >= 0.4;
     const falling = weather === 'clear' || !outdoors ? null : share.snow >= 0.3 ? 'snow' : 'rain';

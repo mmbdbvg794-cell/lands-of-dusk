@@ -170,7 +170,7 @@ export class Renderer {
     if (this.atmosphere) {
       const tiles = [];
       for (let x = Math.floor(cam.x) - r; x <= Math.floor(cam.x) + r; x++) for (let y = Math.floor(cam.y) - r; y <= Math.floor(cam.y) + r; y++) tiles.push(world.tileAt(x, y, now));
-      const st = this.atmosphere.state(Date.now(), outdoorShare(tiles, this.snowTiles));
+      const st = this.atmosphere.state(Date.now(), outdoorShare(tiles, this.snowTiles), [Math.round(cam.x), Math.round(cam.y)]);
       const [sx, sy] = toPx(cam.x, cam.y);
       weatherMoving = this.atmosphere.draw(ctx, this.canvas.width, this.canvas.height, [sx + c / 2, sy + c / 2], c, st, now);
       this.onWeather?.(st);

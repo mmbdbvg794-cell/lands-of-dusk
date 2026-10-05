@@ -271,6 +271,16 @@ backups; see `server/`.
   herbalist, a training glade and homes. Dark elves aren't let through
   the gates. Built from a plan by `tools/world/city.mjs` and installed
   with `tools/world/install_city.py`.
+- **Velkarath, the dark elf outpost in the Underdark**: a great cavern
+  of black stone, lava and crystal, reached only by the stairs in three
+  cave mouths (in the mountains west of Aelindor at 391,1236, in the
+  southern range at 686,1484, and on the eastern continent at 1489,1407),
+  so its tunnels are also a secret way across. Only dark elves may take
+  the stairs. The Matron's palace, the Temple of the Spider Queen (the
+  quest "Blood of the Deep", rewarding Shadowsilk Gloves), the Black
+  Lantern inn, a bank, a weaponsmith, an alchemist, the training pit,
+  homes, the Fire Well, and side caves (bats nest in the north-west one).
+  Underground there's no weather and it's always dark, lantern-lit.
 - **Tile editor: walking rules by race** ("Only players of race",
   "Everyone but race").
 - **Conversations no longer cut short**: the client's own background

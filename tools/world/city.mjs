@@ -39,6 +39,7 @@ export const LEGEND = {
   'P': 63,   // plank floor
   'l': 41,   // pale floor tiles
   'k': 20,   // dark stone floor
+  'x': 46,   // black and white checks
   'e': 40,   // packed earth
   '#': 62,   // wooden wall
   'W': 101,  // wooden wall, darker
@@ -74,6 +75,7 @@ class Plan {
     this.grid = Array.from({ length: h }, () => Array(w).fill(' '));
     this.props = []; this.merchants = []; this.signs = []; this.mobs = [];
     this.npcs = []; this.files = {}; this.notes = []; this.walks = [];
+    this.far = []; // single squares anywhere on the map (map coordinates)
   }
   in(x, y) { return x >= 0 && y >= 0 && x < this.w && y < this.h; }
   at(x, y) { return this.in(x, y) ? this.grid[y][x] : ' '; }
@@ -124,7 +126,21 @@ class Plan {
   file(path, text) { this.files[path] = text; }
   // Who may step onto a square, as the tile editor's walking rule (see
   // canMoveExpr in js/dialogue.js): { kind, flag, speaker, verb, says }.
-  walk(x, y, rule) { this.walks.push({ x, y, rule }); }
+  walk(x, y, rule) { this.square(x, y).walk = rule; }
+  // What happens when someone steps on a square: the tile editor's rules
+  // (see toTileScript in js/dialogue.js), e.g. a teleport.
+  action(x, y, rules) { this.square(x, y).rules = rules; }
+  square(x, y, abs = false) {
+    let sq = this.walks.find((w) => w.x === x && w.y === y && w.abs === abs);
+    if (!sq) this.walks.push(sq = { x, y, abs, rules: [], walk: null });
+    return sq;
+  }
+  // Away from the plan's grid, in map coordinates: one square's tile (a
+  // legend character), and its walking rule and action (a cave mouth on a
+  // far mountain, say).
+  farTile(x, y, ch) { this.far.push({ x, y, ch }); }
+  farWalk(x, y, rule) { this.square(x, y, true).walk = rule; }
+  farAction(x, y, rules) { this.square(x, y, true).rules = rules; }
   // Someone to talk to: a prop called `name` that looks like the prop
   // `look`, with a description and a conversation (the dialogue editor's
   // shape, see js/dialogue.js).
@@ -213,6 +229,11 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
   const C = map.readInt32BE(0), R = map.readInt32BE(4);
   if (x0 + w > C || y0 + h > R) throw new Error('the town runs off the map');
   const changes = [];
+  for (const { x, y, ch } of plan.far) {
+    if (!(ch in LEGEND)) throw new Error(`far square ${x},${y}: "${ch}" isn't in the legend`);
+    const was = map.readUInt16BE(8 + (x * R + y) * 2);
+    if (was !== LEGEND[ch]) changes.push([x, y, LEGEND[ch], was, true]);
+  }
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const t = grid[y][x];
     if (t == null) continue;
@@ -221,7 +242,8 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
   }
   // Never inside the old 1000 x 1000 world.
   for (const [x, y] of changes) if (x < 1000 && y < 1000) throw new Error(`the plan changes ${x},${y}, in the old world`);
-  if (city.mayBuild) for (const [x, y, , was] of changes) {
+  if (city.mayBuild) for (const [x, y, , was, far] of changes) {
+    if (far) continue; // far squares are placed one by one, on purpose
     if (!city.mayBuild(was)) throw new Error(`the plan builds over tile ${was} at ${x},${y}, which it says it mustn't`);
   }
 
@@ -250,12 +272,13 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
   // Walking rules, written as the tile editor writes them (server/Props.java
   // tileSet), so they open there: the rules file, an empty walk-on script,
   // the can-move script and what a player who can't is told.
-  for (const { x, y, rule } of plan.walks) {
-    const key = `${x0 + x}_${y0 + y}`;
-    files[`tileactions/${key}.json`] = JSON.stringify({ rules: [], walk: rule });
-    files[`defMoveActions/${key}`] = toTileScript([]);
-    files[`defCanMoveScripts/${key}`] = `#Who can step here, made in the God tab.\n${canMoveExpr(rule)}\n`;
-    const told = blockedText(rule);
+  for (const { x, y, abs, rules, walk } of plan.walks) {
+    const key = abs ? `${x}_${y}` : `${x0 + x}_${y0 + y}`;
+    const w = walk ?? { kind: 'everyone', flag: '', speaker: '', says: '' };
+    files[`tileactions/${key}.json`] = JSON.stringify({ rules, walk: w });
+    files[`defMoveActions/${key}`] = toTileScript(rules);
+    if (canMoveExpr(w)) files[`defCanMoveScripts/${key}`] = `#Who can step here, made in the God tab.\n${canMoveExpr(w)}\n`;
+    const told = blockedText(w);
     if (told) files[`tileactions/${key}.block`] = told;
   }
   const bundle = {

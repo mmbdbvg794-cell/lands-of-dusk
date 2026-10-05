@@ -683,7 +683,21 @@ function propPerson(ctx, n) {
   if (/villager man|^villager$|farmer|\bman$/.test(n) && !/woman/.test(n) && hashName(n + 'b') < 0.5) look.beard = look.hair;
   let gear = {};
   let s = 0.82;
-  if (/\belf\b|elven/.test(n) && !/dark elf/.test(n)) {
+  if (/dark elf/.test(n)) {
+    // Dark elves (Velkarath): ash-grey skin, white hair, pointed ears,
+    // in black and deep purple; guards in black mail with a crossbow.
+    Object.assign(look, { skin: '#8a8c9a', hair: '#e8e8f0', hairStyle: 'long', top: ['#3a3a44', '#3a2440', '#2a2a30'][Math.floor(hashName(n + 't') * 3)], trim: '#8a6ab0', legs: '#1c1c22', boots: '#101014', ears: true, beard: null });
+    if (/guard/.test(n)) {
+      Object.assign(look, { top: '#2a2a32', trim: '#8a6ab0', legs: '#1a1a20', style: 'armour', hairStyle: 'ponytail' });
+      gear = { weapon: { kind: 'crossbow', colour: '#3a2a20' } };
+    } else if (/matron|priestess/.test(n)) {
+      Object.assign(look, { top: '#4a1a5a', trim: '#c8a040', skirt: '#2a0a34', hairStyle: 'long' });
+    } else if (/woman/.test(n)) {
+      Object.assign(look, { skirt: ['#3a2440', '#1c1c22', '#4a1a2a'][Math.floor(hashName(n + 'x') * 3)] });
+    } else if (/teller/.test(n)) {
+      Object.assign(look, { top: '#2a2a44', trim: '#d8b050', legs: '#1a1a2a' });
+    }
+  } else if (/\belf\b|elven/.test(n) && !/dark elf/.test(n)) {
     // Elves (Aelindor): fair, pointed ears, long golden, silver or auburn
     // hair, in greens and silvers; guards in leaf-green mail with a bow.
     const hair = ['#e8d078', '#e0e0e8', '#a0502a', '#d8b860'][Math.floor(hashName(n + 'h') * 4)];
@@ -725,8 +739,6 @@ function propPerson(ctx, n) {
     Object.assign(look, { top: '#6a5a3a', trim: '#4a3a24', hair: '#d8d8d0', beard: '#d8d8d0' });
   } else if (/child/.test(n)) {
     s = 0.62;
-  } else if (/dark elf/.test(n)) {
-    Object.assign(look, { skin: '#8a8c9a', hair: '#e8e8f0', top: '#3a3a44', legs: '#1c1c22', ears: true });
   } else if (/statue|skeleton statue|demon statue/.test(n)) {
     Object.assign(look, { skin: '#9a9a96', hair: '#8a8a86', top: '#9a9a96', trim: '#7a7a76', legs: '#8a8a86', boots: '#7a7a76' });
   }
