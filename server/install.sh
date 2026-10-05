@@ -22,7 +22,8 @@ if [ "${1:-}" = uninstall ]; then
   cp storage-originals/Commands.class storage-originals/DuskServer.class .
   [ -f storage-originals/DuskEngine.class ] && cp storage-originals/DuskEngine.class .
   [ -f storage-originals/Player.class ] && cp storage-originals/Player.class .
-  rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class Ferry.class Ferry\$*.class Who.class Who\$*.class
+  [ -f storage-originals/Battle.class ] && cp storage-originals/Battle.class .
+  rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class Ferry.class Ferry\$*.class Who.class Who\$*.class Quests.class Quests\$*.class
   # Without BridgedSocket the bridge must stop sending addresses.
   rm -f conf/bridgesecret
   echo "Original classes restored; restart the server to take effect."
@@ -30,7 +31,7 @@ if [ "${1:-}" = uninstall ]; then
   exit 0
 fi
 
-for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Commands DuskServer; do
+for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Commands DuskServer; do
   [ -f "$OUT/$c.class" ] || { echo "No $OUT/$c.class: run server/build.sh first." >&2; exit 1; }
 done
 if [ ! -f storage-originals/Commands.class ]; then
@@ -47,14 +48,19 @@ if [ -f "$OUT/Player.class" ] && [ ! -f storage-originals/Player.class ]; then
   cp Player.class storage-originals/
   echo "Kept the original Player.class in storage-originals/"
 fi
+if [ -f "$OUT/Battle.class" ] && [ ! -f storage-originals/Battle.class ]; then
+  cp Battle.class storage-originals/
+  echo "Kept the original Battle.class in storage-originals/"
+fi
 b="backups/classes-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$b"
-cp Commands.class DuskServer.class DuskEngine.class Player.class "$b/"
-for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry; do [ -f $c.class ] && cp $c.class "$b/"; done
-cp Talk\$*.class Trade\$*.class Skills\$*.class Library\$*.class Ferry\$*.class "$b/" 2>/dev/null || true
+cp Commands.class DuskServer.class DuskEngine.class Player.class Battle.class "$b/"
+for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests; do [ -f $c.class ] && cp $c.class "$b/"; done
+cp Talk\$*.class Trade\$*.class Skills\$*.class Library\$*.class Ferry\$*.class Who\$*.class Quests\$*.class "$b/" 2>/dev/null || true
 [ -f "$OUT/DuskEngine.class" ] && cp "$OUT/DuskEngine.class" .
 [ -f "$OUT/Player.class" ] && cp "$OUT/Player.class" .
-cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/FixedEngine.class" "$OUT/Talk.class" "$OUT"/Talk\$*.class "$OUT/Props.class" "$OUT/BridgedSocket.class" "$OUT/Bans.class" "$OUT/MapStore.class" "$OUT/Social.class" "$OUT/Trade.class" "$OUT"/Trade\$*.class "$OUT/Skills.class" "$OUT"/Skills\$*.class "$OUT/Library.class" "$OUT"/Library\$*.class "$OUT/Ferry.class" "$OUT"/Ferry\$*.class "$OUT/Commands.class" "$OUT/DuskServer.class" .
+[ -f "$OUT/Battle.class" ] && cp "$OUT/Battle.class" .
+cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/FixedEngine.class" "$OUT/Talk.class" "$OUT"/Talk\$*.class "$OUT/Props.class" "$OUT/BridgedSocket.class" "$OUT/Bans.class" "$OUT/MapStore.class" "$OUT/Social.class" "$OUT/Trade.class" "$OUT"/Trade\$*.class "$OUT/Skills.class" "$OUT"/Skills\$*.class "$OUT/Library.class" "$OUT"/Library\$*.class "$OUT/Ferry.class" "$OUT"/Ferry\$*.class "$OUT/Who.class" "$OUT"/Who\$*.class "$OUT/Quests.class" "$OUT"/Quests\$*.class "$OUT/Commands.class" "$OUT/DuskServer.class" .
 # Game content that goes with it (talk scripts, props), only where there
 # isn't a file of that name already: yours are never overwritten.
 if [ -d "$SRCDIR/content" ]; then

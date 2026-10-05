@@ -87,7 +87,9 @@ public class Social {
                 for (String[] e : journal.values()) if (who.hasCondition(e[0])) mine.add(e);
             }
             for (String[] e : mine) {
-                who.chatMessage("Journal: " + e[1] + "|" + e[2] + "|" + e[3]);
+                // A kill step says how far along they are (server/Quests.java).
+                String prog = Quests.progress(who, e[0]);
+                who.chatMessage("Journal: " + e[1] + "|" + e[2] + (prog == null ? "" : " (" + prog + ")") + "|" + e[3]);
                 n++;
             }
             return "Journal: end " + n;

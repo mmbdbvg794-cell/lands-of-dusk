@@ -1,0 +1,234 @@
+// The quest wizard (God tab → Quests…): a quest kept as one record, and
+// everything it becomes: stages in each NPC's conversation (tagged with
+// the quest, so saving again replaces them), journal lines, and the kill
+// goals the server counts (server/Quests.java). No DOM; tested in node.
+//
+// A quest is
+//   { id, title, giver,                       the NPC who offers it
+//     offer: { says, accept, acceptReply, decline, declineReply },
+//     reminder,                                what the giver says meanwhile
+//     steps: [ { kind: 'talk', npc, says, answer, reply, journal }
+//            | { kind: 'bring', npc, item, take, says, answer, reply, journal }
+//            | { kind: 'kill', mob, count, what, journal } ],
+//     reward: { gold, exp, items: [name], says },
+//     after,                                   the giver once it's done
+//     repeatable }
+// Flags: <id>_on while it's running, <id>_1 ... <id>_n for each step,
+// <id>_done when it's finished (not kept for a repeatable quest).
+
+import { cleanFlag, toBase64, fromBase64 } from './dialogue.js';
+
+export const cleanQuestId = (s) => String(s ?? '').trim().toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 30);
+
+export const newQuest = (id = '') => ({
+  id: cleanQuestId(id),
+  title: '',
+  giver: '',
+  offer: { says: '', accept: 'I will help', acceptReply: '', decline: 'Not now', declineReply: 'Another time, then.' },
+  reminder: 'How goes it? Your Journal has what\'s next.',
+  steps: [],
+  reward: { gold: 0, exp: 0, items: [], says: '' },
+  after: 'Thank you again for your help.',
+  repeatable: false,
+});
+
+export const newStep = (kind, giver = '') => {
+  if (kind === 'kill') return { kind, mob: '', count: 5, what: '', journal: '' };
+  if (kind === 'bring') return { kind, npc: giver, item: '', take: true, says: '', answer: 'Here it is', reply: '', journal: '' };
+  return { kind: 'talk', npc: giver, says: '', answer: 'OK', reply: '', journal: '' };
+};
+
+const flagOn = (q) => `${q.id}_on`;
+const flagStep = (q, i) => `${q.id}_${i + 1}`;
+const flagDone = (q) => `${q.id}_done`;
+const t = (s) => String(s ?? '').trim();
+const n = (v) => Math.max(0, Math.floor(Number(v) || 0));
+
+// Every flag the quest uses (the server's "quest who" looks for these).
+export function questFlags(q) {
+  return [flagOn(q), ...q.steps.map((_, i) => flagStep(q, i)), flagDone(q)];
+}
+
+// What's wrong with it, as sentences; empty when it can be saved.
+export function questProblems(q) {
+  const out = [];
+  if (!q.id) out.push('Give the quest a short name (letters, numbers and _).');
+  if (!t(q.title)) out.push('Give it a title: it heads the Journal.');
+  if (!t(q.giver)) out.push('Say who gives the quest.');
+  if (!t(q.offer.says)) out.push('Say what the giver asks.');
+  if (!q.steps.length) out.push('Add at least one step.');
+  q.steps.forEach((s, i) => {
+    const at = `Step ${i + 1}`;
+    if (s.kind === 'kill') {
+      if (!t(s.mob)) out.push(`${at}: which monster?`);
+      if (n(s.count) < 1) out.push(`${at}: how many?`);
+    } else {
+      if (!t(s.npc)) out.push(`${at}: who do they go to?`);
+      if (s.kind === 'bring' && !t(s.item)) out.push(`${at}: which item?`);
+    }
+    if (!t(s.journal)) out.push(`${at}: write its Journal line (what the player should do).`);
+  });
+  if (q.steps.length && q.steps.at(-1).kind === 'kill') out.push('The last step has to be someone to talk to or bring something to (that\'s where the reward is given): add one after the killing.');
+  return out;
+}
+
+// The journal lines: one per step, and the finished line.
+export function questJournal(q) {
+  const out = q.steps.map((s, i) => ({ flag: flagStep(q, i), title: t(q.title), text: t(s.journal), done: false }));
+  out.push({ flag: flagDone(q), title: t(q.title), text: t(q.reward.says) || 'Done.', done: true });
+  return out;
+}
+
+// The server's kill goals: "flag|monster|count|next flag|what they are".
+export function killsFile(q) {
+  return q.steps.map((s, i) => (s.kind === 'kill'
+    ? `${flagStep(q, i)}|${t(s.mob)}|${Math.max(1, n(s.count))}|${i + 1 < q.steps.length ? flagStep(q, i + 1) : ''}|${(t(s.what) || `${t(s.mob)} slain`).replace(/\|/g, '/')}\n`
+    : '')).join('');
+}
+
+// Effects that move a player from step i to the next (or finish).
+function advance(q, i) {
+  const out = [{ kind: 'unflag', flag: flagStep(q, i) }];
+  if (i + 1 < q.steps.length) {
+    out.push({ kind: 'flag', flag: flagStep(q, i + 1) });
+    return out;
+  }
+  out.push({ kind: 'unflag', flag: flagOn(q) });
+  if (!q.repeatable) out.push({ kind: 'flag', flag: flagDone(q) });
+  if (n(q.reward.gold)) out.push({ kind: 'gold', amount: n(q.reward.gold) });
+  if (n(q.reward.exp)) out.push({ kind: 'exp', amount: n(q.reward.exp) });
+  for (const item of q.reward.items ?? []) if (t(item)) out.push({ kind: 'give', item: t(item) });
+  return out;
+}
+
+// What the reward is, said after the last step ("You get 50 gold, ...").
+export function rewardLine(q) {
+  const parts = [];
+  for (const item of q.reward.items ?? []) if (t(item)) parts.push(`a ${t(item)}`);
+  if (n(q.reward.gold)) parts.push(`${n(q.reward.gold)} gold`);
+  if (n(q.reward.exp)) parts.push(`${n(q.reward.exp)} experience`);
+  if (!parts.length) return '';
+  const list = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}` : parts[0];
+  return `You receive ${list}.`;
+}
+
+const same = (a, b) => t(a).toLowerCase() === t(b).toLowerCase();
+
+// The quest's stages for one NPC, tagged { quest: id }, in the order
+// they're checked: finished, its steps here, still running, the offer.
+export function questStagesFor(q, npc) {
+  const tag = { quest: q.id };
+  const stages = [];
+  const isGiver = same(npc, q.giver);
+  if (isGiver && !q.repeatable) stages.push({ ...tag, when: { kind: 'flag', value: flagDone(q) }, says: t(q.after) || 'Thank you again.', answers: [] });
+  q.steps.forEach((s, i) => {
+    if (s.kind === 'kill' || !same(s.npc, npc)) return;
+    const last = i + 1 === q.steps.length;
+    const reply = [t(s.reply), last ? t(q.reward.says) : ''].filter(Boolean).join(' ');
+    const answer = { label: t(s.answer) || (s.kind === 'bring' ? 'Here it is' : 'OK'), reply, effects: [] };
+    if (s.kind === 'bring') {
+      answer.needs = { kind: 'item', value: t(s.item) };
+      if (s.take) answer.effects.push({ kind: 'take', item: t(s.item) });
+    }
+    answer.effects.push(...advance(q, i));
+    if (last && rewardLine(q)) answer.next = { verb: 'acts', says: rewardLine(q), answers: [] };
+    stages.push({ ...tag, when: { kind: 'flag', value: flagStep(q, i) }, says: t(s.says) || (s.kind === 'bring' ? `Have you brought the ${t(s.item)}?` : '...'), answers: [answer] });
+  });
+  if (isGiver) {
+    stages.push({ ...tag, when: { kind: 'flag', value: flagOn(q) }, says: t(q.reminder) || 'How goes it?', answers: [] });
+    const accept = { label: t(q.offer.accept) || 'I will help', reply: t(q.offer.acceptReply), effects: [{ kind: 'flag', flag: flagOn(q) }, { kind: 'flag', flag: flagStep(q, 0) }] };
+    const answers = [accept];
+    if (t(q.offer.decline)) answers.push({ label: t(q.offer.decline), reply: t(q.offer.declineReply), effects: [] });
+    // Offered to anyone who hasn't finished it (a repeatable one: anyone
+    // not on it now, as the stage before catches those who are).
+    stages.push({ ...tag, when: { kind: 'noflag', value: q.repeatable ? flagOn(q) : flagDone(q) }, says: t(q.offer.says), answers });
+  }
+  return stages;
+}
+
+// The NPCs a quest talks through.
+export function questNpcs(q) {
+  const out = [];
+  for (const name of [q.giver, ...q.steps.filter((s) => s.kind !== 'kill').map((s) => s.npc)]) {
+    if (t(name) && !out.some((o) => same(o, name))) out.push(t(name));
+  }
+  return out;
+}
+
+// A dialogue without this quest's stages.
+export function stripQuest(dlg, id) {
+  return { ...dlg, stages: (dlg.stages ?? []).filter((s) => s.quest !== id) };
+}
+
+// A dialogue with this quest's stages for `npc` put in: after any other
+// quests' stages, before the NPC's own. A dialogue with only its quest
+// stages still ends with something to say.
+export function mergeQuest(dlg, q, npc) {
+  const rest = stripQuest(dlg, q.id).stages;
+  const others = rest.filter((s) => s.quest);
+  const own = rest.filter((s) => !s.quest);
+  const mine = questStagesFor(q, npc);
+  const stages = [...others, ...mine, ...own];
+  if (!own.length) stages.push({ when: { kind: 'always', value: '' }, says: '', answers: [] });
+  return { ...dlg, stages };
+}
+
+// ---- talking to the server ----
+
+export const QUEST_LIST = 'quest list';
+export const questGet = (id) => `quest get ${id}`;
+export const questRemove = (id) => `quest remove ${id}`;
+export const questWho = (id) => `quest who ${id}`;
+export function questSave(q) {
+  const def = { ...q, flags: questFlags(q) };
+  return `quest set ${q.id}|${toBase64(JSON.stringify(def))}|${toBase64(killsFile(q))}`;
+}
+
+// A line from the server -> { list: { id, title } } | { listDone } |
+// { def: quest } | { saved: id } | { removed: id } | { who: { id, name,
+// flag, online } } | { whoDone } | null.
+export function parseQuestReply(line) {
+  const s = line.trim();
+  let m;
+  if (s === 'Quest: done') return { listDone: true };
+  if ((m = /^Quest: ([a-z0-9_]+)\|(.*)$/.exec(s))) return { list: { id: m[1], title: m[2] } };
+  if ((m = /^QuestDef: ([a-z0-9_]+)\|([A-Za-z0-9+/=]*)$/.exec(s))) {
+    try {
+      return { def: tidyQuest(JSON.parse(fromBase64(m[2]))) };
+    } catch {
+      return null;
+    }
+  }
+  if ((m = /^QuestSaved: ([a-z0-9_]+)$/.exec(s))) return { saved: m[1] };
+  if ((m = /^QuestRemoved: ([a-z0-9_]+)$/.exec(s))) return { removed: m[1] };
+  if (s === 'QuestWho: done') return { whoDone: true };
+  if ((m = /^QuestWho: ([a-z0-9_]+)\|([^|]+)\|([^|]+)\|([01])$/.exec(s))) return { who: { id: m[1], name: m[2], flag: m[3], online: m[4] === '1' } };
+  return null;
+}
+
+// Fills in what a saved quest left out.
+export function tidyQuest(raw) {
+  const q = { ...newQuest(), ...(raw ?? {}) };
+  q.id = cleanQuestId(q.id);
+  q.offer = { ...newQuest().offer, ...(raw?.offer ?? {}) };
+  q.reward = { ...newQuest().reward, ...(raw?.reward ?? {}) };
+  q.reward.items = Array.isArray(q.reward.items) ? q.reward.items : [];
+  q.steps = Array.isArray(q.steps) ? q.steps.map((s) => ({ ...newStep(s?.kind, q.giver), ...s })) : [];
+  delete q.flags;
+  return q;
+}
+
+// Which step a quest flag is, for people ("Step 2: Talk to the Old Hunter").
+export function describeFlag(q, flag) {
+  const f = flag.replace(/ \(.*\)$/, '');
+  const prog = /\((.*)\)$/.exec(flag)?.[1];
+  if (same(f, flagOn(q))) return null; // always beside a step
+  if (same(f, flagDone(q))) return 'Finished';
+  const i = q.steps.findIndex((_, k) => same(f, flagStep(q, k)));
+  if (i < 0) return f;
+  const s = q.steps[i];
+  const what = s.kind === 'kill' ? `kill ${n(s.count)} ${t(s.mob)}${prog ? ` (${prog})` : ''}` : s.kind === 'bring' ? `bring ${t(s.item)} to ${t(s.npc)}` : `talk to ${t(s.npc)}`;
+  return `Step ${i + 1}: ${what}`;
+}
+
+export { cleanFlag };

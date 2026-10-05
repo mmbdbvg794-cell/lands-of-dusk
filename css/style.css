@@ -1395,26 +1395,30 @@ dialog::backdrop { background: #000a; }
 .skill-name { display: flex; flex-direction: column; min-width: 0; }
 .skill-what { font-size: 11px; color: var(--muted); font-weight: normal; }
 .school-skill { display: inline-block; padding: 0 6px; border-radius: 4px; font-size: 12px; background: linear-gradient(90deg, rgba(106,169,255,0.35) var(--pct, 0%), rgba(255,255,255,0.06) var(--pct, 0%)); }
-#library-editor .le-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-#library-editor .le-label { width: 170px; flex: none; font-size: 12px; color: var(--muted); }
-#library-editor .le-row input[type=text], #library-editor .le-row textarea, #library-editor .le-row select { flex: 1; min-width: 0; }
-#library-editor .le-row input[type=number] { width: 90px; }
-#library-editor .le-num { max-width: 120px; }
-#library-editor .le-bonuses { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 12px; }
-#library-editor .le-bonuses .le-label { width: 60px; }
-#library-editor .le-picrow { display: flex; align-items: center; gap: 6px; }
-#library-editor .le-pic { width: 48px; height: 48px; background: #000; border-radius: 4px; image-rendering: pixelated; }
-#library-editor .le-extra { width: 100%; font-family: var(--mono); font-size: 12px; }
-#library-editor .le-list { margin: 8px 0; }
+:is(#library-editor, #quest-editor) .le-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+:is(#library-editor, #quest-editor) .le-label { width: 170px; flex: none; font-size: 12px; color: var(--muted); }
+:is(#library-editor, #quest-editor) .le-row input[type=text], :is(#library-editor, #quest-editor) .le-row textarea, :is(#library-editor, #quest-editor) .le-row select { flex: 1; min-width: 0; }
+:is(#library-editor, #quest-editor) .le-row input[type=number] { width: 90px; }
+:is(#library-editor, #quest-editor) .le-num { max-width: 120px; }
+:is(#library-editor, #quest-editor) .le-bonuses { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 12px; }
+:is(#library-editor, #quest-editor) .le-bonuses .le-label { width: 60px; }
+:is(#library-editor, #quest-editor) .le-picrow { display: flex; align-items: center; gap: 6px; }
+:is(#library-editor, #quest-editor) .le-pic { width: 48px; height: 48px; background: #000; border-radius: 4px; image-rendering: pixelated; }
+:is(#library-editor, #quest-editor) .le-extra { width: 100%; font-family: var(--mono); font-size: 12px; }
+:is(#library-editor, #quest-editor) .le-list { margin: 8px 0; }
 #speech-text.acting { font-style: italic; }
 .te-script { width: 100%; font-family: var(--mono); font-size: 12px; }
 
-#library-editor .le-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; }
-#library-editor .le-browse { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-#library-editor .le-search { width: 100%; }
-#library-editor .le-names { display: flex; flex-direction: column; max-height: 60vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; padding: 2px; }
-#library-editor .le-pick { text-align: left; border: none; background: none; padding: 4px 8px; border-radius: 4px; font-size: 13px; }
-#library-editor .le-pick:hover { background: var(--panel-2); }
-#library-editor .le-pick.current { background: var(--accent-dim); }
-#library-editor .le-main { min-width: 0; }
-@media (max-width: 700px) { #library-editor .le-layout { grid-template-columns: 1fr; } #library-editor .le-names { max-height: 30vh; } }
+:is(#library-editor, #quest-editor) .le-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; }
+:is(#library-editor, #quest-editor) .le-browse { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+:is(#library-editor, #quest-editor) .le-search { width: 100%; }
+:is(#library-editor, #quest-editor) .le-names { display: flex; flex-direction: column; max-height: 60vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; padding: 2px; }
+:is(#library-editor, #quest-editor) .le-pick { text-align: left; border: none; background: none; padding: 4px 8px; border-radius: 4px; font-size: 13px; }
+:is(#library-editor, #quest-editor) .le-pick:hover { background: var(--panel-2); }
+:is(#library-editor, #quest-editor) .le-pick.current { background: var(--accent-dim); }
+:is(#library-editor, #quest-editor) .le-main { min-width: 0; }
+#dialogue-editor .de-quest { font-size: 11px; color: var(--warn); margin-left: 8px; }
+#quest-editor .qe-whos { margin: 4px 0 12px; }
+#quest-editor .qe-who { padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+#quest-editor .qe-online { color: var(--ok); font-size: 12px; }
+@media (max-width: 700px) { :is(#library-editor, #quest-editor) .le-layout { grid-template-columns: 1fr; } :is(#library-editor, #quest-editor) .le-names { max-height: 30vh; } }

@@ -24,8 +24,9 @@ export class GodPanel {
   // looks; onNpcPlaced(name) opens the dialogue editor for a new NPC.
   // onTileEdit(x, y) opens the tile editor for your square.
   // onUseCommand(text) puts a command in the chat box to finish typing.
-  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit, onUseCommand, onJournal, onLibrary }) {
+  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit, onUseCommand, onJournal, onLibrary, onQuests }) {
     this.onJournal = onJournal;
+    this.onQuests = onQuests;
     this.onLibrary = onLibrary;
     this.tab = tab;
     this.onUseCommand = onUseCommand;
@@ -170,7 +171,9 @@ export class GodPanel {
         $.libProp = h('button', { type: 'button', textContent: 'Props…', title: 'Change a prop or make a new one' }),
         $.libItem = h('button', { type: 'button', textContent: 'Items…', title: 'Change an item or make a new one' })),
       h('div', { className: 'god-row' },
+        $.quests = h('button', { type: 'button', textContent: 'Quests…', title: 'Make a quest (who gives it, its steps, the reward) and see who is on it' }),
         $.journal = h('button', { type: 'button', textContent: 'Quest journal…', title: 'What players see in their Journal for each quest flag' })));
+    $.quests.addEventListener('click', () => this.onQuests?.());
     $.journal.addEventListener('click', () => this.onJournal?.());
     $.libMob.addEventListener('click', () => this.onLibrary?.('mob'));
     $.libProp.addEventListener('click', () => this.onLibrary?.('prop'));

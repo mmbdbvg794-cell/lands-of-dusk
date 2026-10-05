@@ -39,6 +39,8 @@ import { Renderer } from './renderer.js';
 import { loadSheets, loadSheet, SpriteSheet } from './sprites.js';
 import { describeRaces } from './races.js';
 import { describeWho } from './who.js';
+import { QuestEditor } from './questeditor.js';
+import { parseQuestReply } from './quests.js';
 import { World } from './world.js';
 
 const $ = (id) => document.getElementById(id);
@@ -153,6 +155,7 @@ const god = new GodPanel($('tab-god'), {
   },
   onJournal: () => journalEditor.show(),
   onLibrary: (kind) => libraryEditor.show(kind),
+  onQuests: () => questEditor.show(),
 });
 // Monsters, props and items (gods): from the God tab or a click menu.
 const libraryEditor = new LibraryEditor($('library-editor'), {
@@ -164,6 +167,8 @@ const libraryEditor = new LibraryEditor($('library-editor'), {
   note: (t) => sysLine(t),
 });
 const quiet = (cmd) => { if (conn?.connected) conn.background(cmd); };
+// The quest wizard (gods), from the God tab.
+const questEditor = new QuestEditor($('quest-editor'), { send: quiet, lists: () => god.lists, fetchLists: () => god.opened() });
 // The quest journal's entries (gods), from the God tab.
 const journalEditor = new JournalEditor($('journal-editor'), { send: quiet });
 // The Journal, Friends and Trade tabs.
@@ -1311,8 +1316,11 @@ function handle(msg) {
       if (isGod && libraryEditor.failed(msg.text)) break;
       const worn = parseWorn(msg.text);
       if (worn) { if (worn.id != null) { wornAnswered.add(worn.id); renderer.setOtherGear(worn.id, gearFromEquipment(worn.equipment)); } break; }
+      const questReply = isGod && parseQuestReply(msg.text);
+      if (questReply) { questEditor.reply(questReply); break; }
+      if (isGod && questEditor.swallow(msg.text)) break;
       const dlgReply = parseDialogueReply(msg.text);
-      if (dlgReply) { dialogueEditor.loaded(dlgReply); break; }
+      if (dlgReply) { if (!questEditor.dialogue(dlgReply)) dialogueEditor.loaded(dlgReply); break; }
       const flagsReply = parseFlags(msg.text);
       if (flagsReply) { flagsDialog.loaded(flagsReply); break; }
       const tileReply = parseTileReply(msg.text);

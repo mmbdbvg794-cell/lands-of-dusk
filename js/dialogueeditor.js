@@ -191,6 +191,8 @@ export class DialogueEditor {
       return h('section', { className: 'de-stage' },
         h('div', { className: 'de-row de-stage-head' },
           h('strong', { textContent: `Stage ${si + 1}` }),
+          // Made by the quest wizard: saving the quest rewrites it.
+          st.quest ? h('span', { className: 'de-quest', textContent: `quest ${st.quest}: change it in Quests…`, title: 'This stage belongs to a quest. Edits here are replaced the next time the quest is saved.' }) : null,
           h('span', { className: 'de-grow' }),
           si > 0 ? button('↑', () => { d.stages.splice(si - 1, 0, d.stages.splice(si, 1)[0]); again(); }, 'ghost') : null,
           si < d.stages.length - 1 ? button('↓', () => { d.stages.splice(si + 1, 0, d.stages.splice(si, 1)[0]); again(); }, 'ghost') : null,

@@ -82,6 +82,8 @@ public class Props {
             if (trade != null) return trade;
             String lib = Library.command(who, engine, trimmed);
             if (lib != null) return lib;
+            String quest = Quests.command(who, engine, trimmed);
+            if (quest != null) return quest;
             String ferry = Ferry.command(who, engine, trimmed);
             if (ferry != null) return ferry;
             String skills = Skills.command(who, engine, trimmed);

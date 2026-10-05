@@ -492,6 +492,26 @@
     </div>
   </section>
 
+  <!-- The quest wizard, for gods (questeditor.js). -->
+  <section id="quest-editor" class="editor-dialog" role="dialog" aria-label="Quests" hidden>
+    <div class="de-bar">
+      <strong class="de-title">Quests</strong>
+      <button type="button" data-qe="close" class="ghost" aria-label="Close">×</button>
+    </div>
+    <div class="de-body">
+      <div class="le-layout">
+        <div class="le-browse">
+          <button type="button" data-qe="new" class="primary le-new">New quest…</button>
+          <div class="le-names qe-list" role="list"></div>
+        </div>
+        <div class="le-main">
+          <p class="de-hint qe-status" role="status"></p>
+          <div class="qe-body"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- The quest journal's entries, for gods (journaleditor.js). -->
   <section id="journal-editor" class="editor-dialog" role="dialog" aria-label="Quest journal" hidden>
     <div class="de-bar">
