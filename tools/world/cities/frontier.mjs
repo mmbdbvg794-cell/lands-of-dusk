@@ -4,8 +4,8 @@
 // open and can be changed there afterwards.
 //
 //   1 Fresh Off the Boat   Warden Marr: drive the lizards off the supplies
-//   2 The Dark Lookout     Warden Marr: the lookout on the ridge, Scout Kell, wolves
-//   3 Roots and Remedies   Old Tamsin: green blob ooze for Kell's poultice
+//   2 The Dark Lookout     Warden Marr: the lookout on the ridge, Scout Kell, wild dogs
+//   3 Roots and Remedies   Old Tamsin: slimer ooze for Kell's poultice
 //   4 The Sand Kings       Warden Marr: the lizardmen's camp, Axemen, a scale
 //
 // Each needs the one before. Places on the map (absolute):
@@ -13,13 +13,15 @@
 //   the old lookout on the ridge's north spur         1612-1616, 1339-1343
 //   Scout Kell's camp at the edge of the woods        1574, 1358
 //   Old Tamsin's cabin, east of the stream            1576-1581, 1384-1388
-//   the green blob marsh south of the cabin           around 1580, 1396
+//   the slimer marsh south of the cabin               around 1580, 1396
 //   the Sand Kings' camp, deep in the northern dunes  around 1590, 1180
-// The quest monsters' dens (wolves, green blobs, Lizard Axemen) are added
+// The quest monsters' dens (black dogs, slimers, Lizard Axemen) are added
 // here; the lizards of quest 1 are the dens the spawn areas already put in
-// the dunes west of the port (1604,1278 and 1617,1256).
+// the dunes west of the port (1604,1278 and 1617,1256). Quests 1-3 suit a
+// new character (Lizards, black dogs and slimers: 20-30 HP, strength 4-8);
+// the Sand Kings' Axemen (300 HP, strength 40) are a goal to grow into.
 
-import { newQuest, newStep, mergeQuest } from '../../../js/quests.js';
+import { newQuest, newStep, mergeQuest, questDepth } from '../../../js/quests.js';
 
 const O = [1490, 1160];
 const at = (x, y) => [x - O[0], y - O[1]];
@@ -70,9 +72,9 @@ const QUESTS = [
     after: 'Kell is resting easier. If you haven\'t, go and see Old Tamsin.',
   }, [
     ['place', '', { x: LOOKOUT[0], y: LOOKOUT[1], radius: 3, what: 'the old lookout', arrive: 'The lookout\'s fire is long cold. There is blood on the stones, and tracks lead west towards the trees.', journal: 'Go to the old lookout on the ridge south-west of Eastreach and find out what happened to Scout Kell.' }],
-    ['talk', KELL, { says: 'Easy! Easy... you\'re not a wolf. Thank the stars. A pack drove me off the ridge, and I\'ve been hiding here since.', answer: 'I will deal with the wolves', reply: 'They\'re between here and the ridge. Five of them, maybe more.', journal: 'Follow the tracks west from the lookout to the edge of the woods.' }],
-    ['kill', '', { mob: 'wolf', count: 5, what: 'wolves slain', journal: 'Kill 5 wolves near Scout Kell\'s camp at the edge of the woods.' }],
-    ['talk', KELL, { says: 'The howling has stopped. Was that you?', answer: 'The pack is broken', reply: 'I owe you my life. Tell the Warden I\'m alive. I can\'t walk that far on this leg.', journal: 'Tell Scout Kell the wolves are dealt with.' }],
+    ['talk', KELL, { says: 'Easy! Easy... you\'re not one of those dogs. Thank the stars. A pack of wild dogs drove me off the ridge, and I\'ve been hiding here since.', answer: 'I will deal with the dogs', reply: 'They\'re between here and the ridge. Five of them, maybe more.', journal: 'Follow the tracks west from the lookout to the edge of the woods.' }],
+    ['kill', '', { mob: 'black dog', count: 5, what: 'wild dogs slain', journal: 'Kill 5 wild dogs near Scout Kell\'s camp at the edge of the woods.' }],
+    ['talk', KELL, { says: 'The howling has stopped. Was that you?', answer: 'The pack is broken', reply: 'I owe you my life. Tell the Warden I\'m alive. I can\'t walk that far on this leg.', journal: 'Tell Scout Kell the dogs are dealt with.' }],
     ['talk', MARR, { says: 'You found Kell? Alive?', answer: 'Alive, but hurt', reply: 'Thank the tides. He\'ll need more than bandages. Old Tamsin keeps a cabin by the stream in the woods south of the ridge. If anyone can mend him, she can.', journal: 'Tell Warden Marr that Scout Kell is alive.' }],
   ]),
 
@@ -82,17 +84,17 @@ const QUESTS = [
     requires: 'er_lookout',
     notYet: 'Hm? Another lost settler. I\'ve nothing for you. Go and bother the Warden.',
     offer: {
-      says: 'You\'ve the look of someone the Warden sent. Kell, is it? Wolf bites fester. I can make a poultice, but I need ooze from the green blobs in the marsh south of here, and my knees won\'t take the mud.',
+      says: 'You\'ve the look of someone the Warden sent. Kell, is it? Dog bites fester. I can make a poultice, but I need ooze from the slimers in the marsh south of here, and my knees won\'t take the mud.',
       accept: 'I will get the ooze',
       acceptReply: 'Six of them should give enough. Mind they don\'t stick to you.',
       decline: 'Not now',
       declineReply: 'Kell\'s leg won\'t wait for ever.',
     },
-    reminder: 'Six green blobs, in the marsh just south of the cabin. Go on.',
+    reminder: 'Six slimers, in the marsh just south of the cabin. Go on.',
     reward: { gold: 40, exp: 150, items: ['iron sword'], says: 'Here, take my sword. I won\'t be swinging it for a while.' },
     after: 'Kell is on the mend, thanks to you. Now let an old woman have her quiet.',
   }, [
-    ['kill', '', { mob: 'green blob', count: 6, what: 'green blobs burst', journal: 'Burst 6 green blobs in the marsh south of Old Tamsin\'s cabin.' }],
+    ['kill', '', { mob: 'slimer', count: 6, what: 'slimers burst', journal: 'Burst 6 slimers in the marsh south of Old Tamsin\'s cabin.' }],
     ['talk', TAMSIN, { says: 'That smell! You\'ve brought it. Give me a moment...', answer: 'Here you go', reply: 'There. Take this poultice to Kell, and tell him to keep that leg still for once.', journal: 'Bring the blob ooze back to Old Tamsin.' }],
     ['talk', KELL, { says: 'Is that one of Tamsin\'s poultices? Stars, it stinks.', answer: 'Hold still', reply: 'Ah! ... Ah. That\'s better. Much better.', journal: 'Take Old Tamsin\'s poultice to Scout Kell at his camp.' }],
   ]),
@@ -103,7 +105,7 @@ const QUESTS = [
     requires: 'er_remedy',
     notYet: 'Have you been to Old Tamsin\'s cabin? Kell won\'t mend without her help.',
     offer: {
-      says: 'Kell says the wolves were running from something. Our scouts found tracks of lizardmen, the big ones with axes, camped deep in the northern dunes. If they come for the post, we\'re finished. Will you find their camp and break them?',
+      says: 'Kell says those dogs were running from something. Our scouts found tracks of lizardmen, the big ones with axes, camped deep in the northern dunes. If they come for the post, we\'re finished. Will you find their camp and break them?',
       accept: 'I will break them',
       acceptReply: 'Their camp is far north, past the lizard nests. Bring me a scale from one of the Axemen. The settlers will want proof.',
       decline: 'Not yet',
@@ -118,6 +120,10 @@ const QUESTS = [
     ['bring', MARR, { item: 'lizard scale', take: true, says: 'Well? Do you have proof?', answer: 'A lizard scale', reply: 'So it\'s true, and it\'s done. The settlers will sleep tonight.', journal: 'Bring a lizard scale to Warden Marr as proof. The Axemen sometimes drop one.' }],
   ]),
 ];
+
+// Where each comes in the chain (the wizard works this out when saving).
+const depths = {};
+for (const q of QUESTS) depths[q.id] = q.depth = questDepth(q, (id) => depths[id]);
 
 // What each NPC says when no quest stage fits, then the quests' stages.
 const own = {
@@ -149,17 +155,17 @@ export default {
     for (const [x, y] of [[1616, 1340], [1612, 1342], [1615, 1343]]) p.set(...P(x, y), 'k');
     p.sign('Old Lookout', 'The Eastreach lookout. The fire is cold.', ...P(1614, 1338));
 
-    // Scout Kell's camp at the edge of the woods, and the wolves.
+    // Scout Kell's camp at the edge of the woods, and the wild dogs.
     p.fill(...P(1572, 1356), 5, 5, 'e');
     p.npc({ name: KELL, look: 'Guard', desc: 'Scout Kell, pale and bandaged, a bow across his knees.', x: 1574 - O[0], y: 1358 - O[1], dlg: talk(KELL) });
-    for (const [x, y] of [[1574, 1340], [1577, 1342], [1580, 1339], [1576, 1345], [1582, 1344], [1579, 1347]]) p.mob('wolf', 1, ...P(x, y));
+    for (const [x, y] of [[1574, 1340], [1577, 1342], [1580, 1339], [1576, 1345], [1582, 1344], [1579, 1347]]) p.mob('black dog', 1, ...P(x, y));
 
     // Old Tamsin's cabin, east of the stream, door to the north.
     p.building(...P(1576, 1384), 6, 5, { doors: [['n', 2]] });
     p.npc({ name: TAMSIN, look: 'hermit', desc: 'Old Tamsin, bent as a willow root, smelling of herbs.', x: 1579 - O[0], y: 1386 - O[1], dlg: talk(TAMSIN) });
     p.sign('Tamsin\'s Cabin', 'Old Tamsin. Herbs and remedies. Knock first.', ...P(1580, 1383));
     // The marsh south of it.
-    for (const [x, y] of [[1576, 1394], [1580, 1395], [1584, 1394], [1578, 1398], [1582, 1398], [1586, 1397], [1580, 1400]]) p.mob('green blob', 1, ...P(x, y));
+    for (const [x, y] of [[1576, 1394], [1580, 1395], [1584, 1394], [1578, 1398], [1582, 1398], [1586, 1397], [1580, 1400]]) p.mob('slimer', 1, ...P(x, y));
 
     // The Sand Kings' camp: a trampled fire pit in the deep dunes.
     p.fill(...P(CAMP[0] - 2, CAMP[1] - 1), 5, 3, 'e');

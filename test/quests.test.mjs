@@ -1,6 +1,6 @@
 // Run with: node test/quests.test.mjs
 import assert from 'node:assert/strict';
-import { placesFile, newQuest, newStep, questProblems, questFlags, questJournal, killsFile, questStagesFor, mergeQuest, stripQuest, questNpcs, questSave, parseQuestReply, tidyQuest, rewardLine, describeFlag, cleanQuestId } from '../js/quests.js';
+import { questDepth, withArticle, placesFile, newQuest, newStep, questProblems, questFlags, questJournal, killsFile, questStagesFor, mergeQuest, stripQuest, questNpcs, questSave, parseQuestReply, tidyQuest, rewardLine, describeFlag, cleanQuestId } from '../js/quests.js';
 import { toScript, flagsOf, fromBase64 } from '../js/dialogue.js';
 
 // Farmer Joe's wolves: kill 5, see the hunter, bring a pelt back.
@@ -135,4 +135,19 @@ assert.equal(again2.stages.length, joeBoth.stages.length);
 assert.deepEqual(joeBoth.stages.filter((s) => /_done$/.test(s.when.value) && s.when.kind === 'flag').map((s) => s.when.value), ['watch_done', 'wolf_trouble_done']);
 assert.deepEqual(again2.stages.filter((s) => /_done$/.test(s.when.value) && s.when.kind === 'flag').map((s) => s.when.value), ['watch_done', 'wolf_trouble_done']);
 assert.equal(questStagesFor(w, 'Captain Ros')[0].requires, 'wolf_trouble');
+assert.deepEqual(['leather gloves', 'iron sword', 'steel helmet'].map(withArticle), ['leather gloves', 'an iron sword', 'a steel helmet']);
+// The frontier's shape: quests 1, 2 and 4 at Mar, 3 at Tam. Mar can't see
+// that 4 comes after 2 (3 isn't hers), so the saved depths decide: 4's
+// thanks first, then 2's, then 1's.
+const chain = ['c1', 'c2', 'c3', 'c4'].map((id, i) => Object.assign(newQuest(id), { title: id, giver: i === 2 ? 'Tam' : 'Mar', requires: i ? `c${i}` : '', steps: [{ ...newStep('talk', i === 2 ? 'Tam' : 'Mar'), journal: 'x' }] }));
+const depths = {};
+for (const c of chain) depths[c.id] = c.depth = questDepth(c, (id) => depths[id]);
+assert.deepEqual(chain.map((c) => c.depth), [0, 1, 2, 3]);
+const thanks = (d) => d.stages.filter((s) => s.when.kind === 'flag' && /_done$/.test(s.when.value)).map((s) => s.when.value);
+const mar = [chain[0], chain[1], chain[3]].reduce((d, c) => mergeQuest(d, c, 'Mar'), own);
+assert.deepEqual(thanks(mar), ['c4_done', 'c2_done', 'c1_done']);
+// Saving quest 2 again doesn't change that.
+assert.deepEqual(thanks(mergeQuest(mar, chain[1], 'Mar')), ['c4_done', 'c2_done', 'c1_done']);
+// Saved before depths existed (no depth): still at least 1 for needing one.
+assert.equal(questStagesFor({ ...chain[3], depth: 0 }, 'Mar')[0].depth, 1);
 console.log('ok - quests');

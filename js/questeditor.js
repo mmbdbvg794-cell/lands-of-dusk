@@ -2,7 +2,7 @@
 // written into its NPCs' conversations, the journal and the server's kill
 // goals in one go; and, for each quest, who is on which step.
 
-import { RADIUS_MAX, newQuest, newStep, questProblems, questJournal, questNpcs, mergeQuest, stripQuest, questSave, questGet, questRemove, questWho, QUEST_LIST, tidyQuest, describeFlag, cleanQuestId } from './quests.js';
+import { RADIUS_MAX, questDepth, newQuest, newStep, questProblems, questJournal, questNpcs, mergeQuest, stripQuest, questSave, questGet, questRemove, questWho, QUEST_LIST, tidyQuest, describeFlag, cleanQuestId } from './quests.js';
 import { loadCommand, saveCommand, tidyDialogue } from './dialogue.js';
 import { journalSet, journalRemove } from './social.js';
 
@@ -74,6 +74,12 @@ export class QuestEditor {
   reply(r) {
     if (r.list) { this.listing.push(r.list); return; }
     if (r.listDone) { this.quests = this.listing; this.fillList(); return; }
+    if (r.def && this.defWaiting?.id === r.def.id) {
+      const w = this.defWaiting;
+      this.defWaiting = null;
+      w.resolve(r.def);
+      return;
+    }
     if (r.def) {
       this.quest = r.def;
       this.saved = structuredClone(r.def);
@@ -113,6 +119,18 @@ export class QuestEditor {
     });
   }
 
+  // Another quest, for its depth (the quest being edited stays open);
+  // null if it doesn't come.
+  fetchQuest(id) {
+    return new Promise((resolve) => {
+      this.defWaiting = { id, resolve };
+      this.send(questGet(id));
+      setTimeout(() => {
+        if (this.defWaiting?.id === id) { this.defWaiting = null; resolve(null); }
+      }, WAIT_MS);
+    });
+  }
+
   // The server's "QuestSaved"/"QuestRemoved".
   awaitDone(id) {
     return new Promise((resolve, reject) => {
@@ -130,6 +148,9 @@ export class QuestEditor {
     if (problems.length) { this.say(problems.join(' ')); return; }
     this.busy = true;
     try {
+      // Where it comes in its chain, so the latest quest's thanks are said.
+      const needed = q.requires ? await this.fetchQuest(q.requires) : null;
+      q.depth = questDepth(q, () => needed?.depth ?? (needed?.requires ? 1 : 0));
       const now = questNpcs(q);
       const before = this.saved ? questNpcs(this.saved) : [];
       const gone = before.filter((b) => !now.some((n) => n.toLowerCase() === b.toLowerCase()));

@@ -14,9 +14,11 @@
 //     reward: { gold, exp, items: [name], says },
 //     after,                                   the giver once it's done
 //     repeatable,
-//     requires, notYet }                       another quest to finish first
+//     requires, notYet,                        another quest to finish first
 //                                              (its id), and what the giver
 //                                              says until then (optional)
+//     depth }                                  how many quests come before it
+//                                              in its chain (questDepth)
 // Flags: <id>_on while it's running, <id>_1 ... <id>_n for each step,
 // <id>_done when it's finished (not kept for a repeatable quest).
 
@@ -36,6 +38,7 @@ export const newQuest = (id = '') => ({
   repeatable: false,
   requires: '',
   notYet: '',
+  depth: 0,
 });
 
 export const newStep = (kind, giver = '') => {
@@ -124,10 +127,13 @@ function advance(q, i) {
   return out;
 }
 
+// "a leather cap", "an iron sword", "leather gloves" (a pair or a set).
+export const withArticle = (item) => (/s$/i.test(item) ? item : /^[aeiou]/i.test(item) ? `an ${item}` : `a ${item}`);
+
 // What the reward is, said after the last step ("You get 50 gold, ...").
 export function rewardLine(q) {
   const parts = [];
-  for (const item of q.reward.items ?? []) if (t(item)) parts.push(`a ${t(item)}`);
+  for (const item of q.reward.items ?? []) if (t(item)) parts.push(withArticle(t(item)));
   if (n(q.reward.gold)) parts.push(`${n(q.reward.gold)} gold`);
   if (n(q.reward.exp)) parts.push(`${n(q.reward.exp)} experience`);
   if (!parts.length) return '';
@@ -140,7 +146,8 @@ const same = (a, b) => t(a).toLowerCase() === t(b).toLowerCase();
 // The quest's stages for one NPC, tagged { quest: id }, in the order
 // they're checked: finished, its steps here, still running, the offer.
 export function questStagesFor(q, npc) {
-  const tag = cleanQuestId(q.requires) ? { quest: q.id, requires: cleanQuestId(q.requires) } : { quest: q.id };
+  const req = cleanQuestId(q.requires);
+  const tag = req ? { quest: q.id, requires: req, depth: Math.max(1, n(q.depth)) } : { quest: q.id };
   const stages = [];
   const isGiver = same(npc, q.giver);
   if (isGiver && !q.repeatable) stages.push({ ...tag, when: { kind: 'flag', value: flagDone(q) }, says: t(q.after) || 'Thank you again.', answers: [] });
@@ -172,6 +179,13 @@ export function questStagesFor(q, npc) {
     if (req && t(q.notYet)) stages.push({ ...tag, when: { kind: 'noflag', value: `${req}_done` }, says: t(q.notYet), answers: [] });
   }
   return stages;
+}
+
+// How many quests come before this one in its chain: one more than the
+// quest it needs (given by the id: the depth that one was saved with).
+export function questDepth(q, depthOf) {
+  const req = cleanQuestId(q.requires);
+  return req ? 1 + n(depthOf(req)) : 0;
 }
 
 // The NPCs a quest talks through.
@@ -213,7 +227,8 @@ export function mergeQuest(dlg, q, npc) {
   const all = [...others, ...mine];
   const needs = new Map(all.map((st) => [st.quest, st.requires]));
   const depth = (id, seen = new Set()) => (needs.get(id) && !seen.has(id) ? 1 + depth(needs.get(id), seen.add(id)) : 0);
-  const key = (st) => (stageRank(st) === 4 ? -depth(st.quest) : 0);
+  // The depth the quest was saved with, or what this NPC's quests show.
+  const key = (st) => (stageRank(st) === 4 ? -Math.max(n(st.depth), depth(st.quest)) : 0);
   const quests = all.map((st, i) => [stageRank(st), key(st), i, st]).sort((x, y) => x[0] - y[0] || x[1] - y[1] || x[2] - y[2]).map((x) => x[3]);
   const stages = [...quests, ...own];
   if (!own.length) stages.push({ when: { kind: 'always', value: '' }, says: '', answers: [] });
@@ -260,6 +275,7 @@ export function tidyQuest(raw) {
   q.offer = { ...newQuest().offer, ...(raw?.offer ?? {}) };
   q.reward = { ...newQuest().reward, ...(raw?.reward ?? {}) };
   q.requires = cleanQuestId(q.requires);
+  q.depth = n(q.depth);
   q.reward.items = Array.isArray(q.reward.items) ? q.reward.items : [];
   q.steps = Array.isArray(q.steps) ? q.steps.map((s) => ({ ...newStep(s?.kind, q.giver), ...s })) : [];
   delete q.flags;
