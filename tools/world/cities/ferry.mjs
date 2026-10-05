@@ -19,17 +19,29 @@ export const PORTS = {
   eastreach: { name: 'Eastreach', pier: [1691, 1303], berths: { landing: [1694, 1300, 0], westsea: [1695, 1306, 0] } },
 };
 
-// One ship per route, back and forth; each route's squares are in
-// tools/world/routes/<a>-<b>.txt (made by tools/world/sea-route.mjs from
-// berth to berth).
-export const ROUTES = [['westsea', 'landing'], ['landing', 'eastreach'], ['eastreach', 'westsea']];
+// The routes, back and forth; each one's squares are in
+// tools/world/routes/<file>.txt (made by tools/world/sea-route.mjs from
+// berth to berth). A ship named on a route sails that lane of its own.
+export const ROUTES = [
+  { from: 'westsea', to: 'landing', file: 'westsea-landing' },
+  { from: 'landing', to: 'eastreach', file: 'landing-eastreach' },
+  { from: 'eastreach', to: 'westsea', file: 'eastreach-westsea' },
+  // The long crossing has two ships: the second keeps to a lane beside
+  // the first (sea-route.mjs ... eastreach-westsea.txt as the route to
+  // avoid), and they pass 6 squares apart mid-sea.
+  { from: 'eastreach', to: 'westsea', file: 'eastreach-westsea-2', ship: 'Silver Tern' },
+];
+// Each ship and the ports it calls at, back and forth, from the first.
+// Two on one crossing start at opposite ends, so a ship leaves each port
+// twice as often.
 export const SHIPS = [
   { name: 'Seahawk', calls: ['westsea', 'landing'] },
   { name: 'Morning Star', calls: ['landing', 'eastreach'] },
   { name: 'Grey Gull', calls: ['eastreach', 'westsea'] },
+  { name: 'Silver Tern', calls: ['westsea', 'eastreach'] },
 ];
 
-const routeFile = (a, b) => `ferryroutes/${a}-${b}`;
+const routeFile = (file) => `ferryroutes/${file}`;
 
 // The server's "ferries" file and the route files it names.
 export function ferryFiles() {
@@ -39,9 +51,9 @@ export function ferryFiles() {
     for (const [other, b] of Object.entries(p.berths)) lines.push(`dock ${key} ${b.join(' ')} ${other}`);
   }
   const files = {};
-  for (const [a, b] of ROUTES) {
-    lines.push(`route ${a} ${b} ${routeFile(a, b)}`);
-    files[routeFile(a, b)] = readFileSync(new URL(`../routes/${a}-${b}.txt`, import.meta.url), 'utf8');
+  for (const r of ROUTES) {
+    lines.push(`route ${r.from} ${r.to} ${routeFile(r.file)}${r.ship ? ` ${r.ship.replace(/ /g, '_')}` : ''}`);
+    files[routeFile(r.file)] = readFileSync(new URL(`../routes/${r.file}.txt`, import.meta.url), 'utf8');
   }
   for (const s of SHIPS) lines.push(`ship ${s.name.replace(/ /g, '_')} ${s.calls.join(' ')}`);
   files.ferries = lines.join('\n') + '\n';
@@ -50,8 +62,8 @@ export function ferryFiles() {
 
 // A captain at `here`: a ticket to each port a ship from here calls at.
 export function captain(here, shout) {
-  const dests = new Map(); // port -> ship name
-  for (const s of SHIPS) if (s.calls.includes(here)) for (const k of s.calls) if (k !== here && !dests.has(k)) dests.set(k, s.name);
+  const dests = new Map(); // port -> what takes you there ("the Seahawk", "the next ship")
+  for (const s of SHIPS) if (s.calls.includes(here)) for (const k of s.calls) if (k !== here) dests.set(k, dests.has(k) ? 'the next ship' : `the ${s.name}`);
   if (!dests.size) return { shouts: [], stages: [{ when: { kind: 'always', value: '' }, says: 'No ships call here yet. Come back another day.', answers: [] }] };
   return {
     shouts: [shout],
@@ -61,7 +73,7 @@ export function captain(here, shout) {
       answers: [
         ...[...dests].map(([key, ship]) => ({
           label: PORTS[key].name,
-          reply: `A ticket for ${PORTS[key].name}. Wait here on the pier: the ${ship} will take you aboard when she's in.`,
+          reply: `A ticket for ${PORTS[key].name}. Wait here on the pier: ${ship} will take you aboard when she's in.`,
           needs: { kind: 'gold', value: String(FARE) },
           effects: [
             { kind: 'takegold', amount: FARE },

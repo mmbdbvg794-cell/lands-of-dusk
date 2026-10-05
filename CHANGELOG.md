@@ -289,8 +289,10 @@ backups; see `server/`.
   Landing**, the pier at the end of Aelindor's north road; **Eastreach**
   on the eastern continent) and one ship per route on a timetable: the
   Seahawk (Westsea - Aelindor Landing, about 5 minutes), the Morning Star
-  (Aelindor Landing - Eastreach, about 7) and the Grey Gull (Eastreach -
-  Westsea, about 11). A captain sells a 50 gp ticket; wait on the pier and
+  (Aelindor Landing - Eastreach, about 7), and on the long crossing
+  (Eastreach - Westsea, about 11) the Grey Gull and the Silver Tern,
+  starting from opposite ends and passing in their own lanes mid-sea, so
+  one leaves each port twice as often. A captain sells a 50 gp ticket; wait on the pier and
   you're taken aboard when the ship is in, then ride her across the sea,
   the coast sliding past, and step off at your port. The ships are drawn
   by the browser client (a galleon that turns with its course, sails full

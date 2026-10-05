@@ -1,12 +1,14 @@
 // A ferry's route between two docks, through open water (keeping 3
 // squares from any shore, 2 near the docks), as single N/S/E/W steps:
 //
-//   node --max-old-space-size=4096 tools/world/sea-route.mjs <shortmap> <x,y> <x,y> <out.txt>
+//   node --max-old-space-size=4096 tools/world/sea-route.mjs <shortmap> <x,y> <x,y> <out.txt> [<avoid.txt>]
 //
+// With another route to avoid, it keeps a few squares to the side of it
+// (two ships on one crossing, so they pass side by side).
 // writes "x y" a line, dock to dock (server/Ferry.java sails it both ways).
 // Diagonals become staircases; the server smooths the ship's heading.
 import { readFileSync, writeFileSync } from 'node:fs';
-const [, , MAP, FROM, TO, OUT] = process.argv;
+const [, , MAP, FROM, TO, OUT, AVOID] = process.argv;
 if (!OUT) { console.error('usage: node tools/world/sea-route.mjs <shortmap> <x,y> <x,y> <out.txt>'); process.exit(2); }
 const b = readFileSync(MAP), C = b.readInt32BE(0), R = b.readInt32BE(4);
 const t = (x, y) => (x < 0 || y < 0 || x >= C || y >= R ? -1 : b.readUInt16BE(8 + (x * R + y) * 2));
@@ -21,6 +23,16 @@ for (let x = 0; x < C; x++) for (let y = 0; y < R; y++) { if (!water(x, y)) { cl
 for (let h = 0; h < q.length; h++) { const i = q[h], x = Math.floor(i / R), y = i % R, d = clear[i]; if (d >= CAP) continue;
   for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= C || ny >= R) continue; const j = nx * R + ny; if (clear[j] > d + 1) { clear[j] = d + 1; q.push(j); } } }
 // A* on 8 directions, needing clearance 3 (2 near the docks).
+// Squares near the route to avoid (but not near the docks, where both
+// ships must come in).
+const AVOID_R = 5;
+const avoid = new Uint8Array(C * R);
+if (AVOID) for (const line of readFileSync(AVOID, 'utf8').trim().split('\n')) {
+  const [x, y] = line.split(' ').map(Number);
+  for (let dx = -AVOID_R; dx <= AVOID_R; dx++) for (let dy = -AVOID_R; dy <= AVOID_R; dy++) {
+    const nx = x + dx, ny = y + dy; if (nx >= 0 && ny >= 0 && nx < C && ny < R) avoid[nx * R + ny] = 1;
+  }
+}
 function route([sx, sy], [gx, gy]) {
   const need = (x, y) => Math.min(Math.hypot(x - sx, y - sy), Math.hypot(x - gx, y - gy)) < 10 ? 2 : 3;
   const N = C * R;
@@ -49,7 +61,8 @@ function route([sx, sy], [gx, gy]) {
     for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
       if (!dx && !dy) continue; const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= C || ny >= R) continue;
       const j = nx * R + ny; if (done[j] || clear[j] < need(nx, ny)) continue;
-      const cost = g[i] + (dx && dy ? 1.414 : 1);
+      const nearDock = Math.min(Math.hypot(nx - sx, ny - sy), Math.hypot(nx - gx, ny - gy)) < 14;
+      const cost = g[i] + (dx && dy ? 1.414 : 1) * (avoid[j] && !nearDock ? 4 : 1);
       if (cost < g[j]) { g[j] = cost; from[j] = i; push(cost + h(nx, ny), j); }
     }
   }

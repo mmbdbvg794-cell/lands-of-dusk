@@ -25,9 +25,13 @@
  *                                  where a ship's centre waits, facing;
  *                                  with another port, the berth for ships
  *                                  sailing to and from it
- *   route <from> <to> <file>       the squares between two docks, "x y"
+ *   route <from> <to> <file> [<ship>]
+ *                                  the squares between two docks, "x y"
  *                                  a line (the way back is the same,
- *                                  reversed)
+ *                                  reversed); with a ship's name, that
+ *                                  ship's own lane
+ * Two ships on one crossing start at opposite ends and keep in step: one
+ * on a shorter lane waits in port for the difference.
  *   ship <name> <port> <port> ...  a ship and the ports it calls at,
  *                                  back and forth
  *
@@ -81,6 +85,7 @@ public class Ferry {
         int step = 0;           // where on it
         boolean docked = true;
         long dockedSince;
+        long dockMs = DOCK_MS;  // this stay in port
         volatile int x, y, heading;
         final Set<String> passengers = new HashSet<String>();
         final Set<String> seenBy = new HashSet<String>();
@@ -146,13 +151,14 @@ public class Ferry {
                     int[] b = { Integer.parseInt(p[2]), Integer.parseInt(p[3]), Integer.parseInt(p[4]) };
                     if (p.length == 6) port.berths.put(p[5].toLowerCase(), b);
                     else { port.dockX = b[0]; port.dockY = b[1]; port.dockHeading = b[2]; }
-                } else if (p[0].equals("route") && p.length == 4) {
+                } else if (p[0].equals("route") && (p.length == 4 || p.length == 5)) {
                     int[][] path = readPath(new File(p[3]));
                     if (path.length > 1) {
-                        routes.put(p[1].toLowerCase() + ">" + p[2].toLowerCase(), path);
+                        String who = p.length == 5 ? p[4].replace('_', ' ') + "|" : "";
+                        routes.put(who + p[1].toLowerCase() + ">" + p[2].toLowerCase(), path);
                         int[][] back = new int[path.length][];
                         for (int i = 0; i < path.length; i++) back[i] = path[path.length - 1 - i];
-                        routes.put(p[2].toLowerCase() + ">" + p[1].toLowerCase(), back);
+                        routes.put(who + p[2].toLowerCase() + ">" + p[1].toLowerCase(), back);
                     }
                 } else if (p[0].equals("ship") && p.length >= 4) {
                     shipLines.add(p);
@@ -182,7 +188,7 @@ public class Ferry {
             }
             ships.add(s);
         }
-        Log.logEvent("Ferry: " + ports.size() + " ports, " + routes.size() / 2 + " routes, " + ships.size() + " ships");
+        Log.logEvent("Ferry: " + ports.size() + " ports, " + routes.size() / 2 + " routes and lanes, " + ships.size() + " ships");
     }
 
     static Port portFor(String key) {
@@ -221,7 +227,7 @@ public class Ferry {
         for (Ship s : ships) {
             if (s.docked) {
                 board(engine, s, online, now);
-                if (now - s.dockedSince >= DOCK_MS) depart(engine, s, online);
+                if (now - s.dockedSince >= s.dockMs) depart(engine, s, online);
             } else {
                 sail(engine, s, online);
             }
@@ -231,7 +237,7 @@ public class Ferry {
     }
 
     static void depart(DuskEngine engine, Ship s, Object[] online) {
-        int[][] path = routes.get(from(s) + ">" + to(s));
+        int[][] path = routeOf(s, from(s), to(s));
         if (path == null) { s.dockedSince = System.currentTimeMillis(); return; }
         s.path = path;
         s.step = 0;
@@ -240,6 +246,22 @@ public class Ferry {
         Port dest = ports.get(to(s));
         near(s, online, "The " + s.name + " casts off for " + dest.name + ".");
         for (String name : s.passengers) told.remove(name);
+    }
+
+    // A ship's own lane if it has one, else the crossing's route.
+    static int[][] routeOf(Ship s, String a, String b) {
+        int[][] own = routes.get(s.name + "|" + a + ">" + b);
+        return own != null ? own : routes.get(a + ">" + b);
+    }
+
+    // The longest crossing between these two ports, by any ship's lane.
+    static int longest(String a, String b) {
+        int n = 0;
+        for (Ship o : ships) {
+            int[][] r = routeOf(o, a, b);
+            if (r != null && (o.calls.contains(a) && o.calls.contains(b))) n = Math.max(n, r.length);
+        }
+        return n;
     }
 
     static void sail(DuskEngine engine, Ship s, Object[] online) {
@@ -282,6 +304,9 @@ public class Ferry {
         int[] b = port.berth(from(s));
         s.docked = true;
         s.dockedSince = System.currentTimeMillis();
+        // Wait for the difference if another ship's lane on this crossing
+        // is longer, so ships sharing it stay in step.
+        s.dockMs = DOCK_MS + (long) Math.max(0, longest(from(s), to(s)) - s.path.length) * STEP_MS;
         s.x = b[0]; s.y = b[1]; s.heading = b[2];
         s.leg++;
         for (Object o : online) {
@@ -325,7 +350,7 @@ public class Ferry {
             p.changeLocBypass(px, py);
             aboard.put(p.strName, s);
             s.passengers.add(p.strName);
-            long left = (DOCK_MS - (now - s.dockedSince)) / 1000;
+            long left = (s.dockMs - (now - s.dockedSince)) / 1000;
             p.chatMessage("You go aboard the " + s.name + ", bound for " + next.name + ". She sails in " + Math.max(1, left) + " seconds.");
         }
     }
@@ -394,7 +419,7 @@ public class Ferry {
                 StringBuilder b = new StringBuilder();
                 Port a = ports.get(from(s)), z = ports.get(to(s));
                 if (s.docked) {
-                    long left = Math.max(0, DOCK_MS - (now - s.dockedSince)) / 1000;
+                    long left = Math.max(0, s.dockMs - (now - s.dockedSince)) / 1000;
                     b.append("The ").append(s.name).append(" is in at ").append(a.name).append(", sailing for ").append(z.name).append(" in ").append(left).append(" seconds.");
                 } else {
                     long left = (long) (s.path.length - 1 - s.step) * STEP_MS / 1000;
