@@ -14,6 +14,11 @@
 // 'flag'|'unflag', flag }, { kind: 'teleport', x, y }. An answer can also
 // have needs: { kind: 'gold'|'item'|'flag', value } (said to be missing
 // otherwise) and next: a follow-up question { says, answers } of its own.
+// A stage can also have `also` (a second condition, both must hold) and
+// `lines` (other things to say instead of `says`, one picked at random).
+// An answer with `once: { flag, minutes, says }` works once per player
+// (`flag` remembers it), or again after `minutes` (server/Quests.java
+// flagtimer takes the flag away then); otherwise they're told `says`.
 // Flags are conditions on the player (a quest remembers where you got to
 // with them); the server makes a hidden condition file for each.
 
@@ -93,6 +98,15 @@ function effect(e, pad) {
   }
 }
 
+// A stage's condition, with its second one if it has one ("and" comes
+// first in the script language).
+function stageCondition(stage) {
+  const a = condition(stage.when);
+  const b = stage.also ? condition(stage.also) : null;
+  if (a && b) return `and ${a} ${b}`;
+  return a || b || null;
+}
+
 // What an answer needs before it works (answer.needs): the check, and
 // what the NPC says when it isn't met.
 function needs(n, who) {
@@ -104,6 +118,13 @@ function needs(n, who) {
     default: return null;
   }
 }
+
+// An answer that works once (or once per wait): its flag.
+export const ONCE_SAYS = "I've already done that for you.";
+export const TIMER_FLAG = 'timernow';
+const onceFlag = (a) => (a?.once ? cleanFlag(a.once.flag) : '');
+// A flag name for a new once-only answer, from the NPC's name.
+export const newOnceFlag = (npc) => `once_${cleanFlag(npc).toLowerCase().slice(0, 20)}_${Math.random().toString(36).slice(2, 7)}`;
 
 export const MAX_DEPTH = 4; // follow-up questions inside follow-up questions
 
@@ -117,19 +138,42 @@ const spoken = (who, verb, words) => `${who} ${verbOf(verb)}: ${words}`;
 // A question: what's said, then its answers (each of which can ask a
 // follow-up question), at depth `depth` (0 for a stage's own question).
 function question(out, who, node, pad, depth) {
+  const said = [node.says, ...(node.lines ?? [])].map(text).filter(Boolean);
+  if (said.length < 2) return ask(out, who, node, said[0] ?? '', pad, depth);
+  // One of them at random. The script language's number variables don't
+  // hold "rand" (they come out 0), so each line but the last is its own
+  // branch, taken with the odds that make them all equally likely
+  // (1 in 3, then 1 in 2, then the last), each ending the script.
+  const k = said.length;
+  said.forEach((line, i) => {
+    if (i === k - 1) return ask(out, who, node, line, pad, depth);
+    out.push(`${pad}if < rand ${(1 / (k - i)).toFixed(4)}`);
+    ask(out, who, node, line, pad + '\t', depth);
+    out.push(`${pad}\tendscript`, `${pad}end`);
+  });
+}
+
+function ask(out, who, node, line, pad, depth) {
   const answers = (node.answers ?? []).filter((a) => cleanLabel(a.label));
   const choices = answers.length ? ` (${answers.map((a) => cleanLabel(a.label)).join('/')})` : '';
-  if (text(node.says) || choices) out.push(`${pad}chat trigger "${spoken(who, node.verb, text(node.says) + choices)}"`);
+  if (line || choices) out.push(`${pad}chat trigger "${spoken(who, node.verb, line + choices)}"`);
   if (!answers.length) return;
   const v = depth ? `answer${depth + 1}` : 'answer';
   out.push(`${pad}input trigger ${v}`);
   for (const a of answers) {
     out.push(`${pad}if strequals ${v} "${cleanLabel(a.label)}"`);
+    const once = onceFlag(a);
+    if (once) out.push(`${pad}\tif hasCondition trigger ${once}`, `${pad}\t\tchat trigger "${spoken(who, 'says', text(a.once.says) || ONCE_SAYS)}"`, `${pad}\t\tendscript`, `${pad}\tend`);
     const need = needs(a.needs, who);
     if (need) out.push(`${pad}\tif ${need[0]}`, `${pad}\t\tchat trigger "${need[1]}"`, `${pad}\t\tendscript`, `${pad}\tend`);
     for (const e of a.effects ?? []) {
-      const line = effect(e, pad + '\t');
-      if (line) out.push(line);
+      const line2 = effect(e, pad + '\t');
+      if (line2) out.push(line2);
+    }
+    if (once) {
+      out.push(`${pad}\taddCondition trigger ${once}`);
+      const mins = Math.floor(Number(a.once.minutes) || 0);
+      if (mins > 0) out.push(`${pad}\taddCondition trigger ${TIMER_FLAG}`, `${pad}\torder trigger "flagtimer ${once} ${mins}"`);
     }
     if (text(a.reply)) out.push(`${pad}\tchat trigger "${spoken(who, a.replyVerb, text(a.reply))}"`);
     if (a.next && depth + 1 < MAX_DEPTH) question(out, who, a.next, pad + '\t', depth + 1);
@@ -147,7 +191,7 @@ export function toScript(name, dlg) {
   ];
   let always = false;
   for (const stage of dlg.stages ?? []) {
-    const cond = condition(stage.when);
+    const cond = stageCondition(stage);
     const pad = cond ? '\t' : '';
     if (cond) out.push(`if ${cond}`);
     question(out, who, stage, pad, 0);
@@ -172,11 +216,15 @@ export function flagsOf(dlg) {
     for (const a of node.answers ?? []) {
       for (const e of a.effects ?? []) if (e.kind === 'flag' || e.kind === 'unflag') flags.add(cleanFlag(e.flag));
       if (a.needs?.kind === 'flag') flags.add(cleanFlag(a.needs.value));
+      if (onceFlag(a)) {
+        flags.add(onceFlag(a));
+        if (Number(a.once.minutes) > 0) flags.add(TIMER_FLAG);
+      }
       if (a.next) walk(a.next);
     }
   };
   for (const stage of dlg.stages ?? []) {
-    if (stage.when?.kind === 'flag' || stage.when?.kind === 'noflag') flags.add(cleanFlag(stage.when.value));
+    for (const w of [stage.when, stage.also]) if (w?.kind === 'flag' || w?.kind === 'noflag') flags.add(cleanFlag(w.value));
     walk(stage);
   }
   flags.delete('');
@@ -347,4 +395,65 @@ export function parseTileReply(line) {
     } catch { /* start afresh */ }
   }
   return { x: Number(x), y: Number(y), rules, walk, other: false };
+}
+
+// ---- trying a conversation out (the editor's "Try it") ----
+// A pretend player: { flags: Set of lower-case flags, items: [names],
+// gold, race }. No server involved; it follows the same rules the
+// script does.
+
+function holds(when, p) {
+  const v = String(when?.value ?? '').trim().toLowerCase();
+  switch (when?.kind) {
+    case 'always': return true;
+    case 'flag': return p.flags.has(cleanFlag(v).toLowerCase());
+    case 'noflag': return !p.flags.has(cleanFlag(v).toLowerCase());
+    case 'item': return p.items.some((i) => i.toLowerCase() === v);
+    case 'gold': return p.gold >= (Number(v) || 0);
+    case 'race': return p.race === v;
+    case 'norace': return p.race !== v;
+    default: return true;
+  }
+}
+
+// The stage that fits the player first, or -1 (they're ignored).
+export function stageFor(dlg, p) {
+  return (dlg.stages ?? []).findIndex((st) => holds(st.when, p) && (!st.also || holds(st.also, p)));
+}
+
+// Answering: { lines: [what's said, and what happened], next } with the
+// player changed as the server would change them; or { lines } alone when
+// the answer is refused (needs something, or already done).
+export function tryAnswer(a, p, who) {
+  const name = text(who) || 'They';
+  const once = onceFlag(a).toLowerCase();
+  if (once && p.flags.has(once)) return { lines: [`${name} says: ${text(a.once.says) || ONCE_SAYS}`] };
+  const need = a.needs;
+  if (need?.kind === 'gold' && p.gold < (Number(need.value) || 0)) return { lines: [`${name} says: You don't have enough gold for that. It's ${Math.floor(Number(need.value))} gp.`] };
+  if (need?.kind === 'item' && !holds({ kind: 'item', value: need.value }, p)) return { lines: [`${name} says: You'll need a ${text(need.value)} for that.`] };
+  if (need?.kind === 'flag' && !holds({ kind: 'flag', value: need.value }, p)) return { lines: [`${name} says: You can't do that yet.`] };
+  const lines = [];
+  for (const e of a.effects ?? []) {
+    const f = cleanFlag(e.flag).toLowerCase();
+    const n = Math.floor(Number(e.amount) || 0);
+    if (e.kind === 'flag' && f) { p.flags.add(f); lines.push(`(flag ${f} set)`); }
+    if (e.kind === 'unflag' && f) { p.flags.delete(f); lines.push(`(flag ${f} cleared)`); }
+    if (e.kind === 'give' && text(e.item)) { p.items.push(text(e.item)); lines.push(`(you get a ${text(e.item)})`); }
+    if (e.kind === 'take' && text(e.item)) {
+      const i = p.items.findIndex((x) => x.toLowerCase() === text(e.item).toLowerCase());
+      if (i >= 0) p.items.splice(i, 1);
+      lines.push(`(the ${text(e.item)} is taken)`);
+    }
+    if (e.kind === 'gold' && n > 0) { p.gold += n; lines.push(`(+${n} gold)`); }
+    if (e.kind === 'takegold' && n > 0) { p.gold = Math.max(0, p.gold - n); lines.push(`(-${n} gold)`); }
+    if (e.kind === 'exp' && n > 0) lines.push(`(+${n} experience)`);
+    if (e.kind === 'teleport') lines.push(`(sent to ${e.x}, ${e.y})`);
+    if (e.kind === 'bind') lines.push(`(comes back to ${e.x}, ${e.y} after dying)`);
+  }
+  if (once) {
+    p.flags.add(once);
+    lines.push(Number(a.once.minutes) > 0 ? `(works again in ${Math.floor(Number(a.once.minutes))} minutes)` : '(only once)');
+  }
+  if (text(a.reply)) lines.unshift(spoken(name, a.replyVerb, text(a.reply)));
+  return { lines, next: a.next ?? null };
 }

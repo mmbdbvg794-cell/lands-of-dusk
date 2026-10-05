@@ -1417,6 +1417,11 @@ dialog::backdrop { background: #000a; }
 :is(#library-editor, #quest-editor) .le-pick:hover { background: var(--panel-2); }
 :is(#library-editor, #quest-editor) .le-pick.current { background: var(--accent-dim); }
 :is(#library-editor, #quest-editor) .le-main { min-width: 0; }
+#dialogue-editor .de-try { border-color: var(--accent-dim); }
+#dialogue-editor .de-tryflags { flex-wrap: wrap; }
+#dialogue-editor .de-tryflag { font-size: 12px; margin-right: 8px; }
+#dialogue-editor .de-trylog { max-height: 220px; overflow-y: auto; background: var(--bg); border-radius: 6px; padding: 6px 8px; font-size: 13px; margin: 6px 0; min-height: 40px; }
+#dialogue-editor .de-tryfx { color: var(--muted); font-size: 12px; }
 #dialogue-editor .de-quest { font-size: 11px; color: var(--warn); margin-left: 8px; }
 #quest-editor .qe-whos { margin: 4px 0 12px; }
 #quest-editor .qe-who { padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 13px; }

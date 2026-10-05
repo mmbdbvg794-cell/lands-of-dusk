@@ -2,10 +2,11 @@
 // what they do, for one NPC. Opened from the God tab or an NPC's click
 // menu; saved as the NPC's talk script (js/dialogue.js turns it into one).
 
-import { newDialogue, tidyDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS, RACES } from './dialogue.js';
+import { newDialogue, tidyDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS, RACES, newOnceFlag, ONCE_SAYS, flagsOf, stageFor, tryAnswer } from './dialogue.js';
 import { journalSet, JOURNAL_ALL } from './social.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)'], ['race', 'Player is race'], ['norace', "Player isn't race"]];
+const ONCE = [['any', 'Works any time'], ['once', 'Only once per player'], ['wait', 'Again after a wait']];
 const EFFECTS = [
   ['give', 'Give item'], ['take', 'Take item'], ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'],
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
@@ -28,10 +29,69 @@ export class DialogueEditor {
     el.querySelector('[data-de="close"]').addEventListener('click', () => this.close());
     el.querySelector('[data-de="cancel"]').addEventListener('click', () => this.close());
     el.querySelector('[data-de="save"]').addEventListener('click', () => this.save());
+    // Trying it out, as a pretend player, without the server.
+    this.trying = false;
+    el.querySelector('[data-de="try"]').addEventListener('click', () => {
+      this.trying = !this.trying;
+      if (this.trying) this.resetTry();
+      if (this.dlg) this.render();
+    });
+  }
+
+  resetTry() {
+    this.pretend = { flags: new Set(), items: [], gold: 100, race: 'human' };
+    this.tryLog = [];
+    this.tryNode = null;
   }
 
   get open() {
     return !this.el.hidden;
+  }
+
+  // The "Try it" panel: the pretend player, the conversation so far, and
+  // the answers to click.
+  tryPanel(h, select, button) {
+    const d = this.dlg, p = this.pretend, who = this.name ?? 'They';
+    const again = () => this.render();
+    const say = (line) => this.tryLog.push(line);
+    const ask = (node) => {
+      const said = [node.says, ...(node.lines ?? [])].filter((x) => String(x ?? '').trim());
+      const line = said.length ? said[Math.floor(Math.random() * said.length)] : '';
+      if (line || node.answers?.length) say(`${who} ${node.verb === 'acts' ? '' : `${node.verb ?? 'says'}: `}${line}${said.length > 1 ? `   (one of ${said.length} lines)` : ''}`);
+      this.tryNode = node.answers?.some((a) => String(a.label ?? '').trim()) ? node : null;
+    };
+    const talk = () => {
+      const i = stageFor(d, p);
+      say(`— You talk to ${who}${i >= 0 ? ` (stage ${i + 1} fits)` : ''}`);
+      if (i < 0) { say(`${who} doesn't seem to notice you.`); this.tryNode = null; } else ask(d.stages[i]);
+      again();
+    };
+    const gold = h('input', { type: 'number', value: p.gold, className: 'de-num', title: 'Gold' });
+    gold.addEventListener('input', () => { p.gold = Number(gold.value) || 0; });
+    const items = h('input', { type: 'text', value: p.items.join(', '), placeholder: 'items carried, with commas' });
+    items.setAttribute('list', 'de-items');
+    items.addEventListener('change', () => { p.items = items.value.split(',').map((x) => x.trim()).filter(Boolean); });
+    const flags = [...new Set([...flagsOf(d).map((f) => f.toLowerCase()), ...p.flags])].filter((f) => f !== 'timernow').sort().map((f) => {
+      const c = h('input', { type: 'checkbox', checked: p.flags.has(f) });
+      c.addEventListener('change', () => { if (c.checked) p.flags.add(f); else p.flags.delete(f); });
+      return h('label', { className: 'toggle de-tryflag' }, c, ` ${f}`);
+    });
+    const answers = (this.tryNode?.answers ?? []).filter((a) => String(a.label ?? '').trim()).map((a) => button(a.label, () => {
+      say(`> ${a.label}`);
+      const r = tryAnswer(a, p, who);
+      r.lines.forEach(say);
+      if (r.next) ask(r.next); else this.tryNode = null;
+      again();
+    }, 'de-small'));
+    return h('section', { className: 'de-stage de-try' },
+      h('div', { className: 'de-row de-stage-head' }, h('strong', { textContent: 'Try it' }), h('span', { className: 'de-hint', textContent: ' as a pretend player; nothing is sent to the server' })),
+      h('div', { className: 'de-row' },
+        select(RACES, p.race, (v) => { p.race = v; }), gold, items),
+      flags.length ? h('div', { className: 'de-row de-tryflags' }, h('span', { className: 'de-label-text', textContent: 'Has flags' }), ...flags) : null,
+      h('div', { className: 'de-trylog' }, ...this.tryLog.slice(-30).map((l) => h('div', { textContent: l, className: l.startsWith('(') ? 'de-tryfx' : '' }))),
+      h('div', { className: 'de-row' }, ...answers, h('span', { className: 'de-grow' }),
+        button('Talk to them', talk, 'de-small primary'),
+        button('Start over', () => { this.resetTry(); again(); }, 'de-small')));
   }
 
   // Opens for an NPC by name, and asks the server for its dialogue.
@@ -127,6 +187,20 @@ export class DialogueEditor {
       h('p', { className: 'de-hint', textContent: 'What they call out when players come near (one line each, a random one each time). Leave empty for none.' }),
       area(d.shouts.join('\n'), 'Hey you! Come here!', (v) => { d.shouts = v.split('\n'); }, 2));
 
+    // How often an answer works: any time, once per player, or again after
+    // a wait (a flag of its own remembers it).
+    const onceRow = (a) => {
+      const mode = !a.once ? 'any' : Number(a.once.minutes) > 0 ? 'wait' : 'once';
+      const pick = select(ONCE, mode, (v) => {
+        if (v === 'any') delete a.once;
+        else a.once = { flag: a.once?.flag || newOnceFlag(this.name ?? 'npc'), minutes: v === 'wait' ? (Number(a.once?.minutes) || 60) : 0, says: a.once?.says ?? '' };
+        again();
+      });
+      return h('div', { className: 'de-row de-effect' }, pick,
+        mode === 'wait' ? input(a.once.minutes, 'minutes', (v) => { a.once.minutes = v; }, { type: 'number', min: 1, className: 'de-num', title: 'Minutes before it works again' }) : null,
+        mode !== 'any' ? input(a.once.says, `If they've had it: ${ONCE_SAYS}`, (v) => { a.once.says = v; }) : null);
+    };
+
     // A question's answers: each with its reply, what it needs, its
     // effects, and maybe a follow-up question with answers of its own.
     const renderAnswers = (node, depth) => node.answers.map((a, ai) => {
@@ -173,6 +247,7 @@ export class DialogueEditor {
           button('✕', () => { node.answers.splice(ai, 1); again(); }, 'ghost de-x')),
         h('div', { className: 'de-row de-effect' },
           select(NEEDS, need.kind, (v) => { if (v === 'none') delete a.needs; else a.needs = { kind: v, value: '' }; again(); }), needValue),
+        onceRow(a),
         ...effects,
         follow,
         h('div', { className: 'de-row' },
@@ -188,6 +263,21 @@ export class DialogueEditor {
         : input(st.when.value, st.when.kind === 'item' ? 'item name' : st.when.kind === 'gold' ? 'gold' : 'flag name, e.g. wolfquest', (v) => { st.when.value = v; },
           st.when.kind === 'item' ? { list: 'de-items' } : st.when.kind === 'gold' ? { type: 'number', min: 1, className: 'de-num' } : {});
       const answers = renderAnswers(st, 0);
+      // A second condition (both must hold).
+      const also = st.also
+        ? h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'And also' }),
+          select(WHEN.filter(([k]) => k !== 'always'), st.also.kind, (v) => { st.also = { kind: v, value: '' }; again(); }),
+          st.also.kind === 'race' || st.also.kind === 'norace'
+            ? select(RACES, RACES.some(([r]) => r === st.also.value) ? st.also.value : (st.also.value = 'human'), (v) => { st.also.value = v; })
+            : input(st.also.value, st.also.kind === 'item' ? 'item name' : st.also.kind === 'gold' ? 'gold' : 'flag name', (v) => { st.also.value = v; },
+              st.also.kind === 'item' ? { list: 'de-items' } : st.also.kind === 'gold' ? { type: 'number', min: 1, className: 'de-num' } : {}),
+          button('✕', () => { delete st.also; again(); }, 'ghost de-x'))
+        : null;
+      // Other things they might say instead, one picked at random.
+      const lines = (st.lines ?? []).map((line, li) => h('div', { className: 'de-row' },
+        h('span', { className: 'de-label-text', textContent: 'Or' }),
+        area(line, 'Something else they might say instead (picked at random)', (v) => { st.lines[li] = v; }),
+        button('✕', () => { st.lines.splice(li, 1); if (!st.lines.length) delete st.lines; again(); }, 'ghost de-x')));
       return h('section', { className: 'de-stage' },
         h('div', { className: 'de-row de-stage-head' },
           h('strong', { textContent: `Stage ${si + 1}` }),
@@ -197,14 +287,19 @@ export class DialogueEditor {
           si > 0 ? button('↑', () => { d.stages.splice(si - 1, 0, d.stages.splice(si, 1)[0]); again(); }, 'ghost') : null,
           si < d.stages.length - 1 ? button('↓', () => { d.stages.splice(si + 1, 0, d.stages.splice(si, 1)[0]); again(); }, 'ghost') : null,
           d.stages.length > 1 ? button('✕', () => { d.stages.splice(si, 1); again(); }, 'ghost') : null),
-        h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'When' }), select(WHEN, st.when.kind, (v) => { st.when = { kind: v, value: '' }; again(); }), valueBox),
+        h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'When' }), select(WHEN, st.when.kind, (v) => { st.when = { kind: v, value: '' }; again(); }), valueBox,
+          !st.also && st.when.kind !== 'always' ? button('+ And also', () => { st.also = { kind: 'flag', value: '' }; again(); }, 'de-small') : null),
+        also,
         h('div', { className: 'de-row' }, select(VERBS, st.verb ?? 'says', (v) => { st.verb = v; }), area(st.says, 'What they say (an Action shows just these words, e.g. "The guard looks you up and down.")', (v) => { st.says = v; })),
+        ...lines,
         h('div', { className: 'de-answers' }, ...answers),
-        h('div', { className: 'de-row' }, button('+ Answer button', () => { st.answers.push({ label: '', reply: '', effects: [] }); again(); }, 'de-small')));
+        h('div', { className: 'de-row' }, button('+ Answer button', () => { st.answers.push({ label: '', reply: '', effects: [] }); again(); }, 'de-small'),
+          button('+ Something else to say (random)', () => { (st.lines ??= []).push(''); again(); }, 'de-small')));
     });
 
     const itemsList = h('datalist', { id: 'de-items' }, ...(this.items() ?? []).map((n) => new Option(n)));
-    this.body.replaceChildren(shouts,
+    const tryIt = this.trying ? this.tryPanel(h, select, button) : null;
+    this.body.replaceChildren(...(tryIt ? [tryIt] : []), shouts,
       h('h4', { className: 'list-head', textContent: 'Conversation' }),
       h('p', { className: 'de-hint', textContent: 'Stages are checked from the top; the first whose "When" fits the player is used. Put "Always" last. Flags remember quest progress: set one with an effect, then check it in a stage above.' }),
       ...stages,

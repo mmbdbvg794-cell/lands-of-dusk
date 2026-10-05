@@ -242,3 +242,34 @@ console.log('ok - dialogue');
   assert.ok(tileScriptCommand('endscript').startsWith('tilescript '));
   console.log('ok - tile scripts');
 }
+
+// Trying a conversation out.
+{
+  const { stageFor, tryAnswer } = await import('../js/dialogue.js');
+  const nym = { shouts: [], stages: [
+    { when: { kind: 'flag', value: 'friend' }, also: { kind: 'item', value: 'apple' }, says: 'An apple for me?', answers: [] },
+    { when: { kind: 'always', value: '' }, says: 'Hello.', answers: [
+      { label: 'Gift', reply: 'Here.', effects: [{ kind: 'give', item: 'apple' }, { kind: 'flag', flag: 'friend' }], once: { flag: 'once_nym', minutes: 0, says: 'Only one each!' } },
+      { label: 'Buy', reply: 'Thanks.', needs: { kind: 'gold', value: 5 }, effects: [{ kind: 'takegold', amount: 5 }] },
+    ] },
+  ] };
+  const p = { flags: new Set(), items: [], gold: 3, race: 'elf' };
+  assert.equal(stageFor(nym, p), 1);
+  assert.deepEqual(tryAnswer(nym.stages[1].answers[1], p, 'Nym').lines, ["Nym says: You don't have enough gold for that. It's 5 gp."]);
+  const gift = tryAnswer(nym.stages[1].answers[0], p, 'Nym');
+  assert.equal(gift.lines[0], 'Nym says: Here.');
+  assert.ok(p.flags.has('friend') && p.flags.has('once_nym') && p.items.includes('apple'));
+  assert.deepEqual(tryAnswer(nym.stages[1].answers[0], p, 'Nym').lines, ['Nym says: Only one each!']);
+  // Now both of the first stage's conditions hold.
+  assert.equal(stageFor(nym, p), 0);
+  assert.equal(stageFor({ stages: [{ when: { kind: 'flag', value: 'x' }, says: '', answers: [] }] }, p), -1);
+  // The script: "and" first, the once flag, a random pick.
+  const script = toScript('Nym', { shouts: [], stages: [{ ...nym.stages[0], lines: ['Is that an apple?'] }, nym.stages[1]] });
+  assert.match(script, /^if and hasCondition trigger friend hasItem trigger "apple"$/m);
+  assert.match(script, /\tif < rand 0\.5000\n\t\tchat trigger "Nym says: An apple for me\?"\n\t\tendscript\n\tend\n\tchat trigger "Nym says: Is that an apple\?"/);
+  assert.match(script, /\tif hasCondition trigger once_nym\n\t\tchat trigger "Nym says: Only one each!"/);
+  const timed = toScript('Nym', { shouts: [], stages: [{ when: { kind: 'always', value: '' }, says: 'Hi', answers: [{ label: 'Gift', reply: '', effects: [], once: { flag: 'once_nym', minutes: 30 } }] }] });
+  assert.match(timed, /\taddCondition trigger timernow\n\torder trigger "flagtimer once_nym 30"/);
+  assert.ok(flagsOf({ stages: [{ when: { kind: 'always' }, answers: [{ label: 'g', effects: [], once: { flag: 'once_nym', minutes: 30 } }] }] }).includes('timernow'));
+  console.log('ok - trying conversations');
+}

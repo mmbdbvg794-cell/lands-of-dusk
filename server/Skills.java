@@ -77,6 +77,8 @@ public class Skills {
         Ferry.start(engine);
         // Who's online, for the web page (server/Who.java).
         Who.start(engine);
+        // Flag timers for conversations (server/Quests.java).
+        Quests.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

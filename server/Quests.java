@@ -14,6 +14,14 @@
  *   quest who <id>                   (gods) "QuestWho: <id>|<player>|<flag>|<online 0/1>"
  *                                    for each player on one of its flags, then "QuestWho: done"
  *
+ * Timed flags: the engine never counts a condition's duration down, so a
+ * conversation's "again after N minutes" gives the player the hidden
+ * condition timernow and then
+ *   order trigger "flagtimer <flag> <minutes>"
+ * which only works with timernow (players can't give it themselves), and
+ * takes the flag away again when the time is up (checked every 30 seconds,
+ * kept in the "flagtimers" file: player|flag|when, in ms).
+ *
  * Kills: Battle shares out a killed monster's experience through
  * splitExp1/splitExp2 here (BattlePatch.java), so every player on the
  * winning side who holds a kill step's flag counts it. Counts are kept in
@@ -51,6 +59,98 @@ public class Quests {
     // "player|flag" (lower case) -> kills so far.
     static final Map<String, Integer> counts = new LinkedHashMap<String, Integer>();
     static boolean loaded = false;
+
+    static final String TIMER_FLAG = "timernow";
+    static final String TIMERS = "flagtimers";
+    static final Map<String, Long> timers = new LinkedHashMap<String, Long>(); // "player|flag" -> when
+    static boolean timersLoaded = false;
+
+    public static void start(final DuskEngine engine) {
+        try {
+            File cond = new File("defConditions", TIMER_FLAG);
+            if (!cond.exists()) Talk.write(cond, "nodisplay\n.\n".getBytes("UTF-8"));
+        } catch (Exception e) {
+            Log.logError(e, "Quests: making defConditions/" + TIMER_FLAG, false);
+        }
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(30000);
+                        expire(engine);
+                    } catch (InterruptedException e) {
+                        return;
+                    } catch (Exception e) {
+                        Log.logError(e, "Flag timers", false);
+                    }
+                }
+            }
+        }, "FlagTimers");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    static synchronized void loadTimers() {
+        if (timersLoaded) return;
+        timersLoaded = true;
+        try {
+            File f = new File(TIMERS);
+            if (!f.isFile()) return;
+            for (String line : Files.readAllLines(f.toPath())) {
+                String[] p = line.split("\\|");
+                if (p.length == 3) timers.put(p[0] + "|" + p[1], Long.parseLong(p[2].trim()));
+            }
+        } catch (Exception e) {
+            Log.logError(e, "Reading flagtimers", false);
+        }
+    }
+
+    static synchronized void saveTimers() {
+        StringBuilder b = new StringBuilder();
+        for (Map.Entry<String, Long> e : timers.entrySet()) b.append(e.getKey()).append('|').append(e.getValue()).append('\n');
+        try {
+            Talk.write(new File(TIMERS), b.toString().getBytes("UTF-8"));
+        } catch (Exception e) {
+            Log.logError(e, "Saving flagtimers", false);
+        }
+    }
+
+    // Online players whose timed flags are due lose them.
+    static void expire(DuskEngine engine) {
+        long now = System.currentTimeMillis();
+        List<Object> players;
+        synchronized (engine.vctSockets) {
+            players = new ArrayList<Object>(engine.vctSockets);
+        }
+        for (Object o : players) {
+            if (!(o instanceof Player)) continue;
+            Player p = (Player) o;
+            if (p.strName == null) continue;
+            String me = p.strName.toLowerCase() + "|";
+            List<String> due = new ArrayList<String>();
+            synchronized (Quests.class) {
+                loadTimers();
+                for (Map.Entry<String, Long> e : timers.entrySet()) if (e.getKey().startsWith(me) && e.getValue() <= now) due.add(e.getKey());
+                for (String k : due) timers.remove(k);
+                if (!due.isEmpty()) saveTimers();
+            }
+            for (String k : due) p.removeCondition(k.substring(me.length()));
+        }
+    }
+
+    static String flagTimer(LivingThing who, String args) {
+        if (!who.hasCondition(TIMER_FLAG)) return "";
+        who.removeCondition(TIMER_FLAG);
+        String[] p = args.trim().split("\\s+");
+        if (p.length != 2 || !p[0].matches("[A-Za-z0-9_]{1,40}") || !p[1].matches("\\d{1,6}")) return "";
+        long when = System.currentTimeMillis() + Long.parseLong(p[1]) * 60000L;
+        synchronized (Quests.class) {
+            loadTimers();
+            timers.put(who.strName.toLowerCase() + "|" + p[0], when);
+            saveTimers();
+        }
+        return "";
+    }
 
     static boolean goodId(String id) {
         return id.matches("[a-z0-9_]{1,30}");
@@ -184,6 +284,7 @@ public class Quests {
     public static String command(LivingThing who, DuskEngine engine, String line) {
         String t = line.trim();
         String lower = t.toLowerCase();
+        if (lower.startsWith("flagtimer ")) return flagTimer(who, t.substring(10));
         if (!(lower.equals("quest") || lower.startsWith("quest "))) return null;
         if (who.privs < GOD_PRIVS) return null; // players' "quest" is left to the game
         String args = t.length() > 5 ? t.substring(6).trim() : "";
