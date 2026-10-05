@@ -7,12 +7,12 @@ anywhere lose their dead "onuse" line, so they're plain items.
 Restored for players: demons blood (sold, 3000 gp: the Demonic condition
 for a while), arrow and quiver (Aelindor and Velkarath shops), chaos tome,
 newspaper and vortanian news (reading), fairy dust, mud.
-Restored as god tools (nothing gives them to players; a god can make
-them with "<name>"): alpha, beta, coolaexp, exp, godexp, dmwexp, fixup,
-moo, smek p, cyrils elixer, chaos orb, shifty box, book of ramaden,
-lightning bolt.
-No script anywhere, so the "onuse" goes: golden key, tesst, xyphoidstone,
-zaria's note (whose script name was garbled).
+Left as plain items, their "onuse" gone: the old god and test items
+(alpha, beta, coolaexp, exp, godexp, dmwexp, fixup, moo, smek p, cyrils
+elixer, chaos orb, shifty box, book of ramaden, lightning bolt: experience,
+gold, stats and armour sets for nothing; nothing gives them to players and
+they aren't wanted), and those with no script anywhere: golden key, tesst,
+xyphoidstone, zaria's note (whose script name was garbled).
 
 A script is only copied if every item it hands out and every condition
 it adds exists here; otherwise it's reported and left out.
@@ -20,8 +20,8 @@ it adds exists here; otherwise it's reported and left out.
     python3 fix_items.py [game dir] [2002 dir]          dry run
     python3 fix_items.py [game dir] [2002 dir] --apply  writes (old item files in backups/items-*)
 
-Two of the old scripts are mended as they're copied: moo's "set trigger mp
-maxmp" (whose maxmp?) and any that stop without an endscript.
+Old scripts that stop without an endscript get one as they're copied (or
+the parser runs off the end).
 
 Scripts are read when an item is used: no restart needed.
 """
@@ -36,12 +36,12 @@ game = args[0] if args else os.path.expanduser("~/DuskRPG")
 old = args[1] if len(args) > 1 else os.path.expanduser("~/DarkStarDusk2002")
 apply = "--apply" in sys.argv
 
-RESTORE = [
-    "dblood", "arrow", "quiver", "chaos tome", "readNewspaper", "news2", "fairy dust", "mud",
-    "alpha", "beta", "coolaexp", "t god exp", "godexp", "dmwexp", "fixme", "moos", "sp", "celix",
-    "corb", "sbox", "bor", "Lightning Bolt Use",
+RESTORE = ["dblood", "arrow", "quiver", "chaos tome", "readNewspaper", "news2", "fairy dust", "mud"]
+PLAIN = [
+    "alpha", "beta", "coolaexp", "exp", "godexp", "dmwexp", "fixup", "moo", "smek p", "cyrils elixer",
+    "chaos orb", "shifty box", "book of ramaden", "lightning bolt",
+    "golden key", "tesst", "xyphoidstone", "zaria's note",
 ]
-PLAIN = ["golden key", "tesst", "xyphoidstone", "zaria's note"]
 
 
 def read(path):
@@ -69,10 +69,7 @@ for name in RESTORE:
         problems.append("no 2002 script " + name)
         continue
     text = read(src).replace("\r\n", "\n")
-    # Mended on the way: moo's "maxmp" said nobody's (the parser fails on
-    # it), and scripts that just stop need an endscript, or the parser runs
-    # off the end.
-    text = text.replace("set trigger mp maxmp", "set trigger mp trigger maxmp")
+    # Scripts that just stop need an endscript, or the parser runs off the end.
     body = [l.strip().lower() for l in text.split("\n") if l.strip() and not l.strip().startswith("#")]
     if not body or body[-1] not in ("endscript", "end script"):
         text = text.rstrip("\n") + "\nendscript\n"

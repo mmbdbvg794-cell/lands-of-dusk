@@ -54,4 +54,9 @@ LIVING="$GAME/LivingThing.class"
 [ -f "$GAME/storage-originals/LivingThing.class" ] && LIVING="$GAME/storage-originals/LivingThing.class"
 javac -nowarn $ASM -d tools "$SRC/LivingThingPatch.java"
 java $ASM -cp tools LivingThingPatch "$LIVING" out/LivingThing.class
+# Scripts asking whether someone wears an item by name, in the compiled Equipment (EquipmentPatch.java).
+EQUIP="$GAME/Equipment.class"
+[ -f "$GAME/storage-originals/Equipment.class" ] && EQUIP="$GAME/storage-originals/Equipment.class"
+javac -nowarn $ASM -d tools "$SRC/EquipmentPatch.java"
+java $ASM -cp tools EquipmentPatch "$EQUIP" out/Equipment.class
 ls out

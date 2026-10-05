@@ -25,6 +25,7 @@ if [ "${1:-}" = uninstall ]; then
   [ -f storage-originals/Battle.class ] && cp storage-originals/Battle.class .
   [ -f storage-originals/AttributeManager.class ] && cp storage-originals/AttributeManager.class .
   [ -f storage-originals/LivingThing.class ] && cp storage-originals/LivingThing.class .
+  [ -f storage-originals/Equipment.class ] && cp storage-originals/Equipment.class .
   rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class Ferry.class Ferry\$*.class Who.class Who\$*.class Quests.class Quests\$*.class Conditions.class Conditions\$*.class Admin.class Admin\$*.class
   # Without BridgedSocket the bridge must stop sending addresses.
   rm -f conf/bridgesecret
@@ -62,9 +63,13 @@ if [ -f "$OUT/LivingThing.class" ] && [ ! -f storage-originals/LivingThing.class
   cp LivingThing.class storage-originals/
   echo "Kept the original LivingThing.class in storage-originals/"
 fi
+if [ -f "$OUT/Equipment.class" ] && [ ! -f storage-originals/Equipment.class ]; then
+  cp Equipment.class storage-originals/
+  echo "Kept the original Equipment.class in storage-originals/"
+fi
 b="backups/classes-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$b"
-cp Commands.class DuskServer.class DuskEngine.class Player.class Battle.class AttributeManager.class LivingThing.class "$b/"
+cp Commands.class DuskServer.class DuskEngine.class Player.class Battle.class AttributeManager.class LivingThing.class Equipment.class "$b/"
 for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Conditions Admin; do [ -f $c.class ] && cp $c.class "$b/"; done
 cp Talk\$*.class Trade\$*.class Skills\$*.class Library\$*.class Ferry\$*.class Who\$*.class Quests\$*.class Conditions\$*.class Admin\$*.class "$b/" 2>/dev/null || true
 [ -f "$OUT/DuskEngine.class" ] && cp "$OUT/DuskEngine.class" .
@@ -72,6 +77,7 @@ cp Talk\$*.class Trade\$*.class Skills\$*.class Library\$*.class Ferry\$*.class 
 [ -f "$OUT/Battle.class" ] && cp "$OUT/Battle.class" .
 [ -f "$OUT/AttributeManager.class" ] && cp "$OUT/AttributeManager.class" .
 [ -f "$OUT/LivingThing.class" ] && cp "$OUT/LivingThing.class" .
+[ -f "$OUT/Equipment.class" ] && cp "$OUT/Equipment.class" .
 cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/FixedEngine.class" "$OUT/Talk.class" "$OUT"/Talk\$*.class "$OUT/Props.class" "$OUT/BridgedSocket.class" "$OUT/Bans.class" "$OUT/MapStore.class" "$OUT/Social.class" "$OUT/Trade.class" "$OUT"/Trade\$*.class "$OUT/Skills.class" "$OUT"/Skills\$*.class "$OUT/Library.class" "$OUT"/Library\$*.class "$OUT/Ferry.class" "$OUT"/Ferry\$*.class "$OUT/Who.class" "$OUT"/Who\$*.class "$OUT/Quests.class" "$OUT"/Quests\$*.class "$OUT/Conditions.class" "$OUT"/Conditions\$*.class "$OUT/Admin.class" "$OUT"/Admin\$*.class "$OUT/Commands.class" "$OUT/DuskServer.class" .
 # Game content that goes with it (talk scripts, props), only where there
 # isn't a file of that name already: yours are never overwritten.

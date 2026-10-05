@@ -153,6 +153,9 @@ def main():
         else:
             write(path, content)
             new += 1
+            # A script's compiled copy beside it would be run instead.
+            if old is not None and os.path.exists(path + ".dsko") and not dry:
+                os.remove(path + ".dsko")
     for c in b.get("copies", []):
         if os.path.exists(c["to"]) and not force:
             continue

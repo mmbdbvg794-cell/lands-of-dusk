@@ -217,6 +217,27 @@ public class Skills {
         }
     }
 
+    // Whether someone wears an item (the patched Equipment.isWearing,
+    // server/EquipmentPatch.java): by its name, any case, as the old
+    // scripts ask ("gasmask"); or by its ID, as the engine did.
+    public static boolean isWearing(Equipment e, String what) {
+        if (e == null || what == null) return false;
+        String w = what.trim();
+        if (w.startsWith("\"") && w.endsWith("\"") && w.length() > 1) w = w.substring(1, w.length() - 1);
+        boolean number = w.matches("-?\\d+");
+        for (int i = 0; i < 9; i++) {
+            Item item;
+            try {
+                item = e.getItem(i);
+            } catch (Exception ex) {
+                break;
+            }
+            if (item == null) continue;
+            if (number ? item.ID == Integer.parseInt(w) : w.equalsIgnoreCase(item.strName)) return true;
+        }
+        return false;
+    }
+
     // What using an item is called (the patched LivingThing.useItem,
     // server/LivingThingPatch.java): "You use the crystal box".
     // The game's food and drink are plain items, so: food and drink types

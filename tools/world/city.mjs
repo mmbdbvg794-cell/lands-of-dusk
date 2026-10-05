@@ -79,6 +79,7 @@ class Plan {
     this.far = []; // single squares anywhere on the map (map coordinates)
     this.sets = []; // values to change in the game's own files
     this.quests = []; // quests in the wizard's shape (js/quests.js)
+    this.journalLines = []; // extra journal lines (journalLine)
   }
   in(x, y) { return x >= 0 && y >= 0 && x < this.w && y < this.h; }
   at(x, y) { return this.in(x, y) ? this.grid[y][x] : ' '; }
@@ -154,6 +155,10 @@ class Plan {
   // so it opens in the wizard. Its stages go into the NPCs' conversations
   // with mergeQuest, in the plan.
   quest(q) { this.quests.push(tidyQuest(q)); }
+
+  // A journal line for a flag set somewhere the plan can't see (an old
+  // walk-on script it writes as a file, say), and the flag's condition.
+  journalLine(flag, title, text, done = false) { this.journalLines.push({ flag, title, text, done }); }
 
   // Someone to talk to: a prop called `name` that looks like the prop
   // `look`, with a description and a conversation (the dialogue editor's
@@ -287,6 +292,10 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
       for (const f of flagsOf(npc.dlg)) conditions.add(f);
       for (const j of journalEntriesOf(npc.dlg)) journal.push(j);
     }
+  }
+  for (const j of plan.journalLines) {
+    journal.push(j);
+    conditions.add(j.flag);
   }
   for (const q of plan.quests) {
     const problems = questProblems(q);
