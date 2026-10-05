@@ -6,6 +6,8 @@
 // local (15, 40), 66 x 54 squares (absolute 440-505, 1220-1273), and a
 // road runs north from its gate to the lake shore.
 
+import { captain, SHIP_ROWS } from './ferry.mjs';
+
 const CITY = { x: 15, y: 40 };
 
 // Coordinates inside the city's oval.
@@ -146,8 +148,9 @@ export default {
   origin: [425, 1180],
   size: [96, 101],
   seed: 11,
-  // Only over the forest: ground, trees and beach, never water or rock.
-  mayBuild: (t) => [1, 36, 38, 27, 64, 103, 25, 26, 102, 124].includes(t),
+  // Only over the forest: ground, trees and beach, never water or rock
+  // (but the landing's pier, over the shore and the sea).
+  mayBuild: (t) => [1, 36, 38, 27, 64, 103, 25, 26, 102, 124, 0].includes(t) || (t >= 66 && t <= 89),
   baseProps: BASE_PROPS,
   copies: [
     { from: 'talk/Bank Teller', to: 'talk/Elven Teller', replace: [['Bank Teller says', 'Elven Teller says']] },
@@ -282,6 +285,12 @@ export default {
     // The road north to the lake shore, and short roads out of the other gates.
     p.path([[CITY.x + 33, CITY.y - 1], [CITY.x + 33, 14], [21, 14], [21, 8]]);
     p.fill(17, 6, 9, 2, '_');
+    // Aelindor Landing: a pier into the inlet (which is open sea), a ferry
+    // captain (ferry.mjs), and a ship moored off it.
+    p.fill(18, 0, 3, 5, '=');
+    p.npc({ name: 'Captain Liriel', look: 'Elf', desc: 'Captain Liriel, an elf who prefers the sea to the trees.', x: 19, y: 0, dlg: captain('landing', 'Ships to Westsea Harbour and Eastreach! Fifty gold!') });
+    p.sign('Aelindor Landing', 'Aelindor Landing. Ships to Westsea Harbour and Eastreach. Aelindor is south along the road.', 22, 6);
+    SHIP_ROWS.forEach((row, j) => row.forEach((t, i) => p.farTile(439 + i, 1176 + j, t)));
     c.path([[33, 54], [33, 60]]);
     c.path([[-1, 27], [-12, 27]]);
     c.path([[66, 27], [78, 27]]);

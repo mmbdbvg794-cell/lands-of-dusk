@@ -80,6 +80,8 @@ class Plan {
   in(x, y) { return x >= 0 && y >= 0 && x < this.w && y < this.h; }
   at(x, y) { return this.in(x, y) ? this.grid[y][x] : ' '; }
   set(x, y, ch) { if (this.in(x, y)) this.grid[y][x] = ch; }
+  // A square as a tile number rather than a legend character.
+  tileNumber(x, y, t) { this.set(x, y, t); }
   fill(x, y, w, h, ch) { for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) this.set(i, j, ch); }
   // A filled ellipse inside the box.
   oval(x, y, w, h, ch) {
@@ -158,6 +160,7 @@ function tiles(plan, seed) {
   for (let y = 0; y < plan.h; y++) for (let x = 0; x < plan.w; x++) {
     const ch = plan.at(x, y);
     if (ch === ' ') continue;
+    if (typeof ch === 'number') { out[y][x] = ch; continue; }
     if (ch === 'T') { out[y][x] = TREES[Math.floor(r() * TREES.length)]; continue; }
     if (ch === 'Y') { out[y][x] = GOLDEN[Math.floor(r() * GOLDEN.length)]; continue; }
     if (ch === '.') {
@@ -230,9 +233,10 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
   if (x0 + w > C || y0 + h > R) throw new Error('the town runs off the map');
   const changes = [];
   for (const { x, y, ch } of plan.far) {
-    if (!(ch in LEGEND)) throw new Error(`far square ${x},${y}: "${ch}" isn't in the legend`);
+    const tile = typeof ch === 'number' ? ch : LEGEND[ch];
+    if (tile == null) throw new Error(`far square ${x},${y}: "${ch}" isn't in the legend`);
     const was = map.readUInt16BE(8 + (x * R + y) * 2);
-    if (was !== LEGEND[ch]) changes.push([x, y, LEGEND[ch], was, true]);
+    if (was !== tile) changes.push([x, y, tile, was, true]);
   }
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const t = grid[y][x];
@@ -240,8 +244,11 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
     const was = map.readUInt16BE(8 + ((x0 + x) * R + y0 + y) * 2);
     if (was !== t) changes.push([x0 + x, y0 + y, t, was]);
   }
-  // Never inside the old 1000 x 1000 world.
-  for (const [x, y] of changes) if (x < 1000 && y < 1000) throw new Error(`the plan changes ${x},${y}, in the old world`);
+  // Never inside the old 1000 x 1000 world, unless the plan says it may
+  // (oldWorld: a harbour and its trail), and then only over what its
+  // mayBuild allows.
+  if (!city.oldWorld) for (const [x, y] of changes) if (x < 1000 && y < 1000) throw new Error(`the plan changes ${x},${y}, in the old world`);
+  if (city.oldWorld && !city.mayBuild) throw new Error('a plan that changes the old world must say what it may build over (mayBuild)');
   if (city.mayBuild) for (const [x, y, , was, far] of changes) {
     if (far) continue; // far squares are placed one by one, on purpose
     if (!city.mayBuild(was)) throw new Error(`the plan builds over tile ${was} at ${x},${y}, which it says it mustn't`);
@@ -283,6 +290,7 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
   }
   const bundle = {
     name: city.name,
+    oldWorld: !!city.oldWorld,
     area: { x: x0, y: y0, w, h },
     tiles: changes.map(([x, y, t]) => [x, y, t]),
     props: plan.props.map(abs),

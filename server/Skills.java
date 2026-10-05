@@ -73,6 +73,8 @@ public class Skills {
         } catch (Exception e) {
             Log.logError(e, "Skills: making defConditions/" + BIND_FLAG, false);
         }
+        // Ferries have their own clock (server/Ferry.java).
+        Ferry.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

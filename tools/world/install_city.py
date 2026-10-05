@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Puts a town built by tools/world/city.mjs into a Dusk game directory.
 
-    python3 install_city.py <game dir> <bundle.json> [--dry-run] [--force]
+    python3 install_city.py <game dir> <bundle.json> [--dry-run] [--force] [--old-world]
 
 What it changes, after copying each file it touches to
 backups/city-<name>-<time>/:
@@ -53,7 +53,7 @@ def main():
         b = json.load(f)
     os.chdir(game)
     stamp = time.strftime("%Y%m%d-%H%M%S")
-    backup = os.path.join("backups", "city-%s-%s" % (b["name"].lower(), stamp))
+    backup = os.path.join("backups", "city-%s-%s" % (b["name"].lower().replace(" ", "-"), stamp))
     said = []
 
     def keep(path):
@@ -85,8 +85,8 @@ def main():
     for x, y, t in b["tiles"]:
         if not (0 <= x < cols and 0 <= y < rows):
             sys.exit("square %d,%d is off the %dx%d map" % (x, y, cols, rows))
-        if x < 1000 and y < 1000:
-            sys.exit("square %d,%d is in the old world; not touching it" % (x, y))
+        if x < 1000 and y < 1000 and not (b.get("oldWorld") and "--old-world" in sys.argv):
+            sys.exit("square %d,%d is in the old world; not touching it (a plan that may, run with --old-world)" % (x, y))
         at = 8 + (x * rows + y) * 2
         if struct.unpack(">H", data[at:at + 2])[0] != t:
             data[at:at + 2] = struct.pack(">H", t)

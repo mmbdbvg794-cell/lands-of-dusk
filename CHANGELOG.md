@@ -283,6 +283,14 @@ backups; see `server/`.
   Underground there's no weather and it's always dark, lantern-lit.
   The world map keeps it apart: underground it shows only the caves;
   on the surface they're hidden (gods see sea there).
+- **Ferries**: ships between three ports for 50 gp: **Westsea Harbour**
+  in the old world (on the western sea north of the refugee ship, down a
+  new forest trail from the road south of the great walled city),
+  **Aelindor Landing** (the pier at the end of Aelindor's north road)
+  and **Eastreach** on the eastern continent. Talk to the captain, pick a
+  port, and you ride a ship out at sea for 20 seconds before stepping off
+  at the other end (server/Ferry.java; the network is in
+  tools/world/cities/ferry.mjs).
 - **Tile editor: walking rules by race** ("Only players of race",
   "Everyone but race").
 - **Conversations no longer cut short**: the client's own background
