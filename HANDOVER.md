@@ -157,6 +157,13 @@ commands that touch live.
   deletes it when replacing); the fairy glade (41-59 x 49-67, the Fairy
   King) is sealed off from the rest of the world.
 
+- Old-script sweep LIVE (no restart needed): tools/server/check_scripts.py
+  (run it after content changes) and fix_scripts.py (88 mended, 5 stray
+  walk-on files removed, 4 typos). Left: missing content the scripts
+  expect (Champion vault key1-key10 and Sword1-Sword10 at 18_978 etc.,
+  the fire orb / Reward Note chain, the topaz and aquamarine the summons
+  need); extra "end"s are harmless and left.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
