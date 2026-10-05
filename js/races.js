@@ -3,9 +3,10 @@
 
 const STAT_NAMES = { STR: 'Strength', DEX: 'Dexterity', INT: 'Intelligence', CON: 'Constitution', WIS: 'Wisdom' };
 const ORDER = ['STR', 'DEX', 'INT', 'CON', 'WIS'];
-// Names for starting points, by "x,y" as in the race files. A race that
-// starts somewhere unnamed just "starts elsewhere".
-export const PLACES = { '110,96': 'the Underdark' };
+// Names for starting points, by "x,y" as in the race files: a named one
+// is always shown. A race that starts somewhere unnamed, away from where
+// most races start, just "starts elsewhere".
+export const PLACES = { '110,96': 'the Underdark', '1271,960': 'the Underdark', '415,1307': 'the Grove of Waking' };
 
 // For each race: its bonus tags ("+3 DEX"), their total, a note if it
 // starts somewhere other than most races, and a sentence for the tooltip.
@@ -18,7 +19,9 @@ export function describeRaces(info) {
     const k = `${r.start.x},${r.start.y}`;
     starts.set(k, (starts.get(k) ?? 0) + 1);
   }
-  const usual = [...starts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+  // (Only when two or more share it.)
+  const top = [...starts.entries()].sort((a, b) => b[1] - a[1])[0];
+  const usual = top?.[1] > 1 ? top[0] : null;
 
   const out = {};
   for (const [name, r] of races) {
@@ -26,8 +29,8 @@ export function describeRaces(info) {
     const tags = bonuses.map(({ stat, n }) => `${n > 0 ? '+' : ''}${n} ${stat}`);
     const total = bonuses.reduce((sum, b) => sum + b.n, 0);
     const at = r.start ? `${r.start.x},${r.start.y}` : null;
-    const elsewhere = at && usual && starts.size > 1 && at !== usual;
-    const place = elsewhere ? PLACES[at] ?? null : null;
+    const place = at ? PLACES[at] ?? null : null;
+    const elsewhere = !!at && (place != null || (usual != null && starts.size > 1 && at !== usual));
     const note = elsewhere ? (place ? `starts in ${place}` : 'starts elsewhere') : null;
     const words = bonuses.map(({ stat, n }) => `${n > 0 ? '+' : ''}${n} ${STAT_NAMES[stat]}`);
     const title = [

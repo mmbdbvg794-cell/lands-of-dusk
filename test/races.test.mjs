@@ -38,4 +38,9 @@ const f = describeRaces({
 assert.equal(f.c.note, 'starts elsewhere', 'an unnamed starting point');
 assert.equal(f.c.title, 'C: no stat bonuses. Starts somewhere other than the other races (50, 50).');
 assert.deepEqual(describeRaces(null), {});
+// Every race somewhere different: only the named places get a note.
+const apart = describeRaces({ a: { start: { x: 1, y: 1 } }, b: { start: { x: 415, y: 1307 } }, c: { start: { x: 9, y: 9 } } });
+assert.equal(apart.a.note, null);
+assert.equal(apart.b.note, 'starts in the Grove of Waking');
+assert.equal(apart.c.note, null);
 console.log('ok - races');

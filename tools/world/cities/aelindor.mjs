@@ -132,7 +132,7 @@ const NIMUE = { shouts: [], stages: [always('My grandmother says these oaks were
 // The props the townsfolk look like (painted as elves, see
 // tools/paintart/items.js; image is the old sprite for the Pixel style).
 const PROP = (image, desc) => `image\n${image}\ndescription\n${desc}\n.\n`;
-const BASE_PROPS = {
+export const BASE_PROPS = {
   'Elf': PROP(2, 'An elf of Aelindor, tall and quiet.'),
   'Elf Woman': PROP(5, 'An elf of Aelindor, graceful and watchful.'),
   'Elf Guard': PROP(5, 'An elven guard in leaf-green mail, a bow across her back.'),
