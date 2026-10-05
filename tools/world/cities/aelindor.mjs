@@ -45,9 +45,11 @@ const ELDER = {
         effects: [
           { kind: 'unflag', flag: 'aelindor_blessed' },
           { kind: 'flag', flag: 'aelindor_done', journal: { title: QUEST, text: 'Elder Faelar named me a friend of Aelindor.', done: true } },
+          { kind: 'give', item: 'moonleaf amulet' },
           { kind: 'exp', amount: 300 },
           { kind: 'gold', amount: 150 },
         ],
+        next: { verb: 'acts', says: 'Elder Faelar places a Moonleaf Amulet in your hand: a silver leaf on a fine chain. You gain 300 experience and 150 gold.', answers: [] },
       },
     ]),
     ifFlag('aelindor_welcome', 'Have you been to the Moonwell yet? Priestess Ilsevel keeps the shrine across the avenue, to the north-east.'),
@@ -153,6 +155,8 @@ export default {
   build(p) {
     const c = inCity(p);
     for (const [name, text] of Object.entries(BASE_PROPS)) p.file(`defProps/${name}`, text);
+    // The Elder's reward: worn at the neck.
+    p.file('defItems/moonleaf amulet', 'type\narmor\nkind\nneck\ndescription\na silver leaf on a fine chain, glowing faintly like the Moonwell\ncost\n500\nmod\n40\nimage\n7\ndurability\n-1\n.\n');
     p.file('talk/Elven Teller.greet', 'Your gold is safe beneath the oaks.\nThe bank of Aelindor is open.\n');
 
     // The clearing and its ring of oaks, with four gates.
@@ -265,6 +269,10 @@ export default {
     c.prop('Elf Guard', 34, 51);
     c.prop('Elf Guard', 2, 26);
     c.prop('Elf Guard', 63, 28);
+    // Dark elves aren't let through the gates (gods walk anywhere).
+    const noDarkElves = { kind: 'norace', flag: 'darkelf', speaker: 'Elf Guard', verb: 'shouts', says: 'Halt! No dark elf passes the gates of Aelindor. Turn back to your caves.' };
+    for (const x of [32, 33, 34]) { p.walk(CITY.x + x, CITY.y + 1, noDarkElves); p.walk(CITY.x + x, CITY.y + 52, noDarkElves); }
+    for (const y of [26, 27, 28]) { p.walk(CITY.x + 1, CITY.y + y, noDarkElves); p.walk(CITY.x + 64, CITY.y + y, noDarkElves); }
     const welcome = 'Aelindor, city of the elves. Be welcome under the trees.';
     c.sign('Aelindor', welcome, 34, -1);
     c.sign('Aelindor', welcome, 32, 54);

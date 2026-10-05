@@ -7,7 +7,8 @@ import { newRule, newWalk, tileSaveCommand, TILE_GET, VERBS, tileScriptCommand, 
 import { tileClear } from './god.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
-const WALK = [['everyone', 'Everyone (as normal)'], ['flag', 'Only players with flag'], ['noflag', "Only players without flag"], ['nobody', 'Nobody']];
+const WALK = [['everyone', 'Everyone (as normal)'], ['flag', 'Only players with flag'], ['noflag', "Only players without flag"], ['race', 'Only players of race'], ['norace', 'Everyone but race'], ['nobody', 'Nobody']];
+const RACES = [['human', 'Human'], ['elf', 'Elf'], ['darkelf', 'Dark elf'], ['lizardman', 'Lizardman']];
 const EFFECTS = [
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['give', 'Give item'], ['take', 'Take item'],
   ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
@@ -184,7 +185,9 @@ export class TileEditor {
       h('div', { className: 'de-row de-stage-head' }, h('strong', { textContent: 'Who can step onto this square' })),
       h('div', { className: 'de-row' },
         select(WALK, w.kind, (v) => { w.kind = v; again(); }),
-        w.kind === 'flag' || w.kind === 'noflag' ? input(w.flag, 'flag name, e.g. tutorial', (v) => { w.flag = v; }) : null),
+        w.kind === 'flag' || w.kind === 'noflag' ? input(w.flag, 'flag name, e.g. tutorial', (v) => { w.flag = v; }) : null,
+        // A race is kept in the same field as a flag.
+        w.kind === 'race' || w.kind === 'norace' ? select(RACES, RACES.some(([r]) => r === w.flag) ? w.flag : (w.flag = 'human'), (v) => { w.flag = v; }) : null),
       w.kind === 'everyone' ? null : h('div', { className: 'de-row' }, h('span', { className: 'de-label-text', textContent: 'If not' }),
         input(w.speaker, 'Who says it (optional)', (v) => { w.speaker = v; }, { className: 'de-label' }),
         select(VERBS, w.verb ?? 'says', (v) => { w.verb = v; }),

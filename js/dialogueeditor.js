@@ -2,7 +2,7 @@
 // what they do, for one NPC. Opened from the God tab or an NPC's click
 // menu; saved as the NPC's talk script (js/dialogue.js turns it into one).
 
-import { newDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS } from './dialogue.js';
+import { newDialogue, tidyDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS } from './dialogue.js';
 import { journalSet, JOURNAL_ALL } from './social.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)']];
@@ -61,7 +61,7 @@ export class DialogueEditor {
   loaded({ name, dialogue, handWritten }) {
     if (!this.open || name.toLowerCase() !== this.name?.toLowerCase()) return;
     clearTimeout(this.timer);
-    this.dlg = dialogue ?? newDialogue();
+    this.dlg = tidyDialogue(dialogue ?? newDialogue());
     this.el.querySelector('.de-warn').hidden = !handWritten;
     if (this.journal.size) { fillJournal(this.dlg, this.journal); this.journalFilled = true; }
     this.render();

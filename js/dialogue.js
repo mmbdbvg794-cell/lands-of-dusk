@@ -22,6 +22,30 @@ export const newDialogue = () => ({
   stages: [{ when: { kind: 'always', value: '' }, says: '', answers: [] }],
 });
 
+// Fills in what a dialogue left out (empty lists, missing text), so one
+// written by hand or by a tool (tools/world/city.mjs) opens in the editor.
+export function tidyDialogue(dlg) {
+  const d = dlg && typeof dlg === 'object' ? dlg : {};
+  const node = (n) => {
+    n.says = n.says ?? '';
+    n.answers = Array.isArray(n.answers) ? n.answers : [];
+    for (const a of n.answers) {
+      a.label = a.label ?? '';
+      a.reply = a.reply ?? '';
+      a.effects = Array.isArray(a.effects) ? a.effects : [];
+      if (a.next) node(a.next);
+    }
+    return n;
+  };
+  d.shouts = Array.isArray(d.shouts) ? d.shouts : [];
+  d.stages = Array.isArray(d.stages) && d.stages.length ? d.stages : newDialogue().stages;
+  for (const st of d.stages) {
+    st.when = st.when ?? { kind: 'always', value: '' };
+    node(st);
+  }
+  return d;
+}
+
 // A flag name the server can keep as a condition file.
 export const cleanFlag = (s) => String(s ?? '').trim().replace(/[^A-Za-z0-9_]/g, '_').slice(0, 40);
 
@@ -245,7 +269,7 @@ export function toTileScript(rules) {
 }
 
 // Who can step onto the square (walk): { kind: 'everyone'|'flag'|'noflag'
-// |'nobody', flag, speaker, says } -> the server's can-move expression
+// |'race'|'norace'|'nobody', flag, speaker, says } -> the server's can-move expression
 // (empty for everyone) and what a player who can't is told. Gods walk
 // anywhere regardless.
 export const newWalk = () => ({ kind: 'everyone', flag: '', speaker: '', says: '' });
@@ -254,6 +278,9 @@ export function canMoveExpr(walk) {
   switch (walk?.kind) {
     case 'flag': return f ? `hasCondition trigger ${f}` : '';
     case 'noflag': return f ? `! hasCondition trigger ${f}` : '';
+    // The race is kept in .flag too (human, elf, darkelf, lizardman).
+    case 'race': return f ? `isRace trigger ${f.toLowerCase()}` : '';
+    case 'norace': return f ? `! isRace trigger ${f.toLowerCase()}` : '';
     case 'nobody': return 'false';
     default: return '';
   }
@@ -261,7 +288,7 @@ export function canMoveExpr(walk) {
 export const blockedText = (walk) => (text(walk?.says) ? tileLine(walk) : '');
 // A tile's message: from a speaker (said, shouted... or an action), or just
 // the words when no one says it.
-function tileLine(r) {
+export function tileLine(r) {
   return text(r.speaker) ? spoken(text(r.speaker), r.verb, text(r.says)) : text(r.says);
 }
 

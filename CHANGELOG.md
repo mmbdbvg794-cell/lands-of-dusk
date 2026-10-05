@@ -264,6 +264,18 @@ backups; see `server/`.
   in the middle, deserts and palm coasts in the south, and 40 rivers
   running down to the sea, all with fitted shores. Made by
   `tools/world/generate.mjs`.
+- **Aelindor, the elven city**, in the southern forest (around 473, 1246):
+  a ring of oaks with four guarded gates, the Moonwell plaza, the Elder's
+  Hall and Moon Shrine (the quest "Friend of Aelindor", rewarding a
+  Moonleaf Amulet), the Silver Leaf inn, a bank, a bowyer, a tailor, an
+  herbalist, a training glade and homes. Dark elves aren't let through
+  the gates. Built from a plan by `tools/world/city.mjs` and installed
+  with `tools/world/install_city.py`.
+- **Tile editor: walking rules by race** ("Only players of race",
+  "Everyone but race").
+- **Conversations no longer cut short**: the client's own background
+  lines (map saving, lookups) used to be taken as your answer when an NPC
+  was waiting for one; they now wait until you've answered.
 
 ## Website
 

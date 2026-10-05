@@ -21,7 +21,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { toScript, toGreet, flagsOf, journalEntriesOf } from '../../js/dialogue.js';
+import { toScript, toGreet, flagsOf, journalEntriesOf, tidyDialogue, toTileScript, canMoveExpr, blockedText } from '../../js/dialogue.js';
 
 // Plan characters -> tiles. Paths and water are fitted to their
 // neighbours below; trees vary.
@@ -73,7 +73,7 @@ class Plan {
     this.w = w; this.h = h;
     this.grid = Array.from({ length: h }, () => Array(w).fill(' '));
     this.props = []; this.merchants = []; this.signs = []; this.mobs = [];
-    this.npcs = []; this.files = {}; this.notes = [];
+    this.npcs = []; this.files = {}; this.notes = []; this.walks = [];
   }
   in(x, y) { return x >= 0 && y >= 0 && x < this.w && y < this.h; }
   at(x, y) { return this.in(x, y) ? this.grid[y][x] : ' '; }
@@ -122,6 +122,9 @@ class Plan {
   sign(name, text, x, y) { this.signs.push({ name, text, x, y }); }
   mob(name, level, x, y) { this.mobs.push({ name, level, x, y }); }
   file(path, text) { this.files[path] = text; }
+  // Who may step onto a square, as the tile editor's walking rule (see
+  // canMoveExpr in js/dialogue.js): { kind, flag, speaker, verb, says }.
+  walk(x, y, rule) { this.walks.push({ x, y, rule }); }
   // Someone to talk to: a prop called `name` that looks like the prop
   // `look`, with a description and a conversation (the dialogue editor's
   // shape, see js/dialogue.js).
@@ -235,6 +238,7 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
       files[`defProps/${npc.name}`] = namedPropFile(base, npc.look, npc.desc);
     }
     if (npc.dlg) {
+      tidyDialogue(npc.dlg);
       files[`talk/${npc.name}`] = toScript(npc.name, npc.dlg);
       files[`talk/${npc.name}.dlg`] = JSON.stringify(npc.dlg);
       const greet = toGreet(npc.dlg);
@@ -242,6 +246,17 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
       for (const f of flagsOf(npc.dlg)) conditions.add(f);
       for (const j of journalEntriesOf(npc.dlg)) journal.push(j);
     }
+  }
+  // Walking rules, written as the tile editor writes them (server/Props.java
+  // tileSet), so they open there: the rules file, an empty walk-on script,
+  // the can-move script and what a player who can't is told.
+  for (const { x, y, rule } of plan.walks) {
+    const key = `${x0 + x}_${y0 + y}`;
+    files[`tileactions/${key}.json`] = JSON.stringify({ rules: [], walk: rule });
+    files[`defMoveActions/${key}`] = toTileScript([]);
+    files[`defCanMoveScripts/${key}`] = `#Who can step here, made in the God tab.\n${canMoveExpr(rule)}\n`;
+    const told = blockedText(rule);
+    if (told) files[`tileactions/${key}.block`] = told;
   }
   const bundle = {
     name: city.name,
