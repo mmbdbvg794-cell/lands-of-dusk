@@ -220,6 +220,13 @@ commands that touch live.
   named sheet is now a 16-column grid of 256 px frames (a strip would
   pass Chrome's 32767 px canvas width); main.js loads it with size 256.
 
+- Phone slowness (2026-10-06): not Pixi. A map draw took ~75 ms on a
+  fast machine (~450 ms at 6x CPU throttle), almost all drawImage from
+  the 4096x2560 named sheet with smoothing (the browser reworks the whole
+  sheet per shrink). SpriteSheet.draw now shrinks each frame once at the
+  shown size and keeps it (400 a sheet): 12 ms throttled. Profile
+  harness: scratchpad e2e/prof3.mjs (drawImage time by source).
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).

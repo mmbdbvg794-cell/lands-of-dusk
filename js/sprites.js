@@ -11,6 +11,7 @@
 
 const SHEETS = ['map', 'players', 'sprites'];
 const LOAD_TIMEOUT_MS = 15000;
+const SHRUNK_KEEP = 400; // frames kept ready-shrunk, per sheet
 
 export class SpriteSheet {
   // `size`: the frame side, for a grid of frames read left to right, top
@@ -26,11 +27,31 @@ export class SpriteSheet {
   // past the end of the strip draw nothing, as in Java.
   draw(ctx, n, dx, dy, cell) {
     if (n < 0 || n >= this.count) return false;
-    // Nearest-neighbour when enlarging keeps pixel art crisp; smoothing
-    // when shrinking avoids dropped pixels on the 64px sprites.
-    ctx.imageSmoothingEnabled = cell < this.size;
-    ctx.imageSmoothingQuality = 'high';
     const sx = (n % this.cols) * this.size, sy = Math.floor(n / this.cols) * this.size;
+    // Shrinking: from a copy of the frame made once at this size. Shrinking
+    // smoothly straight from the sheet costs the browser a pass over the
+    // whole sheet (thousands of pixels across) nearly every time: a few
+    // creatures made a phone's map draw take a tenth of a second.
+    if (cell < this.size && typeof document !== 'undefined') {
+      const side = Math.round(cell);
+      if (side !== this.shrunkSide) { this.shrunk = new Map(); this.shrunkSide = side; }
+      let small = this.shrunk.get(n);
+      if (!small) {
+        small = document.createElement('canvas');
+        small.width = small.height = side;
+        const c = small.getContext('2d');
+        c.imageSmoothingEnabled = true;
+        c.imageSmoothingQuality = 'high';
+        c.drawImage(this.img, sx, sy, this.size, this.size, 0, 0, side, side);
+        // Keep a few hundred; the oldest go first.
+        if (this.shrunk.size >= SHRUNK_KEEP) this.shrunk.delete(this.shrunk.keys().next().value);
+        this.shrunk.set(n, small);
+      }
+      ctx.drawImage(small, dx, dy, cell, cell);
+      return true;
+    }
+    // Nearest-neighbour when enlarging keeps pixel art crisp.
+    ctx.imageSmoothingEnabled = false;
     ctx.drawImage(this.img, sx, sy, this.size, this.size, dx, dy, cell, cell);
     return true;
   }
