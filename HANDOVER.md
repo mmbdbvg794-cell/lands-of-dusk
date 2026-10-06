@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-06 19:40 UTC. Read this first in a new session.
+State as of 2026-10-06 19:55 UTC. Read this first in a new session.
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -383,7 +383,7 @@ commands that touch live.
   engine's set always parses one value before the switch), so the 83 is
   ignored and the dead go to their bind point with 5 HP and "safe" (120 s).
 
-## 2026-10-06 late evening (installed on live, need a restart of duskserver; no god save first)
+## 2026-10-06 late evening (all LIVE since the 19:51 restart)
 
 - Bug reports to the gods (server/Mail.java, hooked in Props.command and
   Skills start): the bug dialog's Send also sends "bugreport <subject>
@@ -403,6 +403,12 @@ commands that touch live.
   doesn't use them up; cost 0. Tested on scratch (egate/hgate). alpha,
   beta, dmwexp, fixup, lightning bolt, book of ramaden stay plain.
   Items can be used by id only ("use <id>"; use "<name>" says nothing).
+- Restarting: the user's `! ssh duskserver sudo ...` silently didn't run
+  twice (no tty for the password). What worked: flan types `restart 10` in
+  the game (Admin.java, privs 5; exits with code 3, systemd brings it back,
+  no map save). Suggest that first.
+- install.sh copies a fixed list of classes: a new server class must be
+  added there (and to build.sh's lists), or the restart can't find it.
 - More old-world lights (installed): lights-{westsea,westisle,frosthall}.mjs.
   The spy village (83,6) is inside the north-west village's box, already
   lit; 514,5 and 284,151 had nothing to light; the specks at 977,938
