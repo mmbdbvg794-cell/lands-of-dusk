@@ -168,9 +168,13 @@ commands that touch live.
   far-south enclave reached via the tree at 3,4; tested end to end on
   scratch); fix_item_files.py (38 item files that couldn't load: capitals
   in the name, no "type" first) LIVE; gems (add_gems.py) LIVE, drops on
-  monsters after a restart. Not done: the Champion gauntlet (10 boss rooms
-  on the enclave's east and south edges, Key1-Key10, Sword1-Sword10, a
-  "Champion" flag; no bosses placed, none of the items exist): needs design.
+  monsters after a restart. The Champions' Gauntlet
+  (tools/world/cities/gauntlet.mjs) installed 2026-10-06 00:2x, needs a
+  restart for its champions and sign: entrance 37,966, ten champions
+  (keys key1-key10), back door 6,988 (flag gauntlet_hall), prize the
+  Champion's Blade (mod 900) once, flag Champion. Tested on scratch
+  (doors, back door, clerk, a champion's key drop). Scratch's egate was
+  given huge stats for that test.
 
 ## Open / ideas (ask the user before starting)
 
