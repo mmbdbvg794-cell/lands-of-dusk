@@ -183,7 +183,10 @@ commands that touch live.
   in js/dialogue.js; Quests.setTimer takes the key back). Built and
   tested on scratch (rent, renew, info, doors, bed). Not yet live: needs
   deploy + server build/install + install_city (bundle in /tmp/capital.json
-  on duskserver) + restart. Ideas offered: a ferry port at its piers.
+  on duskserver) + restart. LIVE since 03:36. Ferry port added 03:4x
+  (Royal Swan to Westsea, Gannet to Eastreach, Captain Rowan on the long
+  middle pier; routes tools/world/routes/kingshaven-*.txt): installed on
+  live, its pier and captain need a restart.
 
 ## Open / ideas (ask the user before starting)
 
