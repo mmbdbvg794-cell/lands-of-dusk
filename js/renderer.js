@@ -227,7 +227,7 @@ export class Renderer {
       const key = storage ? `storage ${storageKind(bareName(e.name))}` : e.type === 3 ? `prop ${this.propLooks.get(propName) ?? propName}` : bareName(e.name).toLowerCase();
       // Creatures painted by name step with a walking frame of their own
       // ("<name> walk", tools/paintart/bestiary.js), as players do.
-      const byName = (art === this.named && world.walking(e, now) ? art.index.get(`${key} walk`) : undefined) ?? art?.index.get(key);
+      const byName = (art && art === this.named && world.walking(e, now) ? art.index.get(`${key} walk`) : undefined) ?? art?.index.get(key);
       if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
       else if (e === self) this.drawDressed(e.image, step, px, py, c, this.gear);
