@@ -305,6 +305,22 @@ commands that touch live.
   Tested headless on scratch: on, off/on in Settings, off from the start,
   CDN blocked (scratchpad e2e/light.mjs).
 
+- Help tab + chat hint (2026-10-06, needs deploy): index.html #tab-help
+  (moving, chat prefixes ' ; / : emote, fighting, things, quests,
+  settings); the command box says "' to say, ; to gossip".
+- Night lights (2026-10-06), installed on live 16:51, need a restart (no
+  god save before) and a deploy: tools/server/add_lights.sh (map.gif tiles
+  160-167 = torch on walls 59, 58, 98, 97, 60, 62, 101, 49 via
+  torchwalls.py; sprites.gif 55-57 = brazier, lamp post, campfire via
+  lightsprites.py; defTileScripts 160-167 false; tilecap 168), painted
+  versions in painter.js / items.js, light sources in js/lighting.js.
+  Placed by tools/world/lights.mjs + cities/lights-{kingshaven,aelindor,
+  velkarath,eastreach}.mjs (Kingshaven 142 torches 30 lamps, Aelindor 34
+  + 14, Velkarath 99 + 45 braziers, Eastreach 5 + campfires at Kell's and
+  the Sand Kings' camps). Westsea is only a pier road; the old world's
+  towns aren't lit yet. paintart/build.sh takes GAME=<dir> (and RC) to
+  paint from scratch.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
