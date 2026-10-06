@@ -40,19 +40,24 @@ commands that touch live.
 
 ## Testing (scratch server)
 
-- `/tmp/dusktest` on duskserver: a copy of the game on port 10011, bridge
-  on 8767 (`conf/prefs` must keep port 10011 and rcaddress
-  http://127.0.0.1:8011/). Start: `cd /tmp/dusktest && nohup java DuskServer > srv.log 2>&1 &`.
-  Stop by pid only after checking `/proc/<pid>/cwd` is /tmp/dusktest
-  (pkill patterns can kill your own shell).
+- `~/dusktest` on duskserver (moved out of /tmp, which the 2026-10-06
+  reboot wiped): a copy of the game on port 10011, bridge 8767, resources
+  8011. `tools/scratch.sh` does it all, run on duskserver:
+  `ssh duskserver 'sh -s setup' < tools/scratch.sh` (copy live's game
+  files over it; scratch keeps its own users/), then `start`, `stop`,
+  `status`. Stop it when not testing: with both servers up the container
+  has only ~140 MB free.
 - Build server classes for scratch from live's classes:
   `scp server/* duskserver:/tmp/srv-src/server/` then
   `SRC=/tmp/srv-src/server WORK=/tmp/dusk-scratch-build sh /tmp/srv-src/server/build.sh`,
-  copy `/tmp/dusk-scratch-build/out/*.class` into /tmp/dusktest, restart it.
+  copy `/tmp/dusk-scratch-build/out/*.class` into ~/dusktest, restart it.
 - Locally: ssh tunnel `-L 8767:127.0.0.1:8767 -L 8011:127.0.0.1:8011`,
   `python3 -m http.server 8124` in the repo, playwright-core +
   Chrome at `~/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome`
-  (set `localStorage dusk.server = ws://127.0.0.1:8767`).
+  (set `localStorage dusk.server = ws://127.0.0.1:8767`). Session
+  scratchpads vanish: playwright-core is in node_modules of the newest
+  scratchpad `e2e/` dir (or `npm i playwright-core` again). mkchar.mjs
+  there makes a character: `node mkchar.mjs <name> <race> <password>`.
 - Test characters on scratch: **egate** (god, elf), **hgate** (human),
   password `gatepw1`. Edit `users/<name>` and `.backup` only while logged
   out. Spell levels are `spell\n<group>\n<level>` lines (not `skill`).
