@@ -1197,6 +1197,8 @@ $('map').addEventListener('click', (e) => {
 $('target-attack').addEventListener('click', () => targetCommand(`a ${targetId}`));
 $('target-look').addEventListener('click', () => targetCommand(`look ${targetId}`));
 $('target-clear').addEventListener('click', clearTarget);
+$('target-flee').addEventListener('click', () => runCommand('flee'));
+panels.onActions = () => updateTarget();
 
 setMode('login');
 if ($('login-name').value) $('login-pass').focus();
@@ -1629,9 +1631,18 @@ function targetEntity(ent) {
 
 function updateTarget() {
   const ent = world.entities.get(targetId);
-  $('target-card').hidden = !ent;
+  // In a fight the card shows even with nothing targeted (a creature that
+  // attacked you), for its Flee button.
+  const fighting = panels.player.actions.includes('flee');
+  $('target-card').hidden = !ent && !fighting;
+  $('target-flee').hidden = !fighting;
   spellbook.refreshTarget();
-  if (!ent) return;
+  for (const id of ['bar-target', 'target-look', 'target-clear']) $(id).hidden = !ent;
+  if (!ent) {
+    $('target-name').textContent = 'In a fight';
+    $('target-attack').hidden = true;
+    return;
+  }
   $('target-name').textContent = world.displayNames().get(ent.id) ?? ent.name;
   setBar($('bar-target'), ent.hp, ent.maxhp);
   // Only creatures can be fought; a targeted player just shows their health.

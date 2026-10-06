@@ -317,12 +317,6 @@ body.playing #map-wrap { display: flex; }
 #panel.collapsed [role="tab"][aria-selected="true"] { border-bottom-color: transparent; }
 [role="tab"] .count { color: var(--faint); font-size: 12px; }
 
-#actions {
-  flex: 0 1 auto;
-  min-width: 0;
-  max-width: 45%;
-  padding: 4px 6px;
-}
 
 .tab {
   flex: 1;
@@ -670,7 +664,6 @@ body.playing #map-wrap { display: flex; }
   #panel { max-height: 30vh; }
   #log { margin: 6px; }
   [role="tab"] { padding: 9px 7px 7px; }
-  #actions { max-width: 30%; }
 }
 
 
@@ -1162,7 +1155,8 @@ dialog::backdrop { background: #000a; }
 .cs-fact .cs-val { font-family: var(--mono); color: var(--text); }
 .cs-fact.gold .cs-val { color: var(--warn); }
 .cs-fact.exp .cs-val { color: #b69cff; }
-.cs-conds { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.cs-conds { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 6px; }
+.cs-rest { margin-left: auto; padding: 1px 10px; font-size: 12px; }
 .cs-cond { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--accent-dim); color: var(--text); }
 
 /* ---- what NPCs say ---- */

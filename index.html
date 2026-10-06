@@ -210,6 +210,7 @@
           </div>
           <div class="target-actions">
             <button type="button" id="target-attack" class="danger">Attack</button>
+            <button type="button" id="target-flee" class="danger" hidden>Flee</button>
             <button type="button" id="target-look">Look</button>
             <button type="button" id="target-clear" class="ghost">Clear</button>
           </div>
@@ -230,7 +231,6 @@
             <button type="button" role="tab" data-tab="trade" aria-controls="tab-trade" aria-selected="false" tabindex="-1" hidden>Trade</button>
             <button type="button" role="tab" data-tab="god" aria-controls="tab-god" aria-selected="false" tabindex="-1" hidden>God</button>
           </div>
-          <select id="actions" aria-label="Actions" disabled><option value="">Action…</option></select>
         </div>
         <div id="tab-inv" class="tab" role="tabpanel">
           <div id="inv-summary" class="summary" hidden>
@@ -406,7 +406,7 @@
       <h4>Fighting and spells</h4>
       <p>Click a creature and choose Attack (you have to stand next to it). The card at the top shows who you're fighting.</p>
       <p><kbd>1</kbd>–<kbd>9</kbd>, <kbd>0</kbd> use the hotbar slots. Click an empty slot to put a spell or any command in it; right-click or long-press to change it. The Spellbook lists your spells.</p>
-      <p>Trainers teach spells and skills, paid for in experience. <b>Sleep</b> (in the Action list) heals faster, but you can't walk until you wake.</p>
+      <p>Trainers teach spells and skills, paid for in experience. <b>Sleep</b> (the button beside hunger and thirst) heals faster, but you can't walk until you wake. In a fight, <b>Flee</b> is on the target card.</p>
       <h4>Things and money</h4>
       <p>The Backpack holds what you carry: use, wear or drop it there. Equipped shows what you wear.</p>
       <p>Stand at a shop's counter and the Shop tab opens. Shops buy things back for half what they cost.</p>

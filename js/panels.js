@@ -39,11 +39,6 @@ export class Panels {
       next.focus();
       this.select(next, true);
     });
-    this.$('#actions').addEventListener('change', (e) => {
-      const action = e.target.value;
-      e.target.value = '';
-      if (action) this.send(action);
-    });
     // Buying by name, for a merchant whose price list hasn't come.
     this.$('#shop-manual').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -325,10 +320,20 @@ export class Panels {
     if (s.exp !== null) facts.append(fact('', `${s.exp} exp`, 'exp'));
     const kids = [attrs, facts];
     const affected = playerConditions(s.sections.find((sec) => /affected/i.test(sec.title))?.items ?? []);
-    if (affected.length) {
+    // Sleep (or Wake) beside the conditions: the server offers one or the
+    // other outside a fight (Player.updateActions); Flee is on the target card.
+    const rest = this.player.actions.find((a) => a === 'sleep' || a === 'wake');
+    if (affected.length || rest) {
       const conds = document.createElement('div');
       conds.className = 'cs-conds';
       conds.append(...affected.map((c) => text('span', 'cs-cond', c)));
+      if (rest) {
+        const b = text('button', 'cs-rest small', rest === 'sleep' ? 'Sleep' : 'Wake');
+        b.type = 'button';
+        b.title = rest === 'sleep' ? 'Sleep: heal faster, but you can\'t walk until you wake' : 'Wake up';
+        b.addEventListener('click', () => this.send(rest));
+        conds.append(b);
+      }
       kids.push(conds);
     }
     box.replaceChildren(...kids);
@@ -522,10 +527,11 @@ export class Panels {
     this.$('#shop-exp').textContent = this.exp == null ? '' : `${this.exp} exp`;
   }
 
+  // What the server offers now (sleep, wake or flee): Sleep and Wake sit
+  // with the conditions, Flee on the target card (onActions).
   renderActions() {
-    const sel = this.$('#actions');
-    sel.replaceChildren(new Option('Action…', ''), ...this.player.actions.map((a) => new Option(a, a)));
-    sel.disabled = this.player.actions.length === 0;
+    this.renderStats();
+    this.onActions?.(this.player.actions);
   }
 }
 
