@@ -370,11 +370,11 @@ commands that touch live.
   (now, region) rolls weather, intensity and wind per region per 15-minute
   slot. The #lights panel shows the region. Rerun regions.mjs only when
   land changes a lot.
-- Old-world town lights installed on live 19:02, need a restart (no god
-  save first): tools/world/cities/lights-{cityoflight,midnight,firetown,
+- Old-world town lights LIVE (restart 19:12; checked at night on scratch,
+  screenshots of the City of Light and the Midnight Pub town): tools/world/cities/lights-{cityoflight,midnight,firetown,
   riverside,northwest}.mjs (236 torches, 37 lamps/braziers). lightsPlan
   takes `clear` (1 for the old world's 3-wide streets) and these leave out
-  natural rock (49). Not yet seen in game.
+  natural rock (49).
 - Chat tip LIVE (no restart: Talk recompiles changed scripts): the
   Recruiter (live only, backup in DuskRPG/backups/chat-tip-20261006; also
   dropped an empty answer and a stray quote), Warden Elarion and
