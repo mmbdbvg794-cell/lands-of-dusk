@@ -34,6 +34,7 @@ const KEEP_OUT = [
   [380, 1150, 540, 1340], // Aelindor, its landing and the Grove of Waking
   [1640, 1250, 1740, 1350], // Eastreach port
   [1240, 830, 1450, 1010], // the underground (Velkarath)
+  [1366, 282, 1526, 454], // Kingshaven, and a little room round it
   [376, 1221, 406, 1251], [671, 1469, 701, 1499], [1474, 1392, 1504, 1422], // stairs down
 ];
 const out = (x, y) => KEEP_OUT.some(([a, b, c, d]) => x >= a && x <= c && y >= b && y <= d);

@@ -185,8 +185,15 @@ commands that touch live.
   deploy + server build/install + install_city (bundle in /tmp/capital.json
   on duskserver) + restart. LIVE since 03:36. Ferry port added 03:4x
   (Royal Swan to Westsea, Gannet to Eastreach, Captain Rowan on the long
-  middle pier; routes tools/world/routes/kingshaven-*.txt): installed on
-  live, its pier and captain need a restart.
+  middle pier; routes tools/world/routes/kingshaven-*.txt): live since
+  the 03:54 restart. (A voyage before that restart landed flan in the
+  sea: the ferries file hot-reloads but map changes don't, so the new
+  pier wasn't in the running map yet. Install map + ferries together,
+  restart, then sail. Ferry.rescue skips gods, so a god left at sea stays.)
+- Wild dens inside Kingshaven (spawn pass, before the city): spawns.mjs
+  KEEP_OUT now covers 1366,282-1526,454; tools/server/clear_mobs.py
+  removes the 12 already in the live mobs file (copied to
+  ~/DuskRPG/clear_mobs.py; user runs it --apply, then restart).
 
 ## Open / ideas (ask the user before starting)
 
