@@ -305,7 +305,7 @@ commands that touch live.
   Tested headless on scratch: on, off/on in Settings, off from the start,
   CDN blocked (scratchpad e2e/light.mjs).
 
-- Help tab + chat hint (2026-10-06, needs deploy): index.html #tab-help
+- Help (2026-10-06): a Help button beside Map opens #help-dialog
   (moving, chat prefixes ' ; / : emote, fighting, things, quests,
   settings); the command box says "' to say, ; to gossip".
 - Night lights (2026-10-06), installed on live 16:51, need a restart (no

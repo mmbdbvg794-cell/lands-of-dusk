@@ -133,6 +133,11 @@ fetch('art/painted/people.json').then((r) => (r.ok ? r.json() : [])).then((list)
   renderer.invalidate();
 }).catch(() => {});
 $('map-btn').addEventListener('click', () => worldMap.toggle());
+// Help: how to play, in a window (closes with ✕, Escape or a click outside it).
+const helpDialog = $('help-dialog');
+$('help-btn').addEventListener('click', () => helpDialog.showModal());
+$('help-close').addEventListener('click', () => helpDialog.close());
+helpDialog.addEventListener('click', (e) => { if (e.target === helpDialog) helpDialog.close(); });
 // Gods (see god.js) get the God tab and Remove in the click menu.
 let isGod = false;
 const god = new GodPanel($('tab-god'), {
@@ -661,7 +666,7 @@ addEventListener('pagehide', saveExplored);
 const panelState = storage('get', 'dusk.panel');
 const [savedTab, savedOpen] = panelState ? panelState.split(':') : [];
 // Tabs that come and go (God, Shop, Storage) aren't reopened from last time.
-const steadyTab = ['inv', 'equip', 'book', 'stats', 'journal', 'friends', 'help'].includes(savedTab) ? savedTab : 'inv';
+const steadyTab = ['inv', 'equip', 'book', 'stats', 'journal', 'friends'].includes(savedTab) ? savedTab : 'inv';
 panels.selectByName(steadyTab, savedOpen ? savedOpen === '1' : window.innerWidth >= 800);
 panels.onToggle = (tab, open) => {
   storage('set', 'dusk.panel', `${tab}:${open ? 1 : 0}`);

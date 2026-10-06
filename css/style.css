@@ -1439,7 +1439,12 @@ dialog::backdrop { background: #000a; }
 #quest-editor .qe-online { color: var(--ok); font-size: 12px; }
 @media (max-width: 700px) { :is(#library-editor, #quest-editor) .le-layout { grid-template-columns: 1fr; } :is(#library-editor, #quest-editor) .le-names { max-height: 30vh; } }
 
-/* The Help tab. */
+/* Help (the button beside Map). */
+.help-dialog { width: min(560px, calc(100vw - 16px)); max-height: calc(100vh - 32px); background: var(--bg); } /* solid: the classic panel colour is see-through */
+.help-dialog[open] { display: flex; flex-direction: column; }
+.help-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 4px; }
+.help-head h2 { margin: 0; font-size: 18px; }
+.help-dialog .help { overflow-y: auto; padding: 0 18px 16px; }
 .help h4 { margin: 14px 0 4px; }
 .help h4:first-child { margin-top: 2px; }
 .help p { margin: 0 0 8px; line-height: 1.45; }

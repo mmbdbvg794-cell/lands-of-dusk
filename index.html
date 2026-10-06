@@ -33,6 +33,7 @@
     <span id="status-text" role="status">Disconnected</span>
     <span class="spacer"></span>
     <button type="button" id="map-btn" title="World map (M)">Map</button>
+    <button type="button" id="help-btn" title="How to play">Help</button>
     <div id="look-toggle" class="segmented" role="radiogroup" aria-label="Look">
       <button type="button" role="radio" data-look="classic" aria-checked="true">Classic</button>
       <button type="button" role="radio" data-look="modern" aria-checked="false">Modern</button>
@@ -226,7 +227,6 @@
             <button type="button" role="tab" data-tab="stats" aria-controls="tab-stats" aria-selected="false" tabindex="-1">Skills</button>
             <button type="button" role="tab" data-tab="journal" aria-controls="tab-journal" aria-selected="false" tabindex="-1">Journal</button>
             <button type="button" role="tab" data-tab="friends" aria-controls="tab-friends" aria-selected="false" tabindex="-1">Friends <span id="tab-friends-count" class="count"></span></button>
-            <button type="button" role="tab" data-tab="help" aria-controls="tab-help" aria-selected="false" tabindex="-1">Help</button>
             <button type="button" role="tab" data-tab="trade" aria-controls="tab-trade" aria-selected="false" tabindex="-1" hidden>Trade</button>
             <button type="button" role="tab" data-tab="god" aria-controls="tab-god" aria-selected="false" tabindex="-1" hidden>God</button>
           </div>
@@ -302,36 +302,6 @@
           </form>
           <ul id="friends-list" class="rows"></ul>
           <p id="friends-empty" class="empty">No friends yet. Add someone by name, or click a player and choose Add friend.</p>
-        </div>
-        <div id="tab-help" class="tab help" role="tabpanel" hidden>
-          <h4>Moving</h4>
-          <p><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk; hold to keep walking. On a phone, use the arrows on the screen.</p>
-          <p>Click a square to walk there. Click someone or something for what you can do: talk, attack, look, pick up, shop, trade.</p>
-          <p><kbd>M</kbd> or the map button opens the world map. Click the small map to zoom it.</p>
-          <h4>Talking</h4>
-          <p><kbd>Enter</kbd> to type. Start the line with:</p>
-          <table class="help-chat">
-            <tr><td><kbd>'</kbd> hello</td><td><b>say</b> it to the people near you</td></tr>
-            <tr><td><kbd>;</kbd> hello</td><td><b>gossip</b>: everyone online hears it</td></tr>
-            <tr><td><kbd>/</kbd>name hello</td><td><b>tell</b> one player, wherever they are (or click them: Whisper)</td></tr>
-            <tr><td><kbd>:</kbd> hello</td><td>your <b>clan</b>, if you're in one</td></tr>
-            <tr><td>emote waves</td><td>an action: "flan waves"</td></tr>
-          </table>
-          <p>Anything else you type is a command. <kbd>↑</kbd><kbd>↓</kbd> in the box bring back what you typed before.</p>
-          <p>When someone asks you something, press an answer, or type it.</p>
-          <h4>Fighting and spells</h4>
-          <p>Click a creature and choose Attack (you have to stand next to it). The card at the top shows who you're fighting.</p>
-          <p><kbd>1</kbd>–<kbd>9</kbd>, <kbd>0</kbd> use the hotbar slots. Click an empty slot to put a spell or any command in it; right-click or long-press to change it. The Spellbook lists your spells.</p>
-          <p>Trainers teach spells and skills, paid for in experience. <b>Sleep</b> (in the Action list) heals faster, but you can't walk until you wake.</p>
-          <h4>Things and money</h4>
-          <p>The Backpack holds what you carry: use, wear or drop it there. Equipped shows what you wear.</p>
-          <p>Stand at a shop's counter and the Shop tab opens. Shops buy things back for half what they cost.</p>
-          <p>Eat and drink now and then: shops sell food and water, and you'll be told when you're hungry or thirsty.</p>
-          <p>Bank tellers keep a deposit box for you; barrels and chests in town are for everyone. Click a player and choose Trade to swap with them.</p>
-          <h4>Quests</h4>
-          <p>Talk to people: many have work for you. The Journal keeps track of what you've taken on.</p>
-          <h4>Settings</h4>
-          <p>The gear button: night, weather, lighting, music, names, the look of the game, and Report a bug.</p>
         </div>
         <div id="tab-trade" class="tab" role="tabpanel" hidden>
           <div class="store-head">
@@ -412,6 +382,42 @@
     </section>
   </div>
 
+  <dialog id="help-dialog" class="help-dialog" aria-labelledby="help-title">
+    <div class="help-head">
+      <h2 id="help-title">How to play</h2>
+      <button type="button" id="help-close" class="ghost" aria-label="Close">✕</button>
+    </div>
+    <div class="help">
+      <h4>Moving</h4>
+      <p><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk; hold to keep walking. On a phone, use the arrows on the screen.</p>
+      <p>Click a square to walk there. Click someone or something for what you can do: talk, attack, look, pick up, shop, trade.</p>
+      <p><kbd>M</kbd> or the map button opens the world map. Click the small map to zoom it.</p>
+      <h4>Talking</h4>
+      <p><kbd>Enter</kbd> to type. Start the line with:</p>
+      <table class="help-chat">
+        <tr><td><kbd>'</kbd> hello</td><td><b>say</b> it to the people near you</td></tr>
+        <tr><td><kbd>;</kbd> hello</td><td><b>gossip</b>: everyone online hears it</td></tr>
+        <tr><td><kbd>/</kbd>name hello</td><td><b>tell</b> one player, wherever they are (or click them: Whisper)</td></tr>
+        <tr><td><kbd>:</kbd> hello</td><td>your <b>clan</b>, if you're in one</td></tr>
+        <tr><td>emote waves</td><td>an action: "flan waves"</td></tr>
+      </table>
+      <p>Anything else you type is a command. <kbd>↑</kbd><kbd>↓</kbd> in the box bring back what you typed before.</p>
+      <p>When someone asks you something, press an answer, or type it.</p>
+      <h4>Fighting and spells</h4>
+      <p>Click a creature and choose Attack (you have to stand next to it). The card at the top shows who you're fighting.</p>
+      <p><kbd>1</kbd>–<kbd>9</kbd>, <kbd>0</kbd> use the hotbar slots. Click an empty slot to put a spell or any command in it; right-click or long-press to change it. The Spellbook lists your spells.</p>
+      <p>Trainers teach spells and skills, paid for in experience. <b>Sleep</b> (in the Action list) heals faster, but you can't walk until you wake.</p>
+      <h4>Things and money</h4>
+      <p>The Backpack holds what you carry: use, wear or drop it there. Equipped shows what you wear.</p>
+      <p>Stand at a shop's counter and the Shop tab opens. Shops buy things back for half what they cost.</p>
+      <p>Eat and drink now and then: shops sell food and water, and you'll be told when you're hungry or thirsty.</p>
+      <p>Bank tellers keep a deposit box for you; barrels and chests in town are for everyone. Click a player and choose Trade to swap with them.</p>
+      <h4>Quests</h4>
+      <p>Talk to people: many have work for you. The Journal keeps track of what you've taken on.</p>
+      <h4>Settings</h4>
+      <p>The gear button: night, weather, lighting, music, names, the look of the game, and Report a bug.</p>
+    </div>
+  </dialog>
   <dialog id="bug-dialog" aria-labelledby="bug-title">
     <form id="bug-form" method="dialog">
       <h2 id="bug-title">Report a bug</h2>
