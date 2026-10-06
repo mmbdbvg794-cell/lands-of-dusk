@@ -72,6 +72,7 @@
           <label class="toggle"><input id="night-toggle" type="checkbox" checked> Night</label>
           <label class="toggle"><input id="weather-toggle" type="checkbox" checked> Weather</label>
           <label class="toggle"><input id="music-toggle" type="checkbox"> Music</label>
+          <label class="toggle"><input id="lighting-toggle" type="checkbox" checked> Lighting</label>
         </div>
         <label class="toggle"><input id="chat-bottom" type="checkbox" checked> Chat across the bottom</label>
         <div class="toggle-row">
@@ -531,6 +532,12 @@
     </div>
   </section>
 
+  <!-- Pixi for js/lighting.js (fetched only when lighting starts); the
+       filters import "pixi.js" by name. -->
+  <script type="importmap">{"imports": {
+    "pixi.js": "https://cdn.jsdelivr.net/npm/pixi.js@8.22.0/dist/pixi.min.mjs",
+    "pixi-filters": "https://cdn.jsdelivr.net/npm/pixi-filters@6.1.5/dist/pixi-filters.mjs"
+  }}</script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

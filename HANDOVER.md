@@ -207,7 +207,7 @@ commands that touch live.
   the pre-city map (scratchpad capital/live-shortmap, 03:21): its
   mayBuild refuses its own walls on the live map.
 
-- Pixi spike (2026-10-06): http://192.168.4.61:8080/spike-pixi/ = the
+- Pixi spike (2026-10-06, since folded into the game as js/lighting.js): http://192.168.4.61:8080/spike-pixi/ was the
   normal game (index.html via spike-pixi/make-page.sh, run by deploy)
   plus spike-pixi/spike.js, a PixiJS 8.22 WebGL layer over the map:
   night as a render texture with light holes (erase blend) + coloured
@@ -292,6 +292,18 @@ commands that touch live.
   A test character much stronger than a den makes it flee (creature AI).
 - Seen, not checked: conf/onDeath reads "set trigger locxy 83 trigger
   bindlocx trigger bindlocy" (the 83 looks wrong).
+
+- Lighting in the real game (2026-10-06, needs deploy): the Pixi spike
+  became js/lighting.js, started by main.js unless Settings > Lighting is
+  off (dusk.lighting; on by default). Pixi 8.22 + pixi-filters 6.1.5 from
+  jsDelivr through the import map in index.html, fetched only when
+  lighting starts; if it can't load (or no WebGL) the normal night stays
+  and the switch greys out. #lights at the end of the address shows the
+  test panel (fps, time slider). spike-pixi/ is gone; deploy removes it
+  on the server. The user tried the spike on a phone: page 60 fps, layer
+  28-30 (its idle cap), smooth; the small jumpiness is the same without it.
+  Tested headless on scratch: on, off/on in Settings, off from the start,
+  CDN blocked (scratchpad e2e/light.mjs).
 
 ## Open / ideas (ask the user before starting)
 

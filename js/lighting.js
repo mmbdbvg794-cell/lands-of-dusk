@@ -1,25 +1,27 @@
-// A PixiJS (WebGL) layer over the normal map, to try what the GPU adds:
-// lights that cut through the night, and glowing spells. The game itself
-// (connection, world, map drawing) is the normal client, unchanged; this
-// only reads its world (window.__dusk) and draws on a see-through canvas
-// laid exactly over the map.
+// Lighting (PixiJS, WebGL): a see-through canvas laid exactly over the
+// map, drawing what the GPU does well. The game (connection, world, map
+// drawing) is untouched; this only reads the world and the renderer.
 //
 //   Lighting   night is a dark layer with soft holes cut out of it (a
 //              render texture: dark fill, then light sprites drawn with
 //              the "erase" blend), plus coloured glow added on top.
 //              Light sources: the player's lantern, wall torches (tile
 //              24), lava (35, 108, 130), crystal (96, 128), candlestick
-//              stands, and spells while they play.
+//              stands, and spells while they play. While it's on, the
+//              normal client's night (js/atmosphere.js) is off.
 //   Spell glow a bloom filter (pixi-filters' AdvancedBloomFilter) over
 //              bright sparks at each spell, on top of the normal effect.
 //
-// The panel (top right) turns each on and off, sets the time of day for
-// the lighting, and shows the frame rate.
+// Pixi comes from jsDelivr (the import map in index.html) and is only
+// fetched when lighting starts; if it can't load, the game keeps its
+// normal night. Settings has the switch (dusk.lighting, on unless turned
+// off). A test panel (frame rates, a time-of-day slider, each part on or
+// off) shows with #lights at the end of the address.
 
-import * as PIXI from 'pixi.js';
-import { AdvancedBloomFilter } from 'pixi-filters';
-import { daylight, timeOfDay, isUnderground, DAY_MS } from '../js/atmosphere.js';
-import { bareName } from '../js/world.js';
+import { daylight, timeOfDay, isUnderground, DAY_MS } from './atmosphere.js';
+import { bareName } from './world.js';
+
+let PIXI = null, AdvancedBloomFilter = null;
 
 const MAX_LIGHTS = 64; // light sprites kept; more in view are skipped
 // The night and its glow are soft, so they're drawn at a quarter of the
@@ -89,19 +91,25 @@ function pool(parent, texture, blendMode) {
   };
 }
 
-async function waitFor(get) {
-  for (;;) {
-    const v = get();
-    if (v) return v;
-    await new Promise((r) => setTimeout(r, 200));
+// Starts the layer. map: the map canvas; dusk(): { world, renderer }, read
+// every frame (logging in makes a new world); nightOn(): whether the
+// player wants night at all. Returns { setOn(on) }, or null if Pixi can't
+// be loaded.
+export async function startLighting({ map, dusk, nightOn, panel: withPanel = false }) {
+  try {
+    PIXI = await import('pixi.js');
+    ({ AdvancedBloomFilter } = await import('pixi-filters'));
+  } catch (e) {
+    console.warn('Lighting: Pixi could not be loaded, keeping the normal night.', e);
+    return null;
   }
-}
-
-async function main() {
-  const map = await waitFor(() => document.getElementById('map'));
-  await waitFor(() => window.__dusk);
   const app = new PIXI.Application();
-  await app.init({ backgroundAlpha: 0, antialias: false, resolution: 1, autoDensity: false, width: 16, height: 16, preference: 'webgl' });
+  try {
+    await app.init({ backgroundAlpha: 0, antialias: false, resolution: 1, autoDensity: false, width: 16, height: 16, preference: 'webgl' });
+  } catch (e) {
+    console.warn('Lighting: no WebGL here, keeping the normal night.', e);
+    return null;
+  }
   const view = app.canvas;
   Object.assign(view.style, { position: 'absolute', left: '0', top: '0', pointerEvents: 'none' });
   map.parentElement.insertBefore(view, map.nextSibling);
@@ -134,16 +142,14 @@ async function main() {
   const bloom = new AdvancedBloomFilter({ threshold: 0.15, bloomScale: 1.6, brightness: 1.1, blur: 6, quality: 3 });
   bloom.resolution = 0.5; // a blur: half size is plenty
   spellLayer.filters = [bloom];
-  window.__spike = { app, spellLayer, bloom }; // for poking at from the console
   app.stage.addChild(spellLayer);
   const sparks = pool(spellLayer, circle, 'add');
 
-  const panel = makePanel(app);
-  const nightBox = document.getElementById('night-toggle');
+  const panel = withPanel ? makePanel() : { update() {} };
 
   app.ticker.add(() => {
     // Read each frame: logging in makes a new world.
-    const { world, renderer } = window.__dusk;
+    const { world, renderer } = dusk();
     const w = map.width, h = map.height;
     if (view.width !== w || view.height !== h) {
       app.renderer.resize(w, h);
@@ -161,7 +167,7 @@ async function main() {
     view.style.display = state.layer ? '' : 'none';
 
     // The normal client's night is off while this layer does it.
-    const wantNight = nightBox ? nightBox.checked : true;
+    const wantNight = nightOn();
     if (renderer.atmosphere) renderer.atmosphere.night = wantNight && !(state.layer && state.lights);
     if (!state.layer) { app.ticker.maxFPS = 4; panel.update({ fps: app.ticker.FPS, lights: 0, sparks: 0, darkness: 0, when: '(layer off)' }); return; }
 
@@ -262,6 +268,14 @@ async function main() {
 
     panel.update({ fps: app.ticker.FPS, lights: found.length, sparks: nSparks, darkness, when: state.time === null ? timeOfDay() : timeOfDay(t) });
   });
+
+  return {
+    // Off: the layer hides and idles, and the normal night comes back.
+    setOn(on) {
+      state.layer = on;
+      if (!on) { view.style.display = 'none'; const { renderer } = dusk(); if (renderer.atmosphere) renderer.atmosphere.night = nightOn(); renderer.invalidate(); }
+    },
+  };
 }
 
 // Where an effect is, in world squares (moving with whoever it's on).
@@ -271,13 +285,12 @@ function effectAt(world, fx, now) {
   return e ? world.visualPos(e, now) : null;
 }
 
-function makePanel(app) {
+function makePanel() {
   const box = document.createElement('div');
-  box.id = 'spike-panel';
+  box.id = 'light-panel';
   box.innerHTML = `
-    <b>Pixi spike</b> <span class="v">v${PIXI.VERSION}</span>
+    <b>Lighting</b> <span class="v">v${PIXI.VERSION}</span>
     <div class="fps">-- fps</div>
-    <label><input type="checkbox" data-k="layer" checked> Pixi layer</label>
     <label><input type="checkbox" data-k="lights" checked> Lights at night</label>
     <label><input type="checkbox" data-k="glow" checked> Spell glow</label>
     <label>Time <input type="range" min="0" max="100" value="0" class="time" disabled></label>
@@ -286,11 +299,11 @@ function makePanel(app) {
     <button type="button" class="hide">Hide</button>`;
   document.body.appendChild(box);
   const style = document.createElement('style');
-  style.textContent = `#spike-panel { position: fixed; top: 8px; right: 8px; z-index: 9999; background: rgba(10,12,20,.85); color: #dde;
+  style.textContent = `#light-panel { position: fixed; top: 8px; right: 8px; z-index: 9999; background: rgba(10,12,20,.85); color: #dde;
       font: 12px/1.5 system-ui, sans-serif; padding: 8px 10px; border-radius: 6px; width: 190px; }
-    #spike-panel label { display: block; } #spike-panel .v { opacity: .6 } #spike-panel .fps { font-size: 14px; font-weight: 600 }
-    #spike-panel .time { width: 90px; vertical-align: middle } #spike-panel .info { opacity: .75; margin: 4px 0 }
-    #spike-panel.min > :not(.fps):not(.hide) { display: none }`;
+    #light-panel label { display: block; } #light-panel .v { opacity: .6 } #light-panel .fps { font-size: 14px; font-weight: 600 }
+    #light-panel .time { width: 90px; vertical-align: middle } #light-panel .info { opacity: .75; margin: 4px 0 }
+    #light-panel.min > :not(.fps):not(.hide) { display: none }`;
   document.head.appendChild(style);
   for (const cb of box.querySelectorAll('input[data-k]')) cb.addEventListener('change', () => { state[cb.dataset.k] = cb.checked; });
   const time = box.querySelector('.time'), clock = box.querySelector('.clock');
@@ -329,4 +342,3 @@ function makePanel(app) {
   };
 }
 
-main().catch((e) => console.error('Pixi spike:', e));

@@ -122,9 +122,8 @@ let world = newWorld();
 const renderer = new Renderer($('map'), world, $('map-wrap'));
 renderer.ships = new Ships();
 renderer.farTile = (x, y) => minimap.explored.tileAt(x, y); // squares seen before, beyond the view
-// For tests (localStorage dusk.debug = 1) and the Pixi spike page
-// (spike-pixi/): the world, ships and renderer to read.
-if (storage('get', 'dusk.debug') || window.duskSpike) Object.defineProperty(window, '__dusk', { get: () => ({ world, ships: renderer.ships, renderer }) });
+// For tests (localStorage dusk.debug = 1): the world, ships and renderer to read.
+if (storage('get', 'dusk.debug')) Object.defineProperty(window, '__dusk', { get: () => ({ world, ships: renderer.ships, renderer }) });
 let sheetsFor = null; // resource address the current sheets came from
 const minimap = new Minimap($('minimap'), new Explored());
 const worldMap = new WorldMap($('world-map'), minimap);
@@ -473,6 +472,22 @@ applyAtmosphere();
 weatherBox.addEventListener('change', () => { storage('set', 'dusk.weather', weatherBox.checked ? '1' : '0'); applyAtmosphere(); });
 nightBox.addEventListener('change', () => { storage('set', 'dusk.night', nightBox.checked ? '1' : '0'); applyAtmosphere(); });
 musicBox.addEventListener('change', () => { storage('set', 'dusk.music', musicBox.checked ? '1' : '0'); ambient.setMusic(musicBox.checked, () => daylight()); });
+// Lighting (js/lighting.js, PixiJS): torches, lava and lanterns light up the
+// night, and spells glow. On unless turned off; Pixi is only fetched when
+// it's on, and if it can't load the normal night stays.
+const lightingBox = $('lighting-toggle');
+lightingBox.checked = storage('get', 'dusk.lighting') !== '0';
+let lighting = null, lightingLoading = null;
+function applyLighting() {
+  if (lighting) { lighting.setOn(lightingBox.checked); return; }
+  if (!lightingBox.checked || lightingLoading) return;
+  lightingLoading = import('./lighting.js')
+    .then((m) => m.startLighting({ map: $('map'), dusk: () => ({ world, renderer }), nightOn: () => nightBox.checked, panel: location.hash === '#lights' }))
+    .then((l) => { lighting = l; if (l) l.setOn(lightingBox.checked); else lightingBox.disabled = true; })
+    .catch((e) => { console.warn('Lighting:', e); lightingBox.disabled = true; });
+}
+applyLighting();
+lightingBox.addEventListener('change', () => { storage('set', 'dusk.lighting', lightingBox.checked ? '1' : '0'); applyLighting(); });
 // Music waits for the first press or key (browsers only play sound after one).
 const startMusic = () => {
   removeEventListener('pointerdown', startMusic, true);
