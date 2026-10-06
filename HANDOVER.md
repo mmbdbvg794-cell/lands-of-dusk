@@ -227,6 +227,19 @@ commands that touch live.
   shown size and keeps it (400 a sheet): 12 ms throttled. Profile
   harness: scratchpad e2e/prof3.mjs (drawImage time by source).
 
+- Creature AI (server/Creatures.java, 2026-10-06; installed, live after
+  restart): nothing ever called Faction.runAI, so creatures only moved in
+  fights. Ported it (600 ms turns for creatures a player sees) with fixes:
+  DuskTable groups same-named things in a Vector and runAI skipped those
+  (packs never counted each other, so everything fled), the old AI's
+  "a <name>" (this server's "a" takes an ID), and checkCanBattle refuses
+  fights with clanless players (PvP rule) so creatures start fights
+  directly (keeping canAttack/safe, pets, shops, adjacency). Leash 8 from
+  home, back to 4. Grudges are factions/<name> (old game's, flan -1 with
+  most: creatures flee a god). touch conf/creatures-debug for log lines.
+  Tested on scratch: wolf pack attacked hgate (factions/wolf hgate -1.0
+  there; scratch also has conf/creatures-debug).
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).

@@ -86,6 +86,8 @@ public class Skills {
         Admin.start(engine);
         // Houses to rent (server/Housing.java).
         Housing.start(engine);
+        // Creatures wander, hunt and flee (server/Creatures.java).
+        Creatures.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

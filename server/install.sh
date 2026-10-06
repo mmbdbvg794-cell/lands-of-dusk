@@ -26,7 +26,7 @@ if [ "${1:-}" = uninstall ]; then
   [ -f storage-originals/AttributeManager.class ] && cp storage-originals/AttributeManager.class .
   [ -f storage-originals/LivingThing.class ] && cp storage-originals/LivingThing.class .
   [ -f storage-originals/Equipment.class ] && cp storage-originals/Equipment.class .
-  rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class Ferry.class Ferry\$*.class Who.class Who\$*.class Quests.class Quests\$*.class Conditions.class Conditions\$*.class Admin.class Admin\$*.class Housing.class Housing\$*.class
+  rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class Ferry.class Ferry\$*.class Who.class Who\$*.class Quests.class Quests\$*.class Conditions.class Conditions\$*.class Admin.class Admin\$*.class Housing.class Housing\$*.class Creatures.class Creatures\$*.class
   # Without BridgedSocket the bridge must stop sending addresses.
   rm -f conf/bridgesecret
   echo "Original classes restored; restart the server to take effect."
@@ -34,7 +34,7 @@ if [ "${1:-}" = uninstall ]; then
   exit 0
 fi
 
-for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Conditions Admin Housing Commands DuskServer; do
+for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Conditions Admin Housing Creatures Commands DuskServer; do
   [ -f "$OUT/$c.class" ] || { echo "No $OUT/$c.class: run server/build.sh first." >&2; exit 1; }
 done
 if [ ! -f storage-originals/Commands.class ]; then
@@ -70,15 +70,15 @@ fi
 b="backups/classes-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$b"
 cp Commands.class DuskServer.class DuskEngine.class Player.class Battle.class AttributeManager.class LivingThing.class Equipment.class "$b/"
-for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Conditions Admin Housing; do [ -f $c.class ] && cp $c.class "$b/"; done
-cp Talk\$*.class Trade\$*.class Skills\$*.class Library\$*.class Ferry\$*.class Who\$*.class Quests\$*.class Conditions\$*.class Admin\$*.class Housing\$*.class "$b/" 2>/dev/null || true
+for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Conditions Admin Housing Creatures; do [ -f $c.class ] && cp $c.class "$b/"; done
+cp Talk\$*.class Trade\$*.class Skills\$*.class Library\$*.class Ferry\$*.class Who\$*.class Quests\$*.class Conditions\$*.class Admin\$*.class Housing\$*.class Creatures\$*.class "$b/" 2>/dev/null || true
 [ -f "$OUT/DuskEngine.class" ] && cp "$OUT/DuskEngine.class" .
 [ -f "$OUT/Player.class" ] && cp "$OUT/Player.class" .
 [ -f "$OUT/Battle.class" ] && cp "$OUT/Battle.class" .
 [ -f "$OUT/AttributeManager.class" ] && cp "$OUT/AttributeManager.class" .
 [ -f "$OUT/LivingThing.class" ] && cp "$OUT/LivingThing.class" .
 [ -f "$OUT/Equipment.class" ] && cp "$OUT/Equipment.class" .
-cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/FixedEngine.class" "$OUT/Talk.class" "$OUT"/Talk\$*.class "$OUT/Props.class" "$OUT/BridgedSocket.class" "$OUT/Bans.class" "$OUT/MapStore.class" "$OUT/Social.class" "$OUT/Trade.class" "$OUT"/Trade\$*.class "$OUT/Skills.class" "$OUT"/Skills\$*.class "$OUT/Library.class" "$OUT"/Library\$*.class "$OUT/Ferry.class" "$OUT"/Ferry\$*.class "$OUT/Who.class" "$OUT"/Who\$*.class "$OUT/Quests.class" "$OUT"/Quests\$*.class "$OUT/Conditions.class" "$OUT"/Conditions\$*.class "$OUT/Admin.class" "$OUT"/Admin\$*.class "$OUT/Housing.class" "$OUT"/Housing\$*.class "$OUT/Commands.class" "$OUT/DuskServer.class" .
+cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/FixedEngine.class" "$OUT/Talk.class" "$OUT"/Talk\$*.class "$OUT/Props.class" "$OUT/BridgedSocket.class" "$OUT/Bans.class" "$OUT/MapStore.class" "$OUT/Social.class" "$OUT/Trade.class" "$OUT"/Trade\$*.class "$OUT/Skills.class" "$OUT"/Skills\$*.class "$OUT/Library.class" "$OUT"/Library\$*.class "$OUT/Ferry.class" "$OUT"/Ferry\$*.class "$OUT/Who.class" "$OUT"/Who\$*.class "$OUT/Quests.class" "$OUT"/Quests\$*.class "$OUT/Conditions.class" "$OUT"/Conditions\$*.class "$OUT/Admin.class" "$OUT"/Admin\$*.class "$OUT/Housing.class" "$OUT"/Housing\$*.class "$OUT/Creatures.class" "$OUT"/Creatures\$*.class "$OUT/Commands.class" "$OUT/DuskServer.class" .
 # Game content that goes with it (talk scripts, props), only where there
 # isn't a file of that name already: yours are never overwritten.
 if [ -d "$SRCDIR/content" ]; then
