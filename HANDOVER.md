@@ -266,6 +266,33 @@ commands that touch live.
   ~14 fps while walking), while the page's own JS is nearly idle (~70 ms
   of 5 s walking). Needs a real phone: /play/spike-pixi/ is live and current.
 
+- Three quest chains, installed on live 2026-10-06 15:45 (need a restart
+  of duskserver, with no god save before it, and a deploy so the Painted
+  art draws the new monsters). Each is 3 quests, a new giver, new
+  monsters (defMobs files written by the plan) and an unsellable token
+  item; all 9 played end to end on scratch (hgate, dgate):
+  tools/world/cities/kingswatch.mjs (Sergeant Wexley, Watch post outside
+  Kingshaven's east gate 1502,342: stray hounds in the meadow north of the
+  farms, thieves on the wooded point, the barrow in the NE hidden valley),
+  deeppatrol.mjs (Patrol Leader Jhaelra by the Fire Well 1356,914: cave
+  slimes NE cavern, duergar at the NW cavern's mouth, magma slimes and an
+  ember dragon in the Ember Hollow), greenwardens.mjs (Ranger Faelwen on
+  the road north of Aelindor 466,1206: lake slimers, shrine gargoyles on
+  the western mountains' slopes, the withered grove far east).
+  Lessons: dens in thick trees can't be seen (line of sight) or reached;
+  a den's kills set the whole faction on you, so bosses get a faction of
+  their own; don't put dens by the stairs from the surface (1269,910).
+  Monster drops go straight into the killer's pack.
+- Client fix committed (needs deploy): in the pixel art style (the
+  default) a walking creature threw in Renderer.draw every frame, so the
+  map broke whenever creatures moved (since the creature AI went live).
+- Test harness: scratchpad e2e/qrun.mjs (talk/kill/walk/journal steps,
+  reads entities from window.__dusk with localStorage dusk.debug) and
+  tools/uedit.py on duskserver /tmp (moves/boosts a scratch character).
+  A test character much stronger than a den makes it flee (creature AI).
+- Seen, not checked: conf/onDeath reads "set trigger locxy 83 trigger
+  bindlocx trigger bindlocy" (the 83 looks wrong).
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
