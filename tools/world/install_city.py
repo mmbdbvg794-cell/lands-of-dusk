@@ -8,7 +8,8 @@ backups/city-<name>-<time>/:
   shortmap        the town's squares
   props, merchants, signs, signnames, mobs
                   the town's entries, added at the end (an entry already
-                  there, at the same place, is left alone)
+                  there, at the same place, is left alone); props the plan
+                  drops (moved since an earlier install) are taken out
   defProps/, talk/ ...  the town's new files; one that's already there and
                   different (a god may have changed it) is kept unless
                   --force
@@ -109,6 +110,22 @@ def main():
         return out
 
     text = read("props")
+    drop = {(p["name"], str(p["x"]), str(p["y"])) for p in b.get("dropProps", [])}
+    if drop:
+        lines = (text or "").replace("\r", "").split("\n")
+        kept, gone = [], 0
+        i = 0
+        while i < len(lines):
+            if i + 2 < len(lines) and (lines[i], lines[i + 1].strip(), lines[i + 2].strip()) in drop:
+                gone += 1
+                i += 3
+                continue
+            kept.append(lines[i])
+            i += 1
+        if gone:
+            text = "\n".join(kept)
+            write("props", text)
+        said.append("props: %d taken away" % gone)
     have = triples(text)
     add = [p for p in b["props"] if (p["name"], str(p["x"]), str(p["y"])) not in have]
     if add:

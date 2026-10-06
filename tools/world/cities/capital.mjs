@@ -254,12 +254,17 @@ export default {
       who: { name: 'Tamsin the Tailor', look: 'Woman', desc: 'Tamsin the tailor, pins in her sleeve.', dlg: SHOP('', 'Shirts, vests and cloaks, made to last. Stand at my counter and open the Shop tab.') } });
 
     // ---- the bank (east of the plaza) ----
-    B(1449, 347, 11, 9, { wall: 'S', floor: 'l', doors: [['w', 4]] });
-    F(1455, 349, 1, 5, '#');
+    // Brick: the painted stone wall looks like paving. A row clear of the
+    // Fletcher's door (it stood on row 347 till 2026-10-06; the statue
+    // there goes).
+    F(1449, 347, 11, 1, 'k');
+    B(1449, 348, 11, 9, { wall: 'B', floor: 'l', doors: [['w', 4]] });
+    F(1455, 350, 1, 5, '#');
     NPC({ name: 'Royal Teller', look: null, x: 1457, y: 351 });
     p.file('defProps/Royal Teller', 'description\nThe Royal Teller, behind a counter of polished stone.\nimage\n5\nlook\nBank Teller\n.\n');
     p.file('talk/Royal Teller.greet', 'The Royal Bank of Kingshaven.\nYour gold is safe with the crown.\n');
-    PR('statue', 1451, 348); PR('plants', 1451, 354);
+    PR('statue', 1451, 349); PR('plants', 1451, 354);
+    p.dropProp('statue', ...A(1451, 348));
     SIGN('Royal Bank', 'The Royal Bank: your gold and your deposit box, the same as at every bank.', 1449, 348);
 
     // ---- the market (south-west of the plaza) ----

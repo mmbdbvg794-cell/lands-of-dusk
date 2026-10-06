@@ -75,6 +75,7 @@ class Plan {
     this.w = w; this.h = h;
     this.grid = Array.from({ length: h }, () => Array(w).fill(' '));
     this.props = []; this.merchants = []; this.signs = []; this.mobs = [];
+    this.drops = []; // props an earlier version put down, to take away
     this.npcs = []; this.files = {}; this.notes = []; this.walks = [];
     this.far = []; // single squares anywhere on the map (map coordinates)
     this.sets = []; // values to change in the game's own files
@@ -126,6 +127,8 @@ class Plan {
     return { x, y, w, h };
   }
   prop(name, x, y) { this.props.push({ name, x, y }); }
+  // A prop an earlier install put here, gone now the town has changed.
+  dropProp(name, x, y) { this.drops.push({ name, x, y }); }
   merchant(x, y, wares) { this.merchants.push({ x, y, wares }); }
   sign(name, text, x, y) { this.signs.push({ name, text, x, y }); }
   mob(name, level, x, y) { this.mobs.push({ name, level, x, y }); }
@@ -327,6 +330,7 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
     area: { x: x0, y: y0, w, h },
     tiles: changes.map(([x, y, t]) => [x, y, t]),
     props: plan.props.map(abs),
+    dropProps: plan.drops.map(abs),
     merchants: plan.merchants.map(abs),
     signs: plan.signs.map(abs),
     mobs: plan.mobs.map(abs),
