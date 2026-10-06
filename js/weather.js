@@ -114,6 +114,26 @@ export function indoorSquares(tileAt, cx, cy, radius, overrides = new Map()) {
   return inside;
 }
 
+// ---- where fireflies go ----------------------------------------------------------
+
+// Green country: grass, meadow or woods, with no wall or paving within
+// three squares (so not in towns), except in Aelindor, where the elves
+// live among them.
+const GREEN = new Set([1, 36, 25, 26, 64, 103]);
+const TOWNISH = new Set([...WALLS, 20, 28, 29, 30, 31, 32, 33, 34, 41, 42, 43, 63, 105, 127, 149]);
+const AELINDOR = { x0: 425, y0: 1175, x1: 510, y1: 1280 };
+export function greenCountry(tileAt, x, y) {
+  if (!GREEN.has(tileAt(x, y))) return false;
+  if (x >= AELINDOR.x0 && x <= AELINDOR.x1 && y >= AELINDOR.y0 && y <= AELINDOR.y1) return true;
+  for (let dx = -3; dx <= 3; dx++) for (let dy = -3; dy <= 3; dy++) if (TOWNISH.has(tileAt(x + dx, y + dy))) return false;
+  return true;
+}
+// The Underdark's open floor (its dark stone and rough ground), for wisps.
+export function caveFloor(tileAt, x, y) {
+  const t = tileAt(x, y);
+  return t === 20 || t === 40 || t === 37;
+}
+
 // ---- drawing -------------------------------------------------------------------
 
 function canvasTexture(PIXI, w, h, paint) {
@@ -249,7 +269,8 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
         rain: on.rain && wet && !st.snowy ? intensity : 0,
         snow: on.snow && wet && st.snowy ? intensity : 0,
         fog: on.fog && !under && type === 'fog' ? intensity : 0,
-        fireflies: on.fireflies && !under && f.night > 0.5 && !wet ? 1 : 0,
+        // Fireflies on dry nights in the country; wisps in the Underdark always.
+        fireflies: on.fireflies && (under || (f.night > 0.5 && !wet)) ? 1 : 0,
         // Embers only show against the dark: dusk, night, a dark sky.
         embers: on.embers && f.fires.length && (f.night > 0.3 || dim > 0.15) ? 1 : 0,
       };
@@ -320,23 +341,44 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
         shown++;
       });
 
-      // Fireflies: a few blinking lights at night, outdoors.
-      keep(flies, Math.round(cap.fireflies * level.fireflies), (p) => {
-        p.x = Math.random() * w; p.y = Math.random() * h;
-        p.phase = Math.random() * 10; p.tint = 0xd8ff70;
-        p.anchorY = 0.5;
-        p.scaleX = p.scaleY = c / 32 * 0.22;
-      });
+      // Fireflies and embers live in the world (squares), not on the
+      // screen, so they stay put as you walk past.
+      const toScreen = (wx, wy) => [(wx - cam.x + r) * c + c / 2, (wy - cam.y + r) * c + c / 2];
+      const tileAt = (x, y) => world.tileAt(x, y, f.now);
+      const inView = (wx, wy) => Math.abs(wx - cam.x) <= r + 1 && Math.abs(wy - cam.y) <= r + 1;
+
+      // Fireflies: blinking lights at night over green country; in the
+      // Underdark, blue wisps over the cavern floors.
+      keep(flies, Math.round(cap.fireflies * level.fireflies), (p) => { p.wx = null; p.anchorY = 0.5; });
       for (const p of flies.all) {
         if (!p.live) continue;
-        p.x += Math.sin(secs * 0.7 + p.phase) * c * 0.4 * dt;
-        p.y += Math.cos(secs * 0.53 + p.phase * 1.3) * c * 0.3 * dt;
-        const blink = Math.max(0, Math.sin(secs * 1.7 + p.phase * 2));
-        p.alpha = sheltered(p.x, p.y) ? 0 : level.fireflies * blink * blink;
+        if (p.wx == null || !inView(p.wx, p.wy)) {
+          // A new one somewhere in view that suits it (a few tries).
+          p.alpha = 0;
+          p.wx = null;
+          for (let tries = 0; tries < 6 && p.wx == null; tries++) {
+            const x = Math.round(cam.x) + Math.floor(Math.random() * (2 * r + 1)) - r;
+            const y = Math.round(cam.y) + Math.floor(Math.random() * (2 * r + 1)) - r;
+            if (under ? caveFloor(tileAt, x, y) : greenCountry(tileAt, x, y)) { p.wx = x + Math.random() - 0.5; p.wy = y + Math.random() - 0.5; }
+          }
+          if (p.wx == null) continue;
+          p.phase = Math.random() * 10;
+          p.wisp = under;
+          p.tint = under ? 0x7ac8ff : 0xd8ff70;
+          p.scaleX = p.scaleY = (c / 32) * (under ? 0.4 : 0.22);
+        }
+        const speed = p.wisp ? 0.25 : 0.4;
+        p.wx += Math.sin(secs * 0.7 + p.phase) * speed * dt;
+        p.wy += Math.cos(secs * 0.53 + p.phase * 1.3) * speed * 0.75 * dt;
+        [p.x, p.y] = toScreen(p.wx, p.wy);
+        // Fireflies blink; wisps swell and fade slowly.
+        const pulse = p.wisp ? 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(secs * 0.6 + p.phase)) : Math.max(0, Math.sin(secs * 1.7 + p.phase * 2)) ** 2;
+        p.alpha = !p.wisp && sheltered(p.x, p.y) ? 0 : level.fireflies * pulse * (p.wisp ? 0.8 : 1);
         if (p.alpha) shown++;
       }
 
       // Embers: sparks rising off fires and lava, drifting with the wind.
+      // f.fires are squares (world).
       keep(embers, Math.round(cap.embers * level.embers), (p) => { p.life = 0; p.anchorY = 0.5; p.tint = 0xffa040; });
       for (const p of embers.all) {
         if (!p.live) continue;
@@ -344,15 +386,16 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
         if (p.life <= 0) {
           const src = f.fires[Math.floor(Math.random() * f.fires.length)];
           if (!src) { p.alpha = 0; continue; }
-          p.x = src[0] + (Math.random() - 0.5) * c * 0.4;
-          p.y = src[1] - c * 0.2;
-          p.vx = (Math.random() - 0.5) * c * 0.3 + wind * c * 0.6;
-          p.vy = -(0.5 + Math.random() * 0.8) * c;
-          p.life = p.max = 0.8 + Math.random() * 1.4;
-          p.scaleX = p.scaleY = c / 32 * (0.08 + Math.random() * 0.1);
+          p.wx = src[0] + (Math.random() - 0.5) * 0.4;
+          p.wy = src[1] - 0.2;
+          p.vx = (Math.random() - 0.5) * 0.3 + wind * 0.6;
+          p.vy = -(0.5 + Math.random() * 0.8);
+          p.life = p.max = 0.6 + Math.random() * 1.0;
+          p.scaleX = p.scaleY = (c / 32) * (0.08 + Math.random() * 0.1);
           p.tint = Math.random() < 0.5 ? 0xffa040 : 0xff6a20;
         }
-        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.wx += p.vx * dt; p.wy += p.vy * dt;
+        [p.x, p.y] = toScreen(p.wx, p.wy);
         p.alpha = level.embers * Math.min(1, p.life / p.max * 1.5);
         if (p.alpha) shown++;
       }

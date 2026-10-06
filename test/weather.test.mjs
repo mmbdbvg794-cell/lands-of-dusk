@@ -1,7 +1,7 @@
 // Indoors for the weather (js/weather.js indoorSquares): rooms closed in by
 // walls and doors, not open ground, not a walled town, and hand marks win.
 import assert from 'node:assert/strict';
-import { indoorSquares } from '../js/weather.js';
+import { indoorSquares, greenCountry, caveFloor } from '../js/weather.js';
 
 // A map from rows of characters: '#' wall (59), 'D' door (23), '.' floor
 // (63), ',' grass (36), 'T' tree (64), '?' never seen.
@@ -39,5 +39,12 @@ assert.ok(!indoorSquares(mapOf(big), 10, 6, 15).has('10,6'));
 // Hand marks win both ways.
 const marked = indoorSquares(town, 5, 3, 6, new Map([['0,0', true], ['2,2', false]]));
 assert.ok(marked.has('0,0') && !marked.has('2,2'));
+
+// Fireflies: green country, not towns (but Aelindor), and wisps on cave floors.
+const field = mapOf([',,,,,,,,,,,', ',,,,,,,,,,,', ',,,,,,,,,,,', ',,,,,,,,,,,', ',,,,,,,,,,,', ',,,,,,,,,,,', ',,,,,,,,,,,']);
+assert.ok(greenCountry(field, 5, 3), 'a field has fireflies');
+assert.ok(!greenCountry(town, 9, 1), 'grass by a house in town does not');
+assert.ok(greenCountry((x, y) => (x === 460 && y === 1230 ? 36 : 59), 460, 1230), 'Aelindor does, walls or not');
+assert.ok(caveFloor(() => 20, 0, 0) && !caveFloor(() => 49, 0, 0));
 
 console.log('ok - weather indoors');

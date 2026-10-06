@@ -277,7 +277,7 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
     // ---- weather ----
     // Fires (anything that flickers hard: torches, braziers, campfires,
     // lava) give off embers.
-    const fires = found.filter((f) => f.L.flicker >= 0.4).map((f) => centre(f.x, f.y));
+    const fires = found.filter((f) => f.L.flicker >= 0.4).map((f) => [f.x, f.y]);
     const tw = performance.now();
     if (ready) weather.update({ dt, now: nowPerf, world, renderer, st: renderer.weatherState, cam, r, c, w, h, night: night / MAX_DARK, fires });
     cost.weather = cost.weather * 0.95 + (performance.now() - tw) * 0.05;
