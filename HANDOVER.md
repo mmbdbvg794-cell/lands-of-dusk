@@ -321,6 +321,24 @@ commands that touch live.
   towns aren't lit yet. paintart/build.sh takes GAME=<dir> (and RC) to
   paint from scratch.
 
+- Weather in the lighting layer (2026-10-06, phase 1 built and tested on
+  scratch, NOT deployed; waiting for the user's review): js/weather.js
+  (rain with wind, snow drift, fog banks, fireflies, embers off fires,
+  lightning that lifts the night; pooled Pixi 8 ParticleContainer, no
+  emitter package: @pixi/particle-emitter only supports Pixi < 8).
+  setWeather({type, intensity, wind}) sets atmosphere.override (one
+  source for the Pixi layer, the canvas fallback and the rain sound;
+  'clock' goes back to the shared clock). Max counts at intensity 1:
+  rain 600, snow 400, fog 8 banks, fireflies 40, embers 80; halved on
+  low-end (<=4 cores or short screen side <=420; localStorage dusk.lowend
+  1/0 forces it). Indoors: areas closed in by walls/doors with no open
+  ground (weather.js indoorSquares, test/weather.test.mjs), plus hand
+  marks: js/indoor.json (shared, deployed) and localStorage dusk.indoor
+  (panel "Mark indoor"). Panel (#lights): weather buttons, intensity,
+  wind, effect toggles, show/mark indoor, CPU ms per frame.
+  Phase 2 (after review): real-weather endpoint on serve.py (NWS or
+  Open-Meteo, cached 10-15 min, User-Agent) mapped to setWeather.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).

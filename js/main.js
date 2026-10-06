@@ -20,6 +20,7 @@ import { JournalEditor } from './journaleditor.js';
 import { LibraryEditor } from './libraryeditor.js';
 import { parseLibReply } from './library.js';
 import { Atmosphere, AmbientSound, findSnowTiles, daylight } from './atmosphere.js';
+import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
@@ -455,9 +456,13 @@ if (!standalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
 const atmosphere = new Atmosphere();
 const ambient = new AmbientSound(sound);
 atmosphere.onThunder = () => ambient.thunder();
+// setWeather({ type, intensity, wind }) (js/weather.js) decides the weather
+// here, for the Pixi layer and the canvas fallback alike.
+bindWeather(atmosphere, () => renderer.invalidate());
+if (storage('get', 'dusk.debug') || location.hash === '#lights') window.setWeather = setWeather;
 let rainLevel = -1;
 renderer.onWeather = (st) => {
-  const level = st.falling === 'rain' && sound.enabled ? (st.storm ? 1 : 0.6) : 0;
+  const level = st.falling === 'rain' && sound.enabled ? (st.storm ? 1 : Math.round(Math.max(0.2, Math.min(1, st.intensity ?? 0.6)) * 10) / 10) : 0;
   if (level !== rainLevel) { rainLevel = level; ambient.setRain(level); }
 };
 const weatherBox = $('weather-toggle');

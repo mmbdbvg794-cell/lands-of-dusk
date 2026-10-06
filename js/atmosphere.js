@@ -6,6 +6,10 @@
 //   The weather changes every WEATHER_MS (15 minutes): mostly clear, some
 //   rain, now and then a storm; snow instead where the ground is snowy.
 //   Rain and snow only fall outdoors (most of the view open ground).
+//   setWeather() (js/weather.js) can set the weather instead (override).
+//   With lighting on, js/weather.js draws the weather in Pixi and this
+//   file's own rain, snow and lightning are off (drawWeather): they're the
+//   fallback without WebGL.
 //
 // The pure parts (daylight, weatherAt, outdoorShare) are tested in node.
 
@@ -99,23 +103,32 @@ export class Atmosphere {
   constructor() {
     this.night = true; // darkness at night (else always day)
     this.weather = true; // rain, storms and snow (else always clear)
+    this.override = null; // { type, intensity, wind } from setWeather, else the clock's
+    this.drawWeather = true; // draw rain, snow and lightning here (off while js/weather.js does)
     this.drops = [];
     this.flash = 0;
     this.nextFlash = 0;
     this.last = 0;
   }
 
-  // { weather, light, falling } for the view: falling is 'rain', 'snow'
-  // or null (clear, or indoors).
+  // { weather, intensity, wind, light, falling, storm, snowy } for the
+  // view: weather is 'clear', 'rain', 'storm', 'snow' or 'fog'; falling is
+  // 'rain', 'snow' or null (dry, or most of the view indoors); snowy: snow
+  // rather than rain (it says so, or the ground is snowy).
   // where: [x, y] of the view's centre, for places underground.
   state(now, share, where) {
     if (where && isUnderground(where[0], where[1])) {
-      return { weather: 'clear', light: this.night ? UNDERGROUND_LIGHT : 1, falling: null, storm: false, underground: true };
+      return { weather: 'clear', intensity: 0, wind: 0, light: this.night ? UNDERGROUND_LIGHT : 1, falling: null, storm: false, snowy: false, underground: true };
     }
-    const weather = this.weather ? weatherAt(now) : 'clear';
+    const o = this.weather ? this.override : null;
+    const weather = !this.weather ? 'clear' : o ? o.type : weatherAt(now);
+    const intensity = o ? o.intensity : ({ rain: 0.55, storm: 1 }[weather] ?? 0);
+    const wind = o ? o.wind : weather === 'storm' ? 0.35 : 0.15;
     const outdoors = share.outdoor >= 0.4;
-    const falling = weather === 'clear' || !outdoors ? null : share.snow >= 0.3 ? 'snow' : 'rain';
-    return { weather, light: this.night ? daylight(now) : 1, falling, storm: weather === 'storm' && outdoors };
+    const wet = (weather === 'rain' || weather === 'storm' || weather === 'snow') && intensity > 0;
+    const snowy = weather === 'snow' || share.snow >= 0.3;
+    const falling = !wet || !outdoors ? null : snowy ? 'snow' : 'rain';
+    return { weather, intensity, wind, light: this.night ? daylight(now) : 1, falling, storm: weather === 'storm' && outdoors, snowy };
   }
 
   // ctx: the map canvas; w, h its size; centre: the player in pixels;
@@ -125,9 +138,9 @@ export class Atmosphere {
     this.last = nowPerf;
     let moving = false;
     // Weather first, so night darkens it too.
-    if (st.falling) {
+    if (st.falling && this.drawWeather) {
       moving = true;
-      const want = Math.round((st.falling === 'snow' ? 140 : st.storm ? 260 : 150) * (w * h) / (640 * 640));
+      const want = Math.round((st.falling === 'snow' ? 250 : 260) * Math.min(1, st.intensity ?? 0.55) * (w * h) / (640 * 640));
       while (this.drops.length < want) this.drops.push(this.newDrop(w, h, true, st.falling));
       if (this.drops.length > want) this.drops.length = want;
       ctx.save();
@@ -137,7 +150,7 @@ export class Atmosphere {
         ctx.beginPath();
         for (const d of this.drops) {
           d.y += d.v * dt * h;
-          d.x += d.v * dt * h * 0.18;
+          d.x += d.v * dt * h * (0.1 + (st.wind ?? 0.15) * 0.5);
           if (d.y > h || d.x > w) Object.assign(d, this.newDrop(w, h, false, 'rain'));
           ctx.moveTo(d.x, d.y);
           ctx.lineTo(d.x - d.len * 0.18, d.y - d.len);
@@ -160,7 +173,7 @@ export class Atmosphere {
       this.drops.length = 0;
     }
     // Lightning.
-    if (st.storm) {
+    if (st.storm && this.drawWeather) {
       if (!this.nextFlash) this.nextFlash = nowPerf + 4000 + Math.random() * 12000;
       if (nowPerf > this.nextFlash) {
         this.flash = 1;
