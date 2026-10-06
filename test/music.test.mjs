@@ -170,4 +170,16 @@ assert.notEqual(L.cur, null, 'an end event from a loop pass is ignored');
 L.setOn(false);
 await wait(150);
 
+// "Now playing": told once per different track, not when a track repeats.
+howls.length = 0;
+const shown = [];
+const N = new MusicPlayer({ Howl: FakeHowl, Howler: { volume() {} }, base: '', fadeMs: 5, onTrack: (t) => shown.push(t.file) });
+N.load({ tracks: [{ file: 'a', mood: 'town' }, { file: 'b', mood: 'night' }] });
+N.setMood('town'); N.unlock();
+N.cur.started = 0; N.cur.howl.ids.get(N.cur.id).at = 99.999; N.tick(); // a again
+N.setMood('night');
+assert.deepEqual(shown, ['a', 'b']);
+N.setOn(false);
+await wait(150);
+
 console.log('music tests passed');

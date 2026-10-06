@@ -77,6 +77,7 @@
         <div class="toggle-row">
           <label class="toggle"><input id="music-toggle" type="checkbox"> Music</label>
           <input id="music-volume" class="music-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Music volume" title="Music volume">
+          <label class="toggle"><input id="now-playing-toggle" type="checkbox" checked> Track names</label>
         </div>
         <label class="toggle"><input id="chat-bottom" type="checkbox" checked> Chat across the bottom</label>
         <div class="toggle-row">
@@ -141,6 +142,7 @@
 
   <div id="play-area">
     <div id="map-wrap">
+      <div id="now-playing" role="status" aria-live="polite" hidden></div>
       <div id="overlay" role="alertdialog" aria-labelledby="overlay-title" aria-describedby="overlay-text" hidden>
         <div class="overlay-card">
           <h3 id="overlay-title">Connection lost</h3>

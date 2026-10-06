@@ -510,7 +510,32 @@ const music = new MusicPlayer({
   Howl: globalThis.Howl ?? null,
   Howler: globalThis.Howler ?? null,
   onFallback: (on) => ambient.setMusic(on, () => daylight()),
+  onTrack: (t) => showTrack(t),
 });
+// "Now playing" over the map for a few seconds when the track changes
+// (Settings > Track names turns it off).
+const nowPlaying = $('now-playing');
+const trackNamesBox = $('now-playing-toggle');
+trackNamesBox.checked = storage('get', 'dusk.tracknames') !== '0';
+trackNamesBox.addEventListener('change', () => storage('set', 'dusk.tracknames', trackNamesBox.checked ? '1' : '0'));
+let nowPlayingTimer = 0;
+function showTrack(t) {
+  if (!trackNamesBox.checked || !t.title) return;
+  nowPlaying.textContent = `♪ ${t.title}`;
+  if (t.author) {
+    const by = document.createElement('span');
+    by.className = 'np-by';
+    by.textContent = ` · ${t.author}`;
+    nowPlaying.append(by);
+  }
+  nowPlaying.hidden = false;
+  requestAnimationFrame(() => nowPlaying.classList.add('show'));
+  clearTimeout(nowPlayingTimer);
+  nowPlayingTimer = setTimeout(() => {
+    nowPlaying.classList.remove('show');
+    nowPlayingTimer = setTimeout(() => { nowPlaying.hidden = true; }, 900);
+  }, 5000);
+}
 music.on = musicBox.checked;
 const musicVolume = $('music-volume');
 function setMusicVolume(v, save = true) {

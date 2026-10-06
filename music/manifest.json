@@ -27,6 +27,15 @@
       "loop": true
     },
     {
+      "file": "wilderness/morning-sky.mp3",
+      "title": "Morning Sky",
+      "author": "Centurion_of_war",
+      "source": "https://opengameart.org/node/179462",
+      "license": "CC0 1.0",
+      "mood": "wilderness",
+      "loop": true
+    },
+    {
       "file": "night/contemplation.mp3",
       "title": "Contemplation",
       "author": "Joth",

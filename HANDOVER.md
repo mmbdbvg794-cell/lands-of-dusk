@@ -444,9 +444,8 @@ commands that touch live.
 - Tested: test/music.test.mjs (fake Howl); headless Chrome with the real
   Howler (#music-test: mood switches, crossfade at a track's end, max 2
   held, unload); on scratch logged in as hgate at 455,80 -> town.
-- Phase 2, after the user adds real tracks: tune crossfade lengths,
-  combat cuts in when a fight starts (panels.player.actions includes
-  'flee'), show the track title briefly when it changes.
+- Phase 2: now playing done (below); combat music on hold by the user's
+  choice; crossfade lengths not retuned (2.5 s).
 
 - 2026-10-06 late: first real tracks (NOT live: needs deploy). Originals
   in music-incoming/ (gitignored, not deployed). town: The Bard's Tale and
@@ -465,6 +464,16 @@ commands that touch live.
   not checked. Join clips: music-incoming/seams/*-join.mp3 (last 4 s +
   first 4 s); King's Feast and Dark Cavern measured a possible small click
   at the join, Bard's Tale's is its first beat, Loopable Dungeon is clean.
+
+- 2026-10-07: morning_2d.2.ogg is "Morning Sky" by Centurion_of_war
+  (CC0, https://opengameart.org/node/179462; the user confirmed it's
+  that, not Sunset Plains): music/wilderness/morning-sky.mp3, loop (join
+  measured clean, exactly 132.000 s). Now playing: MusicPlayer onTrack
+  (once per different track), #now-playing over the map for 5 s (top
+  centre; bottom left on phones <= 600 px, where the hotbar is along the
+  top), Settings "Track names" (dusk.tracknames). Combat music: the user
+  decided against it for now (quick fights would make the music jumpy).
+  Needs deploy (it also updates the credits).
 
 ## Open / ideas (ask the user before starting)
 

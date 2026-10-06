@@ -90,13 +90,15 @@ export function pickTrack(list, avoid = null, rand = Math.random) {
 export class MusicPlayer {
   // Howl/Howler: Howler.js's (null: no tracks, always the fallback).
   // base: where track files are, relative to the page.
-  constructor({ Howl = null, Howler = null, base = 'music/', fadeMs = FADE_MS, onFallback = () => {}, onChange = () => {} } = {}) {
+  constructor({ Howl = null, Howler = null, base = 'music/', fadeMs = FADE_MS, onFallback = () => {}, onChange = () => {}, onTrack = () => {} } = {}) {
     this.Howl = Howl;
     this.Howler = Howler;
     this.base = base;
     this.fadeMs = fadeMs;
     this.onFallback = onFallback; // (on) generated music on or off
     this.onChange = onChange; // () something to show changed
+    this.onTrack = onTrack; // (track) a different track starts (for "now playing")
+    this.lastShown = null;
     this.byMood = new Map();
     this.bad = new Set(); // files that wouldn't load
     this.mood = null; // what's wanted (null: nowhere yet)
@@ -218,6 +220,7 @@ export class MusicPlayer {
     if (track.loop) howl.loop(true, id);
     this.cur = { track, howl, id, started: Date.now(), passes: 0, lastAt: 0 };
     this.startTick();
+    if (track !== this.lastShown) { this.lastShown = track; this.onTrack(track); }
     this.onChange();
   }
 

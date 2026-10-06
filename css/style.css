@@ -673,6 +673,21 @@ body.playing #map-wrap { display: flex; }
 /* ---- hotbar (in the black space beside the map) ---- */
 
 #map-wrap { position: relative; }
+/* "Now playing" when the music changes track (js/main.js showTrack). */
+#now-playing {
+  position: absolute; top: 10px; left: 50%; transform: translate(-50%, -6px); z-index: 5;
+  max-width: calc(100% - 32px); padding: 5px 12px; border-radius: 14px;
+  background: rgba(10, 12, 18, 0.72); color: var(--text); font-size: 13px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  pointer-events: none; opacity: 0; transition: opacity 0.8s, transform 0.8s;
+}
+#now-playing.show { opacity: 1; transform: translate(-50%, 0); }
+#now-playing .np-by { color: var(--muted); }
+/* Phones: the hotbar sits along the top, so show it bottom left, clear of the minimap. */
+@media (max-width: 600px) {
+  #now-playing { top: auto; bottom: 10px; left: 8px; max-width: calc(100% - 136px); transform: translateY(6px); font-size: 12px; }
+  #now-playing.show { transform: none; }
+}
 #hotbar {
   position: absolute;
   z-index: 3;
