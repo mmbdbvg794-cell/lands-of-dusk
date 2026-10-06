@@ -164,6 +164,14 @@ commands that touch live.
   the fire orb / Reward Note chain, the topaz and aquamarine the summons
   need); extra "end"s are harmless and left.
 
+- 2026-10-06 lost quests: "The Fire Orb" LIVE (tools/world/cities/fireorb.mjs,
+  far-south enclave reached via the tree at 3,4; tested end to end on
+  scratch); fix_item_files.py (38 item files that couldn't load: capitals
+  in the name, no "type" first) LIVE; gems (add_gems.py) LIVE, drops on
+  monsters after a restart. Not done: the Champion gauntlet (10 boss rooms
+  on the enclave's east and south edges, Key1-Key10, Sword1-Sword10, a
+  "Champion" flag; no bosses placed, none of the items exist): needs design.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
