@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-06 18:30 UTC. Read this first in a new session.
+State as of 2026-10-06 19:10 UTC. Read this first in a new session.
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -358,6 +358,31 @@ commands that touch live.
   own stormier odds; client only, a few KB, no server cost), with fog in
   the random rotation and intensity/wind varying per 15-minute slot.
 
+## 2026-10-06 evening
+
+- Weather per continent LIVE (deployed 18:5x): tools/world/regions.mjs
+  bakes js/regions.json from the map (4-square cells, landmasses named by
+  seed points, sea within 32 squares of land shares the land's weather):
+  old (Old World + its west isle), north (Kingshaven's), south
+  (Aelindor's), east (Eastreach's + the isle off it), mid (the land
+  between north and east, 1596-1951 x 760-1139), sea. atmosphere.js
+  CLIMATES holds each one's odds (clear/rain/storm/fog) and weatherDetail
+  (now, region) rolls weather, intensity and wind per region per 15-minute
+  slot. The #lights panel shows the region. Rerun regions.mjs only when
+  land changes a lot.
+- Old-world town lights installed on live 19:02, need a restart (no god
+  save first): tools/world/cities/lights-{cityoflight,midnight,firetown,
+  riverside,northwest}.mjs (236 torches, 37 lamps/braziers). lightsPlan
+  takes `clear` (1 for the old world's 3-wide streets) and these leave out
+  natural rock (49). Not yet seen in game.
+- Chat tip LIVE (no restart: Talk recompiles changed scripts): the
+  Recruiter (live only, backup in DuskRPG/backups/chat-tip-20261006; also
+  dropped an empty answer and a stray quote), Warden Elarion and
+  Taskmistress Vhal (CHAT_TIP in grove.mjs / velkarath.mjs).
+- conf/onDeath is fine: "set ... locxy" reads a dummy value first (the
+  engine's set always parses one value before the switch), so the 83 is
+  ignored and the dead go to their bind point with 5 HP and "safe" (120 s).
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
@@ -366,13 +391,8 @@ commands that touch live.
   (tools/server/fix_shop.py).
 - God tools: restart button, admin page; leaderboard; owned ships.
 - Not touched: god/test items with missing use scripts (alpha, coolaexp...).
-- Weather per continent (above), fog in the rotation, varying intensity.
-- Light the old world's towns (tools/world/lights.mjs; plans there need
-  oldWorld, which lightsPlan sets by itself).
-- A one-line chat tip ("press Enter, start with ' to talk") in each
-  tutorial's first NPC.
-- conf/onDeath reads "set trigger locxy 83 trigger bindlocx trigger
-  bindlocy": the 83 looks wrong (where do dead players end up?).
+- Smaller old-world places still unlit (Westsea pier, the spy village,
+  the west isle's buildings 131-197 x 882-906).
 
 ## More notes
 

@@ -213,6 +213,15 @@ backups; see `server/`.
 - **Night and weather**: a two-hour day with dusk, night (a lantern's
   light around you) and dawn; rain, storms with lightning and thunder, and
   snow on snowy ground, the same for everyone. Optional quiet music.
+  Each continent has its own weather (wet, foggy North; dry desert East;
+  stormier open sea), fog comes and goes, and how hard it rains and which
+  way the wind blows change through the day.
+- **Lit towns**: torches on the walls and lamp posts or braziers in the
+  streets at night in Kingshaven, Aelindor, Velkarath and Eastreach, and in
+  the old world's City of Light, Midnight Pub town, Firetown, Riverside and
+  north-west village.
+- **Chat tip**: each race's first tutorial character tells new players how
+  to talk to others (Enter, then ' to speak, ; to everyone).
 - **Install as an app**: add Dusk to your phone's home screen or your
   computer as an app.
 
