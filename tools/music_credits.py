@@ -18,9 +18,9 @@ import sys
 
 
 def entry(t):
-    title = html.escape(t.get("title") or t["file"])
-    author = html.escape(t.get("author") or "unknown")
-    lic = html.escape(t.get("license") or "")
+    title = html.escape(t.get("title") or t["file"], quote=False)
+    author = html.escape(t.get("author") or "unknown", quote=False)
+    lic = html.escape(t.get("license") or "", quote=False)
     src = t.get("source") or ""
     body = []
     if src.startswith(("http://", "https://")):

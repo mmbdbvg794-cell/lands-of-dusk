@@ -3,9 +3,62 @@
     "town": "Inside a town (js/music.js TOWNS)",
     "wilderness": "Outdoors by day; also the fallback mood",
     "night": "Outdoors at night",
-    "underground": "Velkarath and the Underdark",
+    "underground": "Velkarath and the Underdark (dungeons)",
     "sea": "Aboard a ferry or out on the open sea",
     "combat": "A fight (Phase 2)"
   },
-  "tracks": []
+  "tracks": [
+    {
+      "file": "town/the-bards-tale-loop.mp3",
+      "title": "Medieval: The Bard's Tale (loop)",
+      "author": "RandomMind",
+      "source": "https://opengameart.org/content/medieval-the-bards-tale",
+      "license": "CC0 1.0",
+      "mood": "town",
+      "loop": true
+    },
+    {
+      "file": "town/kings-feast-loop.mp3",
+      "title": "Medieval: King's Feast (loop)",
+      "author": "RandomMind",
+      "source": "https://opengameart.org/content/medieval-kings-feast",
+      "license": "CC0 1.0",
+      "mood": "town",
+      "loop": true
+    },
+    {
+      "file": "night/contemplation.mp3",
+      "title": "Contemplation",
+      "author": "Joth",
+      "source": "https://opengameart.org/content/contemplation-0",
+      "license": "CC0 1.0",
+      "mood": "night"
+    },
+    {
+      "file": "underground/dark-cavern-ambient-loop.mp3",
+      "title": "Dark Cavern Ambient (loop)",
+      "author": "Paul Wortmann",
+      "source": "https://opengameart.org/content/dark-cavern-ambient",
+      "license": "CC0 1.0",
+      "mood": "underground",
+      "loop": true
+    },
+    {
+      "file": "underground/loopable-dungeon-ambience.mp3",
+      "title": "Loopable Dungeon Ambience",
+      "author": "JaggedStone",
+      "source": "https://opengameart.org/content/loopable-dungeon-ambience",
+      "license": "CC0 1.0",
+      "mood": "underground",
+      "loop": true
+    },
+    {
+      "file": "underground/dungeon-ambience.mp3",
+      "title": "Dungeon Ambience",
+      "author": "yd",
+      "source": "https://opengameart.org/content/dungeon-ambience",
+      "license": "CC0 1.0",
+      "mood": "underground"
+    }
+  ]
 }

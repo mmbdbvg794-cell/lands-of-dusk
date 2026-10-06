@@ -1,7 +1,7 @@
 // Run with: node test/music.test.mjs
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { moodAt, moodForType, townAt, tracksByMood, pickTrack, MusicPlayer, MOODS, FALLBACK_MOOD } from '../js/music.js';
+import { moodAt, moodForType, townAt, tracksByMood, pickTrack, MusicPlayer, MOODS, FALLBACK_MOOD, loopPasses, LOOP_MIN_S } from '../js/music.js';
 
 // Where you are picks the mood.
 assert.equal(townAt(1430, 350)?.name, 'Kingshaven');
@@ -30,6 +30,7 @@ for (const name of ['manifest.json', 'manifest.test.json']) {
   for (const t of m.tracks) {
     assert.ok(MOODS.includes(t.mood), `${name}: ${t.file} has an unknown mood ${t.mood}`);
     for (const k of ['file', 'title', 'author', 'source', 'license']) assert.equal(typeof t[k], 'string', `${name}: ${t.file} needs ${k}`);
+    assert.ok(t.loop === undefined || typeof t.loop === 'boolean', `${name}: ${t.file} loop is true or false`);
     readFileSync(new URL(`../music/${t.file}`, import.meta.url)); // the file is there
   }
 }
@@ -55,6 +56,7 @@ class FakeHowl {
   pause(id) { this.ids.get(id).playing = false; }
   seek(id) { return this.ids.get(id).at; }
   duration() { return this.dur; }
+  loop(on, id) { this.ids.get(id).loop = on; }
   unload() { this.unloaded = true; for (const s of this.ids.values()) s.playing = false; }
 }
 const live = () => howls.filter((h) => !h.unloaded);
@@ -140,5 +142,32 @@ const q = new MusicPlayer({ onFallback: (on) => fallbacks.push(on) });
 q.load({ tracks: [{ file: 't1', mood: 'town' }] });
 q.setMood('town'); q.unlock();
 assert.deepEqual(fallbacks, [true]);
+
+// Loop tracks repeat with no fade until their turn (LOOP_MIN_S) is up,
+// then hand over at the end of a pass; a mood's only loop keeps going.
+assert.equal(loopPasses(60), Math.ceil(LOOP_MIN_S / 60));
+assert.equal(loopPasses(400), 1);
+howls.length = 0;
+const L = new MusicPlayer({ Howl: FakeHowl, Howler: { volume() {} }, base: '', fadeMs: 5 });
+L.load({ tracks: [{ file: 'l1', mood: 'town', loop: true }, { file: 'l2', mood: 'town', loop: true }, { file: 'u1', mood: 'underground', loop: true }] });
+L.setMood('underground'); L.unlock();
+const s0 = () => L.cur.howl.ids.get(L.cur.id);
+assert.equal(s0().loop, true);
+L.cur.started = 0;
+for (let pass = 0; pass < 5; pass++) { s0().at = 50; L.tick(); s0().at = 99.999; L.tick(); s0().at = 0.5; L.tick(); }
+assert.equal(L.cur.track.file, 'u1', 'the only loop of its mood keeps looping');
+assert.equal(L.cur.passes, 5);
+L.setMood('town');
+await wait(150);
+const firstLoop = L.cur.track.file;
+L.cur.started = 0;
+const passes = loopPasses(100);
+for (let pass = 0; pass < passes - 1; pass++) { s0().at = 50; L.tick(); s0().at = 99.999; L.tick(); assert.equal(L.cur.track.file, firstLoop, `pass ${pass + 1} carries on`); s0().at = 0.5; L.tick(); }
+s0().at = 50; L.tick(); s0().at = 99.999; L.tick();
+assert.notEqual(L.cur.track.file, firstLoop, 'hands over at the end of its last pass');
+L.cur.howl.o.onend(L.cur.id);
+assert.notEqual(L.cur, null, 'an end event from a loop pass is ignored');
+L.setOn(false);
+await wait(150);
 
 console.log('music tests passed');

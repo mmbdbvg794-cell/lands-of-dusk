@@ -20,6 +20,13 @@ export const MOODS = ['town', 'wilderness', 'night', 'underground', 'sea', 'comb
 export const FALLBACK_MOOD = 'wilderness'; // for opcode 12 types we don't know
 export const FADE_MS = 2500; // crossfade between moods and between tracks
 const PRELOAD_AFTER_S = 8; // fetch the next track once this much has played
+// A loop track ("loop": true in the manifest) repeats with no gap or fade
+// until it has played at least this long, then hands over to another track
+// of its mood as a pass ends (or keeps going if it's the mood's only one).
+export const LOOP_MIN_S = 180;
+
+// How many passes of a loop make up its turn.
+export const loopPasses = (dur) => (dur > 0 ? Math.max(1, Math.ceil(LOOP_MIN_S / dur)) : 1);
 const TICK_MS = 500;
 
 // Towns, [x0, y0, x1, y1], the boxes the night lights were placed in
@@ -208,7 +215,8 @@ export class MusicPlayer {
     const id = howl.play();
     howl.volume(0, id);
     howl.fade(0, 1, this.fadeMs, id);
-    this.cur = { track, howl, id, started: Date.now() };
+    if (track.loop) howl.loop(true, id);
+    this.cur = { track, howl, id, started: Date.now(), passes: 0, lastAt: 0 };
     this.startTick();
     this.onChange();
   }
@@ -221,7 +229,8 @@ export class MusicPlayer {
       volume: 0, // each play fades in from silence, even before it's loaded
       onloaderror: () => this.failed(track, howl),
       onplayerror: () => this.failed(track, howl),
-      onend: (id) => { if (this.cur?.howl === howl && this.cur.id === id) this.skip(); },
+      // Howler also says "end" at each pass of a loop; those carry on.
+      onend: (id) => { if (!track.loop && this.cur?.howl === howl && this.cur.id === id) this.skip(); },
     });
     return howl;
   }
@@ -288,7 +297,9 @@ export class MusicPlayer {
   }
 
   // Twice a second: fetch the next track once this one has played a while,
-  // and start fading into it when this one is a fade's length from its end.
+  // and start fading into it when this one is a fade's length from its end
+  // (for a loop, the end of its last pass; the fade-out runs on into the
+  // start of the next pass, so there's still no gap).
   tick() {
     const c = this.cur;
     if (!c || !this.playing) return;
@@ -299,7 +310,15 @@ export class MusicPlayer {
       const t = pickTrack(this.tracks(this.mood), c.track);
       if (t) this.next = { track: t, howl: t === c.track ? c.howl : this.makeHowl(t) };
     }
-    if (dur > 0 && dur - at <= this.fadeMs / 1000 && Date.now() - c.started > this.fadeMs) this.skip();
+    const ending = dur > 0 && dur - at <= this.fadeMs / 1000 && Date.now() - c.started > this.fadeMs;
+    if (!c.track.loop) {
+      if (ending) this.skip();
+      return;
+    }
+    if (at + 1 < c.lastAt) c.passes++; // wrapped round to the start
+    c.lastAt = at;
+    const other = this.tracks(this.mood).some((t) => t !== c.track);
+    if (ending && other && c.passes + 1 >= loopPasses(dur)) this.skip();
   }
 
   // For the debug panel and the "now playing" readout.

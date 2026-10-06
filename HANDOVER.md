@@ -448,6 +448,24 @@ commands that touch live.
   combat cuts in when a fight starts (panels.player.actions includes
   'flee'), show the track title briefly when it changes.
 
+- 2026-10-06 late: first real tracks (NOT live: needs deploy). Originals
+  in music-incoming/ (gitignored, not deployed). town: The Bard's Tale and
+  King's Feast loops (RandomMind); night: Contemplation (Joth);
+  underground: Dark Cavern Ambient loop _002 (Paul Wortmann), Loopable
+  Dungeon Ambience (JaggedStone), Dungeon Ambience (yd, "Dungeon of
+  Galhur"); all CC0 on OpenGameArt. "overworld" = wilderness, "dungeon" =
+  underground. morning_2d.2.ogg was given as Sunset Plains (Yoiyami) but
+  that page only has sunset_plains.wav (63 MB, ~6 min): held back, asked
+  the user. music_compress.sh now uses one fixed gain (to -18 LUFS, peak
+  <= -1 dBTP) instead of loudnorm (which would put a level step in a
+  loop's join) and keeps the sample rate. Manifest "loop": true: Howler
+  loop, no fade, LOOP_MIN_S 180 then hand over at a pass end; a mood's
+  only loop keeps going. Chrome decodes the MP3s to the exact original
+  sample count (LAME gapless header), so loops are gapless there; Safari
+  not checked. Join clips: music-incoming/seams/*-join.mp3 (last 4 s +
+  first 4 s); King's Feast and Dark Cavern measured a possible small click
+  at the join, Bard's Tale's is its first beat, Loopable Dungeon is clean.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
