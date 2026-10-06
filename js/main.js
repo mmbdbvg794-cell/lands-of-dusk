@@ -857,8 +857,16 @@ $('bug-form').addEventListener('submit', (e) => {
   let link = mailto(subject, body);
   // Trim the chat lines first if the link is too long.
   for (let lines = 12; link.length > MAILTO_MAX && lines >= 0; lines -= 3) link = mailto(subject, bugReport(lines).body);
+  // To the gods in the game too (server/Mail.java), when logged in; the
+  // server answers in the chat.
+  const inGame = conn?.connected && player.name;
+  if (inGame) {
+    const { subject: s, body: b } = bugReport();
+    conn.background(`bugreport ${encodeURIComponent(s.replace(/^\[Dusk web\] /, ''))} ${encodeURIComponent(b)}`);
+  }
   location.href = link;
-  $('bug-msg').textContent = `Your email app should open with the message. If nothing happened, use Copy text and send it to ${BUG_EMAIL} yourself.`;
+  $('bug-msg').textContent = (inGame ? 'Sent to the gods in the game (the chat says when it arrives). ' : '') +
+    `Your email app should open with the message. If nothing happened, use Copy text and send it to ${BUG_EMAIL} yourself.`;
 });
 $('bug-copy').addEventListener('click', async () => {
   const { subject, body } = bugReport();

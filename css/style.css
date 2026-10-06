@@ -494,6 +494,8 @@ body.playing #map-wrap { display: flex; }
   border-radius: 999px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
+/* Above the yes/no bar while it's up, not over its No button. */
+:has(> #prompt-bar:not([hidden])) > #output-latest { bottom: 104px; }
 #output .sys { color: var(--muted); font-style: italic; }
 #output .err { color: var(--bad); }
 #output .echo { color: var(--accent); }

@@ -88,6 +88,8 @@ public class Skills {
         Housing.start(engine);
         // Creatures wander, hunt and flee (server/Creatures.java).
         Creatures.start(engine);
+        // Bug reports waiting for gods (server/Mail.java).
+        Mail.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

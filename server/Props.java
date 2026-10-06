@@ -86,6 +86,8 @@ public class Props {
             if (quest != null) return quest;
             String housing = Housing.command(who, engine, trimmed);
             if (housing != null) return housing;
+            String mail = Mail.command(who, engine, trimmed);
+            if (mail != null) return mail;
             String admin = Admin.command(who, engine, trimmed);
             if (admin != null) return admin;
             String ferry = Ferry.command(who, engine, trimmed);
