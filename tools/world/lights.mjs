@@ -14,8 +14,9 @@
 //             no torch within TORCH_GAP squares. The torch tile for each
 //             wall: 24 is the old one on the dark wall (11); 160-167 are on
 //             the others (tools/server/torchwalls.py).
-//   Lamps     a paved open square (no wall within two squares), no door within
-//             two squares, nothing standing there, LAMP_GAP from any other
+//   Lamps     a paved open square (no wall within `clear` squares, 2 unless
+//             the plan says: the old world's streets are narrower), no door within
+//             that, nothing standing there, LAMP_GAP from any other
 //             lamp or torch. Props don't block walking.
 
 import { readFileSync, existsSync } from 'node:fs';
@@ -59,7 +60,7 @@ function taken(dir) {
 }
 
 // What to light in a box of the map: { torches: [[x, y, tile]], lamps: [[x, y]] }.
-export function findLights(mapPath, { box: [x0, y0, x1, y1], walls = Object.keys(TORCH_ON).map(Number), lamps = true, maxLamps = 40, skip = [] }) {
+export function findLights(mapPath, { box: [x0, y0, x1, y1], walls = Object.keys(TORCH_ON).map(Number), lamps = true, maxLamps = 40, skip = [], clear = 2 }) {
   const { at } = readMap(mapPath);
   const busy = taken(dirname(mapPath));
   const out = (x, y) => skip.some(([a, b, c, d]) => x >= a && x <= c && y >= b && y <= d);
@@ -81,8 +82,8 @@ export function findLights(mapPath, { box: [x0, y0, x1, y1], walls = Object.keys
     for (let y = y0; y <= y1 && lampsAt.length < maxLamps; y++) for (let x = x0; x <= x1 && lampsAt.length < maxLamps; x++) {
       if (!PAVED.has(at(x, y)) || busy.has(`${x},${y}`) || out(x, y)) continue;
       let open = true;
-      for (let dx = -2; dx <= 2 && open; dx++) for (let dy = -2; dy <= 2 && open; dy++) if (!WALK.has(at(x + dx, y + dy)) && !DOORS.has(at(x + dx, y + dy))) open = false;
-      for (let dx = -2; dx <= 2 && open; dx++) for (let dy = -2; dy <= 2 && open; dy++) if (DOORS.has(at(x + dx, y + dy)) || busy.has(`${x + dx},${y + dy}`)) open = false;
+      for (let dx = -clear; dx <= clear && open; dx++) for (let dy = -clear; dy <= clear && open; dy++) if (!WALK.has(at(x + dx, y + dy)) && !DOORS.has(at(x + dx, y + dy))) open = false;
+      for (let dx = -clear; dx <= clear && open; dx++) for (let dy = -clear; dy <= clear && open; dy++) if (DOORS.has(at(x + dx, y + dy)) || busy.has(`${x + dx},${y + dy}`)) open = false;
       if (!open || near(x, y, LAMP_GAP)) continue;
       lampsAt.push([x, y]);
       lit.push([x, y]);
@@ -99,7 +100,7 @@ const PROP_FILES = {
 
 // A plan for tools/world/city.mjs. lamp: the prop for the open squares
 // ('lamp post' or 'brazier', or null for none); campfires: [[x, y]].
-export function lightsPlan({ name, box, lampBox = box, lamp = 'lamp post', campfires = [], extra = [], maxLamps = 40, walls, skip = [] }) {
+export function lightsPlan({ name, box, lampBox = box, lamp = 'lamp post', campfires = [], extra = [], maxLamps = 40, walls, skip = [], clear = 2 }) {
   // The plan covers the box and every campfire (torches are only looked for
   // in the box, lamps only in lampBox).
   const xs = [box[0], box[2], ...campfires.map((c) => c[0]), ...extra.map((e) => e[1])];
@@ -117,7 +118,7 @@ export function lightsPlan({ name, box, lampBox = box, lamp = 'lamp post', campf
     build(p) {
       const mapPath = process.argv[3];
       const { torches } = findLights(mapPath, { box, lamps: false, walls, skip });
-      const { lamps } = lamp ? findLights(mapPath, { box: lampBox, lamps: true, maxLamps, walls: [], skip }) : { lamps: [] };
+      const { lamps } = lamp ? findLights(mapPath, { box: lampBox, lamps: true, maxLamps, walls: [], skip, clear }) : { lamps: [] };
       for (const [x, y, tile] of torches) p.tileNumber(x - x0, y - y0, tile);
       for (const [file, text] of Object.entries(PROP_FILES)) p.file(`defProps/${file}`, text);
       for (const [x, y] of lamps) p.prop(lamp, x - x0, y - y0);
