@@ -260,6 +260,12 @@ commands that touch live.
   sandwich/ale resale left alone: not in the clerical spell list, so
   nobody can cast them.
 
+- Phone check 2026-10-06 (scratchpad e2e/phone.mjs, stepprof.mjs): headless
+  Chrome at 390x844, 3x density, 4x CPU throttle can't judge phones:
+  WebGL and canvas raster are software there (Pixi 4 fps, plain page
+  ~14 fps while walking), while the page's own JS is nearly idle (~70 ms
+  of 5 s walking). Needs a real phone: /play/spike-pixi/ is live and current.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
