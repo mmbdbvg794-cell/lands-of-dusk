@@ -122,8 +122,9 @@ let world = newWorld();
 const renderer = new Renderer($('map'), world, $('map-wrap'));
 renderer.ships = new Ships();
 renderer.farTile = (x, y) => minimap.explored.tileAt(x, y); // squares seen before, beyond the view
-// For tests (localStorage dusk.debug = 1): the world and ships to read.
-if (storage('get', 'dusk.debug')) Object.defineProperty(window, '__dusk', { get: () => ({ world, ships: renderer.ships }) });
+// For tests (localStorage dusk.debug = 1) and the Pixi spike page
+// (spike-pixi/): the world, ships and renderer to read.
+if (storage('get', 'dusk.debug') || window.duskSpike) Object.defineProperty(window, '__dusk', { get: () => ({ world, ships: renderer.ships, renderer }) });
 let sheetsFor = null; // resource address the current sheets came from
 const minimap = new Minimap($('minimap'), new Explored());
 const worldMap = new WorldMap($('world-map'), minimap);

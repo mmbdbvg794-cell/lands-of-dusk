@@ -48,12 +48,15 @@ rm -rf "$T"
 echo "Running tests..."
 for t in test/*.test.mjs; do node "$t"; done
 
+echo "Making the Pixi spike page (spike-pixi/)..."
+sh spike-pixi/make-page.sh
+
 echo "Copying to $HOST..."
-tar czf - index.html who.html leaderboard.html manifest.json sw.js css js img art/painted tools/spellinfo.py tools/raceinfo.py tools/iteminfo.py tools/rebuild-data.sh serve.py README.md server |
+tar czf - spike-pixi index.html who.html leaderboard.html manifest.json sw.js css js img art/painted tools/spellinfo.py tools/raceinfo.py tools/iteminfo.py tools/rebuild-data.sh serve.py README.md server |
   ssh -o BatchMode=yes "$HOST" "mkdir -p ~/$DIR && cd ~/$DIR && rm -rf css js art/smooth tools/smoothart.py && tar xzf - && sh tools/rebuild-data.sh \$HOME/DuskRPG"
 
 echo "Checking..."
-for f in / js/main.js js/spellinfo.json js/raceinfo.json art/painted/map.png art/painted/players.png art/painted/sprites.png art/painted/named.png art/painted/named.json art/painted/items.png art/painted/items.json art/painted/people.json; do
+for f in / spike-pixi/ spike-pixi/spike.js js/main.js js/spellinfo.json js/raceinfo.json art/painted/map.png art/painted/players.png art/painted/sprites.png art/painted/named.png art/painted/named.json art/painted/items.png art/painted/items.json art/painted/people.json; do
   code=$(curl -s -m 5 -o /dev/null -w '%{http_code}' "$URL/${f#/}")
   echo "  $f $code"
   [ "$code" = 200 ] || { echo "Deploy check failed for $f" >&2; exit 1; }
