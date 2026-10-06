@@ -173,6 +173,16 @@ public class Quests {
         return "";
     }
 
+    // A flag that's taken away at `when` (ms), as the conversations' timers
+    // are (server/Housing.java: a rented house's key).
+    public static void setTimer(String player, String flag, long when) {
+        synchronized (Quests.class) {
+            loadTimers();
+            timers.put(player.toLowerCase() + "|" + flag, when);
+            saveTimers();
+        }
+    }
+
     static boolean goodId(String id) {
         return id.matches("[a-z0-9_]{1,30}");
     }

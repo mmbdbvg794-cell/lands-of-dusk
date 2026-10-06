@@ -84,6 +84,8 @@ public class Skills {
         Conditions.start(engine);
         // The leaderboard, for the web page (server/Admin.java).
         Admin.start(engine);
+        // Houses to rent (server/Housing.java).
+        Housing.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

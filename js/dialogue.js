@@ -89,6 +89,9 @@ function effect(e, pad) {
     case 'exp': return Number(e.amount) > 0 ? `${pad}inc trigger exp ${Math.floor(Number(e.amount))}` : null;
     case 'flag': return cleanFlag(e.flag) ? `${pad}addCondition trigger ${cleanFlag(e.flag)}` : null;
     case 'unflag': return cleanFlag(e.flag) ? `${pad}removeCondition trigger ${cleanFlag(e.flag)}` : null;
+    // Renting a house (server/Housing.java): "rent" or "info"; the hidden
+    // rentnow lets the order through, as only a conversation can give it.
+    case 'rent': return ['rent', 'info'].includes(e.what) ? `${pad}addCondition trigger rentnow\n${pad}order trigger "house ${e.what}"` : null;
     case 'teleport': return Number.isFinite(Number(e.x)) && Number.isFinite(Number(e.y)) && e.x !== '' && e.y !== '' ? `${pad}set trigger locxy ${Math.floor(Number(e.x))} ${Math.floor(Number(e.y))}` : null;
     // Where they come back to after dying. The script language's own "set
     // trigger bindlocx" stores 0 on this server, so the server sets it
@@ -447,6 +450,7 @@ export function tryAnswer(a, p, who) {
     if (e.kind === 'gold' && n > 0) { p.gold += n; lines.push(`(+${n} gold)`); }
     if (e.kind === 'takegold' && n > 0) { p.gold = Math.max(0, p.gold - n); lines.push(`(-${n} gold)`); }
     if (e.kind === 'exp' && n > 0) lines.push(`(+${n} experience)`);
+    if (e.kind === 'rent') lines.push(e.what === 'info' ? '(says which house you rent)' : '(rents a house on Lantern Row)');
     if (e.kind === 'teleport') lines.push(`(sent to ${e.x}, ${e.y})`);
     if (e.kind === 'bind') lines.push(`(comes back to ${e.x}, ${e.y} after dying)`);
   }
