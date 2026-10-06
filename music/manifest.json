@@ -1,0 +1,11 @@
+{
+  "moods": {
+    "town": "Inside a town (js/music.js TOWNS)",
+    "wilderness": "Outdoors by day; also the fallback mood",
+    "night": "Outdoors at night",
+    "underground": "Velkarath and the Underdark",
+    "sea": "Aboard a ferry or out on the open sea",
+    "combat": "A fight (Phase 2)"
+  },
+  "tracks": []
+}

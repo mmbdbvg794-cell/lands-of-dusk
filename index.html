@@ -72,8 +72,11 @@
         <div class="toggle-row">
           <label class="toggle"><input id="night-toggle" type="checkbox" checked> Night</label>
           <label class="toggle"><input id="weather-toggle" type="checkbox" checked> Weather</label>
-          <label class="toggle"><input id="music-toggle" type="checkbox"> Music</label>
           <label class="toggle"><input id="lighting-toggle" type="checkbox" checked> Lighting</label>
+        </div>
+        <div class="toggle-row">
+          <label class="toggle"><input id="music-toggle" type="checkbox"> Music</label>
+          <input id="music-volume" class="music-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Music volume" title="Music volume">
         </div>
         <label class="toggle"><input id="chat-bottom" type="checkbox" checked> Chat across the bottom</label>
         <div class="toggle-row">
@@ -575,6 +578,9 @@
     "pixi.js": "https://cdn.jsdelivr.net/npm/pixi.js@8.22.0/dist/pixi.min.mjs",
     "pixi-filters": "https://cdn.jsdelivr.net/npm/pixi-filters@6.1.5/dist/pixi-filters.mjs"
   }}</script>
+  <!-- Howler.js for the area music (js/music.js); without it the generated
+       music plays instead. -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js" integrity="sha512-xi/RZRIF/S0hJ+yJJYuZ5yk6/8pCiRlEXZzoguSMl+vk2i3m6UjUO/WcZ11blRL/O+rnj94JRGwt/CHbc9+6EA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

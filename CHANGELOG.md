@@ -217,6 +217,10 @@ backups; see `server/`.
   Each continent has its own weather (wet, foggy North; dry desert East;
   stormier open sea), fog comes and goes, and how hard it rains and which
   way the wind blows change through the day.
+- **Area music**: music that follows where you are (towns, the wilds by
+  day, night, underground, at sea), crossfading as you move, with its own
+  volume slider in Settings apart from the sound effects. Until real tracks
+  are added, the quiet generated music plays.
 - **Lit towns**: torches on the walls and lamp posts or braziers in the
   streets at night in Kingshaven, Aelindor, Velkarath and Eastreach, and in
   the old world's City of Light, Midnight Pub town, Firetown, Riverside,

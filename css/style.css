@@ -125,6 +125,7 @@ button.ghost { background: none; }
 button.small { padding: 2px 8px; font-size: 12px; }
 /* Volume: in the top bar, or in Settings on phones where there's no room. */
 .volume { width: 110px; accent-color: var(--accent); }
+.music-volume { width: 110px; accent-color: var(--accent); }
 #sound-controls { display: flex; align-items: center; gap: 6px; }
 #mute-btn { padding: 4px 8px; line-height: 1; }
 #mute-btn[aria-pressed="true"] { opacity: 0.6; }

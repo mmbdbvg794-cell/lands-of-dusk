@@ -259,7 +259,9 @@ export class Atmosphere {
 
 // Rain on the ground, thunder, and (if wanted) a slow, quiet music: soft
 // chords that drift, brighter by day and lower at night. All made with Web
-// Audio through the game's Sound, so its volume and mute apply.
+// Audio on the game's Sound. Rain and thunder follow its volume and mute;
+// the music has its own volume (setMusicVolume) and plays for moods that
+// have no tracks yet (js/music.js).
 export class AmbientSound {
   constructor(sound) {
     this.sound = sound;
@@ -268,6 +270,12 @@ export class AmbientSound {
     this.musicTimer = 0;
     this.melodyTimer = 0;
     this.musicBus = null;
+    this.musicVolume = 0.6;
+  }
+
+  setMusicVolume(v) {
+    this.musicVolume = Math.max(0, Math.min(1, v));
+    if (this.musicBus) this.musicBus.out.gain.value = this.musicVolume;
   }
 
   setRain(level) {
@@ -349,14 +357,17 @@ export class AmbientSound {
     this.melodyTimer = setTimeout(melody, 2500);
   }
 
-  // The music's own path to the speakers: a little echo, then the game's
-  // volume. Null until sound is allowed (and while it's turned off).
+  // The music's own path to the speakers: a little echo, then the music
+  // volume (not the sound effects'). Null until sound is allowed.
   bus() {
     const s = this.sound;
-    if (!s.ctx || !s.enabled) return null;
+    if (!s.ctx) return null;
     if (s.ctx.state === 'suspended') s.ctx.resume?.()?.catch?.(() => {});
     if (this.musicBus?.ctx === s.ctx) return this.musicBus.in;
     const ctx = s.ctx;
+    const out = ctx.createGain();
+    out.gain.value = this.musicVolume;
+    out.connect(ctx.destination);
     const input = ctx.createGain();
     const delay = ctx.createDelay(2);
     delay.delayTime.value = 0.42;
@@ -365,10 +376,10 @@ export class AmbientSound {
     const soften = ctx.createBiquadFilter();
     soften.type = 'lowpass';
     soften.frequency.value = 1800;
-    input.connect(s.master);
+    input.connect(out);
     input.connect(delay).connect(soften).connect(fb).connect(delay);
-    soften.connect(s.master);
-    this.musicBus = { ctx, in: input };
+    soften.connect(out);
+    this.musicBus = { ctx, in: input, out };
     return input;
   }
 

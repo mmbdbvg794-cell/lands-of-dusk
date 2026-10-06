@@ -19,7 +19,8 @@ import { SocialUI } from './socialui.js';
 import { JournalEditor } from './journaleditor.js';
 import { LibraryEditor } from './libraryeditor.js';
 import { parseLibReply } from './library.js';
-import { Atmosphere, AmbientSound, findSnowTiles, daylight, regionMap } from './atmosphere.js';
+import { Atmosphere, AmbientSound, findSnowTiles, daylight, regionMap, isUnderground } from './atmosphere.js';
+import { MusicPlayer, moodAt, moodForType, musicPanel } from './music.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
@@ -486,7 +487,6 @@ function applyAtmosphere() {
 applyAtmosphere();
 weatherBox.addEventListener('change', () => { storage('set', 'dusk.weather', weatherBox.checked ? '1' : '0'); applyAtmosphere(); });
 nightBox.addEventListener('change', () => { storage('set', 'dusk.night', nightBox.checked ? '1' : '0'); applyAtmosphere(); });
-musicBox.addEventListener('change', () => { storage('set', 'dusk.music', musicBox.checked ? '1' : '0'); ambient.setMusic(musicBox.checked, () => daylight()); });
 // Lighting (js/lighting.js, PixiJS): torches, lava and lanterns light up the
 // night, and spells glow. On unless turned off; Pixi is only fetched when
 // it's on, and if it can't load the normal night stays.
@@ -503,14 +503,62 @@ function applyLighting() {
 }
 applyLighting();
 lightingBox.addEventListener('change', () => { storage('set', 'dusk.lighting', lightingBox.checked ? '1' : '0'); applyLighting(); });
+// Area music (js/music.js): tracks from music/manifest.json by the mood of
+// where you are, crossfading; moods with no tracks yet get the generated
+// music above. Its own volume and switch, apart from the sound effects'.
+const music = new MusicPlayer({
+  Howl: globalThis.Howl ?? null,
+  Howler: globalThis.Howler ?? null,
+  onFallback: (on) => ambient.setMusic(on, () => daylight()),
+});
+music.on = musicBox.checked;
+const musicVolume = $('music-volume');
+function setMusicVolume(v, save = true) {
+  music.setVolume(v);
+  ambient.setMusicVolume(v);
+  musicVolume.value = String(Math.round(v * 100));
+  if (save) storage('set', 'dusk.musicvolume', musicVolume.value);
+}
+setMusicVolume(Number(storage('get', 'dusk.musicvolume') ?? 60) / 100, false);
+musicVolume.addEventListener('input', () => setMusicVolume(Number(musicVolume.value) / 100));
+musicBox.addEventListener('change', () => { storage('set', 'dusk.music', musicBox.checked ? '1' : '0'); music.setOn(musicBox.checked); });
+// #music-test plays the placeholder tones in music/test/ instead.
+fetch(location.hash === '#music-test' ? 'music/manifest.test.json' : 'music/manifest.json', { cache: 'no-cache' })
+  .then((r) => (r.ok ? r.json() : null)).then((m) => music.load(m)).catch(() => music.load(null));
 // Music waits for the first press or key (browsers only play sound after one).
 const startMusic = () => {
   removeEventListener('pointerdown', startMusic, true);
   removeEventListener('keydown', startMusic, true);
-  if (musicBox.checked && !ambient.music) ambient.setMusic(true, () => daylight());
+  music.unlock();
 };
 addEventListener('pointerdown', startMusic, true);
 addEventListener('keydown', startMusic, true);
+document.addEventListener('visibilitychange', () => music.setHidden(document.hidden));
+// The mood: forced by opcode 12 (no server sends it yet) or the debug
+// panel, else the place's. A place's mood has to hold for two looks (4 s)
+// before the music follows, so a walk along a town's edge doesn't flip it.
+let musicOverride = null;
+let lastPlace = null;
+function placeMood() {
+  if (!loaded) return null;
+  const x = world.locX, y = world.locY;
+  const aboard = [...renderer.ships.ships.values()].some((s) => s.x === x && s.y === y);
+  return moodAt({ x, y, light: daylight(), underground: isUnderground(x, y), aboard, region: atmosphere.regionAt?.(x, y) ?? null });
+}
+function setMusicOverride(mood) {
+  musicOverride = mood;
+  music.setMood(mood ?? placeMood());
+}
+setInterval(() => {
+  const place = placeMood();
+  const settled = place === lastPlace;
+  lastPlace = place;
+  if (!musicOverride && settled) music.setMood(place);
+}, 2000);
+if (location.hash.startsWith('#music')) {
+  musicPanel({ player: music, setOverride: setMusicOverride, getOverride: () => musicOverride, setVolume: (v) => setMusicVolume(v) });
+  window.music = music;
+}
 // The sky changes slowly: redraw now and then even when nothing moves.
 setInterval(() => renderer.invalidate(), 30000);
 // localStorage key for this character's explored tiles, set once we know
@@ -1429,6 +1477,11 @@ function handle(msg) {
       }
       break;
     }
+    case OP.PLAY_MUSIC:
+      // Never sent by this server (its playMusic is empty); 0 = back to
+      // the place's mood, 1 = combat (js/music.js moodForType).
+      if (Number.isFinite(msg.type)) setMusicOverride(moodForType(msg.type));
+      break;
     case OP.PLAY_SFX: {
       // Spell scripts send effects as sound numbers (see decodeFx).
       const fx = decodeFx(msg.index);

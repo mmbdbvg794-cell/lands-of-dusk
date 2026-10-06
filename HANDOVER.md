@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-06 19:55 UTC. Read this first in a new session.
+State as of 2026-10-06 21:10 UTC. Read this first in a new session.
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -413,6 +413,40 @@ commands that touch live.
   The spy village (83,6) is inside the north-west village's box, already
   lit; 514,5 and 284,151 had nothing to light; the specks at 977,938
   were skipped.
+
+## 2026-10-06 night: area music, Phase 1 (NOT live: needs deploy)
+
+- The user's brief (area-music system, Howler.js, no protocol change) is in
+  the 2026-10-06 session; Step 0 found the server never sends music
+  (playMusic/updateMusic are empty stubs, conf/prefs "music off", rc/audio
+  empty; the battle code calls playMusic(1)/(0) at fight start/end).
+  The user chose: moods by location, generated music kept as the fallback,
+  Howler in Web Audio mode (fades and volume work on iPhone; ~20 MB a
+  minute decoded, at most 2 tracks held).
+- js/music.js: MusicPlayer (crossfade 2.5 s, same mood keeps playing,
+  next track fetched after 8 s of play, a track fades into another of its
+  mood 2.5 s before its end, pause on hidden tab, bad files skipped),
+  moodAt (underground > sea (aboard a ferry or region 'sea') > town box >
+  night/wilderness), TOWNS (the lights-*.mjs boxes), moodForType (opcode
+  12: 0 place, 1 combat, else wilderness), musicPanel (#music, #music-test).
+  main.js: mood checked every 2 s and must hold for two checks; Settings
+  music slider (dusk.musicvolume), Music switch (dusk.music).
+  atmosphere.js: the generated music now goes through its own gain at the
+  music volume straight to the speakers (not the sound effects' volume or
+  Sound switch). Howler 2.2.4 from cdnjs (script tag with SRI, defer).
+- music/manifest.json (empty: live keeps the generated music),
+  manifest.test.json + music/test/*.mp3 (ffmpeg test tones), README.md
+  (adding a track, ffmpeg, licence checklist), tools/music_compress.sh,
+  tools/music_credits.py (deploy runs it on the server: tracks into
+  ~/DuskRPG/web/credits.json, entries marked "from": "music").
+- ffmpeg was installed in this container (CT 305) for the test tones and
+  music_compress.sh.
+- Tested: test/music.test.mjs (fake Howl); headless Chrome with the real
+  Howler (#music-test: mood switches, crossfade at a track's end, max 2
+  held, unload); on scratch logged in as hgate at 455,80 -> town.
+- Phase 2, after the user adds real tracks: tune crossfade lengths,
+  combat cuts in when a fight starts (panels.player.actions includes
+  'flee'), show the track title briefly when it changes.
 
 ## Open / ideas (ask the user before starting)
 

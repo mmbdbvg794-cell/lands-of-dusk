@@ -1,0 +1,68 @@
+{
+  "moods": {
+    "town": "Inside a town (js/music.js TOWNS)",
+    "wilderness": "Outdoors by day; also the fallback mood",
+    "night": "Outdoors at night",
+    "underground": "Velkarath and the Underdark",
+    "sea": "Aboard a ferry or out on the open sea",
+    "combat": "A fight (Phase 2)"
+  },
+  "tracks": [
+    {
+      "file": "test/town.mp3",
+      "title": "Test tone: town",
+      "author": "placeholder",
+      "source": "",
+      "license": "generated with ffmpeg",
+      "mood": "town"
+    },
+    {
+      "file": "test/wilderness-1.mp3",
+      "title": "Test tone: wilderness-1",
+      "author": "placeholder",
+      "source": "",
+      "license": "generated with ffmpeg",
+      "mood": "wilderness"
+    },
+    {
+      "file": "test/wilderness-2.mp3",
+      "title": "Test tone: wilderness-2",
+      "author": "placeholder",
+      "source": "",
+      "license": "generated with ffmpeg",
+      "mood": "wilderness"
+    },
+    {
+      "file": "test/night.mp3",
+      "title": "Test tone: night",
+      "author": "placeholder",
+      "source": "",
+      "license": "generated with ffmpeg",
+      "mood": "night"
+    },
+    {
+      "file": "test/underground.mp3",
+      "title": "Test tone: underground",
+      "author": "placeholder",
+      "source": "",
+      "license": "generated with ffmpeg",
+      "mood": "underground"
+    },
+    {
+      "file": "test/sea.mp3",
+      "title": "Test tone: sea",
+      "author": "placeholder",
+      "source": "",
+      "license": "generated with ffmpeg",
+      "mood": "sea"
+    },
+    {
+      "file": "test/combat.mp3",
+      "title": "Test tone: combat",
+      "author": "placeholder",
+      "source": "",
+      "license": "generated with ffmpeg",
+      "mood": "combat"
+    }
+  ]
+}
