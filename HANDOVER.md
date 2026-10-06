@@ -246,6 +246,15 @@ commands that touch live.
   the repo). fix_healing_staff and clear_mobs were already applied
   (dry runs: nothing to do). Nothing awaits install or restart.
 
+- Shop audit 2026-10-06 13:05 LIVE (tools/server/fix_shop.py, no restart):
+  war axe 700, pyramid studded necklace 1200, steel helmet 1500, diamond
+  belt 2000, arrow 2, quiver 20; free ale at 176,129 once per character
+  (flag freeale_given); MTH toll squares and the 441,54 thief can't push
+  gold below 0. Checked and fine: buy/sell, buy-use-resell, quest rewards,
+  Trade/Storage/Housing, slots (-30% EV), monster drops. Create Food/Drink
+  sandwich/ale resale left alone: not in the clerical spell list, so
+  nobody can cast them.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
