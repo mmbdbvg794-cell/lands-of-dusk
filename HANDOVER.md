@@ -240,6 +240,12 @@ commands that touch live.
   Tested on scratch: wolf pack attacked hgate (factions/wolf hgate -1.0
   there; scratch also has conf/creatures-debug).
 
+- 2026-10-06 12:39: duskserver (CT 303) rebooted after its disk moved to
+  NVMe. Checked after boot: everything installed is live (creature AI,
+  real addresses via the bridge, storage chests, all server sources match
+  the repo). fix_healing_staff and clear_mobs were already applied
+  (dry runs: nothing to do). Nothing awaits install or restart.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
