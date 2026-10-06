@@ -1,6 +1,7 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-05 17:30 UTC. Read this first in a new session.
+State as of 2026-10-06 18:30 UTC. Read this first in a new session.
+(The newest work is at the end, before "Open / ideas".)
 
 ## What this is
 
@@ -305,11 +306,10 @@ commands that touch live.
   Tested headless on scratch: on, off/on in Settings, off from the start,
   CDN blocked (scratchpad e2e/light.mjs).
 
-- Help (2026-10-06): a Help button beside Map opens #help-dialog
+- Help (2026-10-06, LIVE): a Help button beside Map opens #help-dialog
   (moving, chat prefixes ' ; / : emote, fighting, things, quests,
   settings); the command box says "' to say, ; to gossip".
-- Night lights (2026-10-06), installed on live 16:51, need a restart (no
-  god save before) and a deploy: tools/server/add_lights.sh (map.gif tiles
+- Night lights (2026-10-06, LIVE since the 16:58 restart and the deploy): tools/server/add_lights.sh (map.gif tiles
   160-167 = torch on walls 59, 58, 98, 97, 60, 62, 101, 49 via
   torchwalls.py; sprites.gif 55-57 = brazier, lamp post, campfire via
   lightsprites.py; defTileScripts 160-167 false; tilecap 168), painted
@@ -321,23 +321,42 @@ commands that touch live.
   towns aren't lit yet. paintart/build.sh takes GAME=<dir> (and RC) to
   paint from scratch.
 
-- Weather in the lighting layer (2026-10-06, phase 1 built and tested on
-  scratch, NOT deployed; waiting for the user's review): js/weather.js
-  (rain with wind, snow drift, fog banks, fireflies, embers off fires,
-  lightning that lifts the night; pooled Pixi 8 ParticleContainer, no
-  emitter package: @pixi/particle-emitter only supports Pixi < 8).
-  setWeather({type, intensity, wind}) sets atmosphere.override (one
-  source for the Pixi layer, the canvas fallback and the rain sound;
-  'clock' goes back to the shared clock). Max counts at intensity 1:
-  rain 600, snow 400, fog 8 banks, fireflies 40, embers 80; halved on
-  low-end (<=4 cores or short screen side <=420; localStorage dusk.lowend
-  1/0 forces it). Indoors: areas closed in by walls/doors with no open
-  ground (weather.js indoorSquares, test/weather.test.mjs), plus hand
-  marks: js/indoor.json (shared, deployed) and localStorage dusk.indoor
-  (panel "Mark indoor"). Panel (#lights): weather buttons, intensity,
-  wind, effect toggles, show/mark indoor, CPU ms per frame.
-  Phase 2 (after review): real-weather endpoint on serve.py (NWS or
-  Open-Meteo, cached 10-15 min, User-Agent) mapped to setWeather.
+- Action list gone (2026-10-06, LIVE): the server only ever offers one of
+  sleep / wake / flee (Player.updateActions). Sleep/Wake is a button on
+  the conditions row (panels.js renderStats, .cs-rest); Flee is on the
+  target card (#target-flee), which shows "In a fight" with nothing
+  targeted (a creature that attacked you). panels.onActions -> updateTarget.
+- Weather in the lighting layer (2026-10-06, LIVE): js/weather.js draws
+  rain with wind, snow drift, fog banks, fireflies, embers off fires and
+  lightning (lifts the night) in lighting.js's Pixi stage (below the
+  night: rain/snow/fog; above: fireflies/embers/flash). Pooled Pixi 8
+  ParticleContainer (no emitter package: @pixi/particle-emitter only
+  supports Pixi < 8). setWeather({type, intensity, wind}) sets
+  atmosphere.override: one source for Pixi, the canvas fallback
+  (atmosphere.drawWeather off while Pixi draws) and the rain sound;
+  'clock' goes back to the shared clock. Max at intensity 1: rain 600,
+  snow 400, fog 8, fireflies 40, embers 80; halved on low-end (<=4 cores
+  or short screen side <=420; localStorage dusk.lowend 1/0 forces it).
+  Rain/snow/lightning run the layer at full rate, fog/fireflies/embers
+  at the 30 fps idle rate; paused when the tab is hidden. CPU cost
+  measured <=0.6 ms/frame for the whole layer (panel shows layer/weather
+  ms). Embers (dusk/night/dark sky) and fireflies live in world squares
+  (no trails when walking). Fireflies only in green country (grass,
+  meadow, woods with no wall/paving within 3 squares), and anywhere in
+  Aelindor (box 425-510 x 1175-1280); blue wisps on Underdark floors.
+  Indoors: areas closed by walls/doors with no open ground in them
+  (indoorSquares, test/weather.test.mjs) plus hand marks: js/indoor.json
+  (shared, deployed; empty so far) and the panel's Mark indoor (this
+  browser, dusk.indoor; Copy marks gives JSON to fold into indoor.json).
+  Panel (#lights): weather buttons, intensity, wind, effect toggles,
+  show/mark indoor. The user tried it on a phone: smooth, approved.
+  NOT doing a real-weather feed (the user's brief asked for one; they
+  dropped it). Weather stays random from the clock.
+- Proposed next, waiting for the user's go-ahead: weather per continent
+  (find the landmasses from the map, a table of name + odds per
+  continent, weatherAt(now, region) with a per-region seed; the sea its
+  own stormier odds; client only, a few KB, no server cost), with fog in
+  the random rotation and intensity/wind varying per 15-minute slot.
 
 ## Open / ideas (ask the user before starting)
 
@@ -346,6 +365,13 @@ commands that touch live.
   Velkarath, the old world).
 - God tools: restart button, admin page; leaderboard; owned ships.
 - Not touched: god/test items with missing use scripts (alpha, coolaexp...).
+- Weather per continent (above), fog in the rotation, varying intensity.
+- Light the old world's towns (tools/world/lights.mjs; plans there need
+  oldWorld, which lightsPlan sets by itself).
+- A one-line chat tip ("press Enter, start with ' to talk") in each
+  tutorial's first NPC.
+- conf/onDeath reads "set trigger locxy 83 trigger bindlocx trigger
+  bindlocy": the 83 looks wrong (where do dead players end up?).
 
 ## More notes
 
