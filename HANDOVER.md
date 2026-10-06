@@ -361,8 +361,9 @@ commands that touch live.
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
-- Shop price / exploit check across shops. More quest chains (Aelindor,
-  Velkarath, the old world).
+- More quest chains (the old world; Kingshaven, Aelindor and Velkarath
+  each have one since 2026-10-06). The shop/exploit check is done
+  (tools/server/fix_shop.py).
 - God tools: restart button, admin page; leaderboard; owned ships.
 - Not touched: god/test items with missing use scripts (alpha, coolaexp...).
 - Weather per continent (above), fog in the rotation, varying intensity.
