@@ -1562,7 +1562,8 @@ async function applyArt() {
   renderer.bigTrees = artStyle === 'painted';
   // Creatures drawn by name, in the Painted style.
   if (artStyle === 'painted') {
-    if (paintedNamed === null) paintedNamed = await loadNamed('named');
+    // A grid of 256-pixel frames (tools/paintart/bestiary.js).
+    if (paintedNamed === null) paintedNamed = await loadNamed('named', 256);
     if (paintedItems === null) paintedItems = await loadNamed('items', 128);
     renderer.named = paintedNamed || null;
     renderer.items = paintedItems || null;

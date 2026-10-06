@@ -283,11 +283,15 @@ export class World {
     return { x: e.anim.fx + (e.x - e.anim.fx) * t, y: e.anim.fy + (e.y - e.anim.fy) * t };
   }
 
+  // Whether `e` is in the first half of a step: the walking frame.
+  walking(e, now) {
+    return !!e.anim && this.progress(e.anim.start, now, e.anim.ms) < 0.5;
+  }
+
   // The players.gif step frame to draw, or -1 for sprites.
   frameStep(e, now) {
     if (e.step === -1) return -1;
-    const walking = e.anim && this.progress(e.anim.start, now, e.anim.ms) < 0.5;
-    return walking ? e.step + 1 : e.step;
+    return this.walking(e, now) ? e.step + 1 : e.step;
   }
 
   // The world coordinates at the centre of the view right now.

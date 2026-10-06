@@ -202,6 +202,24 @@ commands that touch live.
   the pre-city map (scratchpad capital/live-shortmap, 03:21): its
   mayBuild refuses its own walls on the live map.
 
+- Pixi spike (2026-10-06): http://192.168.4.61:8080/spike-pixi/ = the
+  normal game (index.html via spike-pixi/make-page.sh, run by deploy)
+  plus spike-pixi/spike.js, a PixiJS 8.22 WebGL layer over the map:
+  night as a render texture with light holes (erase blend) + coloured
+  glow (max blend; the layer can only paint over the map, not brighten
+  it), lights from tiles 24 (torch), 35/108/130 (lava), 96/128
+  (crystal), candlestick stands, the player's lantern and spells;
+  spell sparks under pixi-filters 6.1.5 AdvancedBloomFilter. Panel:
+  toggles, time slider (T steps it), FPS. main.js shares
+  window.__dusk (world, ships, renderer) when window.duskSpike is set.
+  Tested headless at 231,197 on scratch (torches and lava). Not yet
+  tried on a phone.
+- Creature walk frames: bestiary families wolf/dog, bear, slime,
+  skeleton and person paint a "<name> walk" frame (57 of 148); the
+  renderer shows it for the first half of a step (World.walking). The
+  named sheet is now a 16-column grid of 256 px frames (a strip would
+  pass Chrome's 32767 px canvas width); main.js loads it with size 256.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).

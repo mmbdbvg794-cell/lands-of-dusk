@@ -143,19 +143,23 @@ function dogColours(name) {
   for (const [re, c] of DOG_COLOURS) if (re.test(name)) return c;
   return { fur: '#8a7a64', back: '#5a4e40', belly: '#d8c8a8' };
 }
-function wolf(ctx, name) {
+// step 1: mid-stride (the walking frame): far legs forward, near legs
+// back, the body a little higher.
+function wolf(ctx, name, step = 0) {
   const c = dogColours(name);
+  const sw = step ? 14 : 0;
   ctx.save();
   if (c.small) { ctx.translate(40, 70); ctx.scale(0.7, 0.7); }
   shadow(ctx, 128, 214, 86, 16);
-  for (const [x, back] of [[92, 1], [168, 1]]) limb(ctx, [[x, 150], [x - 4, 186], [x + 2, 212]], 16, 11, c.back);
+  if (step) ctx.translate(0, -4);
+  for (const [x, back] of [[92, 1], [168, 1]]) limb(ctx, [[x, 150], [x - 4 + sw * 0.5, 186], [x + 2 + sw, 212 + (step ? 4 : 0)]], 16, 11, c.back);
   fill(ctx, () => { ctx.beginPath(); ctx.moveTo(72, 126); ctx.quadraticCurveTo(38, 116, 26, 146); ctx.quadraticCurveTo(46, 138, 76, 146); ctx.closePath(); }, c.fur, [26, 116, 76, 146]);
   fill(ctx, ell(ctx, 130, 140, 62, 28), c.fur, [68, 112, 192, 168]);
   ctx.fillStyle = rgb(c.back, 1); ctx.globalAlpha = 0.55;
   ctx.beginPath(); ctx.ellipse(126, 122, 54, 10, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
   ctx.fillStyle = rgb(c.belly, 1); ctx.globalAlpha = 0.5;
   ctx.beginPath(); ctx.ellipse(134, 158, 40, 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
-  for (const x of [104, 178]) limb(ctx, [[x, 152], [x + 4, 186], [x + 8, 212]], 16, 11, c.fur);
+  for (const x of [104, 178]) limb(ctx, [[x, 152], [x + 4 - sw * 0.5, 186], [x + 8 - sw, 212 + (step ? 4 : 0)]], 16, 11, c.fur);
   // Neck, head with a pointed muzzle and ears.
   fill(ctx, () => { ctx.beginPath(); ctx.moveTo(170, 124); ctx.quadraticCurveTo(186, 104, 198, 106); ctx.lineTo(198, 144); ctx.quadraticCurveTo(182, 150, 170, 148); ctx.closePath(); }, c.fur, [170, 104, 198, 150]);
   fill(ctx, () => { ctx.beginPath(); ctx.moveTo(186, 100); ctx.quadraticCurveTo(206, 88, 222, 100); ctx.lineTo(242, 112); ctx.quadraticCurveTo(232, 124, 212, 124); ctx.quadraticCurveTo(190, 122, 186, 108); ctx.closePath(); }, c.fur, [186, 88, 242, 124]);
@@ -268,13 +272,16 @@ function kittenCat(ctx, name) {
 
 // ---- bears ----
 
-function bear(ctx, name) {
+function bear(ctx, name, step = 0) {
   const fur = /polar|ice|white/.test(name) ? '#ece8e0' : /black/.test(name) ? '#2a2420' : '#7a5230';
+  const sw = step ? 10 : 0;
   shadow(ctx, 128, 212, 96, 16);
-  for (const [x, f] of [[86, 0.8], [168, 0.8]]) limb(ctx, [[x, 150], [x - 2, 190], [x + 4, 210]], 26, 22, fur);
+  ctx.save();
+  if (step) ctx.translate(0, -3);
+  for (const [x, f] of [[86, 0.8], [168, 0.8]]) limb(ctx, [[x, 150], [x - 2 + sw * 0.5, 190], [x + 4 + sw, 210 + (step ? 3 : 0)]], 26, 22, fur);
   fill(ctx, ell(ctx, 122, 144, 70, 44), fur, [52, 100, 192, 188]);
   ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.beginPath(); ctx.ellipse(118, 118, 60, 14, 0, 0, Math.PI * 2); ctx.fill();
-  for (const x of [100, 182]) limb(ctx, [[x, 158], [x + 2, 194], [x + 6, 212]], 26, 22, fur);
+  for (const x of [100, 182]) limb(ctx, [[x, 158], [x + 2 - sw * 0.5, 194], [x + 6 - sw, 212 + (step ? 3 : 0)]], 26, 22, fur);
   // Hump, head with round ears and a lighter muzzle.
   fill(ctx, ell(ctx, 170, 118, 26, 22), fur, [144, 96, 196, 140]);
   fill(ctx, ell(ctx, 204, 122, 28, 24), fur, [176, 98, 232, 146]);
@@ -283,18 +290,23 @@ function bear(ctx, name) {
   ctx.fillStyle = '#141010'; ctx.beginPath(); ctx.ellipse(234, 128, 5, 4, 0, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.arc(210, 116, 3, 0, Math.PI * 2); ctx.fill();
   glint(ctx, 96, 118, 12);
+  ctx.restore();
 }
 
 // ---- slimes ----
 
-function slime(ctx, name) {
+// step 1: squashed flat and wide, as it pushes itself along.
+function slime(ctx, name, step = 0) {
   const colour = /toxic|sludge/.test(name) ? '#9a5ac8' : /green|slimer/.test(name) ? '#58c030' : '#5a90c8';
-  shadow(ctx, 128, 196, 70, 14);
+  shadow(ctx, 128, 196, step ? 80 : 70, 14);
+  ctx.save();
+  if (step) { ctx.translate(128, 196); ctx.scale(1.1, 0.86); ctx.translate(-128, -196); }
   fill(ctx, () => { ctx.beginPath(); ctx.moveTo(62, 192); ctx.bezierCurveTo(52, 150, 80, 108, 128, 106); ctx.bezierCurveTo(178, 104, 206, 150, 196, 192); ctx.quadraticCurveTo(128, 204, 62, 192); }, colour, [62, 104, 196, 200], 3);
   ctx.fillStyle = 'rgba(255,255,255,0.22)'; ctx.beginPath(); ctx.ellipse(116, 150, 34, 22, 0, 0, Math.PI * 2); ctx.fill();
   if (/toxic|sludge/.test(name)) for (const [x, y, r] of [[90, 176, 6], [150, 130, 4], [170, 178, 5]]) { ctx.fillStyle = 'rgba(210,255,120,0.7)'; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
   glint(ctx, 104, 130, 12); glint(ctx, 160, 150, 5);
   for (const ex of [112, 144]) { ctx.fillStyle = '#101010'; ctx.beginPath(); ctx.ellipse(ex, 158, 6, 8, 0, 0, Math.PI * 2); ctx.fill(); glint(ctx, ex - 2, 155, 2); }
+  ctx.restore();
 }
 
 // ---- wizards and mages ----
@@ -335,10 +347,16 @@ function wizard(ctx, name) {
 
 // ---- skeletons ----
 
-function skeleton(ctx, name) {
+// step 1: one leg lifted and forward, the other back, a slight bob.
+function skeleton(ctx, name, step = 0) {
   const bone = '#e4dcc8', armed = /knight|warrior|stalfos/.test(name), knight = /knight/.test(name);
   shadow(ctx, 128, 228, 48, 11);
-  for (const x of [114, 142]) limb(ctx, [[x, 158], [x - 2, 194], [x, 222]], 7, 6, bone);
+  ctx.save();
+  if (step) ctx.translate(0, -3);
+  if (step) {
+    limb(ctx, [[114, 158], [110, 190], [106, 214]], 7, 6, bone); // lifted
+    limb(ctx, [[142, 158], [146, 194], [148, 225]], 7, 6, bone);
+  } else for (const x of [114, 142]) limb(ctx, [[x, 158], [x - 2, 194], [x, 222]], 7, 6, bone);
   // Pelvis, spine and ribs.
   fill(ctx, ell(ctx, 128, 158, 20, 9), bone, [108, 149, 148, 167], 1.5);
   limb(ctx, [[128, 150], [128, 100]], 6, 6, bone);
@@ -359,6 +377,7 @@ function skeleton(ctx, name) {
     fill(ctx, ell(ctx, 100, 130, 18, 24), knight ? '#6a6a74' : '#7a5a34', [82, 106, 118, 154]);
   }
   if (knight) fill(ctx, () => { ctx.beginPath(); ctx.arc(128, 72, 23, Math.PI, Math.PI * 2); ctx.closePath(); }, '#7a7a84', [105, 49, 151, 72]);
+  ctx.restore();
 }
 
 // ---- people, drawn with the character painter facing you ----
@@ -386,7 +405,7 @@ const ARMOURS = [
   [/gladiator/, ['#a8743a', '#f0d080']],
   [/guard|warden|soldier/, ['#8a8e98', '#c8b060']],
 ];
-function person(ctx, name) {
+function person(ctx, name, step = 0) {
   let look = FEMALE.test(name) ? CIVILIAN_WOMEN[Math.floor(hash(name) * CIVILIAN_WOMEN.length)] : CIVILIAN[Math.floor(hash(name) * CIVILIAN.length)];
   let gear = {};
   for (const [re, [metal, trim]] of ARMOURS) {
@@ -401,7 +420,7 @@ function person(ctx, name) {
   ctx.save();
   ctx.translate(OUT * 0.5 - 144 * 0.85, OUT - 144 * 1.7 - 4);
   ctx.scale(1.7, 1.7);
-  paintPerson(ctx, look, 's', false, gear);
+  paintPerson(ctx, look, 's', !!step, gear);
   ctx.restore();
 }
 
@@ -409,15 +428,15 @@ function person(ctx, name) {
 
 // First match wins, so skeletons come before knights ("skeleton knight").
 export const FAMILIES = [
-  { paint: skeleton, match: /skeleton|stalfos/ },
-  { paint: person, match: /knight|guard|warden|soldier|gladiator|warlord/ },
+  { paint: skeleton, match: /skeleton|stalfos/, walks: true },
+  { paint: person, match: /knight|guard|warden|soldier|gladiator|warlord/, walks: true },
   { paint: dragon, match: /dragon|freyrbrand|dino|dinosaur/ },
-  { paint: wolf, match: /wolf|coyote|dog|hound|puppy|rufus|trainer/ },
+  { paint: wolf, match: /wolf|coyote|dog|hound|puppy|rufus|trainer/, walks: true },
   { paint: cat, match: /\bcat\b|kitty|kitten/ },
-  { paint: bear, match: /grizzly|bear/ },
-  { paint: slime, match: /blob|slime|sludge/ },
+  { paint: bear, match: /grizzly|bear/, walks: true },
+  { paint: slime, match: /blob|slime|sludge/, walks: true },
   { paint: wizard, match: /wizard|mage|keymaster|plenton/ },
-  { paint: person, match: /townfolk|bartender|cashier|hunter|thief|invader|stalker|bob|zack|andy|kenny|cecil|boss|bigbum|grinder|clone/ },
+  { paint: person, match: /townfolk|bartender|cashier|hunter|thief|invader|stalker|bob|zack|andy|kenny|cecil|boss|bigbum|grinder|clone/, walks: true },
 ];
 
 export function familyFor(name) {
@@ -426,21 +445,31 @@ export function familyFor(name) {
 }
 
 // The named sheet for these creature names, and the index from each
-// (lowercased) name to its frame.
+// (lowercased) name to its frame. Families that walk also get a
+// mid-stride frame, "<name> walk", shown while they step (js/renderer.js).
+const COLS = 16;
 export function paintNamedSheet(names) {
-  const drawn = names.filter((n) => familyFor(n));
+  const frames = [];
+  for (const name of names) {
+    const f = familyFor(name);
+    if (!f) continue;
+    frames.push([name.toLowerCase(), f, 0]);
+    if (f.walks) frames.push([name.toLowerCase(), f, 1]);
+  }
+  // A grid, COLS frames a row (one long strip would pass the canvas's
+  // width limit), read left to right, top to bottom.
   const sheet = document.createElement('canvas');
-  sheet.width = Math.max(1, drawn.length) * OUT;
-  sheet.height = OUT;
+  sheet.width = Math.min(COLS, Math.max(1, frames.length)) * OUT;
+  sheet.height = Math.max(1, Math.ceil(frames.length / COLS)) * OUT;
   const ctx = sheet.getContext('2d');
   const index = {};
-  drawn.forEach((name, i) => {
+  frames.forEach(([name, f, step], i) => {
     ctx.save();
-    ctx.translate(i * OUT, 0);
+    ctx.translate((i % COLS) * OUT, Math.floor(i / COLS) * OUT);
     ctx.beginPath(); ctx.rect(0, 0, OUT, OUT); ctx.clip();
-    familyFor(name).paint(ctx, name.toLowerCase());
+    f.paint(ctx, name, step);
     ctx.restore();
-    index[name.toLowerCase()] = i;
+    index[step ? `${name} walk` : name] = i;
   });
   return { sheet, index };
 }

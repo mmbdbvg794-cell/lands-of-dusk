@@ -83,6 +83,18 @@ assert.deepEqual(a.camera(half), { x: 10, y: 9.5 });
 assert.equal(a.frameStep(a.entities.get(1), 1000), 1, 'walking north');
 assert.equal(a.frameStep(a.entities.get(1), 1000 + a.stepMs), 0, 'standing north');
 assert.equal(a.frameStep(a.entities.get(2), 1000), -1);
+// A creature (a sprite) steps too: its walking frame, by name, for the
+// first half (js/renderer.js), and none while it stands.
+{
+  const w = new World();
+  w.apply({ op: OP.MAP_SIZE, size: 5 }, 0);
+  w.apply({ op: OP.MAP, x: 10, y: 10, tiles: grid(5, () => 1) }, 0);
+  w.apply(ent(2, 'rat', 12, 10), 0);
+  assert.equal(w.walking(w.entities.get(2), 1000), false, 'the rat stands');
+  w.apply({ op: OP.MOVE_WEST, id: 2 }, 1000);
+  assert.equal(w.walking(w.entities.get(2), 1000), true, 'the rat steps');
+  assert.equal(w.walking(w.entities.get(2), 1000 + w.stepMs), false, 'and stands again');
+}
 assert.equal(a.animating(half), true);
 assert.equal(a.animating(1000 + a.stepMs), false);
 
