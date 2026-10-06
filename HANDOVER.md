@@ -176,6 +176,15 @@ commands that touch live.
   (doors, back door, clerk, a champion's key drop). Scratch's egate was
   given huge stats for that test.
 
+- Kingshaven, the human capital (tools/world/cities/capital.mjs, at flan's
+  "Human Capital" note 1452,357): walls x 1388-1485, y 320-397, harbour
+  and sprawl outside; Lantern Row houses to rent (server/Housing.java,
+  "housing" = houses, "houses" = who rents; landlord talk "rent" effect
+  in js/dialogue.js; Quests.setTimer takes the key back). Built and
+  tested on scratch (rent, renew, info, doors, bed). Not yet live: needs
+  deploy + server build/install + install_city (bundle in /tmp/capital.json
+  on duskserver) + restart. Ideas offered: a ferry port at its piers.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
