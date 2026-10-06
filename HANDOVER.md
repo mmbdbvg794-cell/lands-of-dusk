@@ -194,9 +194,9 @@ commands that touch live.
   KEEP_OUT now covers 1366,282-1526,454; tools/server/clear_mobs.py
   removes the 12 already in the live mobs file (copied to
   ~/DuskRPG/clear_mobs.py; user runs it --apply, then restart).
-- Painted art: stone wall tile 59 ('S') looks like flagstone paving, so
-  walls built of it read as floor (keep, cathedral, ...). Kingshaven's
-  bank is now brick ('B') and a row lower (it blocked the Fletcher's
+- Painted art: stone walls 58/59/97/98 were painted as flagstone and read
+  as floor; now ashlar block walls (painter.js ashlar(), deployed
+  2026-10-06). Kingshaven's bank is now brick ('B') and a row lower (it blocked the Fletcher's
   door). Plans can now drop moved props (plan.dropProp -> bundle
   dropProps; install_city.py takes them out). Rebuild Kingshaven against
   the pre-city map (scratchpad capital/live-shortmap, 03:21): its

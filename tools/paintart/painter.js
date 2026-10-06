@@ -407,9 +407,39 @@ function stones(cells, seed, palette, mortar, gap = 0.12) {
   };
 }
 const cobble = stones(5, 21, [[150, 128, 98], [196, 176, 140]], [70, 56, 40]);
-const flagstone = stones(3, 23, [[108, 108, 106], [150, 150, 146]], [52, 52, 50], 0.08);
-const paleFlagstone = stones(3, 27, [[170, 170, 166], [212, 212, 206]], [80, 80, 76], 0.08);
 const crackedEarth = stones(4, 29, [[150, 78, 30], [184, 104, 44]], [70, 34, 12], 0.05);
+
+// A wall of dressed stone: courses of squared blocks, each lit along its
+// top and left and shadowed under, set in dark mortar, so it reads as a
+// wall face (flagstone looked like paving). Tiles both ways:
+// whole courses per frame, and each course's blocks wrap round.
+function ashlar(palette, mortar, seed) {
+  const rows = 4, m = 0.016, bevel = 0.05;
+  return (u, v) => {
+    const row = Math.floor(v * rows), fy = v * rows - row;
+    const n = hash(row, seed, 1) < 0.5 ? 2 : 3;
+    const p = (u + hash(row, seed, 2)) % 1, col = Math.floor(p * n), fx = p * n - col;
+    const id = row * 7 + col;
+    // Distances to the block's edges, in frame units.
+    const top = fy / rows, bottom = (1 - fy) / rows, left = fx / n, right = (1 - fx) / n;
+    if (Math.min(top, bottom, left, right) < m) {
+      return mortar.map((x) => x * (0.8 + fbm(u, v, seed + 5, 16, 2) * 0.4));
+    }
+    let c = mix(palette[0], palette[1], hash(id, seed, 3));
+    // The stone's grain, and a few darker pits.
+    c = c.map((x) => x * (0.84 + fbm(u, v, seed + id, 8, 3) * 0.3));
+    if (fbm(u, v, seed + 11, 24, 2) > 0.72) c = mix(c, [0, 0, 0], 0.18);
+    // Bevels: light from the top left.
+    const t = top - m, l = left - m, b = bottom - m, r = right - m;
+    if (t < bevel) c = mix(c, [255, 252, 240], 0.32 * (1 - t / bevel));
+    else if (b < bevel) c = mix(c, [0, 0, 0], 0.4 * (1 - b / bevel));
+    if (l < bevel * 0.6) c = mix(c, [255, 252, 240], 0.18 * (1 - l / (bevel * 0.6)));
+    else if (r < bevel * 0.6) c = mix(c, [0, 0, 0], 0.28 * (1 - r / (bevel * 0.6)));
+    return c;
+  };
+}
+const stoneWall = ashlar([[104, 104, 102], [138, 136, 132]], [40, 38, 36], 23);
+const paleStoneWall = ashlar([[168, 166, 158], [204, 200, 190]], [74, 70, 64], 27);
 
 function brick(u, v, dark) {
   const rows = 8, row = Math.floor(v * rows), bw = 1 / 4;
@@ -678,10 +708,10 @@ const SURFACES = {
   38: (ctx) => fillMaterial(ctx, 'sand'),
   40: (ctx) => drawPixels(ctx, crackedEarth),
   49: (ctx) => drawPixels(ctx, cobble),
-  58: (ctx) => drawPixels(ctx, flagstone),
-  97: (ctx) => drawPixels(ctx, flagstone),
-  59: (ctx) => drawPixels(ctx, paleFlagstone),
-  98: (ctx) => drawPixels(ctx, paleFlagstone),
+  58: (ctx) => drawPixels(ctx, stoneWall),
+  97: (ctx) => drawPixels(ctx, stoneWall),
+  59: (ctx) => drawPixels(ctx, paleStoneWall),
+  98: (ctx) => drawPixels(ctx, paleStoneWall),
   60: (ctx) => drawPixels(ctx, (u, v) => brick(u, v, false)),
   61: (ctx) => drawPixels(ctx, (u, v) => brick(u, v, false)),
   100: (ctx) => drawPixels(ctx, (u, v) => brick(u, v, false)),
