@@ -22,6 +22,10 @@ import { daylight, timeOfDay, isUnderground, DAY_MS } from '../js/atmosphere.js'
 import { bareName } from '../js/world.js';
 
 const MAX_LIGHTS = 64; // light sprites kept; more in view are skipped
+// The night and its glow are soft, so they're drawn at a quarter of the
+// map's size and stretched (a phone's map is ~1000 px square: 1/16 the work).
+const LIGHT_SCALE = 0.25;
+const IDLE_FPS = 30; // the layer's rate with no spell playing (lights flicker slowly)
 const NIGHT = 0x080c22; // the night's colour (the normal client's)
 const MAX_DARK = 0.82; // how dark the depth of night is (normal: 0.62, but lights make up for it)
 
@@ -105,11 +109,14 @@ async function main() {
   const circle = softCircle();
   // The night: drawn into `dark` each frame, shown by `darkSprite`.
   let dark = PIXI.RenderTexture.create({ width: 16, height: 16 });
+  const lightTexture = (w, h) => PIXI.RenderTexture.create({ width: Math.ceil(w * LIGHT_SCALE), height: Math.ceil(h * LIGHT_SCALE) });
   const darkScene = new PIXI.Container();
   const nightFill = new PIXI.Graphics();
   darkScene.addChild(nightFill);
   const holes = pool(darkScene, circle, 'erase');
+  darkScene.scale.set(LIGHT_SCALE);
   const darkSprite = new PIXI.Sprite(dark);
+  darkSprite.scale.set(1 / LIGHT_SCALE);
   app.stage.addChild(darkSprite);
   // Coloured light on top: drawn into `glow` with the "max" blend, so
   // where lights overlap the brighter one shows rather than their sum (this
@@ -118,11 +125,14 @@ async function main() {
   let glow = PIXI.RenderTexture.create({ width: 16, height: 16 });
   const glowScene = new PIXI.Container();
   const glows = pool(glowScene, circle, 'max');
+  glowScene.scale.set(LIGHT_SCALE);
   const glowSprite = new PIXI.Sprite(glow);
+  glowSprite.scale.set(1 / LIGHT_SCALE);
   app.stage.addChild(glowSprite);
   // Spells: bright sparks, bloomed.
   const spellLayer = new PIXI.Container();
-  const bloom = new AdvancedBloomFilter({ threshold: 0.15, bloomScale: 1.6, brightness: 1.1, blur: 6, quality: 4 });
+  const bloom = new AdvancedBloomFilter({ threshold: 0.15, bloomScale: 1.6, brightness: 1.1, blur: 6, quality: 3 });
+  bloom.resolution = 0.5; // a blur: half size is plenty
   spellLayer.filters = [bloom];
   window.__spike = { app, spellLayer, bloom }; // for poking at from the console
   app.stage.addChild(spellLayer);
@@ -138,10 +148,10 @@ async function main() {
     if (view.width !== w || view.height !== h) {
       app.renderer.resize(w, h);
       dark.destroy(true);
-      dark = PIXI.RenderTexture.create({ width: w, height: h });
+      dark = lightTexture(w, h);
       darkSprite.texture = dark;
       glow.destroy(true);
-      glow = PIXI.RenderTexture.create({ width: w, height: h });
+      glow = lightTexture(w, h);
       glowSprite.texture = glow;
     }
     view.style.width = map.style.width;
@@ -153,6 +163,7 @@ async function main() {
     // The normal client's night is off while this layer does it.
     const wantNight = nightBox ? nightBox.checked : true;
     if (renderer.atmosphere) renderer.atmosphere.night = wantNight && !(state.layer && state.lights);
+    if (!state.layer) { app.ticker.maxFPS = 4; panel.update({ fps: app.ticker.FPS, lights: 0, sparks: 0, darkness: 0, when: '(layer off)' }); return; }
 
     const nowPerf = performance.now();
     const c = renderer.cell;
@@ -193,7 +204,7 @@ async function main() {
     if (darkness > 0.01) nightFill.rect(0, 0, w, h).fill({ color: NIGHT, alpha: darkness });
     for (const f of found) {
       const [px, py] = centre(f.x, f.y);
-      const fl = f.L.flicker ? 1 + f.L.flicker * 0.06 * (Math.sin(secs * 9 + f.seed) + Math.sin(secs * 23.7 + f.seed * 3) * 0.5) : 1;
+      const fl = f.L.flicker ? 1 + f.L.flicker * 0.06 * (Math.sin(secs * 3.2 + f.seed) + Math.sin(secs * 7.3 + f.seed * 3) * 0.5) : 1;
       const size = f.L.r * 2 * c * fl * (0.6 + 0.4 * f.strength);
       const hole = holes.take();
       hole.position.set(px, py);
@@ -207,8 +218,10 @@ async function main() {
     }
     holes.end();
     glows.end();
-    app.renderer.render({ container: darkScene, target: dark, clear: true });
-    app.renderer.render({ container: glowScene, target: glow, clear: true });
+    if (darkness > 0.01) {
+      app.renderer.render({ container: darkScene, target: dark, clear: true });
+      app.renderer.render({ container: glowScene, target: glow, clear: true });
+    }
     darkSprite.visible = glowSprite.visible = darkness > 0.01;
 
     // ---- spell sparks ----
@@ -245,6 +258,7 @@ async function main() {
     }
     nSparks = sparks.end();
     spellLayer.visible = nSparks > 0;
+    app.ticker.maxFPS = nSparks ? 0 : IDLE_FPS;
 
     panel.update({ fps: app.ticker.FPS, lights: found.length, sparks: nSparks, darkness, when: state.time === null ? timeOfDay() : timeOfDay(t) });
   });
@@ -273,8 +287,8 @@ function makePanel(app) {
   document.body.appendChild(box);
   const style = document.createElement('style');
   style.textContent = `#spike-panel { position: fixed; top: 8px; right: 8px; z-index: 9999; background: rgba(10,12,20,.85); color: #dde;
-      font: 12px/1.5 system-ui, sans-serif; padding: 8px 10px; border-radius: 6px; width: 170px; }
-    #spike-panel label { display: block; } #spike-panel .v { opacity: .6 } #spike-panel .fps { font-size: 16px; font-weight: 600 }
+      font: 12px/1.5 system-ui, sans-serif; padding: 8px 10px; border-radius: 6px; width: 190px; }
+    #spike-panel label { display: block; } #spike-panel .v { opacity: .6 } #spike-panel .fps { font-size: 14px; font-weight: 600 }
     #spike-panel .time { width: 90px; vertical-align: middle } #spike-panel .info { opacity: .75; margin: 4px 0 }
     #spike-panel.min > :not(.fps):not(.hide) { display: none }`;
   document.head.appendChild(style);
@@ -294,13 +308,22 @@ function makePanel(app) {
   const hide = box.querySelector('.hide');
   hide.addEventListener('click', () => { box.classList.toggle('min'); hide.textContent = box.classList.contains('min') ? 'Panel' : 'Hide'; });
   const fps = box.querySelector('.fps'), info = box.querySelector('.info');
+  // The page's own frame rate (animation frames the browser manages): how
+  // smooth everything is, the normal map included; Pixi's is its layer's.
+  let frames = 0, pageFps = 0, since = performance.now();
+  const count = (now) => {
+    frames++;
+    if (now - since >= 1000) { pageFps = (frames * 1000) / (now - since); frames = 0; since = now; }
+    requestAnimationFrame(count);
+  };
+  requestAnimationFrame(count);
   let last = 0;
   return {
     update(s) {
       const now = performance.now();
       if (now - last < 250) return;
       last = now;
-      fps.textContent = `${Math.round(s.fps)} fps`;
+      fps.textContent = `page ${Math.round(pageFps)} · pixi ${Math.round(s.fps)} fps`;
       info.textContent = `${s.when}, dark ${s.darkness.toFixed(2)} · lights ${s.lights} · sparks ${s.sparks}`;
     },
   };
