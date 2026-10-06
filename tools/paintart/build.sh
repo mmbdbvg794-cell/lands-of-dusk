@@ -18,6 +18,7 @@
 set -eu
 cd "$(dirname "$0")/../.."
 RC=${RC:-http://192.168.4.61:8000}
+GAME=${GAME:-DuskRPG} # the game directory on duskserver, for its creature, item and prop names
 CHROME=${CHROME:-$(ls -d "$HOME"/.cache/ms-playwright/chromium_headless_shell-*/*/chrome-headless-shell 2>/dev/null | tail -1)}
 [ -x "$CHROME" ] || { echo "No headless Chrome found; set CHROME=..." >&2; exit 1; }
 
@@ -25,11 +26,11 @@ work=$(mktemp -d)
 trap 'kill $server 2>/dev/null; rm -rf "$work"' EXIT
 cp tools/paintart/index.html tools/paintart/painter.js tools/paintart/figures.js js/figure.js tools/paintart/creatures.js tools/paintart/bestiary.js tools/paintart/items.js js/gear.js "$work/"
 # The server's creature names, for the named sheet.
-ssh -o BatchMode=yes duskserver 'cd ~/DuskRPG && python3 -c "import os, json; print(json.dumps(sorted(m for m in os.listdir(\"defMobs\") if not m.endswith(\".dsko\"))))"' > "$work/mobnames.json"
+ssh -o BatchMode=yes duskserver 'cd ~/'"$GAME"' && python3 -c "import os, json; print(json.dumps(sorted(m for m in os.listdir(\"defMobs\") if not m.endswith(\".dsko\"))))"' > "$work/mobnames.json"
 # The server's items, for the items sheet.
-ssh -o BatchMode=yes duskserver 'python3 - ~/DuskRPG' < tools/paintart/itemdefs.py > "$work/itemdefs.json"
+ssh -o BatchMode=yes duskserver "python3 - ~/$GAME" < tools/paintart/itemdefs.py > "$work/itemdefs.json"
 # And its props (furniture, people), drawn by name in the same sheet.
-ssh -o BatchMode=yes duskserver 'cd ~/DuskRPG && python3 -c "import os, json; print(json.dumps(sorted(p for p in os.listdir(\"defProps\") if not p.endswith(\".dsko\") and not p.startswith(\".\"))))"' > "$work/propnames.json"
+ssh -o BatchMode=yes duskserver 'cd ~/'"$GAME"' && python3 -c "import os, json; print(json.dumps(sorted(p for p in os.listdir(\"defProps\") if not p.endswith(\".dsko\") and not p.startswith(\".\"))))"' > "$work/propnames.json"
 for name in map players sprites; do
   curl -s -f -m 20 -o "$work/$name.gif" "$RC/images/$name.gif"
 done

@@ -6,7 +6,8 @@
 //              render texture: dark fill, then light sprites drawn with
 //              the "erase" blend), plus coloured glow added on top.
 //              Light sources: the player's lantern, wall torches (tile
-//              24), lava (35, 108, 130), crystal (96, 128), candlestick
+//              24, and 160-167 on other walls), braziers, lamp posts,
+//              campfires, lava (35, 108, 130), crystal (96, 128), candlestick
 //              stands, and spells while they play. While it's on, the
 //              normal client's night (js/atmosphere.js) is off.
 //   Spell glow a bloom filter (pixi-filters' AdvancedBloomFilter) over
@@ -33,7 +34,15 @@ const MAX_DARK = 0.82; // how dark the depth of night is (normal: 0.62, but ligh
 
 // Light sources: radius in cells, colour, how strong the glow, flicker.
 const TILE_LIGHTS = {
-  24: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 }, // wall torch
+  24: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 }, // wall torch, and on the other walls:
+  160: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 },
+  161: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 },
+  162: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 },
+  163: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 },
+  164: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 },
+  165: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 },
+  166: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 },
+  167: { r: 3.2, color: 0xffa040, glow: 0.3, flicker: 1 },
   35: { r: 2.2, color: 0xff5020, glow: 0.12, flicker: 0.4 }, // lava
   108: { r: 2.2, color: 0xff5020, glow: 0.12, flicker: 0.4 },
   130: { r: 2.2, color: 0xff5020, glow: 0.12, flicker: 0.4 },
@@ -42,6 +51,9 @@ const TILE_LIGHTS = {
 };
 const NAME_LIGHTS = {
   'candlestick stand': { r: 2.6, color: 0xffc060, glow: 0.3, flicker: 1 },
+  brazier: { r: 3.6, color: 0xff9030, glow: 0.35, flicker: 1 },
+  'lamp post': { r: 3.4, color: 0xffd080, glow: 0.3, flicker: 0.15 },
+  campfire: { r: 3.8, color: 0xff8a30, glow: 0.35, flicker: 1.2 },
   'lava guard': { r: 1.8, color: 0xff6020, glow: 0.2, flicker: 0.5 },
 };
 const LANTERN = { r: 3.6, color: 0xffd8a0, glow: 0.08, flicker: 0.15 };

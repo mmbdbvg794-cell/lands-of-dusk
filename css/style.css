@@ -1438,3 +1438,13 @@ dialog::backdrop { background: #000a; }
 #quest-editor .qe-who { padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
 #quest-editor .qe-online { color: var(--ok); font-size: 12px; }
 @media (max-width: 700px) { :is(#library-editor, #quest-editor) .le-layout { grid-template-columns: 1fr; } :is(#library-editor, #quest-editor) .le-names { max-height: 30vh; } }
+
+/* The Help tab. */
+.help h4 { margin: 14px 0 4px; }
+.help h4:first-child { margin-top: 2px; }
+.help p { margin: 0 0 8px; line-height: 1.45; }
+.help kbd { display: inline-block; min-width: 1.5em; padding: 0 5px; margin: 0 1px; border: 1px solid currentColor; border-radius: 4px;
+  font: inherit; font-size: .9em; line-height: 1.45; text-align: center; opacity: .9; box-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.help-chat { border-collapse: collapse; margin: 0 0 8px; width: 100%; }
+.help-chat td { padding: 3px 6px 3px 0; vertical-align: top; }
+.help-chat td:first-child { white-space: nowrap; width: 1%; }

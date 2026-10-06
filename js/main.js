@@ -661,7 +661,7 @@ addEventListener('pagehide', saveExplored);
 const panelState = storage('get', 'dusk.panel');
 const [savedTab, savedOpen] = panelState ? panelState.split(':') : [];
 // Tabs that come and go (God, Shop, Storage) aren't reopened from last time.
-const steadyTab = ['inv', 'equip', 'book', 'stats', 'journal', 'friends'].includes(savedTab) ? savedTab : 'inv';
+const steadyTab = ['inv', 'equip', 'book', 'stats', 'journal', 'friends', 'help'].includes(savedTab) ? savedTab : 'inv';
 panels.selectByName(steadyTab, savedOpen ? savedOpen === '1' : window.innerWidth >= 800);
 panels.onToggle = (tab, open) => {
   storage('set', 'dusk.panel', `${tab}:${open ? 1 : 0}`);
@@ -2105,7 +2105,7 @@ function setState(state) {
   const live = state !== 'off';
   serverUrl.disabled = live;
   input.disabled = sendBtn.disabled = state !== 'on';
-  input.placeholder = state === 'on' ? 'Type a command…' : 'Not connected';
+  input.placeholder = state === 'on' ? "Type a command, ' to say, ; to gossip…" : 'Not connected';
   if (!live) {
     input.type = 'text';
     $('char-card').hidden = true;

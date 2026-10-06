@@ -771,6 +771,15 @@ SURFACES[23] = (ctx, px) => doorTile(ctx, px, { x: 8, y: 6, w: 112, h: 122, skew
 SURFACES[158] = (ctx, px) => doorTile(ctx, px, { x: 14, y: 2, w: 106, h: 124, skew: -0.12 });
 SURFACES[159] = (ctx, px) => doorTile(ctx, px, { x: 8, y: 2, w: 106, h: 124, skew: 0.12 });
 SURFACES[24] = (ctx, px) => withFitting(ctx, px, 'torch');
+// Torches on the other walls (160-167, made from 24's torch by
+// tools/server/torchwalls.py): the wall painted as itself, the torch on it.
+for (const [tile, wall] of [[160, 59], [161, 58], [162, 98], [163, 97], [164, 60], [165, 62], [166, 101], [167, 49]]) {
+  SURFACES[tile] = (ctx, px) => {
+    SURFACES[wall](ctx, px);
+    const box = fittingBox(px);
+    if (box) paintTorch(ctx, box);
+  };
+}
 for (const i of [...range(131, 148), 151]) SURFACES[i] = (ctx, px) => restyle(ctx, px, SHIP, { fallback: 'deck' });
 
 // Where a fitting is: the bounding box of its wood and brass pixels.

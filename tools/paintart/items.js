@@ -811,6 +811,58 @@ function candlestick(ctx) {
   }
 }
 
+// Fire in layers, widest and darkest first (braziers and campfires).
+function fire(ctx, cx, base, w, h) {
+  const layers = [['#a02808', 1], ['#e85a14', 0.78], ['#ffaa28', 0.55], ['#fff09a', 0.3]];
+  glow(ctx, '#ff9030', 18, () => {
+    for (const [colour, k] of layers) {
+      const ww = w * k, hh = h * k;
+      ctx.fillStyle = colour;
+      ctx.beginPath();
+      ctx.moveTo(cx - ww / 2, base);
+      ctx.quadraticCurveTo(cx - ww * 0.55, base - hh * 0.5, cx - ww * 0.12, base - hh * 0.78);
+      ctx.quadraticCurveTo(cx - ww * 0.05, base - hh * 0.9, cx, base - hh);
+      ctx.quadraticCurveTo(cx + ww * 0.12, base - hh * 0.72, cx + ww * 0.3, base - hh * 0.62);
+      ctx.quadraticCurveTo(cx + ww * 0.55, base - hh * 0.4, cx + ww / 2, base);
+      ctx.closePath();
+      ctx.fill();
+    }
+  });
+}
+
+function brazier(ctx) {
+  shadow(ctx, 26, 6, 112);
+  ctx.strokeStyle = '#2a2420'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  for (const [x0, x1] of [[CX - 18, CX - 26], [CX + 18, CX + 26], [CX, CX]]) { ctx.beginPath(); ctx.moveTo(x0, 76); ctx.lineTo(x1, 110); ctx.stroke(); }
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(CX - 34, 62); ctx.quadraticCurveTo(CX, 98, CX + 34, 62); ctx.closePath(); }, '#3c3430', [CX - 34, 62, CX + 34, 84]);
+  fill(ctx, ell(ctx, CX, 62, 34, 9), '#7a2a10', [CX - 34, 53, CX + 34, 71], 1);
+  fire(ctx, CX, 64, 54, 56);
+}
+
+function lampPost(ctx) {
+  shadow(ctx, 16, 5, 116);
+  fill(ctx, rr(ctx, CX - 12, 108, 24, 8, 2), '#2e2c2c', [CX - 12, 108, CX + 12, 116]);
+  fill(ctx, rr(ctx, CX - 4, 40, 8, 70, 2), '#3a3838', [CX - 4, 40, CX + 4, 110]);
+  fill(ctx, poly(ctx, [[CX - 20, 22], [CX + 20, 22], [CX + 12, 10], [CX - 12, 10]]), '#2e2c2c', [CX - 20, 10, CX + 20, 22], 1);
+  fill(ctx, rr(ctx, CX - 16, 22, 32, 24, 2), '#2e2c2c', [CX - 16, 22, CX + 16, 46], 1);
+  glow(ctx, '#ffc060', 16, () => { ctx.fillStyle = '#ffd27a'; ctx.fillRect(CX - 12, 25, 24, 18); ctx.fillStyle = '#fff4c0'; ctx.fillRect(CX - 6, 29, 12, 10); });
+  ctx.fillStyle = '#2e2c2c'; ctx.fillRect(CX - 1, 22, 2, 24); ctx.fillRect(CX - 16, 33, 32, 2);
+  fill(ctx, poly(ctx, [[CX - 4, 10], [CX + 4, 10], [CX, 3]]), '#2e2c2c', [CX - 4, 3, CX + 4, 10], 1);
+}
+
+function campfire(ctx) {
+  shadow(ctx, 34, 8, 104);
+  for (let i = 0; i < 9; i++) {
+    const a = (i / 9) * Math.PI * 2;
+    const x = CX + Math.cos(a) * 34, y = 98 + Math.sin(a) * 11;
+    fill(ctx, ell(ctx, x, y, 9, 6), '#7a7670', [x - 9, y - 6, x + 9, y + 6], 1);
+  }
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#5a3a1e'; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(CX - 26, 104); ctx.lineTo(CX + 26, 90); ctx.stroke();
+  ctx.strokeStyle = '#6e4826'; ctx.beginPath(); ctx.moveTo(CX - 26, 90); ctx.lineTo(CX + 26, 104); ctx.stroke();
+  fire(ctx, CX, 98, 48, 66);
+}
+
 function slotMachine(ctx) {
   shadow(ctx, 28, 7, 108);
   fill(ctx, rr(ctx, CX - 26, 22, 52, 86, 6), '#b82a2a', [CX - 26, 22, CX + 26, 108]);
@@ -841,6 +893,9 @@ const PROPS = [
   [/\bwell\b/, well],
   [/flower box|^plants?$/, flowerBox],
   [/candle/, candlestick],
+  [/brazier/, brazier],
+  [/lamp ?post|street ?lamp/, lampPost],
+  [/campfire|camp fire/, campfire],
   [/slot machine/, slotMachine],
   [/coffin/, coffin],
   [/^skull$/, skull],
