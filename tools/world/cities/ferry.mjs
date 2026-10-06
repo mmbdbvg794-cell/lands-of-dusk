@@ -14,9 +14,11 @@ export const FARE = 50;
 // and from each other port waits, its centre and which way it faces
 // (degrees, 0 east, 90 south), one each side of the pier.
 export const PORTS = {
-  westsea: { name: 'Westsea Harbour', pier: [95, 357], berths: { landing: [100, 360, 0], eastreach: [90, 360, 180] } },
+  westsea: { name: 'Westsea Harbour', pier: [95, 357], berths: { landing: [100, 360, 0], eastreach: [90, 360, 180], kingshaven: [95, 366, 90] } },
   landing: { name: 'Aelindor Landing', pier: [444, 1184], berths: { westsea: [444, 1178, 0], eastreach: [444, 1173, 0] } },
-  eastreach: { name: 'Eastreach', pier: [1691, 1303], berths: { landing: [1694, 1300, 0], westsea: [1695, 1306, 0] } },
+  eastreach: { name: 'Eastreach', pier: [1691, 1303], berths: { landing: [1694, 1300, 0], westsea: [1695, 1306, 0], kingshaven: [1700, 1303, 0] } },
+  // The capital's harbour (capital.mjs): the long middle pier.
+  kingshaven: { name: 'Kingshaven', pier: [1414, 418], berths: { westsea: [1420, 420, 0], eastreach: [1408, 420, 180] } },
 };
 
 // The routes, back and forth; each one's squares are in
@@ -30,6 +32,8 @@ export const ROUTES = [
   // the first (sea-route.mjs ... eastreach-westsea.txt as the route to
   // avoid), and they pass 6 squares apart mid-sea.
   { from: 'eastreach', to: 'westsea', file: 'eastreach-westsea-2', ship: 'Silver Tern' },
+  { from: 'kingshaven', to: 'westsea', file: 'kingshaven-westsea' },
+  { from: 'kingshaven', to: 'eastreach', file: 'kingshaven-eastreach' },
 ];
 // Each ship and the ports it calls at, back and forth, from the first.
 // Two on one crossing start at opposite ends, so a ship leaves each port
@@ -39,6 +43,8 @@ export const SHIPS = [
   { name: 'Morning Star', calls: ['landing', 'eastreach'] },
   { name: 'Grey Gull', calls: ['eastreach', 'westsea'] },
   { name: 'Silver Tern', calls: ['westsea', 'eastreach'] },
+  { name: 'Royal Swan', calls: ['kingshaven', 'westsea'] },
+  { name: 'Gannet', calls: ['kingshaven', 'eastreach'] },
 ];
 
 const routeFile = (file) => `ferryroutes/${file}`;

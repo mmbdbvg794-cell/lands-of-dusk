@@ -1,3 +1,5 @@
+import { captain } from './ferry.mjs';
+
 // Kingshaven, the human capital (the new lands' west coast, where flan's
 // world map note "Human Capital" is, about the size of the City of Light):
 // a walled city packed with streets and buildings, a harbour quay with
@@ -420,13 +422,18 @@ export default {
     F(1386, 398, 60, 4, '=');
     F(1446, 398, 14, 6, '=');
     // Piers into the sea, three wide.
-    for (const x of [1393, 1403, 1413, 1423]) F(x, 402, 3, 10, '=');
+    for (const x of [1393, 1403, 1423]) F(x, 402, 3, 10, '=');
+    // The middle pier runs out to deep water: the ferry pier (ferry.mjs),
+    // its captain at the end, ships berthing either side.
+    F(1413, 402, 3, 17, '=');
+    NPC({ name: 'Captain Rowan', look: 'Villager Man', desc: 'Captain Rowan, the harbour\'s ferry captain, salt-white beard.', x: 1413, y: 417, dlg: captain('kingshaven', 'Ferries to Westsea Harbour and Eastreach! Fifty gold!') });
+    SIGN('Kingshaven Ferry', 'The Kingshaven ferry pier. The Royal Swan sails to Westsea Harbour, the Gannet to Eastreach: buy a ticket from Captain Rowan and wait at the pier\'s end.', 1416, 403);
     F(1450, 404, 3, 9, '=');
     // Warehouses and the harbour's buildings, east of the gate.
     B(1440, 398, 7, 5, { doors: [['w', 2]] }); PR('Box', 1442, 399); PR('goods', 1444, 400); PR('junk', 1442, 401);
     B(1460, 398, 9, 7, { doors: [['w', 3]] });
     NPC({ name: 'Harbourmaster Quint', look: 'Villager Man', desc: 'Quint the harbourmaster, a ledger under his arm.', x: 1464, y: 401,
-      dlg: talk('Every ship that ties up here pays its due to the crown. Ferries? Not yet: the captains say they\'ll call at Kingshaven soon. Till then, it\'s fishing boats and traders.', [ask('What\'s down the shore?', 'The fishing quarter. Smells of fish because it is fish.'), bye]) });
+      dlg: talk('Every ship that ties up here pays its due to the crown. The ferries call at the long middle pier: the Royal Swan from Westsea, the Gannet from Eastreach. Captain Rowan sells the tickets.', [ask('What\'s down the shore?', 'The fishing quarter. Smells of fish because it is fish.'), bye]) });
     PR('sales list', 1462, 399);
     SIGN('Harbourmaster', 'The Harbourmaster of Kingshaven.', 1459, 402);
     // The Salty Mermaid, a dockside tavern.
