@@ -19,7 +19,7 @@
 // off). A test panel (frame rates, a time-of-day slider, each part on or
 // off) shows with #lights at the end of the address.
 
-import { daylight, timeOfDay, isUnderground, DAY_MS } from './atmosphere.js';
+import { daylight, timeOfDay, isUnderground, DAY_MS, CLIMATES } from './atmosphere.js';
 import { bareName } from './world.js';
 import { createWeather, setWeather } from './weather.js';
 
@@ -468,7 +468,7 @@ function makePanel({ weather, map, dusk, marks }) {
       const w = s.weather;
       const lv = Object.entries(weather.level).filter(([, v]) => v > 0.005).map(([n, v]) => `${n} ${v.toFixed(2)}`).join(', ');
       info.textContent = `${s.when}, dark ${s.darkness.toFixed(2)} · lights ${s.lights} · sparks ${s.sparks}` +
-        ` · ${w ? `${w.weather} ${(w.intensity ?? 0).toFixed(2)}, wind ${(w.wind ?? 0).toFixed(2)}` : 'no weather'}` +
+        ` · ${w ? `${w.region && w.region !== 'old' ? `${CLIMATES[w.region]?.name ?? w.region}: ` : ''}${w.weather} ${(w.intensity ?? 0).toFixed(2)}, wind ${(w.wind ?? 0).toFixed(2)}` : 'no weather'}` +
         ` · ${weather.shown} drawn${lv ? ` (${lv})` : ''}${weather.cap.rain < 600 ? ' · low-end: half counts' : ''}`;
     },
   };

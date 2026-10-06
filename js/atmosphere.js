@@ -3,8 +3,13 @@
 // server, so all players agree without anything being sent.
 //
 //   A day is DAY_MS long (two hours): day, then dusk, night and dawn.
-//   The weather changes every WEATHER_MS (15 minutes): mostly clear, some
-//   rain, now and then a storm; snow instead where the ground is snowy.
+//   The weather changes every WEATHER_MS (15 minutes), and differs by
+//   region: each continent and the open sea (js/regions.json, made by
+//   tools/world/regions.mjs) has its own odds of clear, rain, storm and
+//   fog (CLIMATES), and its own roll each slot, so it can rain in the
+//   Old World while Eastreach is dry. How hard it rains and which way the
+//   wind blows vary from slot to slot too. Rain is snow where the ground
+//   is snowy.
 //   Rain and snow only fall outdoors (most of the view open ground).
 //   setWeather() (js/weather.js) can set the weather instead (override).
 //   With lighting on, js/weather.js draws the weather in Pixi and this
@@ -42,10 +47,47 @@ function slotRandom(slot) {
   return (h >>> 0) / 4294967296;
 }
 
-// 'clear', 'rain' or 'storm'.
-export function weatherAt(now = Date.now()) {
-  const r = slotRandom(Math.floor(now / WEATHER_MS));
-  return r < 0.62 ? 'clear' : r < 0.9 ? 'rain' : 'storm';
+// Each region's odds of each weather in a slot (they add up to 1), and
+// its name in words. Regions come from js/regions.json; 'old' is used
+// where there's no region map.
+export const CLIMATES = {
+  old: { name: 'the Old World', clear: 0.55, rain: 0.25, storm: 0.08, fog: 0.12 },
+  north: { name: 'the North', clear: 0.45, rain: 0.3, storm: 0.08, fog: 0.17 }, // Kingshaven's: cold and wet
+  south: { name: 'the South', clear: 0.6, rain: 0.22, storm: 0.08, fog: 0.1 }, // Aelindor's
+  east: { name: 'the East', clear: 0.8, rain: 0.1, storm: 0.07, fog: 0.03 }, // Eastreach's: desert
+  mid: { name: 'the Midlands', clear: 0.58, rain: 0.25, storm: 0.09, fog: 0.08 },
+  sea: { name: 'the open sea', clear: 0.45, rain: 0.25, storm: 0.2, fog: 0.1 },
+};
+const REGION_IDS = Object.keys(CLIMATES);
+
+// { weather, intensity, wind } in a region at a time: weather is 'clear',
+// 'rain', 'storm' or 'fog'; intensity 0 to 1; wind -1 (blowing left) to 1.
+export function weatherDetail(now = Date.now(), region = 'old') {
+  const climate = CLIMATES[region] ?? CLIMATES.old;
+  const slot = Math.floor(now / WEATHER_MS);
+  const roll = (k) => slotRandom((slot * 8 + Math.max(0, REGION_IDS.indexOf(region))) * 4 + k);
+  let r = roll(0), weather = 'clear';
+  for (const w of ['clear', 'rain', 'storm', 'fog']) {
+    if (r < climate[w]) { weather = w; break; }
+    r -= climate[w];
+  }
+  const strength = roll(1), side = roll(2) < 0.5 ? -1 : 1, gust = roll(3);
+  const intensity = { clear: 0, rain: 0.3 + 0.5 * strength, storm: 0.75 + 0.25 * strength, fog: 0.4 + 0.5 * strength }[weather];
+  const wind = side * ({ clear: 0.1, rain: 0.05, storm: 0.3, fog: 0 }[weather] + gust * ({ fog: 0.1, storm: 0.4 }[weather] ?? 0.3));
+  return { weather, intensity, wind };
+}
+
+// 'clear', 'rain', 'storm' or 'fog'.
+export const weatherAt = (now = Date.now(), region = 'old') => weatherDetail(now, region).weather;
+
+// The region map (js/regions.json): regionAt(x, y) gives a CLIMATES key.
+export function regionMap({ cell, w, h, names, runs }) {
+  const grid = new Uint8Array(w * h);
+  for (let i = 0, k = 0; i < runs.length; i += 2) { grid.fill(runs[i], k, k + runs[i + 1]); k += runs[i + 1]; }
+  return (x, y) => {
+    const cx = Math.floor(x / cell), cy = Math.floor(y / cell);
+    return cx < 0 || cy < 0 || cx >= w || cy >= h ? 'sea' : names[grid[cy * w + cx]];
+  };
 }
 
 // The share of tiles (IDs) that are open ground, and that are snow.
@@ -104,6 +146,7 @@ export class Atmosphere {
     this.night = true; // darkness at night (else always day)
     this.weather = true; // rain, storms and snow (else always clear)
     this.override = null; // { type, intensity, wind } from setWeather, else the clock's
+    this.regionAt = null; // (x, y) -> region (regionMap), once js/regions.json is in
     this.drawWeather = true; // draw rain, snow and lightning here (off while js/weather.js does)
     this.drops = [];
     this.flash = 0;
@@ -114,21 +157,24 @@ export class Atmosphere {
   // { weather, intensity, wind, light, falling, storm, snowy } for the
   // view: weather is 'clear', 'rain', 'storm', 'snow' or 'fog'; falling is
   // 'rain', 'snow' or null (dry, or most of the view indoors); snowy: snow
-  // rather than rain (it says so, or the ground is snowy).
-  // where: [x, y] of the view's centre, for places underground.
+  // rather than rain (it says so, or the ground is snowy); region: the
+  // CLIMATES key the weather is from.
+  // where: [x, y] of the view's centre, for its region and places underground.
   state(now, share, where) {
     if (where && isUnderground(where[0], where[1])) {
       return { weather: 'clear', intensity: 0, wind: 0, light: this.night ? UNDERGROUND_LIGHT : 1, falling: null, storm: false, snowy: false, underground: true };
     }
+    const region = (where && this.regionAt?.(where[0], where[1])) || 'old';
     const o = this.weather ? this.override : null;
-    const weather = !this.weather ? 'clear' : o ? o.type : weatherAt(now);
-    const intensity = o ? o.intensity : ({ rain: 0.55, storm: 1 }[weather] ?? 0);
-    const wind = o ? o.wind : weather === 'storm' ? 0.35 : 0.15;
+    const clock = weatherDetail(now, region);
+    const weather = !this.weather ? 'clear' : o ? o.type : clock.weather;
+    const intensity = o ? o.intensity : clock.intensity;
+    const wind = o ? o.wind : clock.wind;
     const outdoors = share.outdoor >= 0.4;
     const wet = (weather === 'rain' || weather === 'storm' || weather === 'snow') && intensity > 0;
     const snowy = weather === 'snow' || share.snow >= 0.3;
     const falling = !wet || !outdoors ? null : snowy ? 'snow' : 'rain';
-    return { weather, intensity, wind, light: this.night ? daylight(now) : 1, falling, storm: weather === 'storm' && outdoors, snowy };
+    return { weather, intensity, wind, light: this.night ? daylight(now) : 1, falling, storm: weather === 'storm' && outdoors, snowy, region };
   }
 
   // ctx: the map canvas; w, h its size; centre: the player in pixels;

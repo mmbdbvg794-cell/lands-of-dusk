@@ -19,7 +19,7 @@ import { SocialUI } from './socialui.js';
 import { JournalEditor } from './journaleditor.js';
 import { LibraryEditor } from './libraryeditor.js';
 import { parseLibReply } from './library.js';
-import { Atmosphere, AmbientSound, findSnowTiles, daylight } from './atmosphere.js';
+import { Atmosphere, AmbientSound, findSnowTiles, daylight, regionMap } from './atmosphere.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
@@ -459,6 +459,11 @@ atmosphere.onThunder = () => ambient.thunder();
 // setWeather({ type, intensity, wind }) (js/weather.js) decides the weather
 // here, for the Pixi layer and the canvas fallback alike.
 bindWeather(atmosphere, () => renderer.invalidate());
+// Weather per continent (js/regions.json); without it, everywhere has the
+// Old World's.
+fetch('js/regions.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((d) => {
+  if (d) { atmosphere.regionAt = regionMap(d); renderer.invalidate(); }
+}).catch(() => {});
 if (storage('get', 'dusk.debug') || location.hash === '#lights') window.setWeather = setWeather;
 let rainLevel = -1;
 renderer.onWeather = (st) => {
