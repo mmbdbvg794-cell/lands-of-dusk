@@ -65,6 +65,8 @@ function tunnel(p, points, width = 3, ch = 'k') {
 
 // ---- who lives here ----
 
+// The first thing a new player hears ends with how to chat.
+const CHAT_TIP = " (To talk with other players, press Enter or tap the box at the bottom, then start with ' to speak to those nearby, or ; to be heard across the land.)";
 const says = (text, answers = []) => ({ says: text, answers });
 const always = (text, answers = []) => ({ when: { kind: 'always', value: '' }, ...says(text, answers) });
 const ifFlag = (flag, text, answers = []) => ({ when: { kind: 'flag', value: flag }, ...says(text, answers) });
@@ -170,7 +172,7 @@ const TASKMISTRESS = {
   stages: [
     ifFlag('drowSkip', 'The south passage. Go, before I change my mind.'),
     ifFlag('drowTut2', 'Why are you still here? Armsmaster Quave is through the east door.'),
-    ifFlag('drowTut1', 'So, the newest hatchling of Velkarath crawls out of its cell. Will you be trained, or do you think yourself ready for the city?', [
+    ifFlag('drowTut1', 'So, the newest hatchling of Velkarath crawls out of its cell. Will you be trained, or do you think yourself ready for the city?' + CHAT_TIP, [
       { label: 'Train me', reply: 'Wise. Through the east door: Armsmaster Quave will arm you.', effects: [unflag('drowTut1'), jflag('drowTut2', 'Taskmistress Vhal sent me east, to Armsmaster Quave.')] },
       { label: 'I am ready', reply: 'Arrogant. We shall see. The passage to the south leads to the Spider Stone; it will carry you to the city.', effects: [unflag('drowTut1'), jflag('drowSkip', 'I told Taskmistress Vhal I needed no training. The Spider Stone down the south passage leads to the city.')] },
     ]),

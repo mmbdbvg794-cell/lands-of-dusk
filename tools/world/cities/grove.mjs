@@ -16,6 +16,8 @@ const TUT = 'From Seedling to Sentinel...';
 const MOONWELL = [473, 1241]; // the Moonwell plaza in Aelindor
 const START = [7, 17]; // the Mother Tree's hollow (plan coordinates)
 
+// The first thing a new player hears ends with how to chat.
+const CHAT_TIP = " (To talk with other players, press Enter or tap the box at the bottom, then start with ' to speak to those nearby, or ; to be heard across the land.)";
 const says = (text, answers = []) => ({ says: text, answers });
 const always = (text, answers = []) => ({ when: { kind: 'always', value: '' }, ...says(text, answers) });
 const ifFlag = (flag, text, answers = []) => ({ when: { kind: 'flag', value: flag }, ...says(text, answers) });
@@ -28,7 +30,7 @@ const WARDEN = {
   stages: [
     ifFlag('elfSkip', 'The path to the south. The Moonstone will carry you to Aelindor.'),
     ifFlag('elfTut2', 'Weaver Ysolde waits in the bower, through the trees to the east.'),
-    ifFlag('elfTut1', 'Welcome, child of the Mother Tree. Aelindor will need you one day. Will you learn the ways of the wood first, or do you feel ready already?', [
+    ifFlag('elfTut1', 'Welcome, child of the Mother Tree. Aelindor will need you one day. Will you learn the ways of the wood first, or do you feel ready already?' + CHAT_TIP, [
       { label: 'Teach me', reply: 'Good. Through the trees to the east: Weaver Ysolde will clothe and arm you.', effects: [unflag('elfTut1'), jflag('elfTut2', 'Warden Elarion sent me east, to Weaver Ysolde in the bower.')] },
       { label: 'I am ready', reply: 'Young, and sure of yourself. So were we all. Take the path to the south; the Moonstone will carry you to Aelindor.', effects: [unflag('elfTut1'), jflag('elfSkip', 'I told Warden Elarion I was ready. The Moonstone down the south path leads to Aelindor.')] },
     ]),
