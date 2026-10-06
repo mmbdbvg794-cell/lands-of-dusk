@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-06 19:10 UTC. Read this first in a new session.
+State as of 2026-10-06 19:40 UTC. Read this first in a new session.
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -383,6 +383,31 @@ commands that touch live.
   engine's set always parses one value before the switch), so the 83 is
   ignored and the dead go to their bind point with 5 HP and "safe" (120 s).
 
+## 2026-10-06 late evening (installed on live, need a restart of duskserver; no god save first)
+
+- Bug reports to the gods (server/Mail.java, hooked in Props.command and
+  Skills start): the bug dialog's Send also sends "bugreport <subject>
+  <body>" (URL-encoded) when logged in. Every character with privs >= 2
+  gets it in the chat now, or from mail/<name> when next in (checked
+  every 3 s, after blnWorking, seen twice). The chat copy keeps what the
+  player wrote and the Character line; everything goes to the
+  "bugreports" file. One report a minute per player (gods exempt).
+  Client deployed; classes built and installed. Tested on scratch
+  (offline waiting, online at once, rate limit).
+- The New messages pill covered the yes/no bar's No button (the god
+  presence question): it moves up while the bar shows (deployed).
+- God tools (tools/server/god_items.py, applied): moo (full heal, kept),
+  chaos orb / shifty box (armour sets), exp / coolaexp / godexp (exp,
+  gold), cyrils elixer (10k MP), smek p (+999,999 max HP). privs >= 3
+  only, "Only gods can use this." otherwise; uses -1 so a refused try
+  doesn't use them up; cost 0. Tested on scratch (egate/hgate). alpha,
+  beta, dmwexp, fixup, lightning bolt, book of ramaden stay plain.
+  Items can be used by id only ("use <id>"; use "<name>" says nothing).
+- More old-world lights (installed): lights-{westsea,westisle,frosthall}.mjs.
+  The spy village (83,6) is inside the north-west village's box, already
+  lit; 514,5 and 284,151 had nothing to light; the specks at 977,938
+  were skipped.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
@@ -390,9 +415,6 @@ commands that touch live.
   each have one since 2026-10-06). The shop/exploit check is done
   (tools/server/fix_shop.py).
 - God tools: restart button, admin page; leaderboard; owned ships.
-- Not touched: god/test items with missing use scripts (alpha, coolaexp...).
-- Smaller old-world places still unlit (Westsea pier, the spy village,
-  the west isle's buildings 131-197 x 882-906).
 
 ## More notes
 

@@ -124,7 +124,7 @@ export function lightsPlan({ name, box, lampBox = box, lamp = 'lamp post', campf
       for (const [x, y] of lamps) p.prop(lamp, x - x0, y - y0);
       for (const [x, y] of campfires) p.prop('campfire', x - x0, y - y0);
       for (const [kind, x, y] of extra) p.prop(kind, x - x0, y - y0);
-      p.notes = [...(p.notes ?? []), `${torches.length} torches, ${lamps.length} ${lamp ?? 'lamps'}s, ${campfires.length} campfires`];
+      p.notes = [...(p.notes ?? []), `${torches.length} torches, ${lamps.length} ${lamp ?? 'lamp'}s, ${campfires.length} campfires`];
     },
   };
 }

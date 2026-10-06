@@ -21,7 +21,8 @@ area rather than by date; `git log` has the day-by-day detail.
 - **Death screen** when you die.
 - **Bug reports** from inside the game (Settings → Report a bug). They can
   include technical details: browser, screen, character, position and the
-  last chat lines.
+  last chat lines. Besides the email, a report goes to every god as a
+  message in the game, or waits for them until they log in.
 
 ## Moving and the map
 
@@ -218,8 +219,8 @@ backups; see `server/`.
   way the wind blows change through the day.
 - **Lit towns**: torches on the walls and lamp posts or braziers in the
   streets at night in Kingshaven, Aelindor, Velkarath and Eastreach, and in
-  the old world's City of Light, Midnight Pub town, Firetown, Riverside and
-  north-west village.
+  the old world's City of Light, Midnight Pub town, Firetown, Riverside,
+  north-west village, Westsea Harbour, the west isle and the frost hall.
 - **Chat tip**: each race's first tutorial character tells new players how
   to talk to others (Enter, then ' to speak, ; to everyone).
 - **Install as an app**: add Dusk to your phone's home screen or your
