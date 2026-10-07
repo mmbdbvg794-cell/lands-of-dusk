@@ -13,7 +13,7 @@
 const KIND = {
   heal: ['mend', 'healing', 'regenerate', 'prayer', 'meditation', 'herbology', 'healing staff', 'counter poison', 'create food', 'create drink'],
   holy: ['bless', 'holy', 'angel strike', "hero's spell", 'armor', 'armour', 'shield', 'reflect', 'focus'],
-  fire: ['hells fire', 'ifrit', 'meteor', 'meteo', 'comet', 'asteroid', 'apocolypse', 'bahamut'],
+  fire: ['hells fire', 'hell fire', 'apocalypse', 'ifrit', 'meteor', 'meteo', 'comet', 'asteroid', 'apocolypse', 'bahamut'],
   earth: ['quake', 'bone shards', 'cactuar', 'camoflauge'],
   dark: ['curse', 'death', 'drain', 'corrupt', 'psychopath', 'diablos', 'killer'],
 };

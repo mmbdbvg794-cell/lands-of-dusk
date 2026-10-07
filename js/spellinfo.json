@@ -10,6 +10,17 @@
   "order": 1,
   "target": []
  },
+ "apocalypse": {
+  "caster": [
+   "The sky splits and fire falls on {name}. The apocalypse does  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "",
+  "group": "hells fire",
+  "needs": 50,
+  "order": 1,
+  "target": []
+ },
  "armor": {
   "caster": [
    "You create a magic shield to surround {name}.",
@@ -47,6 +58,17 @@
   "group": "black magic group",
   "needs": 0,
   "order": 0,
+  "target": []
+ },
+ "cactuar": {
+  "caster": [
+   "You call upon a Guardian Force-Cactuar-to attack {name} , Cactuar throws about 1000 needles at it doing   damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "causes Major damage to enemy.",
+  "group": "Guardian Force Group",
+  "needs": 60,
+  "order": 3,
   "target": []
  },
  "camoflauge": {
@@ -121,6 +143,17 @@
    "Your eyes become sensitive to invisibility."
   ]
  },
+ "diablos": {
+  "caster": [
+   "You call upon a Guardian Force-Diablos-to attack {name} , everything goes black and Diablos bites it's leg off doing   damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "causes Major damage to enemy.",
+  "group": "Guardian Force Group",
+  "needs": 80,
+  "order": 4,
+  "target": []
+ },
  "focus": {
   "caster": [
    "You do not see them here.",
@@ -149,6 +182,17 @@
    "You feel slightly less wounded."
   ]
  },
+ "hell fire": {
+  "caster": [
+   "You call up the fires of hell around {name}. They burn for  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "",
+  "group": "hells fire",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
  "herbology": {
   "caster": [
    "You don't have the right herbs. Mandrake: an anti-curse potion. Mandrake and wolfsbane: a red potion. Lavendar and wolfsbane: a green potion. Brewed red and green potions with azeala: a blue potion. A mushroom and water: a minor potion.",
@@ -176,6 +220,17 @@
   "order": 5,
   "target": []
  },
+ "ifrit": {
+  "caster": [
+   "As a last resort, you call upon Ifrit to attack {name} with a giant ball of lava for   damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "causes Minor damage to enemy.",
+  "group": "Guardian Force Group",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
  "invis": {
   "caster": [
    "You do not see them here.",
@@ -189,6 +244,17 @@
   "target": [
    "You fade slowly from vision."
   ]
+ },
+ "leviathan": {
+  "caster": [
+   "You call upon a Guardian Force-Leviathan-to attack {name}, Leviathan explodes and forms a tidal wave doing   damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "causes Minor damage to enemy.",
+  "group": "Guardian Force Group",
+  "needs": 40,
+  "order": 2,
+  "target": []
  },
  "meditation": {
   "caster": [
@@ -309,6 +375,17 @@
   "target": [
    "{name} has scanned your stats."
   ]
+ },
+ "shiva": {
+  "caster": [
+   "You call upon a Guardian Force-Shiva-to attack {name} with swift coldness and peircing dimonds shred it's body doing   damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "causes Minor damage to enemy.",
+  "group": "Guardian Force Group",
+  "needs": 20,
+  "order": 1,
+  "target": []
  },
  "summon bahamut": {
   "caster": [

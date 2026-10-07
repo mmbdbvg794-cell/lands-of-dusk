@@ -10,10 +10,21 @@
 //
 // Duel.java keeps the same squares (X0..Y1, SPOT_A/B, GATE).
 //
-// This plan also writes conf/onDeath, the script the engine runs when a
+// This plan also writes conf/canAttack (nobody joins a duel from outside)
+// and conf/onDeath, the script the engine runs when a
 // player dies: a duellist is put at the ring's gate, marked the loser
 // (Duel.java gives back what the fight took); anyone else goes back to
 // their race's city.
+
+// conf/canAttack, checked before every attack (joining a fight too): not
+// someone "safe" (just after dying), and nobody joins a duel from outside
+// it (a duellist can be attacked only by someone who is duelling).
+const CAN_ATTACK = `and
+! hascondition attacked safe
+or
+! hascondition attacked dueling
+hascondition attacking dueling
+`;
 
 const ON_DEATH = `#On death (written by tools/world/cities/arena.mjs).
 #A duel (server/Duel.java): to the Duelling Ring's gate, marked the loser;
@@ -78,5 +89,6 @@ export default {
     p.file('defConditions/dueling', 'nodisplay\n.\n');
     p.file('defConditions/duellost', 'nodisplay\n.\n');
     p.file('conf/onDeath', ON_DEATH);
+    p.file('conf/canAttack', CAN_ATTACK);
   },
 };
