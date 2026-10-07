@@ -546,7 +546,7 @@ function setMusicVolume(v, save = true) {
 }
 setMusicVolume(Number(storage('get', 'dusk.musicvolume') ?? 60) / 100, false);
 musicVolume.addEventListener('input', () => setMusicVolume(Number(musicVolume.value) / 100));
-musicBox.addEventListener('change', () => { storage('set', 'dusk.music', musicBox.checked ? '1' : '0'); music.setOn(musicBox.checked); });
+musicBox.addEventListener('change', () => { storage('set', 'dusk.music', musicBox.checked ? '1' : '0'); applySound(); });
 // #music-test plays the placeholder tones in music/test/ instead.
 fetch(location.hash === '#music-test' ? 'music/manifest.test.json' : 'music/manifest.json', { cache: 'no-cache' })
   .then((r) => (r.ok ? r.json() : null)).then((m) => music.load(m)).catch(() => music.load(null));
@@ -680,19 +680,39 @@ function loadServerMap() {
 }
 setInterval(() => mapSync.tick(), MAP_SYNC_MS);
 
-// Sound: the speaker button and the Settings checkbox both mute; the two
-// volume sliders (top bar, and Settings on phones) stay in step.
+// Sound: the speaker button mutes everything (sound effects, rain and
+// music); the Settings switches turn sound effects and music on or off
+// each on their own. The two volume sliders (top bar, and Settings on
+// phones) stay in step.
 const volumes = [...document.querySelectorAll('.volume')];
-function setSoundOn(on) {
-  sound.enabled = on;
-  $('sound-toggle').checked = on;
-  const btn = $('mute-btn');
-  btn.textContent = on ? '🔊' : '🔇';
-  btn.setAttribute('aria-pressed', String(!on));
-  btn.title = on ? 'Sound on (click to mute)' : 'Muted (click for sound)';
-  storage('set', 'dusk.sound', on ? '1' : '0');
+const soundBox = $('sound-toggle');
+// The speaker used to flip the Sound switch, so "sound off" saved from
+// then was really a mute.
+if (storage('get', 'dusk.muted') === null && storage('get', 'dusk.sound') === '0') {
+  storage('set', 'dusk.muted', '1');
+  storage('set', 'dusk.sound', '1');
 }
-setSoundOn(storage('get', 'dusk.sound') !== '0');
+let muted = storage('get', 'dusk.muted') === '1';
+soundBox.checked = storage('get', 'dusk.sound') !== '0';
+function applySound() {
+  sound.enabled = soundBox.checked && !muted;
+  music.setOn(musicBox.checked && !muted);
+  const btn = $('mute-btn');
+  btn.textContent = muted ? '🔇' : '🔊';
+  btn.setAttribute('aria-pressed', String(muted));
+  btn.title = muted ? 'Muted (click for sound and music)' : 'Sound and music on (click to mute)';
+}
+function setMuted(on) {
+  muted = on;
+  storage('set', 'dusk.muted', on ? '1' : '0');
+  applySound();
+}
+function setSoundOn(on) {
+  soundBox.checked = on;
+  storage('set', 'dusk.sound', on ? '1' : '0');
+  applySound();
+}
+applySound();
 sound.setVolume(Number(storage('get', 'dusk.volume') ?? 60) / 100);
 for (const v of volumes) {
   v.value = String(Math.round(sound.volume * 100));
@@ -700,14 +720,17 @@ for (const v of volumes) {
     sound.setVolume(Number(v.value) / 100);
     for (const w of volumes) if (w !== v) w.value = v.value;
     storage('set', 'dusk.volume', v.value);
-    if (!sound.enabled && Number(v.value) > 0) setSoundOn(true);
+    if (Number(v.value) > 0) {
+      if (muted) setMuted(false);
+      if (!soundBox.checked) setSoundOn(true);
+    }
   });
   // A sample at the new level once you let go.
   v.addEventListener('change', () => sound.play('hit'));
 }
-$('sound-toggle').addEventListener('change', (e) => setSoundOn(e.target.checked));
+soundBox.addEventListener('change', () => setSoundOn(soundBox.checked));
 $('mute-btn').addEventListener('click', () => {
-  setSoundOn(!sound.enabled);
+  setMuted(!muted);
   if (sound.enabled) sound.play('heal');
 });
 

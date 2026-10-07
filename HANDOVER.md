@@ -475,6 +475,12 @@ commands that touch live.
   decided against it for now (quick fights would make the music jumpy).
   Needs deploy (it also updates the credits).
 
+- 2026-10-07: the top-bar speaker is now a master mute (dusk.muted):
+  sound effects, rain and all music. Settings' Sound and Music switches
+  stay separate (dusk.sound, dusk.music). An old saved dusk.sound 0 (the
+  speaker used to flip it) becomes muted on first load. The user reported
+  music playing while the speaker showed muted.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
