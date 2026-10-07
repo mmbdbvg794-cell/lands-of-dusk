@@ -12,3 +12,4 @@ client_src_reference/build/
 server/cfr.jar
 # Original music files before tools/music_compress.sh (not deployed)
 /music-incoming/
+__pycache__/
