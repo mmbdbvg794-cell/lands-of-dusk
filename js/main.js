@@ -20,7 +20,8 @@ import { JournalEditor } from './journaleditor.js';
 import { LibraryEditor } from './libraryeditor.js';
 import { parseLibReply } from './library.js';
 import { Atmosphere, AmbientSound, findSnowTiles, daylight, regionMap, isUnderground } from './atmosphere.js';
-import { MusicPlayer, moodAt, moodForType, musicPanel } from './music.js';
+import { MusicPlayer, moodAt, moodForType, musicPanel, townAt } from './music.js';
+import { AreaAmbience, areaCounts, areaMix } from './ambience.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
@@ -126,7 +127,7 @@ const renderer = new Renderer($('map'), world, $('map-wrap'));
 renderer.ships = new Ships();
 renderer.farTile = (x, y) => minimap.explored.tileAt(x, y); // squares seen before, beyond the view
 // For tests (localStorage dusk.debug = 1): the world, ships and renderer to read.
-if (storage('get', 'dusk.debug')) Object.defineProperty(window, '__dusk', { get: () => ({ world, ships: renderer.ships, renderer }) });
+if (storage('get', 'dusk.debug')) Object.defineProperty(window, '__dusk', { get: () => ({ world, ships: renderer.ships, renderer, areaSound }) });
 let sheetsFor = null; // resource address the current sheets came from
 const minimap = new Minimap($('minimap'), new Explored());
 const worldMap = new WorldMap($('world-map'), minimap);
@@ -605,6 +606,19 @@ setInterval(() => {
   const settled = place === lastPlace;
   lastPlace = place;
   if (!musicOverride && settled) music.setMood(place);
+}, 2000);
+// Area sounds (js/ambience.js): birds, wind, waves, drips... from the
+// squares in view and the time of day; quieter birds in the rain.
+const areaSound = new AreaAmbience(sound);
+const ambienceBox = $('ambience-toggle');
+ambienceBox.checked = storage('get', 'dusk.ambience') !== '0';
+areaSound.setOn(ambienceBox.checked);
+ambienceBox.addEventListener('change', () => { storage('set', 'dusk.ambience', ambienceBox.checked ? '1' : '0'); areaSound.setOn(ambienceBox.checked); });
+setInterval(() => {
+  if (!loaded || !world.tiles?.length) return;
+  const mix = areaMix(areaCounts(world.tiles.flat(), renderer.snowTiles ?? undefined), { light: daylight(), underground: isUnderground(world.locX, world.locY), town: !!townAt(world.locX, world.locY) });
+  if (rainLevel > 0) { mix.birds *= 1 - rainLevel; mix.gulls *= 1 - rainLevel * 0.7; mix.crickets *= 1 - rainLevel; }
+  areaSound.update(mix);
 }, 2000);
 if (location.hash.startsWith('#music')) {
   musicPanel({ player: music, setOverride: setMusicOverride, getOverride: () => musicOverride, setVolume: (v) => setMusicVolume(v) });

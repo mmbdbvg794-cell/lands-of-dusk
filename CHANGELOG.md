@@ -221,6 +221,10 @@ backups; see `server/`.
   Each continent has its own weather (wet, foggy North; dry desert East;
   stormier open sea), fog comes and goes, and how hard it rains and which
   way the wind blows change through the day.
+- **Area sounds** under the music: birds by day and crickets and owls by
+  night in green country, waves and gulls by the sea, frogs by water at
+  night, wind on snow and in the desert, drips and a low hum underground;
+  quieter birds in the rain. Settings → Area sounds turns them off.
 - **Area music**: music that follows where you are (towns, the wilds by
   day, night, underground, at sea), crossfading as you move, with its own
   volume slider in Settings apart from the sound effects. Free (CC0)
