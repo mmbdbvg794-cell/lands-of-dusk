@@ -181,3 +181,24 @@ console.log('ok - world state');
   assert.ok(!w2.recentEffect('fire', 100, 51, 2000, 1200));
   console.log('ok - effect repeats');
 }
+
+// Swings in a fight: a hit or dodge line makes the attacker swing at the
+// target (for the renderer's lunge and arc), one at a time.
+{
+  const s = new World();
+  s.apply({ op: OP.MAP_SIZE, size: 5 });
+  s.apply({ op: OP.MAP, x: 10, y: 10, tiles: grid(5, () => 0) });
+  s.apply({ ...ent(1, 'egate', 10, 10), type: 0 });
+  s.apply({ ...ent(2, 'stray hound', 11, 10), type: 4 });
+  assert.ok(s.addHits('\tegate did 35 to stray hound.', 1000));
+  assert.equal(s.swings.length, 1);
+  const sw = s.swingOf(1, 1100);
+  assert.ok(sw && sw.dx > 0.99 && Math.abs(sw.dy) < 0.01 && sw.t > 0.2 && sw.t < 0.3, 'toward the hound, east');
+  s.addHits('\tegate did 12 to stray hound.', 1100);
+  assert.equal(s.swings.length, 1, 'not again so soon');
+  s.addHits('\tstray hound dodged egate\'s attack.', 1500);
+  assert.equal(s.swings.filter((x) => x.id === 1).length, 2, 'a dodged attack is a swing too');
+  assert.equal(s.swingOf(1, 5000), null, 'over');
+  assert.equal(s.swingOf(2, 1100), null, 'the hound did nothing');
+  console.log('ok - swings');
+}

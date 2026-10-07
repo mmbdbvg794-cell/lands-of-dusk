@@ -11,6 +11,8 @@ export class Sound {
     this.master = null;
     this.enabled = true;
     this.volume = 0.6;
+    this.ambienceVolume = 0.5; // rain, thunder and area sounds (js/ambience.js)
+    this.ambience = null; // their own path to the speakers
     this.lastHit = 0;
     const unlock = () => {
       this.unlock();
@@ -30,6 +32,9 @@ export class Sound {
       this.master = this.ctx.createGain();
       this.master.gain.value = this.volume;
       this.master.connect(this.ctx.destination);
+      this.ambience = this.ctx.createGain();
+      this.ambience.gain.value = this.ambienceVolume;
+      this.ambience.connect(this.ctx.destination);
     } catch {
       this.ctx = null;
     }
@@ -38,6 +43,12 @@ export class Sound {
   setVolume(v) {
     this.volume = Math.max(0, Math.min(1, v));
     if (this.master) this.master.gain.value = this.volume;
+  }
+
+  // The ambience's own volume, apart from the sound effects'.
+  setAmbienceVolume(v) {
+    this.ambienceVolume = Math.max(0, Math.min(1, v));
+    if (this.ambience) this.ambience.gain.value = this.ambienceVolume;
   }
 
   // Plays a named sound: 'hit', 'miss', 'dodge', or a spell kind ('heal',
@@ -64,7 +75,8 @@ export class Sound {
 
   // ---- building blocks ----
 
-  tone(t, { freq, type = 'sine', dur = 0.3, gain = 0.3, attack = 0.005, slide = null, detune = 0 }) {
+  // out: where it goes (the sound effects' master unless said).
+  tone(t, { freq, type = 'sine', dur = 0.3, gain = 0.3, attack = 0.005, slide = null, detune = 0, out = null }) {
     const { ctx } = this;
     const o = ctx.createOscillator();
     const g = ctx.createGain();
@@ -75,12 +87,12 @@ export class Sound {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(gain, t + attack);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g).connect(this.master);
+    o.connect(g).connect(out ?? this.master);
     o.start(t);
     o.stop(t + dur + 0.05);
   }
 
-  noise(t, { dur = 0.2, gain = 0.3, filter = 'bandpass', freq = 1200, to = null, q = 1 }) {
+  noise(t, { dur = 0.2, gain = 0.3, filter = 'bandpass', freq = 1200, to = null, q = 1, out = null }) {
     const { ctx } = this;
     const len = Math.ceil(ctx.sampleRate * dur);
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
@@ -96,7 +108,7 @@ export class Sound {
     const g = ctx.createGain();
     g.gain.setValueAtTime(gain, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    src.connect(f).connect(g).connect(this.master);
+    src.connect(f).connect(g).connect(out ?? this.master);
     src.start(t);
     src.stop(t + dur + 0.05);
   }

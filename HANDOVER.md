@@ -627,6 +627,17 @@ commands that touch live.
 - To go live: `ssh duskserver sh /tmp/achievements-install.sh`, then
   `restart 10` (this restart also turns on mail and parties).
 
+## 2026-10-07 afternoon: sound levels, weather duck, battle swings (client only, deployed)
+
+- Sound: an ambience path (Sound.ambience, its own volume, Settings
+  "Ambience" slider, dusk.ambiencevolume) for rain, thunder and area sounds;
+  tone/noise take `out`. Wind quieter (bed 0.022, base 0.08). The music's
+  volume = slider x a duck eased toward 1 (clear), 0.5 (rain), 0 (storm),
+  set from renderer.onWeather (main.js applyMusicLevel).
+- Battle swings: world.swings from hit/dodge lines (attacker -> target, one
+  per 300 ms), world.swingOf(id); the renderer lunges the attacker 0.2 of a
+  square toward its target and draws a weapon arc (drawSwing), 380 ms.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God

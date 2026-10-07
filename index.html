@@ -44,7 +44,7 @@
     </div>
     <div id="sound-controls">
       <button type="button" id="mute-btn" aria-pressed="false" title="Sound on (click to mute)" aria-label="Mute">🔊</button>
-      <input class="volume top-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Volume" title="Volume">
+      <input class="volume top-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Sound effects volume" title="Sound effects volume">
     </div>
     <details id="settings">
       <summary>Settings</summary>
@@ -106,6 +106,10 @@
           <label class="toggle"><input id="sound-toggle" type="checkbox" checked> Sound</label>
           <label class="toggle"><input id="steps-toggle" type="checkbox" checked> Footsteps</label>
           <label class="toggle"><input id="ambience-toggle" type="checkbox" checked> Area sounds</label>
+        </div>
+        <div class="toggle-row">
+          <label class="toggle" for="ambience-volume">Ambience (rain, wind, birds)</label>
+          <input id="ambience-volume" class="music-volume" type="range" min="0" max="100" step="5" value="50" aria-label="Ambience volume" title="Rain, thunder and area sounds">
           <input class="volume settings-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Volume">
         </div>
         <label class="toggle"><input id="trace" type="checkbox"> Protocol trace in the log</label>

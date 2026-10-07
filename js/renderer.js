@@ -207,8 +207,15 @@ export class Renderer {
     for (const d of draws) {
       if (d.tree) { d.tree.draw(ctx, d.alpha); continue; }
       const { e, pos } = d;
-      const [px, py] = toPx(pos.x, pos.y);
+      let [px, py] = toPx(pos.x, pos.y);
       where.set(e.id, [px, py]);
+      // In a fight: a lunge toward the target and back (world.swingOf).
+      const sw = world.swingOf(e.id, now);
+      if (sw) {
+        const lunge = Math.sin(sw.t * Math.PI) * 0.2 * c;
+        px += sw.dx * lunge;
+        py += sw.dy * lunge;
+      }
 
       const flag = FLAG_COLORS[e.flag];
       if (flag) {
@@ -233,6 +240,7 @@ export class Renderer {
       else if (e === self) this.drawDressed(e.image, step, px, py, c, this.gear);
       else if (dressing && e.type === 0 && this.others.has(e.id)) this.drawDressed(e.image, step, px, py, c, this.others.get(e.id));
       else players?.draw(ctx, e.image * 8 + step, px, py, c);
+      if (sw) drawSwing(ctx, px + c / 2, py + c / 2, c, sw);
 
       const kind = this.nameKind(e);
       if (names && !e.hideName && (kind === 'object' ? this.showObjectNames : kind === 'npc' ? this.showNpcNames : this.showNames)) {
@@ -364,4 +372,33 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.roundRect(x + i, y + i, w - 2 * i, h - 2 * i, r);
   ctx.stroke();
+}
+
+// A weapon's swing: a bright arc sweeping across the side facing the
+// target as t goes 0 to 1, fading at the end. cx, cy: the attacker's centre.
+function drawSwing(ctx, cx, cy, c, { t, dx, dy }) {
+  const face = Math.atan2(dy, dx);
+  const from = face - 1.2, to = face + 1.2;
+  const head = from + (to - from) * Math.min(1, t * 1.4);
+  const tail = Math.max(from, head - 1.1);
+  const r = c * 0.7;
+  const alpha = t < 0.7 ? 1 : 1 - (t - 0.7) / 0.3;
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.globalAlpha = 0.5 * alpha;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = Math.max(4, c * 0.2);
+  ctx.beginPath(); ctx.arc(cx, cy, r, tail, head); ctx.stroke();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = '#fffbe8';
+  ctx.lineWidth = Math.max(2, c * 0.07);
+  ctx.beginPath(); ctx.arc(cx, cy, r, tail, head); ctx.stroke();
+  // The blade at the leading edge.
+  ctx.strokeStyle = '#d8dce4';
+  ctx.lineWidth = Math.max(2, c * 0.06);
+  ctx.beginPath();
+  ctx.moveTo(cx + Math.cos(head) * r * 0.55, cy + Math.sin(head) * r * 0.55);
+  ctx.lineTo(cx + Math.cos(head) * r * 1.08, cy + Math.sin(head) * r * 1.08);
+  ctx.stroke();
+  ctx.restore();
 }

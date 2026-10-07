@@ -3,7 +3,8 @@
 // (wind, waves, a cave's hum) and sounds now and then (birds by day,
 // crickets and owls by night, gulls by the sea, drips underground, frogs
 // by water at night), picked from the squares in view and the time of day.
-// They go through the game's Sound, so its volume and mute apply.
+// They go through the game's Sound on its ambience path (its own volume,
+// beside rain and thunder); the Sound switch and the mute apply.
 
 // The kinds of square that matter (tile numbers, js/atmosphere.js and
 // tools/world/tiles.json); snow comes from the renderer's snowy tiles.
@@ -39,7 +40,7 @@ export function areaMix(c, { light = 1, underground = false, town = false } = {}
   const sand = clamp(share(c.sand) * (town ? 0.3 : 2));
   const night = 1 - light;
   return {
-    wind: clamp((town ? 0.05 : 0.15) + snow * 0.8 + sand * 0.6 + water * 0.2),
+    wind: clamp((town ? 0.03 : 0.08) + snow * 0.8 + sand * 0.6 + water * 0.2),
     waves: water,
     cave: 0,
     birds: green * light * (1 - snow) * (town ? 0.5 : 1),
@@ -53,7 +54,7 @@ export function areaMix(c, { light = 1, underground = false, town = false } = {}
 
 // The beds' loudness at full mix, and how often each sound comes (per
 // minute, at full mix).
-const BED_GAIN = { wind: 0.05, waves: 0.07, cave: 0.05 };
+const BED_GAIN = { wind: 0.022, waves: 0.06, cave: 0.045 };
 const RATE = { birds: 14, crickets: 10, owls: 1.2, gulls: 4, drips: 12, frogs: 6 };
 
 export class AreaAmbience {
@@ -124,7 +125,7 @@ export class AreaAmbience {
       gain.gain.value = 0;
       const swell = ctx.createGain();
       swell.gain.value = 1;
-      src.connect(f).connect(swell).connect(gain).connect(s.master);
+      src.connect(f).connect(swell).connect(gain).connect(s.ambience ?? s.master);
       const lfo = ctx.createOscillator();
       lfo.frequency.value = lfoHz;
       const depth = ctx.createGain();
@@ -147,6 +148,7 @@ export class AreaAmbience {
     const s = this.sound;
     const t = s.ctx.currentTime + delay + 0.02;
     const r = Math.random;
+    const out = s.ambience ?? s.master;
     try {
       if (kind === 'birds') {
         // A short phrase of chirps, each a quick upward or downward sweep.
@@ -154,24 +156,24 @@ export class AreaAmbience {
         const n = 2 + Math.floor(r() * 4);
         for (let i = 0; i < n; i++) {
           const f = base * (0.85 + r() * 0.35);
-          s.tone(t + i * (0.09 + r() * 0.08), { freq: f, slide: f * (r() < 0.5 ? 1.35 : 0.72), dur: 0.07 + r() * 0.06, gain: 0.025 });
+          s.tone(t + i * (0.09 + r() * 0.08), { freq: f, slide: f * (r() < 0.5 ? 1.35 : 0.72), dur: 0.07 + r() * 0.06, gain: 0.025, out });
         }
       } else if (kind === 'crickets') {
         const f = 4200 + r() * 600;
-        for (let i = 0; i < 6; i++) s.tone(t + i * 0.055, { freq: f, dur: 0.03, gain: 0.012, type: 'square' });
+        for (let i = 0; i < 6; i++) s.tone(t + i * 0.055, { freq: f, dur: 0.03, gain: 0.012, type: 'square', out });
       } else if (kind === 'owls') {
-        s.tone(t, { freq: 390, slide: 360, dur: 0.35, gain: 0.03, attack: 0.06 });
-        s.tone(t + 0.55, { freq: 380, slide: 330, dur: 0.6, gain: 0.03, attack: 0.08 });
+        s.tone(t, { freq: 390, slide: 360, dur: 0.35, gain: 0.03, attack: 0.06, out });
+        s.tone(t + 0.55, { freq: 380, slide: 330, dur: 0.6, gain: 0.03, attack: 0.08, out });
       } else if (kind === 'gulls') {
         const f = 1300 + r() * 400;
-        for (let i = 0; i < 2 + Math.floor(r() * 2); i++) s.tone(t + i * 0.32, { freq: f, slide: f * 0.62, dur: 0.26, gain: 0.02, type: 'sawtooth', attack: 0.02 });
+        for (let i = 0; i < 2 + Math.floor(r() * 2); i++) s.tone(t + i * 0.32, { freq: f, slide: f * 0.62, dur: 0.26, gain: 0.02, type: 'sawtooth', attack: 0.02, out });
       } else if (kind === 'drips') {
         const f = 900 + r() * 900;
-        s.tone(t, { freq: f, slide: f * 0.45, dur: 0.12, gain: 0.03 });
-        s.tone(t + 0.21, { freq: f * 0.9, slide: f * 0.4, dur: 0.1, gain: 0.01 }); // its echo
+        s.tone(t, { freq: f, slide: f * 0.45, dur: 0.12, gain: 0.03, out });
+        s.tone(t + 0.21, { freq: f * 0.9, slide: f * 0.4, dur: 0.1, gain: 0.01, out }); // its echo
       } else if (kind === 'frogs') {
         const f = 180 + r() * 60;
-        for (let i = 0; i < 2; i++) s.tone(t + i * 0.18, { freq: f, slide: f * 1.3, dur: 0.12, gain: 0.03, type: 'triangle' });
+        for (let i = 0; i < 2; i++) s.tone(t + i * 0.18, { freq: f, slide: f * 1.3, dur: 0.12, gain: 0.03, type: 'triangle', out });
       }
     } catch {}
   }

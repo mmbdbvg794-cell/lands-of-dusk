@@ -490,9 +490,13 @@ fetch('js/regions.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : n
 }).catch(() => {});
 if (storage('get', 'dusk.debug') || location.hash === '#lights') window.setWeather = setWeather;
 let rainLevel = -1;
+// The music's weather duck (applyMusicLevel): 1 clear, 0.5 rain, 0 storm.
+let musicBase = 0.6, musicDuck = 1, musicDuckTo = 1;
 renderer.onWeather = (st) => {
   const level = st.falling === 'rain' && sound.enabled ? (st.storm ? 1 : Math.round(Math.max(0.2, Math.min(1, st.intensity ?? 0.6)) * 10) / 10) : 0;
   if (level !== rainLevel) { rainLevel = level; ambient.setRain(level); }
+  // The music makes way for the weather (applyMusicLevel, below).
+  musicDuckTo = st.storm ? 0 : st.falling === 'rain' ? 0.5 : 1;
 };
 const weatherBox = $('weather-toggle');
 const nightBox = $('night-toggle');
@@ -576,12 +580,23 @@ function showTrack(t) {
 }
 music.on = musicBox.checked;
 const musicVolume = $('music-volume');
+// The music's volume is the slider's times a duck that follows the weather:
+// down to half in rain, out in a storm, eased over a few seconds.
+function applyMusicLevel() {
+  music.setVolume(musicBase * musicDuck);
+  ambient.setMusicVolume(musicBase * musicDuck);
+}
 function setMusicVolume(v, save = true) {
-  music.setVolume(v);
-  ambient.setMusicVolume(v);
-  musicVolume.value = String(Math.round(v * 100));
+  musicBase = Math.max(0, Math.min(1, v));
+  applyMusicLevel();
+  musicVolume.value = String(Math.round(musicBase * 100));
   if (save) storage('set', 'dusk.musicvolume', musicVolume.value);
 }
+setInterval(() => {
+  if (Math.abs(musicDuckTo - musicDuck) < 0.01) { if (musicDuck !== musicDuckTo) { musicDuck = musicDuckTo; applyMusicLevel(); } return; }
+  musicDuck += (musicDuckTo - musicDuck) * 0.08;
+  applyMusicLevel();
+}, 150);
 setMusicVolume(Number(storage('get', 'dusk.musicvolume') ?? 60) / 100, false);
 musicVolume.addEventListener('input', () => setMusicVolume(Number(musicVolume.value) / 100));
 musicBox.addEventListener('change', () => { storage('set', 'dusk.music', musicBox.checked ? '1' : '0'); applySound(); });
@@ -621,6 +636,10 @@ setInterval(() => {
 // Area sounds (js/ambience.js): birds, wind, waves, drips... from the
 // squares in view and the time of day; quieter birds in the rain.
 const areaSound = new AreaAmbience(sound);
+const ambienceVolume = $('ambience-volume');
+sound.setAmbienceVolume(Number(storage('get', 'dusk.ambiencevolume') ?? 50) / 100);
+ambienceVolume.value = String(Math.round(sound.ambienceVolume * 100));
+ambienceVolume.addEventListener('input', () => { sound.setAmbienceVolume(Number(ambienceVolume.value) / 100); storage('set', 'dusk.ambiencevolume', ambienceVolume.value); });
 const ambienceBox = $('ambience-toggle');
 ambienceBox.checked = storage('get', 'dusk.ambience') !== '0';
 areaSound.setOn(ambienceBox.checked);

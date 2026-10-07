@@ -22,6 +22,9 @@ export const STEP_MS = 270;
 export const MIN_SLIDE_MS = 60;
 // How long a damage number floats.
 export const HIT_MS = 1000;
+// A swing in a fight: the attacker lunges and a weapon arc sweeps (renderer).
+export const SWING_MS = 380;
+const SWING_GAP_MS = 300; // one swing at a time per attacker
 
 // Movement opcodes -> [dx, dy], matching the direction GraphicsThread applies.
 const MOVES = {
@@ -67,6 +70,7 @@ export class World {
     this.prevMap = null; // { x, y, tiles, until }: the view before that step
     this.leaving = new Map(); // id -> { e, until }: sliding out of view
     this.hits = []; // { id, text, kind: 'hit' | 'dodge', start }
+    this.swings = []; // { id: attacker, target, start }
     this.effects = []; // { on: entity ID, 'self' or { x, y }, kind, start, seed }: spell effects
   }
 
@@ -231,6 +235,7 @@ export class World {
         if (target) {
           this.hits.push({ id: target.id, text: m[2], kind: 'hit', start: now });
           added = true;
+          this.swing(this.findByName(m[1], m[3]), target, now);
         }
         continue;
       }
@@ -240,6 +245,7 @@ export class World {
         if (target) {
           this.hits.push({ id: target.id, text: 'dodge', kind: 'dodge', start: now });
           added = true;
+          this.swing(this.findByName(m[2], m[1]), target, now);
         }
       }
     }
@@ -312,12 +318,32 @@ export class World {
     return null;
   }
 
+  // An attacker swings at a target (not more often than SWING_GAP_MS).
+  swing(attacker, target, now) {
+    if (!attacker || !target || attacker === target) return;
+    if (this.swings.some((s) => s.id === attacker.id && now - s.start < SWING_GAP_MS)) return;
+    this.swings.push({ id: attacker.id, target: target.id, start: now });
+  }
+
+  // A swing going on for this entity: { t (0-1), dx, dy } toward its target, or null.
+  swingOf(id, now) {
+    let s = null;
+    for (const w of this.swings) if (w.id === id && now - w.start < SWING_MS && (!s || w.start > s.start)) s = w;
+    if (!s) return null;
+    const a = this.entities.get(id), b = this.entities.get(s.target);
+    if (!a || !b) return null;
+    const pa = this.visualPos(a, now), pb = this.visualPos(b, now);
+    const dx = pb.x - pa.x, dy = pb.y - pa.y, len = Math.hypot(dx, dy) || 1;
+    return { t: (now - s.start) / SWING_MS, dx: dx / len, dy: dy / len };
+  }
+
   // Everything to draw right now: entities in list order, then those
   // sliding out of view. Drops finished slides, leavers and hits.
   drawList(now) {
     for (const [id, l] of this.leaving) if (now >= l.until) this.leaving.delete(id);
     if (this.prevMap && now >= this.prevMap.until) this.prevMap = null;
     this.hits = this.hits.filter((h) => now - h.start < HIT_MS);
+    this.swings = this.swings.filter((s) => now - s.start < SWING_MS);
     return [...this.entities.values(), ...[...this.leaving.values()].map((l) => l.e)];
   }
 
@@ -326,7 +352,7 @@ export class World {
     const busy = (start) => now - start < this.stepMs;
     if (this.cam && busy(this.cam.start)) return true;
     // (A quick slide is over sooner; drawing a moment longer is harmless.)
-    if (this.leaving.size || this.hits.length) return true;
+    if (this.leaving.size || this.hits.length || this.swings.length) return true;
     this.effects = this.effects.filter((fx) => now - fx.start < (EFFECT_MS[fx.kind] ?? 1000));
     if (this.effects.length) return true;
     for (const e of this.entities.values()) if (e.anim && busy(e.anim.start)) return true;

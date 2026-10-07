@@ -24,5 +24,5 @@ const empty = areaMix(areaCounts([null, null]), { light: 1 });
 assert.ok(empty.birds === 0 && empty.waves === 0 && empty.wind > 0, 'nothing in view: a breath of wind');
 // A town's sandy streets aren't the desert.
 const streets = areaCounts(view([[38, 90], [59, 31]]));
-assert.ok(areaMix(streets, { light: 1 }).wind > 0.7 && areaMix(streets, { light: 1, town: true }).wind < 0.3);
+assert.ok(areaMix(streets, { light: 1 }).wind > 0.6 && areaMix(streets, { light: 1, town: true }).wind < 0.3);
 console.log('ok - ambience');

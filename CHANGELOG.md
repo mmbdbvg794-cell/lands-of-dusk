@@ -232,6 +232,11 @@ backups; see `server/`.
   Each continent has its own weather (wet, foggy North; dry desert East;
   stormier open sea), fog comes and goes, and how hard it rains and which
   way the wind blows change through the day.
+- **Fights you can see**: whoever lands a blow lunges at their foe with a
+  sweep of their weapon.
+- **Sound levels**: separate sliders for sound effects, music and ambience
+  (rain, thunder, wind, birds); the music fades down in rain and out in a
+  storm, and comes back when it clears.
 - **Area sounds** under the music: birds by day and crickets and owls by
   night in green country, waves and gulls by the sea, frogs by water at
   night, wind on snow and in the desert, drips and a low hum underground;

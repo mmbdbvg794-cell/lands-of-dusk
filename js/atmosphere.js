@@ -301,7 +301,7 @@ export class AmbientSound {
       f.frequency.value = 1400;
       const gain = ctx.createGain();
       gain.gain.value = 0;
-      src.connect(f).connect(gain).connect(s.master);
+      src.connect(f).connect(gain).connect(s.ambience ?? s.master);
       src.start();
       this.rain = { src, gain };
     }
@@ -321,7 +321,7 @@ export class AmbientSound {
     const s = this.sound;
     if (!s.ctx || !s.enabled) return;
     const t = s.ctx.currentTime + 0.4 + Math.random() * 1.2;
-    s.noise(t, { dur: 2.2, gain: 0.35, filter: 'lowpass', freq: 160, to: 60 });
+    s.noise(t, { dur: 2.2, gain: 0.35, filter: 'lowpass', freq: 160, to: 60, out: s.ambience });
   }
 
   // Quiet music: a soft pad that drifts through four chords, a slow
