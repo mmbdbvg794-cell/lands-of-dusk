@@ -683,6 +683,15 @@ body.playing #map-wrap { display: flex; }
 }
 #now-playing.show { opacity: 1; transform: translate(-50%, 0); }
 #now-playing .np-by { color: var(--muted); }
+/* A world boss rising or falling (js/main.js showBossBanner). */
+#boss-banner {
+  position: absolute; top: 44px; left: 50%; transform: translate(-50%, -8px); z-index: 6;
+  width: max-content; max-width: calc(100% - 32px); padding: 8px 16px; border-radius: 8px;
+  background: rgba(40, 10, 10, 0.86); border: 1px solid #b0402c; color: #ffe2b8;
+  font: 600 14px/1.35 Georgia, serif; text-align: center; box-shadow: 0 6px 20px #000a;
+  pointer-events: none; opacity: 0; transition: opacity 0.8s, transform 0.8s;
+}
+#boss-banner.show { opacity: 1; transform: translate(-50%, 0); }
 /* Phones: the hotbar sits along the top, so show it bottom left, clear of the minimap. */
 @media (max-width: 600px) {
   #now-playing { top: auto; bottom: 10px; left: 8px; max-width: calc(100% - 136px); transform: translateY(6px); font-size: 12px; }

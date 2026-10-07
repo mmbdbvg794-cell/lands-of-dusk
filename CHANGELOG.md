@@ -232,6 +232,11 @@ backups; see `server/`.
   of Light, Midnight and Southfield: three notices each (an easy, a middling
   and a hard job against the monsters round the town), paid in gold and
   experience at the board. Each board gives you one bounty a day.
+- **World bosses**: every few hours a great monster rises somewhere (Ursok
+  the Dread Bear, Fenris the Great Wolf, Kraghul the Warlord, Morvane the
+  Skeleton King) and everyone is told; type `boss` to hear where. Everyone
+  on the winning side when it falls gets gold, experience, a trophy, and a
+  chance at something rare.
 - **Lit towns**: torches on the walls and lamp posts or braziers in the
   streets at night in Kingshaven, Aelindor, Velkarath and Eastreach, and in
   the old world's City of Light, Midnight Pub town, Firetown, Riverside,

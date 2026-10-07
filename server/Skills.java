@@ -90,6 +90,8 @@ public class Skills {
         Creatures.start(engine);
         // Bug reports waiting for gods (server/Mail.java).
         Mail.start(engine);
+        // World bosses rising now and then (server/WorldBoss.java).
+        WorldBoss.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

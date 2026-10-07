@@ -304,6 +304,7 @@ public class Quests {
     }
 
     static void killed(LivingThing killed, Vector side) {
+        WorldBoss.killed(killed, side); // its reward (server/WorldBoss.java)
         try {
             if (!(killed instanceof Mob) || side == null) return;
             load();

@@ -558,6 +558,32 @@ commands that touch live.
 - To go live: `ssh duskserver sh /tmp/bounties-install.sh` (bundle staged in
   /tmp, dry run matched), `restart 10` in game, then tools/deploy.sh.
 
+## 2026-10-07: world bosses (NOT live: deploy, build/install, bundle, restart)
+
+- server/WorldBoss.java (started from Skills, command hooked in Props,
+  kill hook in Quests.killed; in build.sh and install.sh lists): every
+  `every` ± `spread` minutes (180 ± 60; the first after half that) one boss
+  from the "worldbosses" file rises at its lair (new Mob), "World boss: ..."
+  to everyone; a reminder at half time; leaves after `stay` (60) minutes if
+  unbeaten. Everyone on the winning side when it dies gets gold 300, exp
+  800, its trophy, and a 25% roll for one of its rare items. "boss" for
+  anyone (reply starts "Boss: "), "boss spawn [name] | clear | reload" for
+  gods. Bosses saved with the map are removed at start; spawn deletes the
+  boss's stale defMobs .dsko (the engine reads the compiled copy first).
+- tools/world/cities/worldbosses.mjs: Ursok the Dread Bear 1544,301,
+  Fenris the Great Wolf 610,1211, Kraghul the Warlord 1608,1202, Morvane
+  the Skeleton King 620,107 (1,100-1,400 HP, str 52-58, respawn 0),
+  trophies (dread bear tooth, great wolf fang, kraghuls war flag, skeleton
+  kings crown), the worldbosses file.
+- Client: "World boss: " lines show #boss-banner over the map for 12 s
+  with a rumble; Help mentions bounty boards and `boss`.
+- Tested on scratch (egate, hgate): rise + banner, boss command, fight,
+  reward with a rare, fall announcement, clear. egate deals ~40 a round;
+  2,500 HP was too slow, so bosses were lowered to 1,100-1,400.
+- To go live: tools/deploy.sh; `ssh duskserver sh dusk-browser-client/
+  server/build.sh`; `... server/install.sh`; `ssh duskserver sh
+  /tmp/worldbosses-install.sh` (bundle staged); `restart 10` in game.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).

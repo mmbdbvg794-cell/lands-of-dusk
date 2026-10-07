@@ -90,6 +90,8 @@ public class Props {
             if (mail != null) return mail;
             String admin = Admin.command(who, engine, trimmed);
             if (admin != null) return admin;
+            String boss = WorldBoss.command(who, engine, trimmed);
+            if (boss != null) return boss;
             String ferry = Ferry.command(who, engine, trimmed);
             if (ferry != null) return ferry;
             String skills = Skills.command(who, engine, trimmed);

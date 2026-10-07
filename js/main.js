@@ -531,6 +531,20 @@ const trackNamesBox = $('now-playing-toggle');
 trackNamesBox.checked = storage('get', 'dusk.tracknames') !== '0';
 trackNamesBox.addEventListener('change', () => storage('set', 'dusk.tracknames', trackNamesBox.checked ? '1' : '0'));
 let nowPlayingTimer = 0;
+// The world boss banner, over the map for 12 seconds.
+let bossBannerTimer = 0;
+function showBossBanner(text) {
+  const el = $('boss-banner');
+  el.textContent = text;
+  el.hidden = false;
+  requestAnimationFrame(() => el.classList.add('show'));
+  sound.play(/fallen/.test(text) ? 'holy' : 'earth');
+  clearTimeout(bossBannerTimer);
+  bossBannerTimer = setTimeout(() => {
+    el.classList.remove('show');
+    bossBannerTimer = setTimeout(() => { el.hidden = true; }, 900);
+  }, 12000);
+}
 function showTrack(t) {
   if (!trackNamesBox.checked || !t.title) return;
   nowPlaying.textContent = `♪ ${t.title}`;
@@ -1508,6 +1522,9 @@ function handle(msg) {
       if (isGod && tileEditor.scriptFailed(msg.text)) break;
       const looks = parseLooks(msg.text);
       if (looks) { renderer.propLooks = looks; renderer.invalidate(); break; }
+      // A world boss rising or falling (server/WorldBoss.java): a banner
+      // too, and a rumble; the line stays in the chat.
+      if (/^World boss: /.test(msg.text.trim())) showBossBanner(msg.text.trim().slice(12));
       const sp = parseSpeech(msg.text);
       if (sp) showSpeech(sp);
       else if (Date.now() < speechFollow && !$('speech').hidden && msg.text.trim()) noteSpeech(msg.text.trim());
