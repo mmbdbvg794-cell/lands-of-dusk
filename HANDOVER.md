@@ -642,14 +642,28 @@ commands that touch live.
   your weapon / other players' (Painted gear) via weaponKind + swingStyleFor;
   creatures by name (BEASTS claw, "axe" chop, "dagger" stab, else slash).
 
+## 2026-10-07: the forum (deployed; needs dusk-web restarted to load serve.py)
+
+- forum.py (in serve.py: everything under .../forum/api/; SQLite
+  ~/DuskRPG/forum.sqlite, made on first use): boards (Announcements gods
+  only, General, Quests & Lore, Trading Post, Help & Bug Reports, The
+  Tavern), topics, posts; game logins (users file: SHA-256 of salt +
+  password, as Player.verifyPassword; plain passwords too), 5 tries then 5
+  min lockout, banned accounts refused, 30-day HttpOnly SameSite=Lax cookie;
+  writes need the X-Forum header; 15 s between posts (gods exempt); gods:
+  pin/unpin/lock/unlock/move, edit and delete any post.
+- forum.html + js/forum.js (hash routes, BBCode escaped then [b][i][u][s]
+  [quote][url][code]); links from leaderboard, who's online, profile, Help.
+- Tested locally (serve.py on a temp game dir with egate/hgate): login,
+  bad password, topic, BBCode/escaping, rate limit, quote reply, pin, lock.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.
 - Game ideas the user liked, not started: arena duels (Riverside arena), gathering & crafting (biggest),
   owned ships (on hold).
-- Website: an old-school forum (on hold; own Python+SQLite, game logins,
-  since the container has ~150 MB free: no phpBB).
+- Website: a Forum link in the old site's navigation (~/DuskRPG/web/*.html).
 
 ## More notes
 

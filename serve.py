@@ -10,8 +10,11 @@ cheap: an unchanged file comes back as a small 304 Not Modified.
 """
 import argparse
 import functools
+import http.cookies
 import http.server
+import json
 import os
+import urllib.parse
 
 
 # Who's online and the leaderboard: the game server writes who.json
@@ -25,8 +28,58 @@ GAME_JSON = {
 }
 
 
+# The forum (forum.py): everything under .../forum/api/, with its database
+# in the game directory. Made on first use, so a problem there can't stop
+# the rest of the site.
+FORUM = None
+
+
+def forum():
+    global FORUM
+    if FORUM is None:
+        import forum as forum_module
+        FORUM = forum_module.Forum(os.environ.get("DUSK_GAME", os.path.dirname(WHO_FILE)))
+    return FORUM
+
+
 class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
+    def forum_request(self, method):
+        url = urllib.parse.urlsplit(self.path)
+        if "/forum/api/" not in url.path:
+            return False
+        path = url.path.split("/forum/api/", 1)[1]
+        body = b""
+        if method == "POST":
+            n = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(min(n, 64000))
+        cookies = {}
+        try:
+            for k, m in http.cookies.SimpleCookie(self.headers.get("Cookie", "")).items():
+                cookies[k] = m.value
+        except http.cookies.CookieError:
+            pass
+        try:
+            status, data, extra = forum().handle(method, path, urllib.parse.parse_qs(url.query), body, cookies, self.headers)
+        except Exception as e:  # the forum failed to start
+            print("forum:", repr(e), flush=True)
+            status, data, extra = 503, {"error": "The forum isn't available right now."}, []
+        out = json.dumps(data).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(out)))
+        for k, v in extra:
+            self.send_header(k, v)
+        self.end_headers()
+        self.wfile.write(out)
+        return True
+
+    def do_POST(self):
+        if not self.forum_request("POST"):
+            self.send_error(405)
+
     def do_GET(self):
+        if self.forum_request("GET"):
+            return
         name = self.path.split("?")[0].rsplit("/", 1)[-1]
         if name in GAME_JSON:
             try:

@@ -395,6 +395,10 @@ backups; see `server/`.
 
 ## Website
 
+- **Forum** (forum.html): an old-school forum with boards for news,
+  general talk, quests and lore, trading, help and off-topic. Sign in with
+  your character; gods moderate (pin, lock, move, delete).
+
 - **Play Now** goes to the browser client (`/play/`). The "Requires
   OpenWebStart" note is gone.
 - **How to Play** was rewritten for the browser client. It covers getting

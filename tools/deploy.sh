@@ -50,11 +50,11 @@ echo "Running tests..."
 for t in test/*.test.mjs; do node "$t"; done
 
 echo "Copying to $HOST..."
-tar czf - index.html who.html leaderboard.html profile.html manifest.json sw.js css js img music art/painted tools/spellinfo.py tools/music_credits.py tools/raceinfo.py tools/iteminfo.py tools/rebuild-data.sh serve.py README.md server |
+tar czf - index.html who.html leaderboard.html profile.html forum.html forum.py manifest.json sw.js css js img music art/painted tools/spellinfo.py tools/music_credits.py tools/raceinfo.py tools/iteminfo.py tools/rebuild-data.sh serve.py README.md server |
   ssh -o BatchMode=yes "$HOST" "mkdir -p ~/$DIR && cd ~/$DIR && rm -rf css js music art/smooth tools/smoothart.py spike-pixi && tar xzf - && sh tools/rebuild-data.sh \$HOME/DuskRPG && python3 tools/music_credits.py music/manifest.json \$HOME/DuskRPG/web/credits.json --apply"
 
 echo "Checking..."
-for f in / js/main.js js/lighting.js js/music.js music/manifest.json js/spellinfo.json js/raceinfo.json art/painted/map.png art/painted/players.png art/painted/sprites.png art/painted/named.png art/painted/named.json art/painted/items.png art/painted/items.json art/painted/people.json; do
+for f in / js/main.js js/lighting.js js/music.js music/manifest.json forum.html js/spellinfo.json js/raceinfo.json art/painted/map.png art/painted/players.png art/painted/sprites.png art/painted/named.png art/painted/named.json art/painted/items.png art/painted/items.json art/painted/people.json; do
   code=$(curl -s -m 5 -o /dev/null -w '%{http_code}' "$URL/${f#/}")
   echo "  $f $code"
   [ "$code" = 200 ] || { echo "Deploy check failed for $f" >&2; exit 1; }

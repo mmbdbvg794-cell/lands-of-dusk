@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Forum · Dusk</title>
+  <meta name="description" content="The Dusk forum: news, quests, trading and help, for players of Dusk.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { overflow: auto; display: block; height: auto; }
+    .fwrap { max-width: 980px; margin: 0 auto; padding: 20px 16px 48px; }
+    .fhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--accent-dim); padding-bottom: 10px; margin-bottom: 14px; }
+    .fhead .logo { font: 700 26px Georgia, serif; letter-spacing: .06em; color: var(--text); text-decoration: none; }
+    .fhead .logo small { font: 400 13px system-ui, sans-serif; color: var(--muted); letter-spacing: 0; margin-left: 8px; }
+    #me { font-size: 13px; color: var(--muted); }
+    #me a { color: var(--accent); }
+    .login { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .login input { width: 120px; padding: 4px 6px; }
+    .err { color: #ff9a8a; font-size: 13px; }
+    .crumbs { font-size: 13px; margin: 4px 0 10px; color: var(--muted); }
+    .crumbs a, .fwrap a { color: var(--accent); }
+    h1 { font-size: 22px; margin: 4px 0; }
+    h2 { font-size: 15px; margin: 18px 0 6px; color: var(--muted); }
+    .desc { color: var(--muted); font-size: 12.5px; }
+    .ftable { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .ftable th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--panel-2); padding: 7px 10px; }
+    .ftable td { padding: 9px 10px; border-top: 1px solid var(--border); vertical-align: top; }
+    .ftable .num { text-align: center; width: 70px; font-variant-numeric: tabular-nums; }
+    .ftable .last { width: 220px; }
+    .ftable .title { font-weight: 600; font-size: 15px; }
+    .tag { display: inline-block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; padding: 1px 5px; border-radius: 4px; background: var(--accent-dim); color: var(--text); vertical-align: middle; }
+    .god { display: inline-block; font-size: 10.5px; padding: 0 5px; margin-left: 5px; border-radius: 4px; background: #6a4a10; color: #ffe0a0; vertical-align: middle; }
+    .pager { font-size: 13px; margin: 8px 0; color: var(--muted); }
+    .pager b { color: var(--text); }
+    .post { display: grid; grid-template-columns: 170px 1fr; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); margin: 10px 0; overflow: hidden; }
+    .post aside { padding: 10px; background: var(--panel-2); border-right: 1px solid var(--border); }
+    .post .who { font-weight: 700; font-size: 15px; }
+    .post .body { padding: 10px 12px; min-width: 0; }
+    .post .meta { font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .post .acts a { margin-left: 8px; }
+    .post .text { line-height: 1.55; overflow-wrap: anywhere; }
+    .post blockquote { margin: 6px 0; padding: 6px 10px; border-left: 3px solid var(--accent-dim); background: rgba(255,255,255,0.03); color: #c8cdd6; }
+    .post blockquote cite { display: block; font-style: normal; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+    .post pre { background: #0e1014; padding: 8px; border-radius: 6px; overflow-x: auto; }
+    .editor { display: flex; flex-direction: column; gap: 6px; }
+    .editor input, .editor textarea { padding: 6px 8px; font: inherit; }
+    .editor textarea { resize: vertical; }
+    .editor .bb { display: flex; gap: 4px; flex-wrap: wrap; }
+    .editor .bb button { font-size: 12px; padding: 1px 8px; }
+    .editor .row { display: flex; align-items: center; gap: 10px; }
+    .mod { font-size: 12px; color: var(--muted); margin: 4px 0; }
+    .mod button { font-size: 12px; padding: 1px 8px; }
+    .ffoot { margin-top: 24px; color: var(--faint); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    @media (max-width: 640px) {
+      .ftable .last { display: none; }
+      .post { grid-template-columns: 1fr; }
+      .post aside { border-right: none; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="fwrap">
+    <header class="fhead"><a class="logo" href="#/">Dusk<small>Forum</small></a><div id="me"></div></header>
+    <main id="forum"><p class="desc">Loading…</p></main>
+    <footer class="ffoot"><span><a href="leaderboard.html">Leaderboard</a> · <a href="who.html">Who's online</a></span><a href="./">Play Dusk</a></footer>
+  </div>
+  <script type="module" src="js/forum.js"></script>
+</body>
+</html>
