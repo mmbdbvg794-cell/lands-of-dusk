@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-07 12:20 (duskserver time).
+State as of 2026-10-07 13:05 (duskserver time).
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -584,7 +584,7 @@ commands that touch live.
   server/build.sh`; `... server/install.sh`; `ssh duskserver sh
   /tmp/worldbosses-install.sh` (bundle staged); `restart 10` in game.
 
-## 2026-10-07: area sounds (LIVE, deployed), player mail + parties (deployed and classes installed 12:16; live after the next `restart 10`)
+## 2026-10-07: area sounds, player mail + parties (all LIVE since the 12:49 restart)
 
 - js/ambience.js: AreaAmbience (Web Audio beds wind/waves/cave + one-shots
   birds/crickets/owls/gulls/drips/frogs) from areaCounts(tiles in view) +
@@ -606,7 +606,7 @@ commands that touch live.
   waiting only for `restart 10` in game. Check afterwards: java start time,
   then "party" / "mail list" answer in game.
 
-## 2026-10-07: achievements + profiles (deployed, classes installed; needs the bundle + restart)
+## 2026-10-07: achievements + profiles (LIVE since the 12:49 restart; profiles.json also copied beside the web pages)
 
 - server/Achievements.java (lists, Skills start, Props command): the
   "achievements" file (tools/world/cities/achievements.mjs: 19 of them),
