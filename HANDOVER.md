@@ -537,7 +537,7 @@ commands that touch live.
   dusk-browser-client/server/build.sh`, `ssh duskserver sh
   dusk-browser-client/server/install.sh`, then `restart 10` in game.
 
-## 2026-10-07: bounty boards (NOT live: install + restart + deploy)
+## 2026-10-07: bounty boards (LIVE: installed 09:41, restart 09:43, deployed)
 
 - tools/world/cities/bounties.mjs: 7 boards (Kingshaven 1449,352; Aelindor
   478,1227; Velkarath 1344,907; Eastreach 1675,1305; City of Light 104,153;
