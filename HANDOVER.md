@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-07 02:55 (duskserver time). Read this first in a new session.
+State as of 2026-10-07 12:20 (duskserver time).
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -584,7 +584,7 @@ commands that touch live.
   server/build.sh`; `... server/install.sh`; `ssh duskserver sh
   /tmp/worldbosses-install.sh` (bundle staged); `restart 10` in game.
 
-## 2026-10-07: area sounds (LIVE, deployed), player mail + parties (NOT live: deploy, build/install, restart)
+## 2026-10-07: area sounds (LIVE, deployed), player mail + parties (deployed and classes installed 12:16; live after the next `restart 10`)
 
 - js/ambience.js: AreaAmbience (Web Audio beds wind/waves/cave + one-shots
   birds/crickets/owls/gulls/drips/frogs) from areaCounts(tiles in view) +
@@ -602,13 +602,19 @@ commands that touch live.
 - Tested on scratch (egate, hgate): letter while offline, login notice,
   read, reply, instant notice, delete; invite, join, frames, party chat,
   shared bounty kill, leave.
-- To go live: tools/deploy.sh; `ssh duskserver sh dusk-browser-client/
-  server/build.sh`; `... server/install.sh`; `restart 10` in game.
+- Deploy, build and install done 12:16 (backups/classes-20261007-121606);
+  waiting only for `restart 10` in game. Check afterwards: java start time,
+  then "party" / "mail list" answer in game.
 
 ## Open / ideas (ask the user before starting)
 
-- Play-test feedback on today's changes (spawns difficulty, hunger, spells).
-- Owned ships. (Admin page, restart and leaderboard are done.)
+- Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
+  tab's Monsters… or the defMobs files), bounty rewards, quest chains.
+- Game ideas the user liked, not started: achievements + character profile
+  pages, arena duels (Riverside arena), gathering & crafting (biggest),
+  owned ships (on hold).
+- Website: an old-school forum (on hold; own Python+SQLite, game logins,
+  since the container has ~150 MB free: no phpBB).
 
 ## More notes
 
