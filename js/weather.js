@@ -270,7 +270,8 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
         snow: on.snow && wet && st.snowy ? intensity : 0,
         fog: on.fog && !under && type === 'fog' ? intensity : 0,
         // Fireflies on dry nights in the country; wisps in the Underdark always.
-        fireflies: on.fireflies && (under || (f.night > 0.5 && !wet)) ? 1 : 0,
+        // (Underground only a quarter as many: a few wisps, not a swarm.)
+        fireflies: on.fireflies && (under || (f.night > 0.5 && !wet)) ? (under ? 0.25 : 1) : 0,
         // Embers only show against the dark: dusk, night, a dark sky.
         embers: on.embers && f.fires.length && (f.night > 0.3 || dim > 0.15) ? 1 : 0,
       };
@@ -371,9 +372,11 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
         p.wx += Math.sin(secs * 0.7 + p.phase) * speed * dt;
         p.wy += Math.cos(secs * 0.53 + p.phase * 1.3) * speed * 0.75 * dt;
         [p.x, p.y] = toScreen(p.wx, p.wy);
-        // Fireflies blink; wisps swell and fade slowly.
-        const pulse = p.wisp ? 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(secs * 0.6 + p.phase)) : Math.max(0, Math.sin(secs * 1.7 + p.phase * 2)) ** 2;
-        p.alpha = !p.wisp && sheltered(p.x, p.y) ? 0 : level.fireflies * pulse * (p.wisp ? 0.8 : 1);
+        // Fireflies blink; wisps swell slowly and fade right away for a
+        // while (dark about half the time).
+        const pulse = p.wisp ? Math.max(0, Math.sin(secs * 0.35 + p.phase)) ** 1.5 : Math.max(0, Math.sin(secs * 1.7 + p.phase * 2)) ** 2;
+        // (The level also sets how many; wisps are as bright at a quarter.)
+        p.alpha = !p.wisp && sheltered(p.x, p.y) ? 0 : (p.wisp ? Math.min(1, level.fireflies * 4) * 0.8 : level.fireflies) * pulse;
         if (p.alpha) shown++;
       }
 
