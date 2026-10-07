@@ -16,7 +16,8 @@
  * factions dislike other creatures. Creatures with no faction (training
  * dummies, rubble, Townfolk) stay put, as the game has it.
  *
- * Added here: a leash. A creature more than LEASH squares from where it was
+ * Added here: fearless creatures (bravery FEARLESS or more never flee), and
+ * a leash. A creature more than LEASH squares from where it was
  * placed stops what it's doing and walks home (to within LEASH / 2), so
  * none wander off into towns or follow someone across the map. Pets,
  * creatures in a fight and ones a script is moving are left alone.
@@ -32,6 +33,10 @@ import java.util.WeakHashMap;
 public class Creatures {
     static final long THINK_MS = 600;
     static final int LEASH = 8;
+    // A creature this brave (its file's "bravery") never runs: once it has
+    // a grudge it comes at you, however strong you are (slimes, the dead,
+    // the quest chains' monsters, world bosses).
+    static final double FEARLESS = 3.0;
 
     // Where each creature was placed (seen at start, or when first met).
     static final Map<Mob, int[]> home = new WeakHashMap<Mob, int[]>();
@@ -123,6 +128,13 @@ public class Creatures {
             confidence = (int) (confidence + level * t.getTotalPoints());
         }
         if (enemy != null) {
+            int fx = enemy.intLocX - m.intLocX, fy = enemy.intLocY - m.intLocY;
+            if (m.dblBravery >= FEARLESS) {
+                if (Math.abs(fx) + Math.abs(fy) <= m.getRange()) attack(engine, m, enemy);
+                else if (Math.abs(fx) > Math.abs(fy)) step(m, fx < 0 ? 'w' : 'e');
+                else step(m, fy < 0 ? 'n' : 's');
+                return;
+            }
             double delta = (m.getTotalPoints() + confidence) * m.dblBravery * -1.0 * enemyLevel;
             int theirs = enemy.getTotalPoints();
             int x = enemy.intLocX - m.intLocX, y = enemy.intLocY - m.intLocY;

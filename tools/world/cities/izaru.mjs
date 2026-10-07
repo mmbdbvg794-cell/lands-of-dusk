@@ -42,13 +42,16 @@ const quest = (id, fields, steps) => {
 const mobFile = (stats) => Object.entries(stats).flatMap(([k, v]) => (Array.isArray(v) ? v.flatMap((d) => [k, ...d]) : [k, v])).join('\n') + '\n.\n';
 const itemFile = (desc, image) => `type\nitem\ndescription\n${desc}\nimage\n${image}\n.\n`;
 
+// Bravery 3 (server/Creatures.java FEARLESS): they never run. The weakest
+// are strength 16, dexterity 3, so a new character in a cloth shirt feels
+// them (damage is strength/2 x 0.5-1.5 less the target's dexterity).
 // Each den is one faction, so killing one sets the rest on you (the
 // creature AI's grudges); the dragon has a faction of its own.
 const MOBS = {
-  'rock slime': { maxhp: 30, maxsp: 0, stre: 7, inte: 1, dext: 5, wisd: 1, cons: 8, bravery: '1.0', grouprelation: '0.9', image: 33, faction: 'rock slime' },
-  'mine stalker': { maxhp: 75, maxsp: 10, stre: 14, inte: 6, dext: 14, wisd: 5, cons: 11, bravery: '1.5', grouprelation: '0.6', image: 4, giveitem: [['miners lamp', '0.4']], faction: 'mine stalker' },
-  'cinder slime': { maxhp: 130, maxsp: 0, stre: 23, inte: 1, dext: 12, wisd: 1, cons: 20, bravery: '2.0', grouprelation: '0.9', image: 33, faction: 'cinder' },
-  'stone dragon': { maxhp: 340, maxsp: 40, stre: 44, inte: 20, dext: 28, wisd: 20, cons: 35, bravery: '2.0', grouprelation: '0.9', image: 45, faction: 'stone dragon' },
+  'rock slime': { maxhp: 30, maxsp: 0, stre: 16, inte: 1, dext: 3, wisd: 1, cons: 8, bravery: '3.0', grouprelation: '0.9', image: 33, faction: 'rock slime' },
+  'mine stalker': { maxhp: 75, maxsp: 10, stre: 24, inte: 6, dext: 14, wisd: 5, cons: 11, bravery: '3.0', grouprelation: '0.6', image: 4, giveitem: [['miners lamp', '0.4']], faction: 'mine stalker' },
+  'cinder slime': { maxhp: 130, maxsp: 0, stre: 23, inte: 1, dext: 12, wisd: 1, cons: 20, bravery: '3.0', grouprelation: '0.9', image: 33, faction: 'cinder' },
+  'stone dragon': { maxhp: 340, maxsp: 40, stre: 44, inte: 20, dext: 28, wisd: 20, cons: 35, bravery: '3.0', grouprelation: '0.9', image: 45, faction: 'stone dragon' },
 };
 
 const QUESTS = [

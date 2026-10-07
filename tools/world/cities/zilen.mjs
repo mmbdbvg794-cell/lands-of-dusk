@@ -48,14 +48,17 @@ const quest = (id, fields, steps) => {
 const mobFile = (stats) => Object.entries(stats).flatMap(([k, v]) => (Array.isArray(v) ? v.flatMap((d) => [k, ...d]) : [k, v])).join('\n') + '\n.\n';
 const itemFile = (desc, image) => `type\nitem\ndescription\n${desc}\nimage\n${image}\n.\n`;
 
+// Bravery 3 (server/Creatures.java FEARLESS): they never run. The weakest
+// are strength 16, dexterity 3, so a new character in a cloth shirt feels
+// them (damage is strength/2 x 0.5-1.5 less the target's dexterity).
 // Each den is one faction, so killing one sets the rest on you (the
 // creature AI's grudges); the bosses have factions of their own.
 const MOBS = {
-  'grave thief': { maxhp: 30, maxsp: 0, stre: 8, inte: 4, dext: 10, wisd: 3, cons: 7, bravery: '1.0', grouprelation: '0.6', image: 2, giveitem: [['grave goods', '0.5']], faction: 'grave thief' },
-  'robber guard': { maxhp: 70, maxsp: 10, stre: 14, inte: 6, dext: 13, wisd: 5, cons: 10, bravery: '1.5', grouprelation: '0.6', image: 2, faction: 'robber' },
-  'robber boss': { maxhp: 110, maxsp: 10, stre: 17, inte: 8, dext: 15, wisd: 6, cons: 13, bravery: '1.5', grouprelation: '0.5', image: 2, giveitem: [['zilen crown', '1.0']], faction: 'robber boss' },
-  'crypt skeleton': { maxhp: 120, maxsp: 0, stre: 22, inte: 1, dext: 15, wisd: 1, cons: 15, bravery: '2.0', grouprelation: '0.9', image: 32, faction: 'crypt' },
-  'skeleton warlord': { maxhp: 330, maxsp: 10, stre: 43, inte: 10, dext: 30, wisd: 10, cons: 30, bravery: '2.0', grouprelation: '0.9', image: 32, faction: 'skeleton warlord' },
+  'grave thief': { maxhp: 30, maxsp: 0, stre: 16, inte: 4, dext: 3, wisd: 3, cons: 7, bravery: '3.0', grouprelation: '0.6', image: 2, giveitem: [['grave goods', '0.5']], faction: 'grave thief' },
+  'robber guard': { maxhp: 70, maxsp: 10, stre: 24, inte: 6, dext: 13, wisd: 5, cons: 10, bravery: '3.0', grouprelation: '0.6', image: 2, faction: 'robber' },
+  'robber boss': { maxhp: 110, maxsp: 10, stre: 27, inte: 8, dext: 15, wisd: 6, cons: 13, bravery: '3.0', grouprelation: '0.5', image: 2, giveitem: [['zilen crown', '1.0']], faction: 'robber boss' },
+  'crypt skeleton': { maxhp: 120, maxsp: 0, stre: 22, inte: 1, dext: 15, wisd: 1, cons: 15, bravery: '3.0', grouprelation: '0.9', image: 32, faction: 'crypt' },
+  'skeleton warlord': { maxhp: 330, maxsp: 10, stre: 43, inte: 10, dext: 30, wisd: 10, cons: 30, bravery: '3.0', grouprelation: '0.9', image: 32, faction: 'skeleton warlord' },
 };
 
 const QUESTS = [

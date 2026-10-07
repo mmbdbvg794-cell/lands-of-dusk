@@ -657,6 +657,26 @@ commands that touch live.
 - Tested locally (serve.py on a temp game dir with egate/hgate): login,
   bad password, topic, BBCode/escaping, rate limit, quote reply, pin, lock.
 
+## 2026-10-07 evening: monster tuning (play-test feedback)
+
+- The user: lake slimers ran after one was killed, and a new character in a
+  cloth shirt took no damage; dens too thin for two players.
+- Why: Creatures.think flees when the player's total points beat the
+  creature's (points + pack) x bravery; a grudge after one kill set a weak
+  pack running for good. Damage = stre/2 x (0.5-1.5) x weapon mod/100 -
+  (worn mods x 0.05 + DEX): a new character (str/dex/con 7, 20 HP) has ~7-8
+  armour, so stre 6-7 creatures could never hurt them.
+- Creatures.java FEARLESS = 3.0: bravery that high never flees, it comes at
+  you. All quest-chain monsters now bravery 3 (world bosses already 3).
+  Weakest tier (<= 40 HP) stre 16, dext 3; middle (50-115 HP) stre +10.
+- tools/server/more_mobs.py: one more of each regular chain monster beside
+  each one placed (free walkable square within 3, reached on foot): 97 added
+  (dens doubled), bundle with the retuned defMobs files.
+- Tested on scratch: slimers attack after a kill (did 8 to egate).
+- To go live: deploy + server build/install (Creatures), `ssh duskserver sh
+  /tmp/tune-install.sh` (staged; --force for the defMobs files, all 25 were
+  unchanged since install), `restart 10`.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
