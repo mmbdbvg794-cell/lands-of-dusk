@@ -9,8 +9,8 @@
 //   Fenris the Great Wolf       610, 1211   the woods east of Aelindor
 //   Kraghul the Warlord         1608, 1202  the northern dunes above Eastreach
 //   Morvane the Skeleton King   620, 107    the old world's east field
-// Each is a fight for a group: 1,100-1,400 HP and strength 52-58, three
-// or four times a quest chain's finale (about 350 HP, strength 45). Names carry a family
+// Each is a fight for a group: 1,100-1,400 HP and strength 80-90 (a quest
+// chain's finale is about 350 HP, strength 70). Names carry a family
 // word (bear, wolf, warlord, skeleton) so the Painted art draws them.
 
 const mobFile = (stats) => Object.entries(stats).map(([k, v]) => `${k}\n${v}`).join('\n') + '\n.\n';
@@ -18,16 +18,16 @@ const itemFile = (desc, image) => `type\nitem\ndescription\n${desc}\nimage\n${im
 
 const BOSSES = [
   { name: 'Ursok the Dread Bear', at: [1544, 301], where: 'in the hills north-east of Kingshaven', image: 12,
-    stats: { maxhp: 1300, stre: 56, dext: 35, cons: 50 },
+    stats: { maxhp: 1300, stre: 85, dext: 35, cons: 50 },
     trophy: ['dread bear tooth', 'a tooth as long as your hand, from Ursok the Dread Bear'], rare: ['blood gloves', 'titanium suit'] },
   { name: 'Fenris the Great Wolf', at: [610, 1211], where: 'in the woods east of Aelindor', image: 21,
-    stats: { maxhp: 1100, stre: 52, dext: 55, cons: 45 },
+    stats: { maxhp: 1100, stre: 80, dext: 55, cons: 45 },
     trophy: ['great wolf fang', 'a fang from Fenris the Great Wolf, still sharp'], rare: ['air boots', 'blood belt'] },
   { name: 'Kraghul the Warlord', at: [1608, 1202], where: 'in the northern dunes above Eastreach', image: 39,
-    stats: { maxhp: 1400, stre: 58, dext: 40, cons: 50 },
+    stats: { maxhp: 1400, stre: 90, dext: 40, cons: 50 },
     trophy: ['kraghuls war flag', 'the tattered war flag of Kraghul the Warlord'], rare: ['nova fists', 'blood helmet'] },
   { name: 'Morvane the Skeleton King', at: [620, 107], where: 'in the east field of the old world', image: 32,
-    stats: { maxhp: 1200, stre: 56, dext: 40, cons: 48 },
+    stats: { maxhp: 1200, stre: 85, dext: 40, cons: 48 },
     trophy: ['skeleton kings crown', 'the iron crown of Morvane the Skeleton King, cold to the touch'], rare: ['diamond gauntlets', 'serpent scales'] },
 ];
 

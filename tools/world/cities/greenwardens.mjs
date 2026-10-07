@@ -39,17 +39,18 @@ const quest = (id, fields, steps) => {
 const mobFile = (stats) => Object.entries(stats).flatMap(([k, v]) => (Array.isArray(v) ? v.flatMap((d) => [k, ...d]) : [k, v])).join('\n') + '\n.\n';
 const itemFile = (desc, image) => `type\nitem\ndescription\n${desc}\nimage\n${image}\n.\n`;
 
-// Bravery 3 (server/Creatures.java FEARLESS): they never run. The weakest
-// are strength 16, dexterity 3, so a new character in a cloth shirt feels
-// them (damage is strength/2 x 0.5-1.5 less the target's dexterity).
+// Bravery 3 (server/Creatures.java FEARLESS): they never run. Strength by
+// tier (<= 40 HP 28, <= 115 HP 40, <= 200 HP 55, the finale 70): damage is
+// strength/2 x 0.5-1.5 less armour, and armour is mostly the target's DEX
+// (a new character in a cloth shirt has about 11, a few levels on 20).
 // Each den is one faction, so killing one sets the rest on you (the
 // creature AI's grudges); the blighted bear has a faction of its own, so it only
 // fights the player who attacks it, not alongside its den.
 const MOBS = {
-  'lake slimer': { maxhp: 30, maxsp: 0, stre: 16, inte: 1, dext: 3, wisd: 1, cons: 8, bravery: '3.0', grouprelation: '0.9', image: 33, faction: 'lake slimer' },
-  'shrine gargoyle': { maxhp: 60, maxsp: 10, stre: 22, inte: 2, dext: 6, wisd: 2, cons: 12, bravery: '3.0', grouprelation: '0.6', image: 4, giveitem: [['heartstone', '0.4']], faction: 'shrine gargoyle' },
-  'blighted wolf': { maxhp: 140, maxsp: 0, stre: 26, inte: 1, dext: 20, wisd: 4, cons: 18, bravery: '3.0', grouprelation: '0.9', image: 21, faction: 'blight' },
-  'blighted bear': { maxhp: 360, maxsp: 0, stre: 44, inte: 1, dext: 20, wisd: 4, cons: 35, bravery: '3.0', grouprelation: '0.9', image: 12, faction: 'blighted bear' },
+  'lake slimer': { maxhp: 30, maxsp: 0, stre: 28, inte: 1, dext: 3, wisd: 1, cons: 8, bravery: '3.0', grouprelation: '0.9', image: 33, faction: 'lake slimer' },
+  'shrine gargoyle': { maxhp: 60, maxsp: 10, stre: 40, inte: 2, dext: 6, wisd: 2, cons: 12, bravery: '3.0', grouprelation: '0.6', image: 4, giveitem: [['heartstone', '0.4']], faction: 'shrine gargoyle' },
+  'blighted wolf': { maxhp: 140, maxsp: 0, stre: 55, inte: 1, dext: 20, wisd: 4, cons: 18, bravery: '3.0', grouprelation: '0.9', image: 21, faction: 'blight' },
+  'blighted bear': { maxhp: 360, maxsp: 0, stre: 70, inte: 1, dext: 20, wisd: 4, cons: 35, bravery: '3.0', grouprelation: '0.9', image: 12, faction: 'blighted bear' },
 };
 
 const QUESTS = [

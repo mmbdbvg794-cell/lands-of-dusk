@@ -673,6 +673,13 @@ commands that touch live.
   each one placed (free walkable square within 3, reached on foot): 97 added
   (dens doubled), bundle with the retuned defMobs files.
 - Tested on scratch: slimers attack after a kill (did 8 to egate).
+- Second pass (the user's test char joe, elf, DEX 13, cloth shirt, belt,
+  moonleaf amulet: armour ~20 still took nothing from stre 22 gargoyles).
+  Armour = worn mods x slot factor (body 0.4, head 0.2, waist 0.15, others
+  0.05) + full DEX. Strength now by HP tier: <= 40 HP 28, <= 115 HP 40,
+  <= 200 HP 55, chain finales 70, world bosses 80-90 (the original game's
+  own: wolf 30, hound 50, grizzly 75). Files-only bundle /tmp/tune2.json,
+  `ssh duskserver sh /tmp/tune2-install.sh`, then restart.
 - To go live: deploy + server build/install (Creatures), `ssh duskserver sh
   /tmp/tune-install.sh` (staged; --force for the defMobs files, all 25 were
   unchanged since install), `restart 10`.

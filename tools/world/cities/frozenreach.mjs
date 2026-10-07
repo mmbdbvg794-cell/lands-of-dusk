@@ -43,16 +43,17 @@ const quest = (id, fields, steps) => {
 const mobFile = (stats) => Object.entries(stats).flatMap(([k, v]) => (Array.isArray(v) ? v.flatMap((d) => [k, ...d]) : [k, v])).join('\n') + '\n.\n';
 const itemFile = (desc, image) => `type\nitem\ndescription\n${desc}\nimage\n${image}\n.\n`;
 
-// Bravery 3 (server/Creatures.java FEARLESS): they never run. The weakest
-// are strength 16, dexterity 3, so a new character in a cloth shirt feels
-// them (damage is strength/2 x 0.5-1.5 less the target's dexterity).
+// Bravery 3 (server/Creatures.java FEARLESS): they never run. Strength by
+// tier (<= 40 HP 28, <= 115 HP 40, <= 200 HP 55, the finale 70): damage is
+// strength/2 x 0.5-1.5 less armour, and armour is mostly the target's DEX
+// (a new character in a cloth shirt has about 11, a few levels on 20).
 // Each den is one faction, so killing one sets the rest on you (the
 // creature AI's grudges); the dragon has a faction of its own.
 const MOBS = {
-  'frost wolf': { maxhp: 28, maxsp: 0, stre: 16, inte: 1, dext: 3, wisd: 3, cons: 6, bravery: '3.0', grouprelation: '0.7', image: 21, faction: 'frost wolf' },
-  'frost bear': { maxhp: 80, maxsp: 0, stre: 25, inte: 1, dext: 10, wisd: 3, cons: 13, bravery: '3.0', grouprelation: '0.5', image: 12, giveitem: [['frost pelt', '0.4']], faction: 'frost bear' },
-  'ice skeleton': { maxhp: 125, maxsp: 0, stre: 22, inte: 1, dext: 15, wisd: 1, cons: 15, bravery: '3.0', grouprelation: '0.9', image: 32, faction: 'ice skeleton' },
-  'frost dragon': { maxhp: 350, maxsp: 40, stre: 45, inte: 20, dext: 30, wisd: 20, cons: 35, bravery: '3.0', grouprelation: '0.9', image: 45, faction: 'frost dragon' },
+  'frost wolf': { maxhp: 28, maxsp: 0, stre: 28, inte: 1, dext: 3, wisd: 3, cons: 6, bravery: '3.0', grouprelation: '0.7', image: 21, faction: 'frost wolf' },
+  'frost bear': { maxhp: 80, maxsp: 0, stre: 40, inte: 1, dext: 10, wisd: 3, cons: 13, bravery: '3.0', grouprelation: '0.5', image: 12, giveitem: [['frost pelt', '0.4']], faction: 'frost bear' },
+  'ice skeleton': { maxhp: 125, maxsp: 0, stre: 55, inte: 1, dext: 15, wisd: 1, cons: 15, bravery: '3.0', grouprelation: '0.9', image: 32, faction: 'ice skeleton' },
+  'frost dragon': { maxhp: 350, maxsp: 40, stre: 70, inte: 20, dext: 30, wisd: 20, cons: 35, bravery: '3.0', grouprelation: '0.9', image: 45, faction: 'frost dragon' },
 };
 
 const QUESTS = [
