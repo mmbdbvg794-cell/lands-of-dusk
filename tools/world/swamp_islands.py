@@ -8,6 +8,9 @@ interiors. A pool that would cut any walkable land off from the rest is
 taken out again, so whatever could be walked to still can.
 
     python3 swamp_islands.py <shortmap> <tile scripts tsv> <out bundle.json> [x0 y0 x1 y1]
+    python3 swamp_islands.py --trees <shortmap> <tile scripts tsv> <out bundle.json>
+        (on a map already done: every tree left on the islands becomes a
+        swamp willow, nothing else changes)
 
 Writes a bundle for tools/world/install_city.py (tiles only).
 """
@@ -43,6 +46,9 @@ def noise(x, y, scale, seed):
 
 
 def main():
+    trees_only = "--trees" in sys.argv
+    if trees_only:
+        sys.argv.remove("--trees")
     shortmap, tsv, out = sys.argv[1:4]
     box = tuple(int(v) for v in sys.argv[4:8]) if len(sys.argv) >= 8 else BOX
     data = bytearray(open(shortmap, "rb").read())
@@ -92,7 +98,7 @@ def main():
     for (x, y), t in before.items():
         n = noise(x, y, 9, 1)
         if t in TREES:
-            new[(x, y)] = CYPRESS if r.random() < 0.85 else t
+            new[(x, y)] = CYPRESS
         elif t in SAND:
             new[(x, y)] = t if shore(x, y) else (MUD if n < 0.5 else MARSH)
         elif t in GRASSY:
@@ -104,6 +110,8 @@ def main():
                 new[(x, y)] = REEDS
             else:
                 new[(x, y)] = MARSH
+    if trees_only:
+        new = {s: t for s, t in new.items() if t == CYPRESS}
     for (x, y), t in new.items():
         struct.pack_into(">h", data, at(x, y), t)
 
@@ -126,7 +134,7 @@ def main():
                         seen.add(m)
                         q.append(m)
         return n
-    cand = {s for s, t in new.items() if t in (MUD, MARSH, REEDS) and not shore(*s) and noise(s[0] + 500, s[1] + 500, 7, 3) > 0.76}
+    cand = set() if trees_only else {s for s, t in new.items() if t in (MUD, MARSH, REEDS) and not shore(*s) and noise(s[0] + 500, s[1] + 500, 7, 3) > 0.76}
     blobs, done = [], set()
     for s in cand:
         if s in done:
@@ -161,7 +169,7 @@ def main():
     names = {MUD: "mud", MARSH: "marsh", BOG: "bog", CYPRESS: "cypress", REEDS: "reeds"}
     print("changed:", ", ".join(f"{names.get(t, t)} {n}" for t, n in counts.most_common()))
     tiles = [[x, y, t] for (x, y), t in new.items() if t != before[(x, y)]]
-    bundle = {"name": "Lizardman isles swamp", "oldWorld": False, "area": {"x": x0, "y": y0, "w": x1 - x0 + 1, "h": y1 - y0 + 1}, "tiles": tiles,
+    bundle = {"name": "Lizardman isles willows" if trees_only else "Lizardman isles swamp", "oldWorld": False, "area": {"x": x0, "y": y0, "w": x1 - x0 + 1, "h": y1 - y0 + 1}, "tiles": tiles,
               "props": [], "dropProps": [], "merchants": [], "signs": [], "mobs": [], "files": {}, "copies": [], "sets": [], "journal": [], "conditions": []}
     json.dump(bundle, open(out, "w"))
     print(f"{len(tiles)} squares change; walkable squares lost (besides pools): {len(lost)}")

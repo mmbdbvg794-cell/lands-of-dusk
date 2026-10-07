@@ -780,6 +780,81 @@ for (const [tile, wall] of [[160, 59], [161, 58], [162, 98], [163, 97], [164, 60
     if (box) paintTorch(ctx, box);
   };
 }
+// The swamp (168-173, tools/server/swamptiles.py): mud, marsh, bog water,
+// the swamp tree's marsh (js/trees.js paints the willow over it), reeds
+// and the boardwalk.
+function swampMud(u, v) {
+  const n = fbm(u, v, 171, 4, 4), wet = fbm(u, v, 173, 3, 3);
+  let c = mix([62, 50, 30], [98, 80, 48], n);
+  c = mix(c, [44, 44, 30], Math.max(0, wet - 0.5) * 1.6); // wetter, darker
+  const s = hash(Math.floor(u * 64), Math.floor(v * 64), 175);
+  if (s > 0.97) c = mix(c, [130, 112, 80], 0.5); // grit
+  return c;
+}
+function swampMarsh(u, v) {
+  const n = fbm(u, v, 181, 4, 4);
+  // Rank grass: wavy up-and-down streaks (a whole number per frame, so it
+  // still tiles) broken up by noise read as tufts of blades.
+  const blades = 0.5 + 0.5 * Math.sin((u * 40 + fbm(u, v, 183, 6, 3) * 9) * Math.PI * 2) * Math.max(0, fbm(u, v, 184, 12, 2) * 2 - 0.7);
+  let c = mix([44, 74, 30], [84, 112, 46], n);
+  c = mix(c, [112, 128, 58], Math.max(0, blades - 0.55) * 0.9); // pale blades
+  c = mix(c, [30, 50, 22], Math.max(0, 0.45 - blades) * 0.8); // shade between
+  if (hash(Math.floor(u * 128), Math.floor(v * 128), 186) > 0.93) c = mix(c, [124, 140, 66], 0.35); // speckle
+  const pud = fbm(u, v, 185, 3, 3);
+  if (pud > 0.66) c = mix(c, [34, 48, 36], Math.min(0.85, (pud - 0.66) * 6)); // puddles
+  return c;
+}
+function swampBog(u, v) {
+  const n = fbm(u, v, 191, 3, 3), scum = fbm(u, v, 193, 6, 3);
+  let c = mix([22, 40, 30], [36, 60, 40], n);
+  if (scum > 0.6) c = mix(c, [70, 96, 46], Math.min(0.7, (scum - 0.6) * 3)); // duckweed
+  if (hash(Math.floor(u * 128), Math.floor(v * 128), 195) > 0.997) c = mix(c, [150, 170, 130], 0.4);
+  return c;
+}
+function lilyPads(ctx, seed) {
+  for (let i = 0; i < 3; i++) {
+    const x = 18 + hash(i, seed, 1) * 92, y = 18 + hash(i, seed, 2) * 92, r = 7 + hash(i, seed, 3) * 6;
+    const a = hash(i, seed, 4) * Math.PI * 2;
+    ctx.fillStyle = 'rgba(10, 20, 12, 0.35)';
+    ctx.beginPath(); ctx.ellipse(x + 2, y + 2, r, r * 0.7, 0, 0, Math.PI * 2); ctx.fill();
+    const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 1, x, y, r);
+    g.addColorStop(0, '#7cae4c'); g.addColorStop(1, '#3e6c2a');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.ellipse(x, y, r, r * 0.7, 0, a + 0.35, a + Math.PI * 2 - 0.05); ctx.closePath(); ctx.fill();
+    if (hash(i, seed, 5) > 0.5) { // a flower
+      ctx.fillStyle = '#f0e6ee';
+      for (let k = 0; k < 6; k++) { const b = k * Math.PI / 3; ctx.beginPath(); ctx.ellipse(x + Math.cos(b) * 2.5, y + Math.sin(b) * 2, 2.6, 1.4, b, 0, Math.PI * 2); ctx.fill(); }
+      ctx.fillStyle = '#f2d050'; ctx.beginPath(); ctx.arc(x, y, 1.6, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+}
+function reedClump(ctx, seed) {
+  for (let i = 0; i < 46; i++) {
+    const x = 6 + hash(i, seed, 1) * 116, y = 40 + hash(i, seed, 2) * 84, h = 30 + hash(i, seed, 3) * 34;
+    const lean = (hash(i, seed, 4) - 0.5) * 14;
+    ctx.strokeStyle = rgba(mix([70, 96, 38], [156, 160, 84], hash(i, seed, 5)), 0.95);
+    ctx.lineWidth = 1.6 + hash(i, seed, 6);
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + lean * 0.3, y - h * 0.6, x + lean, y - h); ctx.stroke();
+    if (hash(i, seed, 7) < 0.3) { // bulrush head
+      ctx.fillStyle = '#5e3a1c';
+      ctx.beginPath(); ctx.ellipse(x + lean * 0.85, y - h * 0.86, 2.6, 6, lean * 0.02, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+}
+SURFACES[168] = (ctx) => drawPixels(ctx, swampMud);
+SURFACES[169] = (ctx) => drawPixels(ctx, swampMarsh);
+SURFACES[171] = SURFACES[169];
+SURFACES[170] = (ctx) => { drawPixels(ctx, swampBog); lilyPads(ctx, 170); };
+SURFACES[172] = (ctx) => { drawPixels(ctx, swampMarsh); reedClump(ctx, 172); };
+// Boards laid across, weathered and mossy, with the bog showing between.
+SURFACES[173] = (ctx) => drawPixels(ctx, (u, v) => {
+  const f = (v * 5) % 1;
+  if (f > 0.86) return mix(swampBog(u, v), [10, 16, 10], 0.4);
+  let c = planks(u, v, { across: true, count: 5, colours: [[96, 74, 46], [128, 100, 64]], seed: 177 });
+  const moss = fbm(u, v, 179, 4, 3);
+  if (moss > 0.62) c = mix(c, [74, 96, 44], Math.min(0.6, (moss - 0.62) * 3));
+  return c;
+});
 for (const i of [...range(131, 148), 151]) SURFACES[i] = (ctx, px) => restyle(ctx, px, SHIP, { fallback: 'deck' });
 
 // Where a fitting is: the bounding box of its wood and brass pixels.

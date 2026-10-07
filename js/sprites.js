@@ -81,7 +81,23 @@ export async function loadSheet(url, size) {
   return r.img ? new SpriteSheet(r.img, size) : null;
 }
 
-function loadImage(url) {
+// The sheets are fetched with revalidation first (a cheap 304 when nothing
+// changed), so a browser never keeps an old sheet after the server's grows
+// (tiles past the end of a stale map.gif would all draw as sea). A server
+// that won't allow the fetch (no CORS) falls back to a plain image load.
+async function loadImage(url) {
+  try {
+    const r = await fetch(url, { cache: 'no-cache' });
+    if (r.ok) {
+      const blob = await r.blob();
+      const res = await loadPlain(URL.createObjectURL(blob));
+      if (res.img) return res;
+    }
+  } catch {}
+  return loadPlain(url);
+}
+
+function loadPlain(url) {
   return new Promise((resolve) => {
     const img = new Image();
     const timer = setTimeout(() => done({ error: `timed out loading ${url}` }), LOAD_TIMEOUT_MS);

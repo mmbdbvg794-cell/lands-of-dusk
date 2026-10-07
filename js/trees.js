@@ -2,7 +2,7 @@
 // and over it, after all the ground, a tree about three squares across
 // whose crown spreads over its neighbours, so a wood reads as one canopy
 // instead of a grid of little trees. Painted here once, a few of each kind
-// (oak, autumn, gold, palm), and placed from back to front with a little
+// (oak, autumn, gold, palm, willow), and placed from back to front with a little
 // jitter from the square's place in the world. The Pixel style keeps the
 // map's own tree squares.
 
@@ -11,8 +11,9 @@ export const TREE_TILES = {
   64: { kind: 'oak', ground: 36 }, 103: { kind: 'oak', ground: 36 },
   25: { kind: 'autumn', ground: 1 }, 26: { kind: 'gold', ground: 1 },
   102: { kind: 'palm', ground: 36 }, 124: { kind: 'palm', ground: 38 },
+  171: { kind: 'willow', ground: 169 }, // the swamp's trees, on marsh
 };
-const VARIANTS = { oak: 4, autumn: 3, gold: 3, palm: 3 };
+const VARIANTS = { oak: 4, autumn: 3, gold: 3, palm: 3, willow: 3 };
 
 // A sprite is S px square for three squares; the trunk's foot is at
 // (S / 2, FOOT), which goes at the bottom middle of the tree's square.
@@ -200,11 +201,110 @@ function paintPalm(ctx, seed) {
   for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.arc(top[0] + (R(i + 60) - 0.5) * 14, top[1] + 6 + R(i + 70) * 6, 5, 0, Math.PI * 2); ctx.fill(); }
 }
 
+// A weeping willow: a short gnarled trunk splitting into arching limbs,
+// a low dome of leaves, and long curtains of leafy strands hanging from
+// it nearly to the ground, the back ones dark behind the trunk, the front
+// ones lit, with gaps where the trunk shows through.
+const WILLOW = { deep: [26, 46, 22], mid: [78, 108, 40], light: [146, 166, 70], glint: [196, 206, 120] };
+function paintWillow(ctx, seed) {
+  const R = (n) => hash(n, seed, 13);
+  const pal = WILLOW;
+  const cx = S / 2 + (R(1) - 0.5) * 12;
+  const top = 96 + R(2) * 20; // the dome's top
+  const half = 118 + R(3) * 20; // half the crown's width
+  shadow(ctx, cx + 20, FOOT - 6, 140, 40, 0.42);
+  const rim = (dx) => top + 34 + 46 * (1 - Math.sqrt(Math.max(0, 1 - (dx / half) ** 2))); // the dome's underside
+  // How lit a spot is, from the upper left.
+  const lit = (x, y) => Math.max(0, Math.min(1, 0.6 - (x - cx) / (half * 1.6) - (y - top) / 320));
+  const strand = (i, back) => {
+    const dx = (R(i + 100) * 2 - 1) * half * (back ? 0.9 : 1);
+    const x0 = cx + dx, y0 = rim(dx) - 20 - R(i + 200) * 20;
+    const len = (FOOT - 18 - y0) * (0.72 + R(i + 300) * 0.28);
+    const out = dx / half * 16, sway = (R(i + 400) - 0.5) * 10;
+    const pt = (t) => [x0 + out * Math.sin(t * 1.6) + sway * t * t, y0 + len * t];
+    // The stem, then small long leaves along it, smaller to the tip.
+    ctx.strokeStyle = rgba(back ? pal.deep : mix(pal.deep, pal.mid, 0.6), 0.9);
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (let t = 0; t <= 1; t += 0.05) { const [x, y] = pt(t); t ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke();
+    for (let t = 0; t < 1; t += 0.045) {
+      const [x, y] = pt(t);
+      const k = R(i * 97 + Math.round(t * 1000));
+      const l = back ? 0.15 : lit(x, y) * (1 - t * 0.5);
+      const col = mix(mix(pal.deep, pal.mid, back ? 0.35 : 0.5 + l * 0.5), pal.light, back ? 0 : l * l);
+      ctx.fillStyle = rgba(jitter(col, 24, k), 0.92);
+      const size = 7 * (1 - t * 0.45);
+      for (const side of [-1, 1]) {
+        ctx.beginPath();
+        ctx.ellipse(x + side * 2.4, y + 3, 1.7, size * 0.5, side * 0.35, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  };
+  // The back curtain, behind everything.
+  for (let i = 0; i < 46; i++) strand(i, true);
+  // Trunk: thick and twisted, splitting into limbs that arch out.
+  const tg = ctx.createLinearGradient(cx - 22, 0, cx + 22, 0);
+  tg.addColorStop(0, '#5a4630'); tg.addColorStop(0.45, '#7e6646'); tg.addColorStop(1, '#2c2216');
+  ctx.fillStyle = tg;
+  ctx.beginPath();
+  ctx.moveTo(cx - 34, FOOT + 4);
+  ctx.quadraticCurveTo(cx - 16, FOOT - 8, cx - 18, FOOT - 60);
+  ctx.quadraticCurveTo(cx - 10, FOOT - 100, cx - 14, FOOT - 120);
+  ctx.lineTo(cx + 14, FOOT - 120);
+  ctx.quadraticCurveTo(cx + 8, FOOT - 90, cx + 16, FOOT - 56);
+  ctx.quadraticCurveTo(cx + 18, FOOT - 6, cx + 36, FOOT + 4);
+  ctx.quadraticCurveTo(cx, FOOT - 6, cx - 34, FOOT + 4);
+  ctx.fill();
+  ctx.strokeStyle = tg;
+  ctx.lineCap = 'round';
+  for (const [side, w] of [[-1, 11], [1, 10], [0.2, 8]]) {
+    ctx.lineWidth = w;
+    ctx.beginPath();
+    ctx.moveTo(cx, FOOT - 112);
+    ctx.quadraticCurveTo(cx + side * 40, FOOT - 150, cx + side * (80 + R(side * 5 + 7) * 30), rim(side * 90) - 10);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(30, 22, 12, 0.5)';
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 8; i++) {
+    const x = cx - 10 + i * 2.8 + R(i + 40) * 2;
+    ctx.beginPath(); ctx.moveTo(x, FOOT - 112); ctx.quadraticCurveTo(x + (R(i + 50) - 0.5) * 10, FOOT - 60, x + (R(i + 60) - 0.5) * 6, FOOT - 8); ctx.stroke();
+  }
+  // The dome: leaf clusters in a low, wide ellipse.
+  const clusters = [];
+  for (let i = 0; i < 260; i++) {
+    const a = R(i + 500) * Math.PI * 2, d = Math.sqrt(R(i + 600));
+    clusters.push({ x: cx + Math.cos(a) * d * half * 0.92, y: top + 50 + Math.sin(a) * d * 46, r: 7 + R(i + 700) * 7, k: R(i + 800) });
+  }
+  for (const c of clusters) {
+    ctx.fillStyle = rgba(jitter(pal.deep, 14, c.k), 0.95);
+    ctx.beginPath(); ctx.arc(c.x + 2, c.y + 4, c.r + 3, 0, Math.PI * 2); ctx.fill();
+  }
+  for (const c of clusters.sort((p, q) => p.y - q.y)) {
+    const t = lit(c.x, c.y);
+    ctx.fillStyle = rgba(jitter(mix(mix(pal.deep, pal.mid, 0.4 + t * 0.6), pal.light, t * t * 0.8), 24, c.k), 0.92);
+    ctx.beginPath(); ctx.ellipse(c.x, c.y, c.r, c.r * 0.75, c.k * 3, 0, Math.PI * 2); ctx.fill();
+  }
+  // The front curtain, falling from the dome over the trunk.
+  for (let i = 0; i < 64; i++) strand(i + 1000, false);
+  // Glints of light on the dome and the upper strands.
+  for (let i = 0; i < 260; i++) {
+    const x = cx + (R(i + 2000) * 2 - 1) * half, y = top + 10 + R(i + 2100) * 150;
+    const t = lit(x, y);
+    if (R(i + 2200) > t * t + 0.03 || y > rim(x - cx) + 60) continue;
+    ctx.fillStyle = rgba(mix(pal.light, pal.glint, R(i + 2300)), 0.45 + t * 0.4);
+    ctx.beginPath(); ctx.ellipse(x, y, 1.4, 3.6, (R(i + 2400) - 0.5) * 0.6, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
 function paintOne(kind, seed) {
   const c = document.createElement('canvas');
   c.width = c.height = S;
   const ctx = c.getContext('2d');
   if (kind === 'palm') paintPalm(ctx, seed);
+  else if (kind === 'willow') paintWillow(ctx, seed);
   else paintBroadleaf(ctx, PALETTES[kind], seed);
   return c;
 }

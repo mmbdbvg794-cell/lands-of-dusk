@@ -4,7 +4,7 @@
 #   168 swamp mud     walkable   dark olive mud, wet patches
 #   169 marsh         walkable   rank green grass, dark puddles
 #   170 bog water     not        murky green water, lily pads
-#   171 swamp tree    not        a mossy cypress on marsh
+#   171 swamp tree    not        a weeping willow on marsh
 #   172 reeds         walkable   tall reeds on marsh
 #   173 boardwalk     walkable   planks over the bog
 import random
@@ -77,17 +77,33 @@ def bog():
 
 
 def tree():
+    # A weeping willow: a short trunk, a low dome, curtains of strands
+    # hanging nearly to the ground, over the shade they cast.
     t = marsh()
     d = ImageDraw.Draw(t)
-    d.polygon([(13, 31), (15, 14), (17, 14), (20, 31)], fill=(62, 46, 30))  # trunk, flared
-    d.line((12, 31, 9, 29), fill=(62, 46, 30), width=2)
-    d.line((21, 31, 24, 29), fill=(62, 46, 30), width=2)
-    for cx, cy, rr, col in [(16, 9, 9, (40, 64, 34)), (10, 12, 6, (34, 56, 30)), (22, 12, 6, (34, 56, 30)), (16, 6, 6, (52, 80, 40))]:
-        d.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), fill=col)
+    d.ellipse((2, 8, 30, 31), fill=(30, 46, 24))  # shade under the curtains
+    d.polygon([(13, 30), (14, 12), (18, 12), (20, 30)], fill=(92, 72, 46))  # trunk
+    d.line((12, 30, 9, 31), fill=(92, 72, 46), width=2)
+    d.line((20, 30, 24, 31), fill=(66, 50, 32), width=2)
+    d.line((17, 12, 17, 29), fill=(62, 48, 30))
+    d.ellipse((4, 1, 28, 13), fill=(62, 92, 38))  # the dome
+    d.ellipse((6, 2, 20, 9), fill=(88, 118, 48))
+    d.ellipse((8, 2, 14, 6), fill=(126, 148, 66))
     r = random.Random(13)
-    for _ in range(8):  # hanging moss
-        x = r.randint(8, 24)
-        d.line((x, 12, x, 12 + r.randint(4, 9)), fill=(96, 112, 70))
+    for x in range(3, 30):  # strands from the dome's rim, a gap at the trunk
+        if 14 <= x <= 18 and x % 2 == 0:
+            continue
+        dx = abs(x - 16) / 13
+        top = int(12 - 4 * (1 - dx * dx) ** 0.5) + 2
+        bot = 29 - r.randint(0, 5) - (abs(x - 16) < 3) * 6
+        light = (130, 152, 66) if x < 13 else ((96, 124, 50) if x < 22 else (70, 98, 40))
+        dark = tuple(int(c * 0.65) for c in light)
+        col = light if x % 2 else dark
+        for y in range(top, bot):
+            d.point((x, y), fill=col if r.random() < 0.85 else dark)
+    for _ in range(16):  # leaf texture on the dome
+        x, y = r.randint(6, 26), r.randint(2, 11)
+        d.point((x, y), fill=r.choice([(46, 72, 30), (136, 156, 72)]))
     return t
 
 
