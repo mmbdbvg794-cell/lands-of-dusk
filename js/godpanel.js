@@ -24,9 +24,10 @@ export class GodPanel {
   // looks; onNpcPlaced(name) opens the dialogue editor for a new NPC.
   // onTileEdit(x, y) opens the tile editor for your square.
   // onUseCommand(text) puts a command in the chat box to finish typing.
-  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit, onUseCommand, onJournal, onLibrary, onQuests }) {
+  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit, onUseCommand, onJournal, onLibrary, onQuests, onAdmin }) {
     this.onJournal = onJournal;
     this.onQuests = onQuests;
+    this.onAdmin = onAdmin;
     this.onLibrary = onLibrary;
     this.tab = tab;
     this.onUseCommand = onUseCommand;
@@ -230,9 +231,11 @@ export class GodPanel {
       h('div', { className: 'god-row god-wrap' }, $.srvRefresh, h('span', { className: 'god-label', textContent: 'Restart in' }), $.srvSecs, h('span', { className: 'god-label', textContent: 's' }), $.srvRestart, $.srvCancel),
       $.srvErrors,
       h('div', { className: 'god-row god-wrap' },
+        $.admin = h('button', { type: 'button', textContent: 'Admin page…', title: 'Who is in the game, bug reports, logins, errors and the restart, in one window' }),
         h('a', { href: 'leaderboard.html', target: '_blank', rel: 'noopener', textContent: 'Leaderboard' }),
         h('a', { href: 'who.html', target: '_blank', rel: 'noopener', textContent: 'Who\'s online' })));
     server.addEventListener('toggle', () => { if (server.open) this.refreshServer(); });
+    $.admin.addEventListener('click', () => this.onAdmin?.());
     this.serverSec = server;
 
     this.root = h('div', { className: 'god-root' }, head, $.kinds, $.listBox, $.textBox, $.tiles, placeRow, $.merchant, tools, server, commands, hint);

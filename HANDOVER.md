@@ -520,10 +520,27 @@ commands that touch live.
   teleport, talk, kill with "a <id>"). egate on scratch was weak (20 HP);
   boosted to 6000 HP, str 90 in users/egate(.backup).
 
+## 2026-10-07: admin page (NOT live: deploy + server build/install + restart)
+
+- js/admin.js + #admin-dialog: a window in the game for gods, from the God
+  tab's Server section ("Admin page…") or #admin in the address (opens
+  once the presence question is answered: it swallows the first command
+  sent, and covered the question on phones). Server status + restart,
+  who's in the game (race, HP, exp, where, online for, address; Go to =
+  "teleport <name>", Ban = "ban <name>" with a confirm), bug reports
+  (newest first, expandable), recent logins, today's errors; refresh
+  every 30 s while open. Server: Admin.java "admin players|bugs [n]|
+  logins [n]|errors [n]" (gods), reply lines AdminPlayer:/AdminBug:
+  (URL-encoded)/AdminLogin:/AdminError: and Admin<Kind>: done|count.
+  Tested on scratch (egate, a bug report from hgate; desktop and phone).
+- To go live: tools/deploy.sh, then `ssh duskserver sh
+  dusk-browser-client/server/build.sh`, `ssh duskserver sh
+  dusk-browser-client/server/install.sh`, then `restart 10` in game.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
-- God tools: admin page; owned ships. (Restart and leaderboard are done.)
+- Owned ships. (Admin page, restart and leaderboard are done.)
 
 ## More notes
 

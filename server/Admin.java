@@ -14,6 +14,20 @@
  *                       "ServerError: <line>" from today's log, newest last,
  *                       then "ServerInfo: done".
  *
+ * The admin page (js/admin.js), gods only:
+ *   admin players       "AdminPlayer: name|race|title|privs|x|y|hp|maxhp|exp|
+ *                       online since (ms, 0 if not known)|address|hidden (1/0)"
+ *                       for everyone in the game, then "AdminPlayers: done"
+ *   admin bugs [n]      the latest n bug reports (default 20, at most 100),
+ *                       oldest first, each "AdminBug: <URL-encoded text>",
+ *                       then "AdminBugs: done|<reports in the file>"
+ *   admin logins [n]    the latest n lines of logs/login_history.log
+ *                       (default 30, at most 200): "AdminLogin: <line>",
+ *                       then "AdminLogins: done"
+ *   admin errors [n]    today's latest n error lines (default 30, at most
+ *                       200): "AdminError: <line>", then
+ *                       "AdminErrors: done|<errors today>"
+ *
  * Leaderboard: every 5 minutes, leaderboard.json in the game directory
  * (serve.py hands it out beside leaderboard.html): the top 50 players by
  * experience, from their saved files; gods, anyone with no experience yet,
@@ -26,6 +40,7 @@
  * Part of the browser client project (dusk-browser-client/server).
  */
 import java.io.File;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -68,6 +83,7 @@ public class Admin {
     public static String command(LivingThing who, DuskEngine engine, String line) {
         String lower = line.trim().toLowerCase();
         if (lower.equals("serverinfo")) return who.privs >= GOD_PRIVS ? info(who) : null;
+        if (lower.equals("admin") || lower.startsWith("admin ")) return who.privs >= GOD_PRIVS ? admin(who, engine, lower.substring(5).trim()) : null;
         if (!(lower.equals("restart") || lower.startsWith("restart "))) return null;
         if (who.privs < MASTER_PRIVS) return null;
         String arg = lower.length() > 7 ? lower.substring(8).trim() : "";
@@ -177,6 +193,81 @@ public class Admin {
         who.chatMessage("ServerInfo: " + (System.currentTimeMillis() - started) / 1000 + "|" + online + "|" + usedMb + "|" + maxMb + "|" + count + "|" + restart + "\n");
         for (String e : errors) who.chatMessage("ServerError: " + e.replace('\n', ' ') + "\n");
         return "ServerInfo: done";
+    }
+
+    // ---- the admin page ----
+
+    static String admin(LivingThing who, DuskEngine engine, String arg) {
+        String[] a = arg.split("\\s+");
+        int n = 0;
+        if (a.length > 1) {
+            if (!a[1].matches("\\d{1,3}")) return "Usage: admin players | bugs [n] | logins [n] | errors [n]";
+            n = Integer.parseInt(a[1]);
+        }
+        try {
+            if (a[0].equals("players")) return players(who, engine);
+            if (a[0].equals("bugs")) return bugs(who, n > 0 ? Math.min(n, 100) : 20);
+            if (a[0].equals("logins")) return logins(who, n > 0 ? Math.min(n, 200) : 30);
+            if (a[0].equals("errors")) return errors(who, n > 0 ? Math.min(n, 200) : 30);
+        } catch (Exception e) {
+            Log.logError(e, "Admin page: " + arg, false);
+            return "Admin: that didn't work (" + e.getMessage() + ").";
+        }
+        return "Usage: admin players | bugs [n] | logins [n] | errors [n]";
+    }
+
+    static String field(Object o) {
+        return o == null ? "" : String.valueOf(o).replace('|', '/').replace('\n', ' ');
+    }
+
+    static String players(LivingThing who, DuskEngine engine) {
+        List<Object> all;
+        synchronized (engine.vctSockets) {
+            all = new ArrayList<Object>(engine.vctSockets);
+        }
+        for (Object o : all) {
+            if (!(o instanceof Player)) continue;
+            Player p = (Player) o;
+            if (p.strName == null) continue;
+            Long since = null;
+            try { since = Who.since.get(p.strName.toLowerCase()); } catch (Exception e) { /* the Who thread is rewriting it */ }
+            String address;
+            try { address = Bans.addressOf(p); } catch (Exception e) { address = "?"; }
+            who.chatMessage("AdminPlayer: " + field(p.strName) + "|" + field(p.strRace) + "|" + field(p.strTitle) + "|" + p.privs + "|"
+                + p.intLocX + "|" + p.intLocY + "|" + p.attributes.getStat("hp") + "|" + p.attributes.getStat("maxhp") + "|" + p.exp + "|"
+                + (since == null ? 0 : since) + "|" + field(address) + "|" + (p.wizInvis ? 1 : 0) + "\n");
+        }
+        return "AdminPlayers: done";
+    }
+
+    static String bugs(LivingThing who, int n) throws Exception {
+        File f = new File(Mail.LOG);
+        List<String> reports = new ArrayList<String>();
+        if (f.isFile()) {
+            String all = new String(Files.readAllBytes(f.toPath()), StandardCharsets.UTF_8);
+            for (String r : all.split("(^|\n)==== ")) if (r.trim().length() > 0) reports.add(r.trim());
+        }
+        for (String r : reports.subList(Math.max(0, reports.size() - n), reports.size())) who.chatMessage("AdminBug: " + URLEncoder.encode(r, "UTF-8") + "\n");
+        return "AdminBugs: done|" + reports.size();
+    }
+
+    static List<String> tail(File f, int n) throws Exception {
+        if (!f.isFile()) return new ArrayList<String>();
+        List<String> l = Files.readAllLines(f.toPath(), StandardCharsets.ISO_8859_1);
+        return l.subList(Math.max(0, l.size() - n), l.size());
+    }
+
+    static String logins(LivingThing who, int n) throws Exception {
+        for (String l : tail(new File("logs/login_history.log"), n)) if (l.trim().length() > 0) who.chatMessage("AdminLogin: " + l.trim() + "\n");
+        return "AdminLogins: done";
+    }
+
+    static String errors(LivingThing who, int n) throws Exception {
+        File log = new File("logs/server-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + ".log");
+        List<String> errs = new ArrayList<String>();
+        if (log.isFile()) for (String l : Files.readAllLines(log.toPath(), StandardCharsets.ISO_8859_1)) if (l.contains("Error") && !l.contains("Broken pipe")) errs.add(l.length() > 300 ? l.substring(0, 300) + "..." : l);
+        for (String e : errs.subList(Math.max(0, errs.size() - n), errs.size())) who.chatMessage("AdminError: " + e + "\n");
+        return "AdminErrors: done|" + errs.size();
     }
 
     // ---- the leaderboard ----

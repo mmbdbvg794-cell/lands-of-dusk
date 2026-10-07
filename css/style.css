@@ -1465,3 +1465,33 @@ dialog::backdrop { background: #000a; }
 .help-chat { border-collapse: collapse; margin: 0 0 8px; width: 100%; }
 .help-chat td { padding: 3px 6px 3px 0; vertical-align: top; }
 .help-chat td:first-child { white-space: nowrap; width: 1%; }
+
+/* ---- the admin page (js/admin.js) ---- */
+.admin-dialog { width: min(980px, calc(100vw - 16px)); }
+.admin-dialog .de-body { overflow-y: auto; }
+.ad-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.ad-updated { color: var(--muted); font-size: 12px; margin-left: auto; }
+.ad-sec { margin: 10px 0 4px; }
+.ad-sec h3 { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.ad-sec .de-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ad-status { margin: 0 0 4px; }
+.ad-warn { margin: 0 0 4px; color: #ffb36b; }
+.ad-warn:empty { display: none; }
+.ad-table-wrap { overflow-x: auto; }
+.ad-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ad-table th { text-align: left; font-weight: 600; color: var(--muted); padding: 4px 8px; border-bottom: 1px solid #2a2f39; white-space: nowrap; }
+.ad-table td { padding: 5px 8px; border-bottom: 1px solid #22262e; white-space: nowrap; }
+.ad-acts { text-align: right; }
+.ad-acts button + button { margin-left: 4px; }
+.ad-ban { color: #ff8f8f; }
+.ad-tag { margin-left: 6px; padding: 0 5px; border-radius: 6px; font-size: 11px; background: #2b4a73; color: #dde0e5; }
+.ad-addr { color: var(--muted); font-family: ui-monospace, monospace; font-size: 12px; }
+.ad-list { display: flex; flex-direction: column; gap: 3px; max-height: 260px; overflow-y: auto; }
+.ad-bug { background: #1e222a; border-radius: 6px; padding: 5px 8px; }
+.ad-bug summary { cursor: pointer; }
+.ad-bug pre { margin: 6px 0 2px; white-space: pre-wrap; font: 12px/1.45 ui-monospace, monospace; color: #c9ced6; }
+.ad-meta { color: var(--muted); font-size: 12px; }
+.ad-line { font-size: 13px; }
+.ad-error { display: block; font-size: 11.5px; white-space: pre-wrap; word-break: break-word; color: #ffb1a1; }
+.ad-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .ad-cols { grid-template-columns: 1fr; } }

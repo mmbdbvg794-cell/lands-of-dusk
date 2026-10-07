@@ -157,6 +157,10 @@ area rather than by date; `git log` has the day-by-day detail.
 - **Player flags.** Click a player → Flags (god) to see their flags, give
   one, or take one away. Useful for testing quests.
 - **Remove** from the click menu for anything placed.
+- **Admin page** (God tab → Server → Admin page…, or `#admin` at the end of
+  the address): how the server is doing and the restart, who's in the game
+  (where they are, their address, Go to and Ban), the latest bug reports,
+  recent logins and today's errors, refreshed every 30 seconds.
 
 ## Server fixes
 

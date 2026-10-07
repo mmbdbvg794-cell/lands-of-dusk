@@ -26,6 +26,7 @@ import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
 import { storageReach } from './actions.js';
 import { GOD_PROMPT, listKind, cleanList, parseLooks, PROP_LOOKS, parseFlags, parseServerInfo } from './god.js';
+import { AdminView, parseAdmin } from './admin.js';
 import { parseSpeech, parseTalkers, talkCommand, TALKERS } from './talk.js';
 import { GodPanel } from './godpanel.js';
 import { DialogueEditor } from './dialogueeditor.js';
@@ -166,6 +167,7 @@ const god = new GodPanel($('tab-god'), {
   onJournal: () => journalEditor.show(),
   onLibrary: (kind) => libraryEditor.show(kind),
   onQuests: () => questEditor.show(),
+  onAdmin: () => adminView.show(),
 });
 // Monsters, props and items (gods): from the God tab or a click menu.
 const libraryEditor = new LibraryEditor($('library-editor'), {
@@ -195,6 +197,8 @@ function showCooldowns() {
 const questEditor = new QuestEditor($('quest-editor'), { send: quiet, lists: () => god.lists, fetchLists: () => god.opened(), here: () => (world.hasMap ? { x: world.locX, y: world.locY } : null) });
 // The quest journal's entries (gods), from the God tab.
 const journalEditor = new JournalEditor($('journal-editor'), { send: quiet });
+// The admin page (js/admin.js): from the God tab, or #admin in the address.
+const adminView = new AdminView($('admin-dialog'), { send: quiet, run: (cmd) => runCommand(cmd) });
 // The Journal, Friends and Trade tabs.
 const socialUI = new SocialUI({
   panels,
@@ -240,8 +244,16 @@ function setGod(on) {
   isGod = on;
   panels.isGod = on;
   panels.update('stats');
-  if (!on) god.dock();
+  if (!on) { god.dock(); adminView.close(); }
   panels.setTabVisible('god', on);
+  if (on && location.hash === '#admin' && !adminView.open) setTimeout(openAdminWhenFree, 1500);
+}
+// #admin opens the admin page once the god's presence question (asked at
+// login) is answered: it would cover the question on a phone, and the
+// question swallows the first command sent while it waits.
+function openAdminWhenFree(tries = 0) {
+  if (yesNoWaiting && tries < 240) { setTimeout(() => openAdminWhenFree(tries + 1), 500); return; }
+  if (isGod && !adminView.open) adminView.show();
 }
 const entityMenu = new EntityMenu(
   $('entity-menu'),
@@ -1484,7 +1496,9 @@ function handle(msg) {
       const dlgReply = parseDialogueReply(msg.text);
       if (dlgReply) { if (!questEditor.dialogue(dlgReply)) dialogueEditor.loaded(dlgReply); break; }
       const serverReply = isGod && parseServerInfo(msg.text);
-      if (serverReply) { god.serverReply(serverReply); break; }
+      if (serverReply) { god.serverReply(serverReply); adminView.serverReply(serverReply); break; }
+      const adminReply = isGod && parseAdmin(msg.text);
+      if (adminReply) { adminView.reply(adminReply); break; }
       const flagsReply = parseFlags(msg.text);
       if (flagsReply) { flagsDialog.loaded(flagsReply); break; }
       const tileReply = parseTileReply(msg.text);
