@@ -1,69 +1,159 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Forum · Dusk</title>
-  <meta name="description" content="The Dusk forum: news, quests, trading and help, for players of Dusk.">
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    body { overflow: auto; display: block; height: auto; }
-    .fwrap { max-width: 980px; margin: 0 auto; padding: 20px 16px 48px; }
-    .fhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--accent-dim); padding-bottom: 10px; margin-bottom: 14px; }
-    .fhead .logo { font: 700 26px Georgia, serif; letter-spacing: .06em; color: var(--text); text-decoration: none; }
-    .fhead .logo small { font: 400 13px system-ui, sans-serif; color: var(--muted); letter-spacing: 0; margin-left: 8px; }
-    #me { font-size: 13px; color: var(--muted); }
-    #me a { color: var(--accent); }
-    .login { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-    .login input { width: 120px; padding: 4px 6px; }
-    .err { color: #ff9a8a; font-size: 13px; }
-    .crumbs { font-size: 13px; margin: 4px 0 10px; color: var(--muted); }
-    .crumbs a, .fwrap a { color: var(--accent); }
-    h1 { font-size: 22px; margin: 4px 0; }
-    h2 { font-size: 15px; margin: 18px 0 6px; color: var(--muted); }
-    .desc { color: var(--muted); font-size: 12.5px; }
-    .ftable { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    .ftable th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--panel-2); padding: 7px 10px; }
-    .ftable td { padding: 9px 10px; border-top: 1px solid var(--border); vertical-align: top; }
-    .ftable .num { text-align: center; width: 70px; font-variant-numeric: tabular-nums; }
-    .ftable .last { width: 220px; }
-    .ftable .title { font-weight: 600; font-size: 15px; }
-    .tag { display: inline-block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; padding: 1px 5px; border-radius: 4px; background: var(--accent-dim); color: var(--text); vertical-align: middle; }
-    .god { display: inline-block; font-size: 10.5px; padding: 0 5px; margin-left: 5px; border-radius: 4px; background: #6a4a10; color: #ffe0a0; vertical-align: middle; }
-    .pager { font-size: 13px; margin: 8px 0; color: var(--muted); }
-    .pager b { color: var(--text); }
-    .post { display: grid; grid-template-columns: 170px 1fr; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); margin: 10px 0; overflow: hidden; }
-    .post aside { padding: 10px; background: var(--panel-2); border-right: 1px solid var(--border); }
-    .post .who { font-weight: 700; font-size: 15px; }
-    .post .body { padding: 10px 12px; min-width: 0; }
-    .post .meta { font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-    .post .acts a { margin-left: 8px; }
-    .post .text { line-height: 1.55; overflow-wrap: anywhere; }
-    .post blockquote { margin: 6px 0; padding: 6px 10px; border-left: 3px solid var(--accent-dim); background: rgba(255,255,255,0.03); color: #c8cdd6; }
-    .post blockquote cite { display: block; font-style: normal; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
-    .post pre { background: #0e1014; padding: 8px; border-radius: 6px; overflow-x: auto; }
-    .editor { display: flex; flex-direction: column; gap: 6px; }
-    .editor input, .editor textarea { padding: 6px 8px; font: inherit; }
-    .editor textarea { resize: vertical; }
-    .editor .bb { display: flex; gap: 4px; flex-wrap: wrap; }
-    .editor .bb button { font-size: 12px; padding: 1px 8px; }
-    .editor .row { display: flex; align-items: center; gap: 10px; }
-    .mod { font-size: 12px; color: var(--muted); margin: 4px 0; }
-    .mod button { font-size: 12px; padding: 1px 8px; }
-    .ffoot { margin-top: 24px; color: var(--faint); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    @media (max-width: 640px) {
-      .ftable .last { display: none; }
-      .post { grid-template-columns: 1fr; }
-      .post aside { border-right: none; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forum · The Lands of Dusk</title>
+<meta name="description" content="The Dusk forum: news, quests, trading and help, for players of Dusk.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* The website's own look (~/DuskRPG/web/*.html): stone, gold, parchment. */
+  :root {
+    --stone-dark: #2e2e30;
+    --stone-mid: #45464a;
+    --stone-light: #a9abb2;
+    --sapphire: #1a2f5c;
+    --sapphire-bright: #3a5ba0;
+    --gold: #cbb26a;
+    --gold-bright: #e8d391;
+    --parchment: #d8d2c0;
+    --ember: #b5432f;
+    --emerald: #2e6b4f;
+    --emerald-bright: #4caf7d;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background-color: var(--stone-dark);
+    background-image: url('/images/bgTile.jpg');
+    background-repeat: repeat;
+    color: var(--parchment);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.5;
+  }
+  a { color: var(--gold-bright); text-decoration: none; border-bottom: 1px dotted transparent; }
+  a:hover { border-bottom-color: var(--gold-bright); }
+  .page { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
+  .header { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 8px 0 6px; }
+  .header img { height: 60px; image-rendering: pixelated; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+  .header img.dragon { height: 78px; transform: scaleX(-1); }
+  h1.title { font-family: 'Cinzel', serif; font-weight: 700; font-size: 44px; letter-spacing: 0.04em; margin: 0; color: var(--gold-bright);
+    text-shadow: 0 0 10px rgba(203,178,106,0.35), 2px 2px 0 #1a1a1a, -1px -1px 0 #1a1a1a; }
+  .tagline { text-align: center; font-style: italic; color: var(--stone-light); margin: 0 0 24px; font-size: 15px; }
+  .columns { display: grid; grid-template-columns: 230px 1fr; gap: 22px; align-items: start; }
+  .panel { position: relative; border-image: url('/images/bgframe.jpg') 40 fill stretch; border-image-width: 40px; border-style: solid; border-width: 40px;
+    background-color: rgba(20,20,22,0.55); padding: 4px 20px 20px; margin-bottom: 22px; min-width: 0; }
+  .panel h2 { font-family: 'Cinzel', serif; font-size: 19px; letter-spacing: 0.03em; color: var(--gold); border-bottom: 1px solid rgba(203,178,106,0.3); padding-bottom: 8px; margin: 14px 0 14px; }
+  .nav-list { list-style: none; margin: 0; padding: 0; }
+  .nav-list li { margin-bottom: 10px; }
+  .nav-list a { font-size: 16px; }
+  .nav-list a.here { color: var(--parchment); border-bottom-color: var(--gold); }
+  .play-btn { display: flex; align-items: center; justify-content: center; margin-top: 6px; padding: 12px 8px; width: 100%;
+    background-image: url('/images/blockButton.jpg'); background-size: 100% 100%; background-color: var(--sapphire); border: none; border-radius: 4px;
+    color: #eaf1ff; font-family: 'Cinzel', serif; font-size: 17px; letter-spacing: 0.05em; text-shadow: 0 1px 3px rgba(0,0,0,0.8); box-shadow: 0 3px 10px rgba(0,0,0,0.5); }
+  .play-btn:hover { filter: brightness(1.15); border-bottom-color: transparent; }
+
+  /* Signing in (sidebar). */
+  #me { font-size: 16px; }
+  #me .login { display: flex; flex-direction: column; gap: 8px; }
+  input, textarea, select { font: inherit; font-size: 16px; color: var(--parchment); background: rgba(0,0,0,0.35); border: 1px solid rgba(203,178,106,0.35); border-radius: 3px; padding: 6px 8px; }
+  input:focus, textarea:focus { outline: 1px solid var(--gold); }
+  button { font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 0.04em; color: #eaf1ff; background: linear-gradient(#3a5ba0, #1a2f5c); border: 1px solid #0e1a36; border-radius: 3px; padding: 5px 12px; cursor: pointer; text-shadow: 0 1px 2px rgba(0,0,0,0.7); }
+  button:hover { filter: brightness(1.15); }
+  button:disabled { opacity: 0.6; cursor: default; }
+  .err { color: #f0a090; font-size: 15px; font-style: italic; }
+  .god { display: inline-block; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.05em; padding: 0 6px; margin-left: 6px; border-radius: 3px;
+    background: rgba(203,178,106,0.2); border: 1px solid var(--gold); color: var(--gold-bright); vertical-align: middle; }
+
+  /* The forum (main panel). */
+  #forum h1 { font-family: 'Cinzel', serif; font-size: 26px; color: var(--gold-bright); margin: 6px 0 4px; letter-spacing: 0.02em; }
+  #forum h2 { font-family: 'Cinzel', serif; font-size: 17px; color: var(--gold); margin: 22px 0 8px; border-bottom: 1px solid rgba(203,178,106,0.3); padding-bottom: 6px; }
+  #forum h2:empty { display: none; }
+  .crumbs { font-size: 15px; color: var(--stone-light); margin: 10px 0 12px; font-style: italic; }
+  .desc { color: var(--stone-light); font-size: 15px; }
+  .ftable { width: 100%; border-collapse: collapse; }
+  .ftable th { font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(203,178,106,0.35); }
+  .ftable td { padding: 12px 10px; border-top: 1px solid rgba(203,178,106,0.18); vertical-align: top; }
+  .ftable tr:hover td { background: rgba(203,178,106,0.04); }
+  .ftable .num { text-align: center; width: 80px; font-variant-numeric: tabular-nums; }
+  .ftable .last { width: 230px; font-size: 16px; }
+  .ftable th.last { font-size: 13px; }
+  .ftable .title { font-size: 20px; font-weight: 600; }
+  .tag { display: inline-block; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; padding: 0 6px; border-radius: 3px;
+    border: 1px solid var(--sapphire-bright); background: rgba(58,91,160,0.25); color: #cfdcff; vertical-align: middle; }
+  .pager { font-size: 15px; color: var(--stone-light); margin: 10px 0; }
+  .pager b { color: var(--gold-bright); }
+  .post { display: grid; grid-template-columns: 180px 1fr; margin: 14px 0; border: 1px solid rgba(203,178,106,0.28); background: rgba(0,0,0,0.25); border-radius: 3px; }
+  .post aside { padding: 12px; border-right: 1px solid rgba(203,178,106,0.2); background: rgba(0,0,0,0.2); }
+  .post .who { font-family: 'Cinzel', serif; font-weight: 700; font-size: 17px; }
+  .post aside .desc { font-size: 14px; }
+  .post .body { padding: 12px 16px; min-width: 0; }
+  .post .meta { font-size: 14px; color: var(--stone-light); font-style: italic; border-bottom: 1px solid rgba(203,178,106,0.18); padding-bottom: 6px; margin-bottom: 10px;
+    display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .post .acts a { margin-left: 10px; font-style: normal; }
+  .post .text { overflow-wrap: anywhere; }
+  .post blockquote { margin: 8px 0; padding: 8px 14px; border-left: 3px solid var(--gold); background: rgba(0,0,0,0.25); font-style: italic; color: var(--stone-light); }
+  .post blockquote cite { display: block; font-style: normal; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.04em; color: var(--gold); margin-bottom: 4px; }
+  .post pre { background: rgba(0,0,0,0.45); padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 14px; color: var(--parchment); }
+  .editor { display: flex; flex-direction: column; gap: 8px; }
+  .editor textarea { resize: vertical; min-height: 140px; }
+  .editor .bb { display: flex; gap: 4px; flex-wrap: wrap; }
+  .editor .bb button { font-size: 12px; padding: 2px 9px; background: rgba(0,0,0,0.35); border-color: rgba(203,178,106,0.35); color: var(--gold-bright); }
+  .editor .row { display: flex; align-items: center; gap: 12px; }
+  .mod { font-size: 14px; color: var(--stone-light); margin: 4px 0 8px; }
+  .mod button { font-size: 12px; padding: 2px 9px; }
+  @media (max-width: 760px) {
+    .columns { grid-template-columns: 1fr; }
+    .main { order: -1; } /* the forum first, then signing in and links */
+    h1.title { font-size: 34px; }
+    .header img { height: 44px; }
+    .header img.dragon { height: 56px; }
+    .ftable .last { display: none; }
+    .post { grid-template-columns: 1fr; }
+    .post aside { border-right: none; border-bottom: 1px solid rgba(203,178,106,0.2); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  }
+</style>
 </head>
 <body>
-  <div class="fwrap">
-    <header class="fhead"><a class="logo" href="#/">Dusk<small>Forum</small></a><div id="me"></div></header>
-    <main id="forum"><p class="desc">Loading…</p></main>
-    <footer class="ffoot"><span><a href="leaderboard.html">Leaderboard</a> · <a href="who.html">Who's online</a></span><a href="./">Play Dusk</a></footer>
+<div class="page">
+  <div class="header">
+    <img class="knight" src="/images/knight.gif" alt="">
+    <h1 class="title">The Lands of Dusk</h1>
+    <img class="dragon" src="/images/dragon.gif" alt="">
   </div>
-  <script type="module" src="js/forum.js"></script>
+  <p class="tagline">The forum: news, quests, trading and tales from the world of Dusk.</p>
+
+  <div class="columns">
+    <div class="sidebar">
+      <div class="panel">
+        <h2>Your Character</h2>
+        <div id="me"></div>
+        <p class="desc" style="margin:10px 0 0">Sign in with your character's name and game password.</p>
+      </div>
+      <div class="panel">
+        <h2>Links</h2>
+        <ul class="nav-list">
+          <li><a href="/web/index.html">Home</a></li>
+          <li><a href="/web/howtoplay.html">How to Play</a></li>
+          <li><a href="/web/faq.html">FAQ</a></li>
+          <li><a href="/web/updates.html">Updates</a></li>
+          <li><a href="forum.html" class="here">Forum</a></li>
+          <li><a href="leaderboard.html">Leaderboard</a></li>
+          <li><a href="who.html">Who's Online</a></li>
+          <li><a href="/web/credits.html">Credits</a></li>
+          <li><a href="/web/rules.html">Rules &amp; Privacy</a></li>
+        </ul>
+        <a class="play-btn" href="./">Play Now</a>
+      </div>
+    </div>
+    <div class="main">
+      <div class="panel">
+        <main id="forum"><p class="desc">Loading…</p></main>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module" src="js/forum.js"></script>
 </body>
 </html>
