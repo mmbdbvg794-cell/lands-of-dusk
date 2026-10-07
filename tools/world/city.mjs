@@ -83,6 +83,7 @@ class Plan {
     this.grid = Array.from({ length: h }, () => Array(w).fill(' '));
     this.props = []; this.merchants = []; this.signs = []; this.mobs = [];
     this.drops = []; // props an earlier version put down, to take away
+    this.dropMobs = []; // monsters to take out of the mobs file (map coordinates)
     this.npcs = []; this.files = {}; this.notes = []; this.walks = [];
     this.far = []; // single squares anywhere on the map (map coordinates)
     this.sets = []; // values to change in the game's own files
@@ -136,6 +137,9 @@ class Plan {
   prop(name, x, y) { this.props.push({ name, x, y }); }
   // A prop an earlier install put here, gone now the town has changed.
   dropProp(name, x, y) { this.drops.push({ name, x, y }); }
+  // A monster already in the game to take away (map coordinates, as the
+  // mobs file has it), e.g. one that no longer fits where it stands.
+  dropMob(name, level, x, y) { this.dropMobs.push({ name, level, x, y }); }
   merchant(x, y, wares) { this.merchants.push({ x, y, wares }); }
   sign(name, text, x, y) { this.signs.push({ name, text, x, y }); }
   mob(name, level, x, y) { this.mobs.push({ name, level, x, y }); }
@@ -338,6 +342,7 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
     tiles: changes.map(([x, y, t]) => [x, y, t]),
     props: plan.props.map(abs),
     dropProps: plan.drops.map(abs),
+    dropMobs: plan.dropMobs,
     merchants: plan.merchants.map(abs),
     signs: plan.signs.map(abs),
     mobs: plan.mobs.map(abs),

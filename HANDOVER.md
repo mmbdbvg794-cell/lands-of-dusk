@@ -742,10 +742,22 @@ commands that touch live.
   (ssarakh.mjs no longer sets it). Tested on scratch with new characters:
   hatch, teach path to Ossik's gear, skip path through the Warm Stone.
 
+## 2026-10-07 night: swamp creatures (installed 18:52; live after the restart)
+
+- tools/world/cities/swampmobs.mjs (MOBS=<mobs file> node city.mjs ...): 8
+  new monsters by tier from the Brood Stone: bog slime, mire lizard (<70);
+  bog crawler, swamp serpent (<140); marsh wisp, mire hound (<210); swamp
+  horror, dry one raider (further; the Sand Kings' raiders, lore). 58 dens,
+  215 creatures, only on squares reachable from Ssarakh, not in Ssarakh or
+  the Hatching Pools. 27 old unfitting spawns (wolf, Black dog, Mole, Bug,
+  Hound, stalker, lizard axe*) removed: new installer field dropMobs
+  (Plan.dropMob in city.mjs). Game had ~1,860 mobs before.
+- Ssarakh bounty board (bounties.mjs, id ss, at 1692,946): bog slimes,
+  swamp serpents, dry one raiders (240 gold / 500 exp).
+
 ## Open / ideas (ask the user before starting)
 
 - Lore next: the lost heir (Dawnward) chain; Morvane's journal pages as boss drops.
-- Swamp monsters/dens on the isles.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.

@@ -1,4 +1,4 @@
-// Bounty boards: in seven towns, three posters (an easy, a middling and a
+// Bounty boards: in eight towns, three posters (an easy, a middling and a
 // hard job), each a repeatable kill quest for every race. A board gives
 // each player one bounty a day: the posters share a wait (the quest's
 // "again" flag, 20 hours, server/Quests.java flag timers), so a player
@@ -57,6 +57,11 @@ const BOARDS = [
     ['frost wolf', 6, 'Frost Wolf Bounty', 'at the south end of the field'],
     ['frost bear', 5, 'Frost Bear Bounty', 'in the frozen land beyond the trees'],
     ['ice skeleton', 4, 'Ice Skeleton Bounty', 'round the dragon\'s lair in the frozen land'],
+  ] },
+  { id: 'ss', town: 'Ssarakh', at: [1692, 946], jobs: [
+    ['bog slime', 6, 'Bog Slime Bounty', 'in the marsh round the city'],
+    ['swamp serpent', 5, 'Swamp Serpent Bounty', 'out in the mire beyond the city'],
+    ['dry one raider', 4, 'Dry One Raider Bounty', 'deep in the isles, where the Dry Ones raid', { gold: 240, exp: 500 }],
   ] },
 ];
 

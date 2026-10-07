@@ -6,7 +6,7 @@
 What it changes, after copying each file it touches to
 backups/city-<name>-<time>/:
   shortmap        the town's squares
-  props, merchants, signs, signnames, mobs
+  props, merchants, signs, signnames, mobs (and dropMobs: monsters taken out)
                   the town's entries, added at the end (an entry already
                   there, at the same place, is left alone); props the plan
                   drops (moved since an earlier install) are taken out
@@ -151,6 +151,23 @@ def main():
     said.append("signs: %d added, %d already there" % (len(add), len(b["signs"]) - len(add)))
 
     text = read("mobs") or ""
+    # Monsters an earlier install (or the old spawns) put somewhere that
+    # has changed: taken out, entry by entry (name, level, x, y).
+    dropm = {(m["name"], str(m["level"]), str(m["x"]), str(m["y"])) for m in b.get("dropMobs", [])}
+    if dropm:
+        lines = text.replace("\r", "").split("\n")
+        kept, gone, i = [], 0, 0
+        while i < len(lines):
+            if i + 3 < len(lines) and (lines[i], lines[i + 1].strip(), lines[i + 2].strip(), lines[i + 3].strip()) in dropm:
+                gone += 1
+                i += 4
+                continue
+            kept.append(lines[i])
+            i += 1
+        if gone:
+            text = "\n".join(kept)
+            write("mobs", text)
+        said.append("monsters: %d taken away" % gone)
     add = [m for m in b["mobs"] if "%s\n%d\n%d\n%d\n" % (m["name"], m["level"], m["x"], m["y"]) not in text.replace("\r", "")]
     if add:
         write("mobs", entries_text(text, "".join("%s\n%d\n%d\n%d\n" % (m["name"], m["level"], m["x"], m["y"]) for m in add)))

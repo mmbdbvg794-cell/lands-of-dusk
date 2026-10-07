@@ -133,5 +133,5 @@ the leaderboard and who's online.
 
 ## Ideas for later
 
-The lost princess quest chain, monsters and dens on the lizardman isles,
+The lost princess quest chain, 
 arena duels, gathering and crafting, owned ships.
