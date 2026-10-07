@@ -481,13 +481,42 @@ commands that touch live.
   speaker used to flip it) becomes muted on first load. The user reported
   music playing while the speaker showed muted.
 
+## 2026-10-07: old-world quest chains (testing on scratch)
+
+- Three chains, 3 quests each, the user approved the plan (Firetown moved
+  to the east-field village: Firetown is Cyril's "hell", reachable only by
+  a dead demon's walk-on script, and there's no demon race):
+  tools/world/cities/zilen.mjs (Tombkeeper Aldous in King Zilen's
+  graveyard 42,111: grave thieves in a glade off the City of Light's south
+  road (x 106) at y 280, the robbers' leader in a ruined tower glade at
+  y 250, the crypt of the king's guard dug from sealed forest 12-55 x
+  236-279, stairs in the robbers' glade), izaru.mjs (Foreman Dask outside
+  the Izaru Mine Shop 441,82, stairs on Midnight's plaza 450,85, the mine
+  dug from rock 340-403 x 280-333: workings, miners' camp, deep chamber
+  with the stone dragon), frozenreach.mjs (Reeve Tamsin in the east-field
+  village 530,14: frost wolves in the field's south, a gap cut in the tree
+  line 694-698 x 216-217 opens the frozen land 676-810 x 215-365 (sealed
+  until now), frost bears, ice skeletons and the frost dragon at ~795,325).
+  Old-world plans need oldWorld: true + mayBuild (only trees, grass, paths,
+  rock), and install_city.py --old-world.
+- js/atmosphere.js UNDERGROUND gained the crypt and mine boxes (dim,
+  no weather, underground music; the world map keeps them apart).
+- Old world facts: the shortmap is column-major (x*rows + y). Outside towns
+  the old world is solid forest (tile 64/103) and rough rock (49) with roads;
+  areas are linked by walk-on teleports (defMoveActions "set trigger locxy
+  x y"). Reachable from the start points and ports: the City of Light and
+  its south road, the NW village, Midnight, a 141-square desert strip south
+  of it, the east field. Not reachable: Firetown, the rest of the desert,
+  the grey "Hell" rock. Scratchpad ow/: render.py (map picture),
+  reach.py/verify.py (walkable + teleport reachability, bundles applied).
+- Scratch test harness: scratchpad e2e/oq.mjs + chains.mjs (egate as a god:
+  teleport, talk, kill with "a <id>"). egate on scratch was weak (20 HP);
+  boosted to 6000 HP, str 90 in users/egate(.backup).
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
-- More quest chains (the old world; Kingshaven, Aelindor and Velkarath
-  each have one since 2026-10-06). The shop/exploit check is done
-  (tools/server/fix_shop.py).
-- God tools: restart button, admin page; leaderboard; owned ships.
+- God tools: admin page; owned ships. (Restart and leaderboard are done.)
 
 ## More notes
 
