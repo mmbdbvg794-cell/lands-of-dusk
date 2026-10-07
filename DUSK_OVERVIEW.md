@@ -36,6 +36,7 @@ additions.
   **tutorial** at Westsea (they're refugees; it ends with them arriving in
   Kingshaven), elves in the Grove of Waking, dark elves in the caves under
   Velkarath, lizardmen in the Hatching Pools (a tutorial ending at Ssarakh).
+  The isles have their own swamp creatures and a bounty board in Ssarakh.
 - **Dying** sends you back to your race's capital with a little health.
 - Hundreds of **monster dens** across the new lands, set by biome and how far
   they are from the harbours. Creatures now wander, hunt in packs and flee
@@ -133,5 +134,5 @@ the leaderboard and who's online.
 
 ## Ideas for later
 
-The lost princess quest chain, 
-arena duels, gathering and crafting, owned ships.
+The lost princess quest chain, arena duels, gathering and crafting, owned
+ships.
