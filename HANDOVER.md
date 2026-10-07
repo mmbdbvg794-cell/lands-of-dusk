@@ -481,7 +481,7 @@ commands that touch live.
   speaker used to flip it) becomes muted on first load. The user reported
   music playing while the speaker showed muted.
 
-## 2026-10-07: old-world quest chains (testing on scratch)
+## 2026-10-07: old-world quest chains (tested; NOT live until installed + restart + deploy)
 
 - Three chains, 3 quests each, the user approved the plan (Firetown moved
   to the east-field village: Firetown is Cyril's "hell", reachable only by
@@ -509,6 +509,13 @@ commands that touch live.
   of it, the east field. Not reachable: Firetown, the rest of the desert,
   the grey "Hell" rock. Scratchpad ow/: render.py (map picture),
   reach.py/verify.py (walkable + teleport reachability, bundles applied).
+- All 9 quests played end to end on scratch as egate. Live install was
+  blocked for me: bundles are in duskserver /tmp ({zilen,izaru,frozen}.json,
+  dry run on live matched), the user runs `ssh duskserver sh
+  /tmp/oldworld-install.sh`, then `restart 10` in game (no god save
+  first), then tools/deploy.sh (underground boxes; Painted art for the new
+  monster names). The Frozen Reach gap was widened to 690-698 x 216-218
+  after the first scratch run (a tree at 692,217 stood in front of it).
 - Scratch test harness: scratchpad e2e/oq.mjs + chains.mjs (egate as a god:
   teleport, talk, kill with "a <id>"). egate on scratch was weak (20 HP);
   boosted to 6000 HP, str 90 in users/egate(.backup).
