@@ -663,7 +663,7 @@ commands that touch live.
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.
 - Game ideas the user liked, not started: arena duels (Riverside arena), gathering & crafting (biggest),
   owned ships (on hold).
-- Website: a Forum link in the old site's navigation (~/DuskRPG/web/*.html).
+- Website: Forum link added to the site nav (~/DuskRPG/web/*.html, after Updates; backups/web-20261007).
 
 ## More notes
 
