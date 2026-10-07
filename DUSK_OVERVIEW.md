@@ -1,7 +1,8 @@
 # Dusk: an overview
 
 A plain summary of the Dusk project for someone joining the conversation:
-what the game is, and what's been built so far (as of 7 October 2026). The
+what the game is, and what's been built so far (as of the evening of 7
+October 2026). The
 technical notes (servers, files, commands) are in HANDOVER.md; this skips them.
 
 ## What Dusk is
@@ -24,14 +25,40 @@ additions.
   harbours.
 - **Cities**: **Kingshaven** (the human capital, with rentable houses on
   Lantern Row), **Aelindor** (the elven city), **Velkarath** (the dark elves'
-  underground city), **Eastreach** (a desert frontier town), and small places
-  such as Southfield village.
-- **Races** each start somewhere of their own with a short **tutorial**:
-  humans at Westsea, elves in the Grove of Waking, dark elves in the caves
-  under Velkarath. Lizardmen are also playable.
+  underground city), **Ssarakh** (the lizardfolk's Mire City), **Eastreach**
+  (a desert frontier town), and small places such as Southfield village.
+- **The lizardman isles**: eleven giant islands east of Eastreach turned to
+  swamp, with new map tiles (marsh, mud, reeds, bog pools, boardwalks and
+  weeping willows). Ssarakh stands on the west island, with a chieftain, a
+  shaman who trains, a bank, a tavern, a market and a harbour; the Marsh
+  Wren sails between it and Eastreach.
+- **Races** each start somewhere of their own: humans in a short
+  **tutorial** at Westsea (they're refugees; it ends with them arriving in
+  Kingshaven), elves in the Grove of Waking, dark elves in the caves under
+  Velkarath, lizardmen in Ssarakh.
+- **Dying** sends you back to your race's capital with a little health.
 - Hundreds of **monster dens** across the new lands, set by biome and how far
   they are from the harbours. Creatures now wander, hunt in packs and flee
   when hurt.
+
+## The story
+
+The world now has one history tying it together (the whole of it is in
+LORE.md). In short: across the sea is the old kingdom of Zilen. King
+Aldric's brother **Morvane** opened a sealed gate under Firetown to get an
+army that couldn't die. The **Ashen Horde** came through under the warlord
+**Kraghul**, and everyone it killed rose for Morvane, until he died and rose
+as the **Skeleton King** (both are world bosses). Aldric sent his people
+east by sea: they built **Kingshaven**, and keep its throne empty for
+Princess Elowen, whose ship, the Dawnward, never arrived (a thread for a
+later quest chain). The elves took the refugees in, the Drow guard the
+gates below, and the lizardfolk, the oldest people, cut the stones that
+sealed the gates.
+
+Players never get it all at once: chroniclers in each capital and old
+stones around the world each tell one piece, from their own side. Each
+**tale** goes in the journal, and collecting all 16 earns **Keeper of
+Tales**.
 
 ## Things to do
 
@@ -67,6 +94,10 @@ additions.
 - **Mail**: letters to any character, waiting until they're read.
 - **Friends** (with online notices), **whispers**, **trading** between players,
   a **who's online** page and a **leaderboard**.
+- **Achievements** (Dragonslayer, Bounty Hunter, Keeper of Tales...) and a
+  **profile page** for every character.
+- A **forum** on the website: sign in with your character's name and game
+  password.
 - **Bug reports** from inside the game go straight to the gods.
 
 ## Look and feel
@@ -80,7 +111,10 @@ additions.
 - **Music** that follows where you are (towns, the wilds by day, night,
   underground, at sea), using free CC0 tracks, crossfading as you move and
   showing the track's name; **area sounds** under it (birds, crickets, owls,
-  waves, gulls, wind, drips in caves).
+  waves, gulls, wind, drips in caves), with separate volume sliders, and the
+  music fading down in storms.
+- **Battle animations**: your character swings at what it fights (stab with
+  a dagger, chop with an axe, slash with a sword).
 - A Help page, a journal for quests, a world map with your own notes.
 
 ## For the gods
@@ -91,7 +125,13 @@ wizard (including repeatable and daily ones), edit monsters, props and items,
 set what happens when someone steps on a square, check players' flags, and an
 **admin page** (who's online, bug reports, logins, errors, restart).
 
+## The website
+
+Home page with news (the latest: the browser client announcement), How to
+Play, FAQ, Updates, a **Lore** page (just the opening legend), the forum,
+the leaderboard and who's online.
+
 ## Ideas for later
 
-Achievements and character profile pages, arena duels, gathering and
-crafting, owned ships, and an old-school forum on the website.
+The lost princess quest chain, monsters and dens on the lizardman isles, a
+lizardman tutorial, arena duels, gathering and crafting, owned ships.
