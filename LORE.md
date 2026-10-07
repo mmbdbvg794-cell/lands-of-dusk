@@ -42,8 +42,18 @@ and add to it here first.
   built **Kingshaven** out of their own ships.
 - Aldric sent his daughter, **Princess Elowen**, on the last ship, the
   **Dawnward**, to rule the refugees. The Dawnward never arrived. Kingshaven
-  ("the king's haven") keeps an empty throne for her. Whether she lives is
-  an open thread (a future quest chain).
+  ("the king's haven") keeps an empty throne for her.
+- **What became of her** (the quest chain *The Dawnward*, dawnward.mjs): a
+  storm wrecked the Dawnward on the lizardman isles' east shore (the wreck
+  is still there, stripped by Dry One raiders). The brood pulled Elowen,
+  then about sixteen, from the water. She lived a year in Ssarakh, learned
+  from Shaman Ithrae how the gates were sealed, and left with the brood's
+  blessing and a shard of the Brood Stone. Twelve years ago, grey-haired,
+  she knelt at King Zilen's grave and left a letter with Tombkeeper Aldous:
+  her uncle opened the gate under Firetown, and she meant to close it; if
+  she didn't come back, the stone is with her "somewhere in the fire".
+  **Open thread:** an expedition into Firetown to find her, or the shard,
+  and close the rift.
 - New human characters are refugees: the tutorial ("From Refugee to
   Soldier...") is the last of the crossing, and it ends in Kingshaven.
 

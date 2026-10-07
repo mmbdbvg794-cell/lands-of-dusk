@@ -1,3 +1,5 @@
+import { dawnward } from './dawnward.mjs';
+
 // The lore of Dusk, in pieces round the world (LORE.md is the whole story;
 // players only ever get it a piece at a time, each place telling its own
 // side). Built by tools/world/city.mjs; nothing on the map changes.
@@ -109,7 +111,7 @@ export default {
   build(p) {
     // Kingshaven.
     p.npc({ name: 'Old Wenna', look: 'Villager Woman', desc: 'Old Wenna the Chronicler, white-haired and sharp-eyed, a book of names on her knee.', x: 1429, y: 351,
-      dlg: teller('Sit, sit. I was a girl of nine when the ships came over from the old world. Ask, and I will tell you what I remember.', ['crossing', 'throne', 'fall'], 'Mind how you go.') });
+      dlg: dawnward('Old Wenna', teller('Sit, sit. I was a girl of nine when the ships came over from the old world. Ask, and I will tell you what I remember.', ['crossing', 'throne', 'fall'], 'Mind how you go.')) });
     p.file('defProps/Stone of the Crossing', propFile(TALES.memorial[1], 5));
     p.prop('Stone of the Crossing', 1427, 351);
     readOnce(p, 'memorial', 1427, 352);

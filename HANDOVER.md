@@ -755,9 +755,22 @@ commands that touch live.
 - Ssarakh bounty board (bounties.mjs, id ss, at 1692,946): bog slimes,
   swamp serpents, dry one raiders (240 gold / 500 exp).
 
+## 2026-10-07 night: The Dawnward quest chain (installed 19:54; live after the restart)
+
+- tools/world/cities/dawnward.mjs: 4 quests (dw_word, dw_wreck, dw_brood,
+  dw_road): Old Wenna -> Trader Kossk -> the wreck on the isles' east shore
+  (1929-1941, 1068-1074; 5 dry one raiders; stepping into the cabin at
+  1939,1071 during dw_wreck gives the "silver locket", flag dw_locket) ->
+  Chieftain Hesska -> Shaman Ithrae -> Tombkeeper Aldous (Elowen's letter)
+  -> back to Wenna with the locket: 300 gold, 900 exp, "sunrise pendant"
+  (neck, mod 70). Achievement "The Dawnward" (dw_road_done).
+- Its NPCs belong to lore.mjs, ssarakh.mjs and zilen.mjs, which wrap their
+  dialogue in dawnward(name, dlg): reinstall those with it. Played through
+  end to end on scratch as egate. LORE.md has the ending (Firetown thread).
+
 ## Open / ideas (ask the user before starting)
 
-- Lore next: the lost heir (Dawnward) chain; Morvane's journal pages as boss drops.
+- Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.

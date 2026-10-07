@@ -51,8 +51,9 @@ army that couldn't die. The **Ashen Horde** came through under the warlord
 **Kraghul**, and everyone it killed rose for Morvane, until he died and rose
 as the **Skeleton King** (both are world bosses). Aldric sent his people
 east by sea: they built **Kingshaven**, and keep its throne empty for
-Princess Elowen, whose ship, the Dawnward, never arrived (a thread for a
-later quest chain). The elves took the refugees in, the Drow guard the
+Princess Elowen, whose ship, the Dawnward, never arrived. The quest chain
+*The Dawnward* finds out what became of her, and ends on a thread for later:
+she went into the fire at Firetown to close the gate. The elves took the refugees in, the Drow guard the
 gates below, and the lizardfolk, the oldest people, cut the stones that
 sealed the gates.
 
@@ -134,5 +135,5 @@ the leaderboard and who's online.
 
 ## Ideas for later
 
-The lost princess quest chain, arena duels, gathering and crafting, owned
+A Firetown expedition (to follow Elowen), arena duels, gathering and crafting, owned
 ships.
