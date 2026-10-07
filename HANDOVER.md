@@ -642,7 +642,7 @@ commands that touch live.
   your weapon / other players' (Painted gear) via weaponKind + swingStyleFor;
   creatures by name (BEASTS claw, "axe" chop, "dagger" stab, else slash).
 
-## 2026-10-07: the forum (deployed; needs dusk-web restarted to load serve.py)
+## 2026-10-07: the forum (LIVE; dusk-web restarted from the Proxmox host: pct exec 303 -- systemctl restart dusk-web)
 
 - forum.py (in serve.py: everything under .../forum/api/; SQLite
   ~/DuskRPG/forum.sqlite, made on first use): boards (Announcements gods
