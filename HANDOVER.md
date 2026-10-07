@@ -730,10 +730,22 @@ commands that touch live.
 - Website: ~/DuskRPG/web/lore.html (the opening legend only) linked in every
   page's nav (backup backups/web-lore-20261007), and forum.html here.
 
+## 2026-10-07 night: lizardman tutorial (installed 18:15; live after the restart)
+
+- tools/world/cities/hatchery.mjs: the Hatching Pools, "From Hatchling to
+  Brood-Guard...", sealed in willow on the east isle (1846-1911, 990-1025),
+  built like grove.mjs: hatch (1853,1007) -> Brood-Mother Ssethra (teach /
+  ready) -> Scale-Tender Ossik (cloth shirt, wooden dagger) -> Hunt-Master
+  Kreeth (training dummies) -> Mossa (water, mushroom) -> the Warm Stone,
+  which binds and sends them to the Brood Stone (1695,943). Flags lizTut1-6,
+  lizSkip, lizWoke, lizTutDone. defRaces/lizardman now starts in the pools
+  (ssarakh.mjs no longer sets it). Tested on scratch with new characters:
+  hatch, teach path to Ossik's gear, skip path through the Warm Stone.
+
 ## Open / ideas (ask the user before starting)
 
 - Lore next: the lost heir (Dawnward) chain; Morvane's journal pages as boss drops.
-- Swamp monsters/dens on the isles; a lizardman tutorial.
+- Swamp monsters/dens on the isles.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.

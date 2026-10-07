@@ -3,8 +3,9 @@
 // tools/world/swamp_islands.py over tiles 168-173 from
 // tools/server/swamptiles.py). Built by tools/world/city.mjs on the swamp.
 //
-//   the Brood Stone, the plaza's heart       1695, 943   (lizardmen start
-//                                                         and wake here)
+//   the Brood Stone, the plaza's heart       1695, 943   (lizardmen arrive
+//                                                         from the Hatching
+//                                                         Pools, and wake here)
 //   the Hall of the Brood (Chieftain Hesska)  1688-1702, 920-930
 //   the Shaman's hut (training)               1708-1716, 928-935
 //   the Mire Bank (the Mire Teller)           1674-1682, 932-938
@@ -123,8 +124,6 @@ export default {
       dlg: captain('mire', 'The Marsh Wren sails for Eastreach! Passage at the pier!') });
     SIGN('Harbour', 'Ssarakh harbour. The Marsh Wren to Eastreach; tickets from Captain Sskarr.', 1691, 988);
 
-    // Lizardmen start here.
-    p.setValue('defRaces/lizardman', 'x', HEART[0]);
-    p.setValue('defRaces/lizardman', 'y', HEART[1]);
+    // (New lizardmen start in the Hatching Pools, hatchery.mjs, which bring them here.)
   },
 };

@@ -35,7 +35,7 @@ additions.
 - **Races** each start somewhere of their own: humans in a short
   **tutorial** at Westsea (they're refugees; it ends with them arriving in
   Kingshaven), elves in the Grove of Waking, dark elves in the caves under
-  Velkarath, lizardmen in Ssarakh.
+  Velkarath, lizardmen in the Hatching Pools (a tutorial ending at Ssarakh).
 - **Dying** sends you back to your race's capital with a little health.
 - Hundreds of **monster dens** across the new lands, set by biome and how far
   they are from the harbours. Creatures now wander, hunt in packs and flee
@@ -133,5 +133,5 @@ the leaderboard and who's online.
 
 ## Ideas for later
 
-The lost princess quest chain, monsters and dens on the lizardman isles, a
-lizardman tutorial, arena duels, gathering and crafting, owned ships.
+The lost princess quest chain, monsters and dens on the lizardman isles,
+arena duels, gathering and crafting, owned ships.
