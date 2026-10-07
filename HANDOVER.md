@@ -684,7 +684,7 @@ commands that touch live.
   /tmp/tune-install.sh` (staged; --force for the defMobs files, all 25 were
   unchanged since install), `restart 10`.
 
-## 2026-10-07 night: death, tutorial exits, the lizardman isles (NOT live until /tmp/lizard-install.sh + restart, then deploy)
+## 2026-10-07 night: death, tutorial exits, the lizardman isles (installed 16:17, client deployed; live after the restart)
 
 - Death: conf/onDeath rewritten (the old one sent joe to 20,20, into a wall).
   Every race wakes at its capital with 5 HP and `safe`: human Kingshaven
