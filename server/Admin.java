@@ -373,6 +373,10 @@ public class Admin {
         }
         b.append("}}\n");
         put(PROFILES, b.toString());
+        // A copy beside the web pages, which dusk-web serves as it is (so a
+        // dusk-web started before serve.py knew profiles.json still has it).
+        File web = new File(System.getProperty("user.home"), "dusk-browser-client");
+        if (web.isDirectory()) put(new File(web, PROFILES).getPath(), b.toString());
     }
 
     // A player's saved file: "key\nvalue" pairs, conditions as
