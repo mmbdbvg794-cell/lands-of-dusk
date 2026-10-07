@@ -115,7 +115,8 @@ export class Minimap {
     let b = this.baked.get(k);
     if (b) return b;
     const tiles = this.explored.chunkAt(cx, cy);
-    if (!tiles) return null;
+    // (No map sheet yet, just after logging in: nothing to draw with.)
+    if (!tiles || !this.map) return null;
     b = document.createElement('canvas');
     b.width = b.height = CHUNK * BAKE_PX;
     const bctx = b.getContext('2d');

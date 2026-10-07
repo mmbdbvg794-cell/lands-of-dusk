@@ -1229,6 +1229,7 @@ dialog::backdrop { background: #000a; }
 .wm-bar strong { font-size: 15px; }
 .wm-info { flex: 1; color: var(--muted); font-size: 12px; }
 .wm-bar button { padding: 3px 10px; }
+.wm-bar select { padding: 3px 6px; max-width: 14em; font: inherit; font-size: 13px; }
 #world-map canvas { flex: 1; min-height: 0; width: 100%; cursor: grab; touch-action: none; }
 #world-map canvas.dragging { cursor: grabbing; }
 

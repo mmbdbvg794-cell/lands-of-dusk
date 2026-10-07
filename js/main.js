@@ -2189,7 +2189,9 @@ worldMap.onRemoveNote = (x, y) => {
   worldMap.notes = worldMap.notes.filter((n) => n.x !== x || n.y !== y);
   worldMap.invalidate();
 };
+worldMap.onGoto = (x, y) => { if (isGod && conn?.connected) conn.send(`teleport ${x} ${y}`); };
 worldMap.onShow = () => {
+  worldMap.god = isGod;
   if (Date.now() - markersAt > 120000) quiet(MARKERS);
   // Gods see the whole world, fetched the first time they look.
   if (isGod && !godMap.asked) {

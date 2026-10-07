@@ -8,6 +8,8 @@
 // Gods see the whole world, no fog (setFull): a one-pixel-a-square
 // overview when zoomed out, and the real tiles for what's in view when
 // zoomed in.
+// Gods also get a "Go to..." list of the towns and starting places (PLACES)
+// that teleports them there, and can double-click the map to go anywhere.
 // Underground places (js/atmosphere.js UNDERGROUND) are a world apart:
 // down there the map shows only them; up here they're hidden.
 
@@ -18,6 +20,22 @@ const inBox = (u, x, y) => x >= u.x0 && x <= u.x1 && y >= u.y0 && y <= u.y1;
 
 const ZOOMS = [1, 2, 3, 4, 6, 8]; // CSS pixels per tile
 const PINS = { bank: ['#e8c45a', '$'], shop: ['#6fd08a', '⚖'], quest: ['#ffd84a', '!'] };
+// Gods' quick jumps: [group, [[name, x, y], ...]] (walkable squares at
+// each place's heart: plazas, piers, where the tutorials start).
+export const PLACES = [
+  ['The new lands', [
+    ['Kingshaven', 1440, 352], ['Aelindor', 473, 1241], ['Aelindor Landing', 444, 1186],
+    ['Velkarath (underground)', 1345, 912], ['Ssarakh', 1695, 943], ['Eastreach', 1680, 1306],
+  ]],
+  ['The old world', [
+    ['City of Light', 104, 155], ['Westsea Harbour', 95, 355], ['Riverside', 186, 95], ['Midnight', 444, 84],
+    ['Southfield', 540, 16], ['North-west village', 17, 29], ['West isle (MTH hall)', 195, 900], ['Frost hall', 262, 262],
+  ]],
+  ['Where races start', [
+    ['Human tutorial', 125, 365], ['Grove of Waking (elves)', 415, 1307], ['Hatching Pools (lizardmen)', 1853, 1007],
+  ]],
+];
+
 const KIND_WORDS = { bank: 'bank', shop: 'shop', quest: 'has something to say' };
 
 export class WorldMap {
@@ -53,7 +71,43 @@ export class WorldMap {
       this.canvas.classList.toggle('placing', this.noteMode);
       this.say(this.noteMode ? 'Click the map where the note goes.' : null);
     });
+    // Gods: the quick jumps, and a double-click to go anywhere.
+    this.onGoto = null; // (x, y): teleport there
+    this.gotoSel = el.querySelector('[data-map="goto"]');
+    if (this.gotoSel) {
+      const first = document.createElement('option');
+      first.value = ''; first.textContent = 'Go to…';
+      this.gotoSel.append(first, ...PLACES.map(([group, list]) => {
+        const g = document.createElement('optgroup');
+        g.label = group;
+        g.append(...list.map(([name, x, y]) => Object.assign(document.createElement('option'), { value: `${x},${y}`, textContent: name })));
+        return g;
+      }));
+      this.gotoSel.addEventListener('change', () => {
+        const [x, y] = this.gotoSel.value.split(',').map(Number);
+        this.gotoSel.value = '';
+        if (Number.isFinite(x)) this.goto(x, y);
+      });
+    }
+    this.canvas.addEventListener('dblclick', (e) => {
+      if (!this.god || this.noteMode) return;
+      this.goto(...this.tileAt(e.clientX, e.clientY));
+    });
     new ResizeObserver(() => this.invalidate()).observe(this.canvas);
+  }
+
+  // Gods only: the "Go to..." list shows, and double-clicks teleport.
+  set god(on) {
+    this._god = !!on;
+    if (this.gotoSel) this.gotoSel.hidden = !on;
+  }
+  get god() { return this._god ?? false; }
+
+  goto(x, y) {
+    if (!this.god || !this.onGoto) return;
+    this.onGoto(x, y);
+    this.cx = x; this.cy = y;
+    this.invalidate();
   }
 
   get open() {
