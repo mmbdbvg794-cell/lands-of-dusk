@@ -49,7 +49,7 @@
         const li = document.createElement('li');
         const name = document.createElement('span');
         name.className = 'name';
-        name.textContent = p.name;
+        name.append(Object.assign(document.createElement('a'), { href: `profile.html?name=${encodeURIComponent(p.name)}`, textContent: p.name }));
         li.append(name);
         if (p.god) li.append(Object.assign(document.createElement('span'), { className: 'god', textContent: 'God' }));
         if (p.title) li.append(Object.assign(document.createElement('span'), { className: 'title', textContent: p.title }));

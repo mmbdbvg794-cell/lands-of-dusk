@@ -94,6 +94,8 @@ public class Skills {
         WorldBoss.start(engine);
         // Parties (server/Party.java).
         Party.start(engine);
+        // Achievements (server/Achievements.java).
+        Achievements.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

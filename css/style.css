@@ -1536,3 +1536,19 @@ dialog::backdrop { background: #000a; }
 #party-invite[hidden] { display: none; }
 @media (max-width: 600px) { #party-frame { top: auto; bottom: 120px; width: 130px; } }
 .line.party { color: #8fd0a0; }
+
+#boss-banner.gold { background: rgba(48, 36, 8, 0.9); border-color: #d8a838; color: #fff0c0; }
+/* ---- achievements (js/achievements.js), in the Journal tab ---- */
+.achv { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 8px; }
+.achv-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.achv-profile { font-size: 12px; color: var(--accent); }
+.achv-list { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.achv-list li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; align-items: start; opacity: 0.75; }
+.achv-list li.earned { opacity: 1; }
+.achv-medal { font-size: 16px; color: var(--muted); }
+.achv-list li.earned .achv-medal { color: #e0b030; }
+.achv-body b { display: block; font-size: 13px; }
+.achv-body small { display: block; color: var(--muted); font-size: 12px; }
+.achv-prog { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.achv-bar { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.12); overflow: hidden; }
+.achv-fill { height: 100%; background: var(--accent); }

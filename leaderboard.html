@@ -61,7 +61,8 @@
       $('rows').replaceChildren(...b.rows.map((p) => {
         const tr = document.createElement('tr');
         if (p.rank <= 3) tr.className = 'top';
-        const name = td(p.name, 'name');
+        const name = td('', 'name');
+        name.append(Object.assign(document.createElement('a'), { href: `profile.html?name=${encodeURIComponent(p.name)}`, textContent: p.name }));
         if (p.title) name.append(Object.assign(document.createElement('span'), { className: 'title', textContent: p.title }));
         tr.append(td(String(p.rank), 'rank'), name, td(p.race, 'hide-sm'), td(p.exp, 'num'), td(String(p.quests), 'num'), td(p.hp, 'num hide-sm'), td(p.stats, 'num hide-sm'), td(p.played, 'num hide-sm'));
         return tr;

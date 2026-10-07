@@ -28,6 +28,12 @@
  *                       200): "AdminError: <line>", then
  *                       "AdminErrors: done|<errors today>"
  *
+ * Profiles: with it, profiles.json (profile.html): every player on the
+ * leaderboard's terms (no gods, no one hidden, some experience), by lower-case
+ * name: { name, race, title, exp, maxhp, stats: { str, dex, con, int, wis },
+ * gear: [ { slot, item } ], quests: [ finished quests' titles ],
+ * achievements (server/Achievements.java), playtime, online }.
+ *
  * Leaderboard: every 5 minutes, leaderboard.json in the game directory
  * (serve.py hands it out beside leaderboard.html): the top 50 players by
  * experience, from their saved files; gods, anyone with no experience yet,
@@ -47,7 +53,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 
@@ -276,7 +285,14 @@ public class Admin {
         String name, race = "", title = "";
         long exp, playtime;
         int maxhp, stats, quests, privs;
+        final Map<String, Integer> each = new LinkedHashMap<String, Integer>(); // stre... -> value
+        final List<String[]> gear = new ArrayList<String[]>(); // { slot, item }
+        final List<String> done = new ArrayList<String>(); // "_done" flags
     }
+    // Worn gear in a users file: "<slot>2", then the item, durability, uses.
+    static final String[][] SLOTS = { { "wield2", "Weapon" }, { "skull2", "Head" }, { "eyes2", "Eyes" }, { "neck2", "Neck" }, { "torso2", "Body" },
+        { "arms2", "Arms" }, { "hands2", "Hands" }, { "waist2", "Waist" }, { "legs2", "Legs" }, { "feet2", "Feet" }, { "shield2", "Shield" } };
+    static final String PROFILES = "profiles.json";
 
     static void writeBoard() throws Exception {
         Set<String> hide = new HashSet<String>();
@@ -302,12 +318,61 @@ public class Admin {
                 .append(",\"quests\":").append(r.quests).append(",\"playtime\":").append(r.playtime).append('}');
         }
         b.append("]}\n");
-        File tmp = new File(BOARD + ".tmp");
-        Files.write(tmp.toPath(), b.toString().getBytes(StandardCharsets.UTF_8));
-        if (!tmp.renameTo(new File(BOARD))) {
-            Files.write(new File(BOARD).toPath(), b.toString().getBytes(StandardCharsets.UTF_8));
+        put(BOARD, b.toString());
+        writeProfiles(rows);
+    }
+
+    static void put(String name, String text) throws Exception {
+        File tmp = new File(name + ".tmp");
+        Files.write(tmp.toPath(), text.getBytes(StandardCharsets.UTF_8));
+        if (!tmp.renameTo(new File(name))) {
+            Files.write(new File(name).toPath(), text.getBytes(StandardCharsets.UTF_8));
             tmp.delete();
         }
+    }
+
+    // Quest titles by "<id>_done" flag, from the quests directory.
+    static Map<String, String> questTitles() {
+        Map<String, String> out = new HashMap<String, String>();
+        File[] qs = new File("quests").listFiles();
+        if (qs == null) return out;
+        java.util.regex.Pattern t = java.util.regex.Pattern.compile("\"title\":\"((?:[^\"\\\\]|\\\\.)*)\"");
+        for (File q : qs) {
+            if (!q.getName().endsWith(".json")) continue;
+            try {
+                java.util.regex.Matcher m = t.matcher(new String(Files.readAllBytes(q.toPath()), StandardCharsets.UTF_8));
+                if (m.find()) out.put(q.getName().substring(0, q.getName().length() - 5).toLowerCase() + "_done", m.group(1).replace("\\\"", "\"").replace("\\'", "'"));
+            } catch (Exception e) {}
+        }
+        return out;
+    }
+
+    static void writeProfiles(List<Row> rows) throws Exception {
+        Map<String, String> titles = questTitles();
+        StringBuilder b = new StringBuilder("{\"updated\":").append(System.currentTimeMillis()).append(",\"players\":{");
+        String[][] stat = { { "stre", "str" }, { "dext", "dex" }, { "cons", "con" }, { "inte", "int" }, { "wisd", "wis" } };
+        boolean first = true;
+        for (Row r : rows) {
+            if (!first) b.append(',');
+            first = false;
+            b.append(Who.json(r.name.toLowerCase())).append(":{\"name\":").append(Who.json(r.name)).append(",\"race\":").append(Who.json(r.race))
+                .append(",\"title\":").append(Who.json(r.title)).append(",\"exp\":").append(r.exp).append(",\"maxhp\":").append(r.maxhp).append(",\"stats\":{");
+            for (int i = 0; i < stat.length; i++) b.append(i > 0 ? "," : "").append('"').append(stat[i][1]).append("\":").append(r.each.containsKey(stat[i][0]) ? r.each.get(stat[i][0]) : 0);
+            b.append("},\"gear\":[");
+            for (int i = 0; i < r.gear.size(); i++) b.append(i > 0 ? "," : "").append("{\"slot\":").append(Who.json(r.gear.get(i)[0])).append(",\"item\":").append(Who.json(r.gear.get(i)[1])).append('}');
+            b.append("],\"quests\":[");
+            boolean q1 = true;
+            for (String f : r.done) {
+                String title = titles.get(f.toLowerCase());
+                if (title == null) continue; // an old flag, not a quest the wizard knows
+                b.append(q1 ? "" : ",").append(Who.json(title));
+                q1 = false;
+            }
+            b.append("],\"achievements\":").append(Achievements.json(r.name)).append(",\"playtime\":").append(r.playtime)
+                .append(",\"online\":").append(Who.since.containsKey(r.name.toLowerCase())).append('}');
+        }
+        b.append("}}\n");
+        put(PROFILES, b.toString());
     }
 
     // A player's saved file: "key\nvalue" pairs, conditions as
@@ -330,9 +395,14 @@ public class Admin {
                 else if (k.equals("title")) r.title = v;
                 else if (k.equals("maxhp")) r.maxhp = Integer.parseInt(v);
                 else if (k.equals("totalplaytime")) r.playtime = Long.parseLong(v);
-                else if (k.equals("stre") || k.equals("dext") || k.equals("cons") || k.equals("inte") || k.equals("wisd")) r.stats += Integer.parseInt(v);
-                else if (k.equals("condition") && v.toLowerCase().endsWith("done")) r.quests++;
-                else continue;
+                else if (k.equals("stre") || k.equals("dext") || k.equals("cons") || k.equals("inte") || k.equals("wisd")) { r.stats += Integer.parseInt(v); r.each.put(k, Integer.parseInt(v)); }
+                else if (k.equals("condition") && v.toLowerCase().endsWith("done")) { r.quests++; r.done.add(v); }
+                else {
+                    String slot = null;
+                    for (String[] sl : SLOTS) if (sl[0].equals(k)) slot = sl[1];
+                    if (slot == null) continue;
+                    if (v.length() > 0 && !v.equals("null")) r.gear.add(new String[] { slot, v });
+                }
                 i++; // skip the value just read
             } catch (NumberFormatException e) {
                 // not a number where one belongs: leave it

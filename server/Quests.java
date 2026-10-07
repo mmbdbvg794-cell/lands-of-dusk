@@ -308,7 +308,6 @@ public class Quests {
         try {
             if (!(killed instanceof Mob) || side == null) return;
             load();
-            if (goals.isEmpty()) return;
             List<Object> winners;
             synchronized (side) {
                 winners = new ArrayList<Object>(side);
@@ -317,7 +316,10 @@ public class Quests {
             List<Player> ws = new ArrayList<Player>();
             for (Object o : winners) if (o instanceof Player) ws.add((Player) o);
             if (ws.isEmpty()) return;
-            for (Player p : Party.withParty(ws, killed.engGame, ws.get(0).intLocX, ws.get(0).intLocY)) counted(p, killed.strName);
+            for (Player p : Party.withParty(ws, killed.engGame, ws.get(0).intLocX, ws.get(0).intLocY)) {
+                if (!goals.isEmpty()) counted(p, killed.strName);
+                Achievements.killed(p, killed.strName); // server/Achievements.java
+            }
         } catch (Exception e) {
             Log.logError(e, "Quest kill", false);
         }
@@ -344,6 +346,7 @@ public class Quests {
         }
         for (String s : said) p.chatMessage(s + "\n");
         for (Goal g : done) {
+            if (g.quest != null && g.quest.startsWith("bt_")) Achievements.bounty(p); // a bounty job done
             p.removeCondition(g.flag);
             if (g.next.length() > 0) {
                 Condition c = p.engGame.getCondition(g.next);

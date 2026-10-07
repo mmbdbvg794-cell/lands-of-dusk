@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile</title>
+  <meta name="description" content="A player's profile in the world of Dusk.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { overflow: auto; display: block; height: auto; }
+    .prof { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
+    .prof h1 { font-size: 30px; margin: 0; letter-spacing: .04em; }
+    .prof .sub { color: var(--muted); margin: 4px 0 20px; }
+    .prof .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #4fb05a; margin-left: 8px; vertical-align: middle; }
+    .prof .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .prof section { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); padding: 12px 14px; }
+    .prof h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+    .prof dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
+    .prof dt { color: var(--muted); }
+    .prof dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+    .prof ul { margin: 0; padding-left: 18px; font-size: 14px; }
+    .prof .achv { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    .prof .achv li { display: grid; grid-template-columns: 30px 1fr auto; gap: 0 8px; align-items: center; }
+    .prof .medal { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 35%, #ffe7a0, #c8962c); color: #5a3a10; font-weight: 700; font-size: 13px; }
+    .prof .achv b { display: block; }
+    .prof .achv small { color: var(--muted); }
+    .prof .when { color: var(--faint); font-size: 12px; }
+    .prof .wide { grid-column: 1 / -1; }
+    .prof .empty { color: var(--muted); font-size: 14px; }
+    .prof .foot { margin-top: 16px; color: var(--faint); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .prof a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="prof" id="prof">
+    <h1 id="name">Profile</h1>
+    <p class="sub" id="sub">Looking…</p>
+    <div class="grid" id="body"></div>
+    <p class="foot"><span><a href="leaderboard.html">Leaderboard</a> · <a href="who.html">Who's online</a></span><a href="./">Play Dusk</a></p>
+  </main>
+  <script type="module">
+    import { describeProfile } from './js/profile.js';
+    const $ = (id) => document.getElementById(id);
+    const h = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
+    const name = new URLSearchParams(location.search).get('name') ?? '';
+    const dl = (pairs) => h('dl', {}, ...pairs.flatMap(([k, v]) => [h('dt', { textContent: k }), h('dd', { textContent: v })]));
+    async function refresh() {
+      let data = null;
+      try { const r = await fetch('profiles.json', { cache: 'no-store' }); if (r.ok) data = await r.json(); } catch {}
+      const p = describeProfile(data, name);
+      if (!p.found) { $('name').textContent = name || 'Profile'; $('sub').textContent = p.message; $('body').replaceChildren(); return; }
+      document.title = `${p.name} · Dusk`;
+      $('name').replaceChildren(p.name, ...(p.online ? [h('span', { className: 'dot', title: 'In the game now' })] : []));
+      $('sub').textContent = [p.title, p.race, p.online ? 'in the game now' : ''].filter(Boolean).join(' · ');
+      $('body').replaceChildren(
+        h('section', {}, h('h2', { textContent: 'At a glance' }), dl(p.facts)),
+        h('section', {}, h('h2', { textContent: 'Stats' }), dl(p.stats)),
+        h('section', {}, h('h2', { textContent: 'Wearing' }), p.gear.length ? dl(p.gear) : h('p', { className: 'empty', textContent: 'Nothing worn.' })),
+        h('section', { className: 'wide' }, h('h2', { textContent: `Achievements (${p.achievements.length})` }),
+          p.achievements.length ? h('ul', { className: 'achv' }, ...p.achievements.map((a) => h('li', {}, h('span', { className: 'medal', textContent: '★' }), h('span', {}, h('b', { textContent: a.title }), h('small', { textContent: a.what })), h('span', { className: 'when', textContent: a.when }))))
+            : h('p', { className: 'empty', textContent: 'None yet.' })),
+        h('section', { className: 'wide' }, h('h2', { textContent: `Quests finished (${p.quests.length})` }),
+          p.quests.length ? h('ul', {}, ...p.quests.map((q) => h('li', { textContent: q }))) : h('p', { className: 'empty', textContent: 'None yet.' })),
+      );
+    }
+    refresh();
+    setInterval(refresh, 60000);
+  </script>
+</body>
+</html>

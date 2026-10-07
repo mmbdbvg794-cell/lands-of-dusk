@@ -24,6 +24,7 @@ import { MusicPlayer, moodAt, moodForType, musicPanel, townAt } from './music.js
 import { AreaAmbience, areaCounts, areaMix } from './ambience.js';
 import { MailView, parseMail } from './mail.js';
 import { PartyView, parseParty, partyChatCommand } from './party.js';
+import { AchievementsView, parseAchv } from './achievements.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
@@ -203,6 +204,8 @@ const journalEditor = new JournalEditor($('journal-editor'), { send: quiet });
 // Player mail (js/mail.js, server/Mail.java): the Mail tab.
 const mailView = new MailView($('tab-mail'), { send: quiet, note: (t) => sysLine(t), badge: $('tab-mail-count'), friends: () => socialUI.friends.map((f) => f.name) });
 document.querySelector('[data-tab="mail"]').addEventListener('click', () => mailView.refresh());
+// Achievements (js/achievements.js): in the Journal tab, a banner when earned.
+const achievementsView = new AchievementsView($('achievements'), { send: quiet, me: () => loginName, banner: (title, what) => showBossBanner(`★ Achievement: ${title}. ${what}.`, 'gold') });
 // Parties (js/party.js, server/Party.java): the frame over the map.
 const partyView = new PartyView($('party-frame'), $('party-invite'), { send: quiet, me: () => loginName, line: (t) => appendLine(t, 'party') });
 // The admin page (js/admin.js): from the God tab, or #admin in the address.
@@ -541,12 +544,13 @@ trackNamesBox.addEventListener('change', () => storage('set', 'dusk.tracknames',
 let nowPlayingTimer = 0;
 // The world boss banner, over the map for 12 seconds.
 let bossBannerTimer = 0;
-function showBossBanner(text) {
+function showBossBanner(text, style = '') {
   const el = $('boss-banner');
   el.textContent = text;
+  el.classList.toggle('gold', style === 'gold');
   el.hidden = false;
   requestAnimationFrame(() => el.classList.add('show'));
-  sound.play(/fallen/.test(text) ? 'holy' : 'earth');
+  sound.play(style === 'gold' || /fallen/.test(text) ? 'holy' : 'earth');
   clearTimeout(bossBannerTimer);
   bossBannerTimer = setTimeout(() => {
     el.classList.remove('show');
@@ -1534,6 +1538,8 @@ function handle(msg) {
       if (serverReply) { god.serverReply(serverReply); adminView.serverReply(serverReply); break; }
       const adminReply = isGod && parseAdmin(msg.text);
       if (adminReply) { adminView.reply(adminReply); break; }
+      const achvReply = parseAchv(msg.text);
+      if (achvReply && achievementsView.reply(achvReply)) break;
       const partyReply = parseParty(msg.text);
       if (partyReply && partyView.reply(partyReply)) break;
       const mailReply = parseMail(msg.text);

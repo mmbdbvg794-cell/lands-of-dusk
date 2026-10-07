@@ -606,12 +606,32 @@ commands that touch live.
   waiting only for `restart 10` in game. Check afterwards: java start time,
   then "party" / "mail list" answer in game.
 
+## 2026-10-07: achievements + profiles (deployed, classes installed; needs the bundle + restart)
+
+- server/Achievements.java (lists, Skills start, Props command): the
+  "achievements" file (tools/world/cities/achievements.mjs: 19 of them),
+  achieved/<name> (earned|id|ms, count|key|n). Counts: Quests.killed for each
+  credited player (winners + party), WorldBoss.reward, a bt_ quest's kill goal
+  done (bounty), a 30 s check for flags/exp. A player's first check of the
+  session is quiet (one line listing what they'd already done); later ones
+  say "Achievement: title|what" (client: gold banner) and announce to all.
+  "achievements [name]" -> Achv: lines; "achievements reload" (gods).
+- Admin.writeBoard also writes profiles.json (leaderboard's players: stats,
+  worn gear from the users file's <slot>2 keys, finished quests by title from
+  quests/*.json, achievements, online); serve.py serves it; profile.html +
+  js/profile.js; leaderboard and who's-online names link to it.
+- Client: js/achievements.js in the Journal tab (list with progress, link to
+  your profile).
+- Tested on scratch: quiet catch-up, First Blood banner + announcement, list,
+  profiles.json (dgate), profile page.
+- To go live: `ssh duskserver sh /tmp/achievements-install.sh`, then
+  `restart 10` (this restart also turns on mail and parties).
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.
-- Game ideas the user liked, not started: achievements + character profile
-  pages, arena duels (Riverside arena), gathering & crafting (biggest),
+- Game ideas the user liked, not started: arena duels (Riverside arena), gathering & crafting (biggest),
   owned ships (on hold).
 - Website: an old-school forum (on hold; own Python+SQLite, game logins,
   since the container has ~150 MB free: no phpBB).

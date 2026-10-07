@@ -257,6 +257,7 @@ public class WorldBoss {
             if (give(p, r)) got.add(r + " (rare!)");
         }
         p.chatMessage("For your part in felling " + (b != null ? b.name : "the boss") + " you receive " + join(got) + ".\n");
+        if (b != null) Achievements.boss(p, b.name); // server/Achievements.java
         try {
             p.updateItems();
             p.updateStats();

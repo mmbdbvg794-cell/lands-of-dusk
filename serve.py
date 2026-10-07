@@ -21,6 +21,7 @@ WHO_FILE = os.environ.get("DUSK_WHO", os.path.expanduser("~/DuskRPG/who.json"))
 GAME_JSON = {
     "who.json": WHO_FILE,
     "leaderboard.json": os.path.join(os.path.dirname(WHO_FILE), "leaderboard.json"),
+    "profiles.json": os.path.join(os.path.dirname(WHO_FILE), "profiles.json"),
 }
 
 

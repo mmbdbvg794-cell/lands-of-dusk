@@ -211,6 +211,11 @@ backups; see `server/`.
 - **Friends**: a Friends tab with who's online, a note when a friend logs
   in, and Whisper buttons; add friends by name or from a player's menu.
 - **Whispers**: a Whispers chat tab; click a whisper to answer it.
+- **Achievements**: 19 to earn (First Blood, Dragonslayer, Bounty Hunter,
+  Bossbreaker, one for each quest chain, Questmaster, Veteran...), shown
+  with progress in the Journal tab; everyone hears when someone earns one.
+- **Profiles**: every player has a profile page (stats, what they wear,
+  quests finished, achievements), linked from the leaderboard and who's online.
 - **Mail**: the Mail tab sends letters to anyone with a character; they
   wait until read, and you're told when one arrives (at once, or when you
   next come in).
