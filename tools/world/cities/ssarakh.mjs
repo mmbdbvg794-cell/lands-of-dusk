@@ -16,6 +16,7 @@
 // lizardman (a prop of its own, "lizardfolk", image 39).
 
 import { captain } from './ferry.mjs';
+import { teller } from './lore.mjs';
 
 const O = [1660, 914];
 const A = (x, y) => [x - O[0], y - O[1]];
@@ -69,7 +70,7 @@ export default {
     // The Hall of the Brood.
     B(1688, 920, 15, 11, { wall: 'W', floor: 'P', doors: [['s', 7]] });
     NPC({ name: 'Chieftain Hesska', look: 'lizardfolk', desc: 'Chieftain Hesska, old and broad, her crest faded to the grey of river stone.', x: 1695, y: 924,
-      dlg: say('Ssss. Welcome to Ssarakh, warm-blood or scale-kin. The mire keeps us, and we keep the mire. Mind the bog pools; they keep what they take.') });
+      dlg: say('Ssss. Welcome to Ssarakh, warm-blood or scale-kin. The mire keeps us, and we keep the mire. Mind the bog pools; they keep what they take. And if you go east to the sands, beware the Dry Ones. They were brood once.') });
     SIGN('Hall of the Brood', 'The Hall of the Brood. Chieftain Hesska hears all who come in peace.', 1697, 932);
 
     // The Shaman's hut: training.
@@ -77,7 +78,7 @@ export default {
     WALK([[1712, 936], [1712, 940]]);
     MER(1712, 931, WARES.train);
     NPC({ name: 'Shaman Ithrae', look: 'lizardfolk', desc: 'Shaman Ithrae, hung with bones and river shells, eyes like wet stones.', x: 1714, y: 930,
-      dlg: say('The mire teaches, if you sit still long enough. Stand at my mat and I will teach you faster, for a price in what you have learned.') });
+      dlg: teller('The mire teaches, if you sit still long enough. Stand at my mat and I will teach you faster, for a price in what you have learned. Or sit, and ask what the brood remembers.', ['brood', 'dryones', 'wyrms'], 'Patience, warm-blood.') });
     SIGN('Shaman', 'The Shaman\'s hut. Training, for those with the patience of reeds.', 1713, 937);
 
     // The Mire Bank.

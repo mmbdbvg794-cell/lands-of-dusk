@@ -24,9 +24,11 @@ const BOSSES = [
     stats: { maxhp: 1100, stre: 80, dext: 55, cons: 45 },
     trophy: ['great wolf fang', 'a fang from Fenris the Great Wolf, still sharp'], rare: ['air boots', 'blood belt'] },
   { name: 'Kraghul the Warlord', at: [1608, 1202], where: 'in the northern dunes above Eastreach', image: 39,
+    desc: 'Kraghul, warlord of the Ashen Horde: horned, scaled and smoking, come through the burning gate under Firetown. The Sand Kings of the desert bow to him.',
     stats: { maxhp: 1400, stre: 90, dext: 40, cons: 50 },
     trophy: ['kraghuls war flag', 'the tattered war flag of Kraghul the Warlord'], rare: ['nova fists', 'blood helmet'] },
   { name: 'Morvane the Skeleton King', at: [620, 107], where: 'in the east field of the old world', image: 32,
+    desc: 'Morvane, once a prince of Zilen and King Aldric\'s brother, who opened the gate under Firetown. Now bones in a rusted crown, and every soul the Horde kills rises for him.',
     stats: { maxhp: 1200, stre: 85, dext: 40, cons: 48 },
     trophy: ['skeleton kings crown', 'the iron crown of Morvane the Skeleton King, cold to the touch'], rare: ['diamond gauntlets', 'serpent scales'] },
 ];
@@ -58,6 +60,7 @@ export default {
   build(p) {
     for (const b of BOSSES) {
       p.file(`defMobs/${b.name}`, mobFile({
+        ...(b.desc ? { description: b.desc } : {}),
         maxhp: b.stats.maxhp, maxsp: 100, ...b.stats, inte: 30, wisd: 30,
         bravery: '3.0', grouprelation: '0.0', image: b.image, faction: b.name.toLowerCase(), respawn: 0,
       }));

@@ -371,6 +371,7 @@ body.classic .journal .q-title { font-family: "Cinzel", serif; color: var(--ink-
 body.classic .journal .q-text { color: var(--ink-soft); font-size: 15px; }
 body.classic .journal .q-badge { background: var(--ink-red); color: #f6ecd2; font-family: "EB Garamond", Georgia, serif; }
 body.classic .journal li.done .q-badge { background: #4a6a3a; }
+body.classic .journal li.tale .q-badge { background: #5a3f6e; }
 body.classic .trade-gold { color: var(--ink-soft); }
 body.classic #output .line.k-whisper { color: #e0b8f5; }
 body.classic .skill-what { color: var(--ink-soft); font-size: 13px; font-style: italic; }

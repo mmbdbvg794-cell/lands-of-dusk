@@ -1398,6 +1398,8 @@ dialog::backdrop { background: #000a; }
 .journal .q-title { display: flex; align-items: center; gap: 8px; font-weight: 600; }
 .journal .q-badge { font-size: 11px; font-weight: normal; padding: 1px 8px; border-radius: 999px; background: var(--accent-dim); }
 .journal li.done .q-badge { background: #2e5b3f; }
+.journal li.tale .q-badge { background: #5a4a8a; }
+.journal li.tale .q-text { font-style: italic; }
 .journal .q-text { margin: 4px 0 0; color: var(--muted); }
 .friend-form { display: flex; gap: 6px; padding: 8px 12px; }
 .friend-form input { flex: 1; min-width: 0; }

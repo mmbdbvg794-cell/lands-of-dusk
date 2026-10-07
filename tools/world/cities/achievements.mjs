@@ -11,6 +11,8 @@ const CHAINS = [
   ['izaru', 'Friend of Izaru', 'Finish The Izaru Deeps, below Midnight', 'iz_deep_done'],
   ['frozen', 'Hero of Southfield', 'Finish The Frozen Reach', 'fr_dragon_done'],
 ];
+import { LORE_FLAGS } from './lore.mjs';
+
 const BOSSES = ['Ursok the Dread Bear', 'Fenris the Great Wolf', 'Kraghul the Warlord', 'Morvane the Skeleton King'];
 
 export const ACHIEVEMENTS = [
@@ -25,6 +27,7 @@ export const ACHIEVEMENTS = [
   ...CHAINS.map(([id, title, what, flag]) => [id, title, what, 'flags', flag, 1]),
   ['questmaster', 'Questmaster', 'Finish all seven quest chains', 'flags', CHAINS.map((c) => c[3]).join(','), CHAINS.length],
   ['champion', 'Champion', 'Win the Champion\'s Blade in the Champions\' Gauntlet', 'flags', 'Champion', 1],
+  ['loremaster', 'Keeper of Tales', 'Learn every tale of Dusk, from the chroniclers and the old stones', 'flags', LORE_FLAGS.join(','), LORE_FLAGS.length],
   ['seasoned', 'Seasoned', 'Earn 10,000 experience', 'exp', '', 10000],
   ['veteran', 'Veteran', 'Earn 100,000 experience', 'exp', '', 100000],
 ];

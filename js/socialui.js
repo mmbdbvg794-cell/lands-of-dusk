@@ -60,10 +60,12 @@ export class SocialUI {
     const list = this.$('journal-list');
     list.replaceChildren(...quests.map((q) => {
       const li = document.createElement('li');
-      li.className = q.done ? 'done' : '';
+      // Tales (tools/world/cities/lore.mjs) are pieces of the story, not quests.
+      const tale = q.title.startsWith('Tale: ');
+      li.className = tale ? 'done tale' : q.done ? 'done' : '';
       const head = document.createElement('div');
       head.className = 'q-title';
-      head.append(q.title, Object.assign(document.createElement('span'), { className: 'q-badge', textContent: q.done ? 'Done' : 'In progress' }));
+      head.append(tale ? q.title.slice(6) : q.title, Object.assign(document.createElement('span'), { className: 'q-badge', textContent: tale ? 'Lore' : q.done ? 'Done' : 'In progress' }));
       li.append(head);
       if (q.text) li.append(Object.assign(document.createElement('p'), { className: 'q-text', textContent: q.text }));
       return li;
