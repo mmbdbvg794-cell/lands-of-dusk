@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-06 21:10 UTC. Read this first in a new session.
+State as of 2026-10-07 02:55 (duskserver time). Read this first in a new session.
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -481,7 +481,7 @@ commands that touch live.
   speaker used to flip it) becomes muted on first load. The user reported
   music playing while the speaker showed muted.
 
-## 2026-10-07: old-world quest chains (tested; NOT live until installed + restart + deploy)
+## 2026-10-07: old-world quest chains (LIVE: installed 02:47, restart 02:51, deployed)
 
 - Three chains, 3 quests each, the user approved the plan (Firetown moved
   to the east-field village: Firetown is Cyril's "hell", reachable only by
