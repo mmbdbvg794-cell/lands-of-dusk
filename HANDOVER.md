@@ -768,7 +768,30 @@ commands that touch live.
   dialogue in dawnward(name, dlg): reinstall those with it. Played through
   end to end on scratch as egate. LORE.md has the ending (Firetown thread).
 
-## Open / ideas (ask the user before starting)
+## 2026-10-07 night: duels (installed 20:28: classes + ring; live after the restart)
+
+- server/Duel.java (hooked in Props.command, started from Skills; added to
+  build.sh and install.sh): "duel <name>" with both on the Duelling Ring's
+  sand, "duel accept|decline", "duel" = your record. On accept: both set
+  face to face (1514/1515, 328), count of 3, engine.initiateBattle. Clanless
+  players get clan "duellists" for the fight (the engine refuses PvP for
+  clan "none"), set back after (and on any online player outside a duel).
+  "safe" is cleared on accept. The fight runs to a death: conf/onDeath (now
+  written by tools/world/cities/arena.mjs) sends anyone with "dueling" to
+  the gate (1515,337) at 1 HP with "duellost"; when both are out of battle
+  Duel restores both players' gold, exp, HP and clan to their pre-duel
+  values (the engine takes 1/16 and pays the winner) and counts
+  duelwin/duelloss in achieved/<name>. Achievements kind "duelwins"
+  (Duellist 1, Champion of the Ring 25). Profiles show "Duels: W won, L
+  lost". Client: DuelInvite in the party invite box (Fight / No thanks),
+  "Challenge to a duel" on players when both are in the ring.
+- tools/world/cities/arena.mjs: the ring (1508-1522, 321-335) NE of
+  Kingshaven, Ringmaster Corvin, sign, braziers, conditions dueling and
+  duellost. Tested on scratch (egate v hgate): 2 duels, gold/exp identical
+  before and after, records 2-0 / 0-2, Duellist earned.
+- Not handled: a third player joining the battle (anyone in a clan could).
+
+
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
 

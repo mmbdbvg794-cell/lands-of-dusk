@@ -1,9 +1,10 @@
 // Parties (server/Party.java): the party frame over the map (who's in it,
-// their health), the invitation with Accept and Decline, and party chat
+// their health), the invitation with Accept and Decline (duel challenges,
+// server/Duel.java, use the same box), and party chat
 // ("%" at the start of a line; shown in the chat as "[Party] name: text").
 
 // A server line -> { party: { leader, members: [{ name, hp, maxhp, x, y }] } }
-// | { none } | { invite: from } | { chat: { from, text } } | null.
+// | { none } | { invite: from } | { duel: from } | { chat: { from, text } } | null.
 export function parseParty(line) {
   const s = line.trim();
   if (s === 'Party: none') return { none: true };
@@ -17,6 +18,9 @@ export function parseParty(line) {
   }
   m = /^PartyInvite: (.+)$/.exec(s);
   if (m) return { invite: m[1] };
+  // A duel challenge (server/Duel.java), answered from the same box.
+  m = /^DuelInvite: (.+)$/.exec(s);
+  if (m) return { duel: m[1] };
   m = /^PartyChat: ([^|]+)\|(.*)$/.exec(s);
   if (m) return { chat: { from: m[1], text: m[2] } };
   return null;
@@ -36,7 +40,7 @@ export class PartyView {
     invite.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-act]');
       if (!b) return;
-      this.send(`party ${b.dataset.act}`);
+      this.send(b.dataset.act);
       this.hideInvite();
     });
     frame.addEventListener('click', (e) => {
@@ -47,18 +51,21 @@ export class PartyView {
   reply(r) {
     if (r.none) { this.party = null; this.names = new Set(); this.render(); return true; }
     if (r.party) { this.party = r.party; this.names = new Set(r.party.members.map((m) => m.name.toLowerCase())); this.render(); return true; }
-    if (r.invite) { this.showInvite(r.invite); return true; }
+    if (r.invite) { this.showInvite(`${r.invite} asks you to join their party.`, 'party', 'Join'); return true; }
+    if (r.duel) { this.showInvite(`${r.duel} challenges you to a duel. Nobody loses anything.`, 'duel', 'Fight'); return true; }
     if (r.chat) { this.line(`[Party] ${r.chat.from}: ${r.chat.text}`); return true; }
     return false;
   }
 
-  showInvite(from) {
+  // An invitation: the words, the command it answers ("party" or "duel")
+  // and what the yes button says.
+  showInvite(text, cmd = 'party', yesLabel = 'Join') {
     const h = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
-    const yes = h('button', { type: 'button', className: 'small primary', textContent: 'Join' });
+    const yes = h('button', { type: 'button', className: 'small primary', textContent: yesLabel });
     const no = h('button', { type: 'button', className: 'small ghost', textContent: 'No thanks' });
-    yes.dataset.act = 'accept';
-    no.dataset.act = 'decline';
-    this.invite.replaceChildren(h('span', { textContent: `${from} asks you to join their party.` }), yes, no);
+    yes.dataset.act = `${cmd} accept`;
+    no.dataset.act = `${cmd} decline`;
+    this.invite.replaceChildren(h('span', { textContent: text }), yes, no);
     this.invite.hidden = false;
     clearTimeout(this.inviteTimer);
     this.inviteTimer = setTimeout(() => this.hideInvite(), 110000);

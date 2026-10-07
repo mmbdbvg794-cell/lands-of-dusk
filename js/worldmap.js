@@ -26,6 +26,7 @@ export const PLACES = [
   ['The new lands', [
     ['Kingshaven', 1440, 352], ['Aelindor', 473, 1241], ['Aelindor Landing', 444, 1186],
     ['Velkarath (underground)', 1345, 912], ['Ssarakh', 1695, 943], ['Eastreach', 1680, 1306],
+    ['Duelling Ring (Kingshaven)', 1515, 338],
   ]],
   ['The old world', [
     ['City of Light', 104, 155], ['Westsea Harbour', 95, 355], ['Riverside', 186, 95], ['Midnight', 444, 84],

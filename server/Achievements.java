@@ -15,13 +15,14 @@
  *   boss       help bring down <how many> world bosses
  *   bossset    help bring down each world boss named in <what>
  *   bounty     finish <how many> bounty jobs (a bounty's kill goal done)
+ *   duelwins   win <how many> duels (server/Duel.java)
  *   flags      hold every flag in <what> (quests' "_done" flags)
  *   exp        have <how many> experience
  * Kills count for whoever Quests.killed credits (the winners and their
  * party nearby).
  *
  * achieved/<name>, a line each: "earned|<id>|<ms>" or "count|<key>|<n>"
- * (keys: kills, kill:<creature>, boss, boss:<name>, bounty).
+ * (keys: kills, kill:<creature>, boss, boss:<name>, bounty, duelwin, duelloss).
  *
  *   achievements [name]  "Achv: id|title|what|earned ms (0: not yet)|
  *                        progress|goal" for each, then "Achv: done|<name>"
@@ -185,6 +186,29 @@ public class Achievements {
         }
     }
 
+    // A duel decided (server/Duel.java): a win for one, a loss for the other.
+    static void duel(Player winner, Player loser) {
+        try {
+            synchronized (Achievements.class) {
+                add(progress(winner.strName), "duelwin");
+                save(winner.strName, progress(winner.strName));
+                add(progress(loser.strName), "duelloss");
+                save(loser.strName, progress(loser.strName));
+            }
+            check(winner);
+        } catch (Exception e) {
+            Log.logError(e, "Achievements: duel", false);
+        }
+    }
+
+    // A player's duel record: { wins, losses }.
+    static long[] duels(String name) {
+        Progress pr = progress(name);
+        synchronized (Achievements.class) {
+            return new long[] { count(pr, "duelwin"), count(pr, "duelloss") };
+        }
+    }
+
     // A bounty job's kill goal done (server/Quests.java).
     static void bounty(Player p) {
         try {
@@ -207,6 +231,7 @@ public class Achievements {
         else if (d.kind.equals("boss")) n = count(pr, "boss");
         else if (d.kind.equals("bossset")) { for (String c : d.names) if (count(pr, "boss:" + c.toLowerCase()) > 0) n++; }
         else if (d.kind.equals("bounty")) n = count(pr, "bounty");
+        else if (d.kind.equals("duelwins")) n = count(pr, "duelwin");
         else if (d.kind.equals("flags")) { if (p != null) for (String f : d.names) if (p.hasCondition(f)) n++; }
         else if (d.kind.equals("exp")) n = p != null ? Math.min(d.goal, ((Player) p).exp) : 0;
         return new long[] { Math.min(n, d.goal), d.goal };

@@ -368,7 +368,9 @@ public class Admin {
                 b.append(q1 ? "" : ",").append(Who.json(title));
                 q1 = false;
             }
-            b.append("],\"achievements\":").append(Achievements.json(r.name)).append(",\"playtime\":").append(r.playtime)
+            long[] duels = Achievements.duels(r.name);
+            b.append("],\"duels\":{\"wins\":").append(duels[0]).append(",\"losses\":").append(duels[1]).append("}");
+            b.append(",\"achievements\":").append(Achievements.json(r.name)).append(",\"playtime\":").append(r.playtime)
                 .append(",\"online\":").append(Who.since.containsKey(r.name.toLowerCase())).append('}');
         }
         b.append("}}\n");

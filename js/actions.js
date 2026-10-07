@@ -25,6 +25,11 @@ export function distance(ent, x, y) {
 }
 
 // Whether storage is within reach: on your square or next to it.
+// The Duelling Ring's sand (server/Duel.java, tools/world/cities/arena.mjs):
+// standing on it, you can challenge another player there.
+const RING = { x0: 1509, y0: 322, x1: 1521, y1: 334 };
+const inRing = (x, y) => x >= RING.x0 && x <= RING.x1 && y >= RING.y0 && y <= RING.y1;
+
 // How near another player has to be to trade (server/Trade.java).
 export const TRADE_REACH = 3;
 export const storageReach = (ent, me) => Math.abs(ent.x - me.x) <= 1 && Math.abs(ent.y - me.y) <= 1;
@@ -106,6 +111,7 @@ function playerActions(ent, me) {
         distance(ent, me.x, me.y) <= TRADE_REACH ? { label: 'Trade', cmd: `trade ${name}` } : { label: 'Trade', disabled: true, hint: 'get closer' },
         friend ? { label: 'Remove friend', cmd: `friend remove ${name}` } : { label: 'Add friend', cmd: `friend add ${name}` },
         ...(me.party?.has(name.toLowerCase()) ? [] : [{ label: 'Invite to party', cmd: `party invite ${name}` }]),
+        ...(inRing(me.x, me.y) && inRing(ent.x, ent.y) ? [{ label: 'Challenge to a duel', cmd: `duel ${name}` }] : []),
       ];
     }
     case TYPE.ITEM:

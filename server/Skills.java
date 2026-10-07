@@ -94,6 +94,7 @@ public class Skills {
         WorldBoss.start(engine);
         // Parties (server/Party.java).
         Party.start(engine);
+        Duel.start(engine);
         // Achievements (server/Achievements.java).
         Achievements.start(engine);
         try {

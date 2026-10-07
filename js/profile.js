@@ -28,6 +28,8 @@ export function describeProfile(data, name) {
       ['Played', played(p.playtime)],
       ['Quests finished', String((p.quests ?? []).length)],
       ['Achievements', String((p.achievements ?? []).length)],
+      // Duels in the Duelling Ring (server/Duel.java), once there are any.
+      ...(p.duels && (p.duels.wins || p.duels.losses) ? [['Duels', `${p.duels.wins} won, ${p.duels.losses} lost`]] : []),
     ],
     stats: [['Strength', s.str], ['Dexterity', s.dex], ['Constitution', s.con], ['Intelligence', s.int], ['Wisdom', s.wis]].map(([k, v]) => [k, String(v ?? 0)]),
     gear: (p.gear ?? []).map((g) => [g.slot, g.item]),
