@@ -1504,3 +1504,35 @@ dialog::backdrop { background: #000a; }
 .ad-error { display: block; font-size: 11.5px; white-space: pre-wrap; word-break: break-word; color: #ffb1a1; }
 .ad-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 700px) { .ad-cols { grid-template-columns: 1fr; } }
+
+/* ---- the Mail tab (js/mail.js) ---- */
+.mail-list { display: flex; flex-direction: column; gap: 2px; max-height: 220px; overflow-y: auto; }
+.mail-row { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; text-align: left; padding: 6px 8px; border-radius: 6px; background: transparent; border: 1px solid transparent; color: inherit; font: inherit; }
+.mail-row:hover, .mail-row.open { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); }
+.mail-row.unread .mail-from { font-weight: 700; }
+.mail-row.unread .mail-from::before { content: '● '; color: var(--accent); }
+.mail-when { color: var(--muted); font-size: 12px; justify-self: end; }
+.mail-preview { grid-column: 1 / -1; color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mail-reader { margin: 8px 0; padding: 8px 10px; border-radius: 6px; background: rgba(0,0,0,0.18); }
+.mail-text { white-space: pre-wrap; margin: 6px 0; }
+.mail-acts { display: flex; gap: 6px; }
+.mail-form { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.mail-form h4 { margin: 0; font-size: 13px; }
+.mail-form textarea { resize: vertical; }
+.mail-send { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+
+/* ---- parties (js/party.js) ---- */
+#party-frame { position: absolute; top: 10px; left: 10px; z-index: 5; width: 150px; padding: 6px 8px; border-radius: 8px; background: rgba(10, 12, 18, 0.72); color: var(--text); font-size: 12px; }
+#party-frame[hidden] { display: none; }
+.party-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; }
+.party-leave { padding: 0 6px; font-size: 11px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--muted); border-radius: 4px; }
+.party-member { margin: 3px 0; }
+.party-member.me .party-name { color: var(--accent); }
+.party-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.party-bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.12); overflow: hidden; }
+.party-fill { height: 100%; background: #4fb05a; transition: width 0.4s; }
+.party-fill.low { background: #d0503c; }
+#party-invite { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 6; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; background: rgba(16, 20, 30, 0.92); border: 1px solid var(--accent-dim); color: var(--text); font-size: 13px; box-shadow: 0 6px 20px #000a; max-width: calc(100% - 24px); }
+#party-invite[hidden] { display: none; }
+@media (max-width: 600px) { #party-frame { top: auto; bottom: 120px; width: 130px; } }
+.line.party { color: #8fd0a0; }

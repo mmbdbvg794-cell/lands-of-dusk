@@ -15,8 +15,8 @@ assert.deepEqual(labels(entityActions(far, me)), ['Attack (too far)', 'Look']);
 assert.deepEqual(labels(entityActions(far, { ...me, range: 3 })), ['Attack', 'Look'], 'ranged weapons reach further');
 assert.deepEqual(labels(entityActions(far, { ...me, range: 0 })), ['Attack (too far)', 'Look'], 'range 0 still means adjacent');
 
-assert.deepEqual(labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 12, y: 10 }, me)), ['Look', 'Whisper', 'Trade', 'Add friend']);
-assert.deepEqual(labels(entityActions({ id: 5, name: '<clan>Bob', type: TYPE.PLAYER, x: 19, y: 10 }, { ...me, friends: new Set(['bob']) })), ['Look', 'Whisper', 'Trade (get closer)', 'Remove friend']);
+assert.deepEqual(labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 12, y: 10 }, me)), ['Look', 'Whisper', 'Trade', 'Add friend', 'Invite to party']);
+assert.deepEqual(labels(entityActions({ id: 5, name: '<clan>Bob', type: TYPE.PLAYER, x: 19, y: 10 }, { ...me, friends: new Set(['bob']) })), ['Look', 'Whisper', 'Trade (get closer)', 'Remove friend', 'Invite to party']);
 assert.equal(entityActions({ id: 5, name: '<clan>Bob', type: TYPE.PLAYER, x: 12, y: 10 }, me).find((a) => a.label === 'Trade').cmd, 'trade Bob');
 assert.deepEqual(entityActions({ id: 6, name: 'flan', type: TYPE.PLAYER, x: 10, y: 10 }, me), [
   { label: 'Look at yourself', cmd: 'look 6' },
@@ -34,7 +34,7 @@ assert.deepEqual(labels(entityActions({ id: 7, name: 'rock', type: 9, x: 1, y: 1
 const god = { ...me, god: true };
 assert.deepEqual(entityActions(slimer, god).at(-1), { label: 'Remove (god)', cmd: 'unset 77', god: true });
 assert.deepEqual(labels(entityActions({ id: 3, name: 'sign', type: TYPE.SIGN, x: 1, y: 1 }, god)), ['Read', 'Rename (god)', 'Edit text (god)', 'Remove (god)']);
-assert.deepEqual(labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 12, y: 10 }, god)), ['Look', 'Whisper', 'Trade', 'Add friend', 'Flags (god)']);
+assert.deepEqual(labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 12, y: 10 }, god)), ['Look', 'Whisper', 'Trade', 'Add friend', 'Invite to party', 'Flags (god)']);
 assert.deepEqual(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 10, y: 10 }, god).at(-1), { label: 'Remove (god)', cmd: 'storage remove', god: true });
 assert.deepEqual(labels(entityActions({ id: 4, name: 'barrel', type: TYPE.SIGN, x: 11, y: 10 }, god)), ['Open', 'Remove (god) (stand on it)']);
 assert.equal(entityActions(slimer, me).some((a) => a.god), false, 'not for players');
@@ -62,4 +62,7 @@ assert.deepEqual(labels(entityActions({ ...teller, x: 16 }, { ...me, looks, talk
 const bankSign = { id: 41, name: 'Bank', type: TYPE.SIGN, image: 1, x: 11, y: 10 };
 assert.deepEqual(labels(entityActions(bankSign, me)), ['Read']);
 assert.deepEqual(labels(entityActions(bankSign, god)), ['Read', 'Rename (god)', 'Edit text (god)', 'Remove (god)']);
+// Already in your party: no invite.
+assert.ok(!labels(entityActions({ id: 5, name: 'bob', type: TYPE.PLAYER, x: 12, y: 10 }, { ...me, party: new Set(['bob']) })).includes('Invite to party'));
+assert.equal(entityActions({ id: 5, name: '<clan>Bob', type: TYPE.PLAYER, x: 12, y: 10 }, me).find((a) => a.label === 'Invite to party').cmd, 'party invite Bob');
 console.log('ok - entity actions');

@@ -145,6 +145,8 @@
     <div id="map-wrap">
       <div id="now-playing" role="status" aria-live="polite" hidden></div>
       <div id="boss-banner" role="alert" hidden></div>
+      <div id="party-frame" aria-label="Your party" hidden></div>
+      <div id="party-invite" role="alertdialog" hidden></div>
       <div id="overlay" role="alertdialog" aria-labelledby="overlay-title" aria-describedby="overlay-text" hidden>
         <div class="overlay-card">
           <h3 id="overlay-title">Connection lost</h3>
@@ -235,6 +237,7 @@
             <button type="button" role="tab" data-tab="stats" aria-controls="tab-stats" aria-selected="false" tabindex="-1">Skills</button>
             <button type="button" role="tab" data-tab="journal" aria-controls="tab-journal" aria-selected="false" tabindex="-1">Journal</button>
             <button type="button" role="tab" data-tab="friends" aria-controls="tab-friends" aria-selected="false" tabindex="-1">Friends <span id="tab-friends-count" class="count"></span></button>
+            <button type="button" role="tab" data-tab="mail" aria-controls="tab-mail" aria-selected="false" tabindex="-1">Mail <span id="tab-mail-count" class="count"></span></button>
             <button type="button" role="tab" data-tab="trade" aria-controls="tab-trade" aria-selected="false" tabindex="-1" hidden>Trade</button>
             <button type="button" role="tab" data-tab="god" aria-controls="tab-god" aria-selected="false" tabindex="-1" hidden>God</button>
           </div>
@@ -309,6 +312,17 @@
           </form>
           <ul id="friends-list" class="rows"></ul>
           <p id="friends-empty" class="empty">No friends yet. Add someone by name, or click a player and choose Add friend.</p>
+        </div>
+        <div id="tab-mail" class="tab" role="tabpanel" hidden>
+          <div class="mail-list" role="list"></div>
+          <div class="mail-reader" hidden></div>
+          <form class="mail-form">
+            <h4>Write a letter</h4>
+            <input name="to" type="text" placeholder="To (a character's name)" list="mail-friends" autocomplete="off" spellcheck="false" autocapitalize="off" maxlength="30" aria-label="To">
+            <datalist id="mail-friends"></datalist>
+            <textarea name="text" rows="3" maxlength="2000" placeholder="Your letter. It waits for them until they read it." aria-label="Letter"></textarea>
+            <div class="mail-send"><span class="mail-status muted-note" role="status"></span><button type="submit" class="primary small">Send</button></div>
+          </form>
         </div>
         <div id="tab-trade" class="tab" role="tabpanel" hidden>
           <div class="store-head">
@@ -421,6 +435,7 @@
       <p>Bank tellers keep a deposit box for you; barrels and chests in town are for everyone. Click a player and choose Trade to swap with them.</p>
       <h4>Quests</h4>
       <p>Talk to people: many have work for you. The Journal keeps track of what you've taken on.</p>
+      <p>Click a player and choose <b>Invite to party</b> to hunt together: kills for quests count for everyone in the party who's nearby. Start a line with <kbd>%</kbd> to talk to your party. The <b>Mail</b> tab sends letters that wait for someone until they read them.</p>
       <p>Towns have bounty boards: read a notice to take a job, one a day per board. Now and then a <b>world boss</b> rises somewhere and everyone is told; type <code>boss</code> to hear where. Everyone in the fight when it falls shares the reward.</p>
       <h4>Settings</h4>
       <p>The gear button: night, weather, lighting, music, names, the look of the game, and Report a bug.</p>

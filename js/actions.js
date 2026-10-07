@@ -105,6 +105,7 @@ function playerActions(ent, me) {
         { label: 'Whisper', whisper: name },
         distance(ent, me.x, me.y) <= TRADE_REACH ? { label: 'Trade', cmd: `trade ${name}` } : { label: 'Trade', disabled: true, hint: 'get closer' },
         friend ? { label: 'Remove friend', cmd: `friend remove ${name}` } : { label: 'Add friend', cmd: `friend add ${name}` },
+        ...(me.party?.has(name.toLowerCase()) ? [] : [{ label: 'Invite to party', cmd: `party invite ${name}` }]),
       ];
     }
     case TYPE.ITEM:

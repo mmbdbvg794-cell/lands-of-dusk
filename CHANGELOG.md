@@ -211,6 +211,12 @@ backups; see `server/`.
 - **Friends**: a Friends tab with who's online, a note when a friend logs
   in, and Whisper buttons; add friends by name or from a player's menu.
 - **Whispers**: a Whispers chat tab; click a whisper to answer it.
+- **Mail**: the Mail tab sends letters to anyone with a character; they
+  wait until read, and you're told when one arrives (at once, or when you
+  next come in).
+- **Parties**: invite a player from their click menu; your party shows over
+  the map with everyone's health, `%` talks to the party, and kills for
+  quests and bounties count for party members nearby.
 - **Trading**: a trade window between two players (items and gold, both
   press Ready, any change un-readies both).
 - **World map pins**: banks, shops and people with something to say, where

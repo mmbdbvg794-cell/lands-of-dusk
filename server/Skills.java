@@ -92,6 +92,8 @@ public class Skills {
         Mail.start(engine);
         // World bosses rising now and then (server/WorldBoss.java).
         WorldBoss.start(engine);
+        // Parties (server/Party.java).
+        Party.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

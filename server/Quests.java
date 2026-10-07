@@ -313,9 +313,11 @@ public class Quests {
             synchronized (side) {
                 winners = new ArrayList<Object>(side);
             }
-            for (Object o : winners) {
-                if (o instanceof Player) counted((Player) o, killed.strName);
-            }
+            // The winners, and their party members nearby (server/Party.java).
+            List<Player> ws = new ArrayList<Player>();
+            for (Object o : winners) if (o instanceof Player) ws.add((Player) o);
+            if (ws.isEmpty()) return;
+            for (Player p : Party.withParty(ws, killed.engGame, ws.get(0).intLocX, ws.get(0).intLocY)) counted(p, killed.strName);
         } catch (Exception e) {
             Log.logError(e, "Quest kill", false);
         }

@@ -22,6 +22,8 @@ import { parseLibReply } from './library.js';
 import { Atmosphere, AmbientSound, findSnowTiles, daylight, regionMap, isUnderground } from './atmosphere.js';
 import { MusicPlayer, moodAt, moodForType, musicPanel, townAt } from './music.js';
 import { AreaAmbience, areaCounts, areaMix } from './ambience.js';
+import { MailView, parseMail } from './mail.js';
+import { PartyView, parseParty, partyChatCommand } from './party.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
@@ -198,6 +200,11 @@ function showCooldowns() {
 const questEditor = new QuestEditor($('quest-editor'), { send: quiet, lists: () => god.lists, fetchLists: () => god.opened(), here: () => (world.hasMap ? { x: world.locX, y: world.locY } : null) });
 // The quest journal's entries (gods), from the God tab.
 const journalEditor = new JournalEditor($('journal-editor'), { send: quiet });
+// Player mail (js/mail.js, server/Mail.java): the Mail tab.
+const mailView = new MailView($('tab-mail'), { send: quiet, note: (t) => sysLine(t), badge: $('tab-mail-count'), friends: () => socialUI.friends.map((f) => f.name) });
+document.querySelector('[data-tab="mail"]').addEventListener('click', () => mailView.refresh());
+// Parties (js/party.js, server/Party.java): the frame over the map.
+const partyView = new PartyView($('party-frame'), $('party-invite'), { send: quiet, me: () => loginName, line: (t) => appendLine(t, 'party') });
 // The admin page (js/admin.js): from the God tab, or #admin in the address.
 const adminView = new AdminView($('admin-dialog'), { send: quiet, run: (cmd) => runCommand(cmd) });
 // The Journal, Friends and Trade tabs.
@@ -262,7 +269,7 @@ const entityMenu = new EntityMenu(
     runCommand(cmd);
     if (/^unset \d/.test(cmd)) god.removed();
   },
-  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id, talkers, looks: renderer.propLooks, friends: socialUI.friendNames }),
+  () => ({ x: world.locX, y: world.locY, range: player.range, god: isGod, storageOpen: panels.storage?.entity.id, talkers, looks: renderer.propLooks, friends: socialUI.friendNames, party: partyView.names }),
 );
 // Gods rename signs and change what they say.
 entityMenu.onDialogue = (name) => dialogueEditor.edit(name);
@@ -1527,6 +1534,11 @@ function handle(msg) {
       if (serverReply) { god.serverReply(serverReply); adminView.serverReply(serverReply); break; }
       const adminReply = isGod && parseAdmin(msg.text);
       if (adminReply) { adminView.reply(adminReply); break; }
+      const partyReply = parseParty(msg.text);
+      if (partyReply && partyView.reply(partyReply)) break;
+      const mailReply = parseMail(msg.text);
+      if (mailReply && mailView.reply(mailReply)) break;
+      if (mailView.sent(msg.text.trim())) break;
       const flagsReply = parseFlags(msg.text);
       if (flagsReply) { flagsDialog.loaded(flagsReply); break; }
       const tileReply = parseTileReply(msg.text);
@@ -1970,7 +1982,8 @@ function submitInput() {
   // The first thing typed at login is the character name (as in the
   // capture: name, password, then the rest), which the minimap is saved under.
   if (!secret && !loginName && !world.hasMap && text.trim()) useExploredFor(text.trim());
-  conn.send(text);
+  // "%" talks to your party (server/Party.java).
+  conn.send((!secret && partyChatCommand(text)) || text);
   echoLine(secret ? '*'.repeat(text.length) : text);
   $('prompt-bar').hidden = true; // typed an answer instead
   answeredSpeech();

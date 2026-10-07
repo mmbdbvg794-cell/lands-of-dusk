@@ -24,8 +24,8 @@ if [ -f "$GAME/storage-originals/Commands.class" ]; then
 fi
 java -jar "$SRC/cfr.jar" classes/Commands.class classes/DuskServer.class --outputdir src --silent true >/dev/null
 python3 "$SRC/patch.py" src
-cp "$SRC/Storage.java" "$SRC/CaseFix.java" "$SRC/FixedEngine.java" "$SRC/Talk.java" "$SRC/Props.java" "$SRC/BridgedSocket.java" "$SRC/Bans.java" "$SRC/MapStore.java" "$SRC/Social.java" "$SRC/Trade.java" "$SRC/Skills.java" "$SRC/Library.java" "$SRC/Ferry.java" "$SRC/Who.java" "$SRC/Quests.java" "$SRC/Conditions.java" "$SRC/Admin.java" "$SRC/Housing.java" "$SRC/Creatures.java" "$SRC/Mail.java" "$SRC/WorldBoss.java" src/
-javac -nowarn -encoding UTF-8 -d out -cp classes src/Storage.java src/CaseFix.java src/FixedEngine.java src/Talk.java src/Props.java src/BridgedSocket.java src/Bans.java src/MapStore.java src/Social.java src/Trade.java src/Skills.java src/Library.java src/Ferry.java src/Who.java src/Quests.java src/Conditions.java src/Admin.java src/Housing.java src/Creatures.java src/Mail.java src/WorldBoss.java src/Commands.java src/DuskServer.java
+cp "$SRC/Storage.java" "$SRC/CaseFix.java" "$SRC/FixedEngine.java" "$SRC/Talk.java" "$SRC/Props.java" "$SRC/BridgedSocket.java" "$SRC/Bans.java" "$SRC/MapStore.java" "$SRC/Social.java" "$SRC/Trade.java" "$SRC/Skills.java" "$SRC/Library.java" "$SRC/Ferry.java" "$SRC/Who.java" "$SRC/Quests.java" "$SRC/Conditions.java" "$SRC/Admin.java" "$SRC/Housing.java" "$SRC/Creatures.java" "$SRC/Mail.java" "$SRC/WorldBoss.java" "$SRC/Party.java" src/
+javac -nowarn -encoding UTF-8 -d out -cp classes src/Storage.java src/CaseFix.java src/FixedEngine.java src/Talk.java src/Props.java src/BridgedSocket.java src/Bans.java src/MapStore.java src/Social.java src/Trade.java src/Skills.java src/Library.java src/Ferry.java src/Who.java src/Quests.java src/Conditions.java src/Admin.java src/Housing.java src/Creatures.java src/Mail.java src/WorldBoss.java src/Party.java src/Commands.java src/DuskServer.java
 # The game loop's MP healing, fixed in the compiled engine (EnginePatch.java),
 # always from the original class.
 ENGINE="$GAME/DuskEngine.class"

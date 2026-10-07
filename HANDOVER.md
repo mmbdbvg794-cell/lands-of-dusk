@@ -584,6 +584,27 @@ commands that touch live.
   server/build.sh`; `... server/install.sh`; `ssh duskserver sh
   /tmp/worldbosses-install.sh` (bundle staged); `restart 10` in game.
 
+## 2026-10-07: area sounds (LIVE, deployed), player mail + parties (NOT live: deploy, build/install, restart)
+
+- js/ambience.js: AreaAmbience (Web Audio beds wind/waves/cave + one-shots
+  birds/crickets/owls/gulls/drips/frogs) from areaCounts(tiles in view) +
+  areaMix({ light, underground, town }); main.js updates every 2 s;
+  Settings "Area sounds" (dusk.ambience); through Sound's master.
+- Player mail in server/Mail.java: mailbox/<name> (id|from|when|read|text),
+  "mail send|list|read|delete", MailNew at once or at next login; js/mail.js
+  MailView = the Mail tab (unread badge, reader with Reply/Delete, compose).
+- server/Party.java (in build.sh/install.sh lists, started from Skills,
+  command in Props): party invite/accept/decline/leave/kick/say, max 6, in
+  memory; "Party: leader|name:hp:maxhp:x:y,..." every 3 s; Quests.killed
+  credits winners' party members within 20 squares (Party.withParty).
+  js/party.js: #party-frame (HP bars), #party-invite toast, "%" = party say,
+  "Invite to party" in a player's click menu (actions.js).
+- Tested on scratch (egate, hgate): letter while offline, login notice,
+  read, reply, instant notice, delete; invite, join, frames, party chat,
+  shared bounty kill, leave.
+- To go live: tools/deploy.sh; `ssh duskserver sh dusk-browser-client/
+  server/build.sh`; `... server/install.sh`; `restart 10` in game.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).
