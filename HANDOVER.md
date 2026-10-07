@@ -637,6 +637,10 @@ commands that touch live.
 - Battle swings: world.swings from hit/dodge lines (attacker -> target, one
   per 300 ms), world.swingOf(id); the renderer lunges the attacker 0.2 of a
   square toward its target and draws a weapon arc (drawSwing), 380 ms.
+  Styles (renderer SWINGS, LUNGE): slash (swords, default), stab (daggers,
+  spears), chop (axes, hammers, picks), claw; main.js renderer.swingStyle:
+  your weapon / other players' (Painted gear) via weaponKind + swingStyleFor;
+  creatures by name (BEASTS claw, "axe" chop, "dagger" stab, else slash).
 
 ## Open / ideas (ask the user before starting)
 

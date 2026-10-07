@@ -202,3 +202,10 @@ console.log('ok - world state');
   assert.equal(s.swingOf(2, 1100), null, 'the hound did nothing');
   console.log('ok - swings');
 }
+{
+  const { swingStyleFor } = await import('../js/renderer.js').catch(() => ({}));
+  if (swingStyleFor) {
+    assert.deepEqual(['dagger', 'spear', 'axe', 'hammer', 'sword', 'claw', 'bow'].map(swingStyleFor), ['stab', 'stab', 'chop', 'chop', 'slash', 'claw', 'slash']);
+    console.log('ok - swing styles');
+  }
+}

@@ -209,10 +209,12 @@ export class Renderer {
       const { e, pos } = d;
       let [px, py] = toPx(pos.x, pos.y);
       where.set(e.id, [px, py]);
-      // In a fight: a lunge toward the target and back (world.swingOf).
+      // In a fight: a lunge toward the target and back (world.swingOf),
+      // as far as the way they strike (swingStyle) goes.
       const sw = world.swingOf(e.id, now);
       if (sw) {
-        const lunge = Math.sin(sw.t * Math.PI) * 0.2 * c;
+        sw.style = this.swingStyle?.(e) ?? 'slash';
+        const lunge = Math.sin(sw.t * Math.PI) * LUNGE[sw.style] * c;
         px += sw.dx * lunge;
         py += sw.dy * lunge;
       }
@@ -240,7 +242,7 @@ export class Renderer {
       else if (e === self) this.drawDressed(e.image, step, px, py, c, this.gear);
       else if (dressing && e.type === 0 && this.others.has(e.id)) this.drawDressed(e.image, step, px, py, c, this.others.get(e.id));
       else players?.draw(ctx, e.image * 8 + step, px, py, c);
-      if (sw) drawSwing(ctx, px + c / 2, py + c / 2, c, sw);
+      if (sw) (SWINGS[sw.style] ?? drawSwing)(ctx, px + c / 2, py + c / 2, c, sw);
 
       const kind = this.nameKind(e);
       if (names && !e.hideName && (kind === 'object' ? this.showObjectNames : kind === 'npc' ? this.showNpcNames : this.showNames)) {
@@ -402,3 +404,102 @@ function drawSwing(ctx, cx, cy, c, { t, dx, dy }) {
   ctx.stroke();
   ctx.restore();
 }
+
+// How far each way of striking lunges (of a square).
+const LUNGE = { slash: 0.2, stab: 0.3, chop: 0.16, claw: 0.22 };
+
+// A weapon kind (js/gear.js weaponKind) -> how it strikes.
+export function swingStyleFor(kind) {
+  if (kind === 'dagger' || kind === 'spear') return 'stab';
+  if (kind === 'axe' || kind === 'hammer' || kind === 'pick' || kind === 'shovel') return 'chop';
+  if (kind === 'claw') return 'claw';
+  return 'slash';
+}
+
+const fade = (t) => (t < 0.7 ? 1 : 1 - (t - 0.7) / 0.3);
+
+// A dagger's stab: the blade thrusts straight out at the target and back,
+// a glint at its tip as it reaches.
+function drawStab(ctx, cx, cy, c, { t, dx, dy }) {
+  const reach = Math.sin(Math.min(1, t * 1.3) * Math.PI);
+  const from = c * 0.2, to = c * (0.3 + 0.55 * reach);
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.globalAlpha = fade(t);
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+  ctx.lineWidth = Math.max(4, c * 0.14);
+  ctx.beginPath(); ctx.moveTo(cx + dx * from, cy + dy * from); ctx.lineTo(cx + dx * to, cy + dy * to); ctx.stroke();
+  ctx.strokeStyle = '#e4e8ee';
+  ctx.lineWidth = Math.max(2, c * 0.05);
+  ctx.beginPath(); ctx.moveTo(cx + dx * from, cy + dy * from); ctx.lineTo(cx + dx * to, cy + dy * to); ctx.stroke();
+  if (reach > 0.8) {
+    const gx = cx + dx * to, gy = cy + dy * to, r = c * 0.12 * reach;
+    ctx.strokeStyle = '#fffbe8';
+    ctx.lineWidth = Math.max(1.5, c * 0.03);
+    ctx.beginPath(); ctx.moveTo(gx - r, gy); ctx.lineTo(gx + r, gy); ctx.moveTo(gx, gy - r); ctx.lineTo(gx, gy + r); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// An axe's chop: a heavy arc brought down onto the target, then a burst
+// where it lands.
+function drawChop(ctx, cx, cy, c, { t, dx, dy }) {
+  const face = Math.atan2(dy, dx);
+  const from = face - 1.7, to = face + 0.15;
+  const k = Math.min(1, t * 1.8);
+  const head = from + (to - from) * k * k; // speeding up as it falls
+  const r = c * 0.68;
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.globalAlpha = fade(t);
+  ctx.strokeStyle = 'rgba(255,240,220,0.55)';
+  ctx.lineWidth = Math.max(6, c * 0.26);
+  ctx.beginPath(); ctx.arc(cx, cy, r, Math.max(from, head - 0.9), head); ctx.stroke();
+  ctx.strokeStyle = '#f2e4cc';
+  ctx.lineWidth = Math.max(2.5, c * 0.09);
+  ctx.beginPath(); ctx.arc(cx, cy, r, Math.max(from, head - 0.9), head); ctx.stroke();
+  // The axe head at the leading edge: a short wedge across the arc.
+  const hx = cx + Math.cos(head) * r, hy = cy + Math.sin(head) * r;
+  ctx.fillStyle = '#c8ccd4';
+  ctx.beginPath();
+  ctx.arc(hx, hy, Math.max(3, c * 0.1), head - Math.PI / 2, head + Math.PI / 2);
+  ctx.fill();
+  if (k >= 1) {
+    const bx = cx + Math.cos(to) * r, by = cy + Math.sin(to) * r, s = c * (0.1 + 0.25 * (t - 0.55));
+    ctx.strokeStyle = '#fff2c0';
+    ctx.lineWidth = Math.max(1.5, c * 0.04);
+    for (let i = 0; i < 6; i++) {
+      const a = i * Math.PI / 3 + face;
+      ctx.beginPath(); ctx.moveTo(bx + Math.cos(a) * s * 0.4, by + Math.sin(a) * s * 0.4); ctx.lineTo(bx + Math.cos(a) * s, by + Math.sin(a) * s); ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+// A creature's claws: three short rakes across the side facing its target,
+// one after another.
+function drawClaw(ctx, cx, cy, c, { t, dx, dy }) {
+  const face = Math.atan2(dy, dx);
+  const px = -dy, py = dx; // across the way it faces
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.globalAlpha = fade(t);
+  for (let i = 0; i < 3; i++) {
+    const k = Math.max(0, Math.min(1, (t - i * 0.08) * 2.2));
+    if (k <= 0) continue;
+    const off = (i - 1) * c * 0.16;
+    const mx = cx + Math.cos(face) * c * 0.6 + px * off, my = cy + Math.sin(face) * c * 0.6 + py * off;
+    const len = c * 0.32;
+    const sx = mx - (dx + px) * 0.7 * len / 2, sy = my - (dy + py) * 0.7 * len / 2;
+    const ex = sx + (dx + px) * 0.7 * len * k, ey = sy + (dy + py) * 0.7 * len * k;
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.lineWidth = Math.max(3, c * 0.1);
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.strokeStyle = '#ffe8e0';
+    ctx.lineWidth = Math.max(1.5, c * 0.035);
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+export const SWINGS = { slash: drawSwing, stab: drawStab, chop: drawChop, claw: drawClaw };

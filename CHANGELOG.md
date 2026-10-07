@@ -232,8 +232,9 @@ backups; see `server/`.
   Each continent has its own weather (wet, foggy North; dry desert East;
   stormier open sea), fog comes and goes, and how hard it rains and which
   way the wind blows change through the day.
-- **Fights you can see**: whoever lands a blow lunges at their foe with a
-  sweep of their weapon.
+- **Fights you can see**: whoever lands a blow lunges at their foe, by
+  their weapon: a sword slashes, a dagger or spear stabs, an axe or hammer
+  chops down, and beasts rake with their claws.
 - **Sound levels**: separate sliders for sound effects, music and ambience
   (rain, thunder, wind, birds); the music fades down in rain and out in a
   storm, and comes back when it clears.

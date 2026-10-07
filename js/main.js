@@ -10,7 +10,7 @@ import { parseStats } from './stats.js';
 import { bareName } from './world.js';
 import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
-import { gearFromEquipment, parseWorn, wornCommand } from './gear.js';
+import { gearFromEquipment, parseWorn, wornCommand, weaponKind } from './gear.js';
 import { chatKind, alsoGeneral, CombatTally } from './chatlog.js';
 import { MapSync, decodeChunk } from './mapsync.js';
 import { loadItemInfo } from './iteminfo.js';
@@ -42,7 +42,7 @@ import { WorldMap, tileColours } from './worldmap.js';
 import { Panels, setBar } from './panels.js';
 import { Player } from './player.js';
 import { OP, opName } from './protocol.js';
-import { Renderer } from './renderer.js';
+import { Renderer, swingStyleFor } from './renderer.js';
 import { loadSheets, loadSheet, SpriteSheet } from './sprites.js';
 import { describeRaces } from './races.js';
 import { describeWho } from './who.js';
@@ -127,6 +127,20 @@ loadItemInfo().then((info) => { panels.itemInfo = info; });
 const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
 let world = newWorld();
 const renderer = new Renderer($('map'), world, $('map-wrap'));
+// How someone strikes in a fight (the renderer's swings): by their weapon
+// (yours, or another player's as the Painted style knows it); creatures by
+// what they are: beasts claw, axemen chop, the rest slash.
+const BEASTS = /wolf|hound|dog|bear|grizzly|cat\b|dragon|lizard\b|bat\b|rat\b|spider|scorpion|alligator|squid|octopus|dino|mole|slime|blob|slimer|imp\b|gargoyle/i;
+renderer.swingStyle = (e) => {
+  if (e.type === 4) {
+    const n = bareName(e.name ?? '');
+    return /axe/i.test(n) ? 'chop' : /dagger/i.test(n) ? 'stab' : BEASTS.test(n) ? 'claw' : 'slash';
+  }
+  const mine = e === world.self() ? player.equipment?.wield?.name : null;
+  if (mine) return swingStyleFor(weaponKind(mine));
+  const kind = renderer.others.get(e.id)?.weapon?.kind;
+  return kind ? swingStyleFor(kind) : 'slash';
+};
 renderer.ships = new Ships();
 renderer.farTile = (x, y) => minimap.explored.tileAt(x, y); // squares seen before, beyond the view
 // For tests (localStorage dusk.debug = 1): the world, ships and renderer to read.
