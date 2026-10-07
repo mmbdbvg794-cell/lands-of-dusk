@@ -96,6 +96,9 @@ Tales**.
 - **Mail**: letters to any character, waiting until they're read.
 - **Friends** (with online notices), **whispers**, **trading** between players,
   a **who's online** page and a **leaderboard**.
+- **Duels** in the Duelling Ring outside Kingshaven: challenge another
+  player, fight to the fall, and nobody loses anything; wins and losses go
+  on your profile.
 - **Achievements** (Dragonslayer, Bounty Hunter, Keeper of Tales...) and a
   **profile page** for every character.
 - A **forum** on the website: sign in with your character's name and game
@@ -135,5 +138,5 @@ the leaderboard and who's online.
 
 ## Ideas for later
 
-A Firetown expedition (to follow Elowen), arena duels, gathering and crafting, owned
+A Firetown expedition (to follow Elowen), gathering and crafting, owned
 ships.

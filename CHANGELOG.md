@@ -405,6 +405,16 @@ backups; see `server/`.
 - **The tutorial ends in Kingshaven**, the free city the refugees sail to
   from the war-torn old world, whether you finish it or skip it.
 
+- **Duels.** A Duelling Ring of sand outside Kingshaven's east gate, with
+  Ringmaster Corvin. Stand on the sand with another player and challenge
+  them (click them, or type `duel <name>`); fight on a count of three until
+  one falls. Nobody dies or loses gold or experience. Wins and losses show
+  on your profile; achievements Duellist and Champion of the Ring.
+- **The Dawnward**, a quest chain after the lost Princess Elowen, from Old
+  Wenna in Kingshaven to a wreck on the lizardman isles and back.
+- **Hatching Pools**: the lizardmen's own tutorial. **Swamp creatures** and a
+  bounty board on the isles.
+
 ## Website
 
 - **Forum** (forum.html): an old-school forum with boards for news,
