@@ -46,6 +46,8 @@ function glow(ctx, colour, blur, draw) {
 
 // Colours named in item names, for potions, gems, books and stones.
 const HUES = [
+  [/aquamarine/, '#4ccad0'],
+  [/topaz/, '#e89a2c'],
   [/red|ruby|blood|fire|flame|rose/, '#c8242c'],
   [/blue|mana|sapphire|water|ice/, '#2c5cd0'],
   [/green|emerald|forest|poison/, '#2a9a3c'],
@@ -946,7 +948,64 @@ export function propPainterFor(name) {
 
 // First match wins. Items are { name, type, kind } from defItems; weapons
 // and armour go by their type and slot, everything else by name.
+// A crown: a gold band with points, a gem in each.
+function crown(ctx, n) {
+  const c = /silver/.test(n) ? '#c8ccd4' : '#e0b030';
+  shadow(ctx, 30, 7);
+  fill(ctx, poly(ctx, [[CX - 30, 92], [CX - 30, 62], [CX - 20, 74], [CX - 10, 54], [CX, 72], [CX + 10, 54], [CX + 20, 74], [CX + 30, 62], [CX + 30, 92]]), c, [CX - 30, 54, CX + 30, 92]);
+  fill(ctx, rr(ctx, CX - 31, 84, 62, 9, 2), shade(c, 0.85), [CX - 31, 84, CX + 31, 93], 1.5);
+  for (const [x, col] of [[CX - 18, '#c8242c'], [CX, '#2c5cd0'], [CX + 18, '#2a9a3c']]) glow(ctx, col, 6, () => fill(ctx, ell(ctx, x, 88, 3.5, 3), col, [x - 4, 85, x + 4, 91], 1));
+  if (/dent/.test(n) || /zilen/.test(n)) { ctx.strokeStyle = shade(c, 0.55); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(CX + 22, 68); ctx.lineTo(CX + 26, 80); ctx.stroke(); }
+  glint(ctx, CX - 10, 58, 2.5);
+}
+
+// A lamp: a metal frame round a glowing glass, a handle on top.
+function lamp(ctx) {
+  shadow(ctx, 18, 6);
+  ctx.strokeStyle = '#3a3634'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(CX, 44, 12, Math.PI, Math.PI * 2); ctx.stroke();
+  fill(ctx, rr(ctx, CX - 14, 48, 28, 8, 2), '#4a4644', [CX - 14, 48, CX + 14, 56], 1);
+  glow(ctx, '#ffc060', 14, () => { ctx.fillStyle = '#ffd27a'; ctx.fillRect(CX - 11, 56, 22, 28); ctx.fillStyle = '#fff4c0'; ctx.fillRect(CX - 5, 62, 10, 16); });
+  ctx.fillStyle = '#3a3634'; for (const x of [CX - 12, CX + 10]) ctx.fillRect(x, 56, 2, 28);
+  fill(ctx, rr(ctx, CX - 15, 84, 30, 10, 2), '#4a4644', [CX - 15, 84, CX + 15, 94], 1);
+}
+
+// A pelt: a hide spread flat, legs out; white for a frost bear's.
+function pelt(ctx, n) {
+  const c = /frost|white|snow|ice/.test(n) ? '#e8eef2' : '#8a5a34';
+  shadow(ctx, 34, 7);
+  fill(ctx, () => {
+    ctx.beginPath(); ctx.moveTo(CX, 46);
+    ctx.bezierCurveTo(CX + 14, 46, CX + 16, 54, CX + 22, 52); ctx.lineTo(CX + 34, 46); ctx.lineTo(CX + 28, 60);
+    ctx.bezierCurveTo(CX + 26, 72, CX + 26, 80, CX + 30, 88); ctx.lineTo(CX + 36, 96); ctx.lineTo(CX + 20, 92);
+    ctx.bezierCurveTo(CX + 10, 96, CX - 10, 96, CX - 20, 92); ctx.lineTo(CX - 36, 96); ctx.lineTo(CX - 30, 88);
+    ctx.bezierCurveTo(CX - 26, 80, CX - 26, 72, CX - 28, 60); ctx.lineTo(CX - 34, 46); ctx.lineTo(CX - 22, 52);
+    ctx.bezierCurveTo(CX - 16, 54, CX - 14, 46, CX, 46); ctx.closePath();
+  }, c, [CX - 36, 46, CX + 36, 96]);
+  ctx.strokeStyle = shade(c, 0.78); ctx.lineWidth = 1;
+  for (let i = 0; i < 9; i++) { const x = CX - 16 + i * 4; ctx.beginPath(); ctx.moveTo(x, 60); ctx.lineTo(x + 2, 86); ctx.stroke(); }
+}
+
+// A ring: a band seen from above, a stone or a seal on it.
+function ring(ctx, n) {
+  const c = /silver|signet/.test(n) ? '#c8ccd4' : '#e0b030';
+  shadow(ctx, 18, 5);
+  ctx.strokeStyle = c; ctx.lineWidth = 6; ctx.beginPath(); ctx.ellipse(CX, 80, 16, 10, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = shade(c, 0.7); ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(CX, 80, 19, 13, 0, 0, Math.PI * 2); ctx.stroke();
+  if (/signet|seal/.test(n)) {
+    fill(ctx, ell(ctx, CX, 68, 9, 7), shade(c, 0.9), [CX - 9, 61, CX + 9, 75], 1.5);
+    ctx.strokeStyle = shade(c, 0.55); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(CX - 4, 65); ctx.lineTo(CX + 4, 71); ctx.moveTo(CX + 4, 65); ctx.lineTo(CX - 4, 71); ctx.stroke();
+  } else glow(ctx, hue(n, '#c8242c'), 8, () => fill(ctx, ell(ctx, CX, 69, 6, 5), hue(n, '#c8242c'), [CX - 6, 64, CX + 6, 74], 1));
+  glint(ctx, CX - 10, 76, 2);
+}
+
 const BY_NAME = [
+  [/crown|tiara|circlet/, crown],
+  [/lamp|lantern/, lamp],
+  [/pelt|hide|fur/, pelt],
+  [/signet|ring/, ring],
+  [/grave goods|comb|beads/, amulet],
+  [/straw/, herb],
+  [/^water$/, vial],
   [/\bkey\b|key$|key\d/, key],
   [/crystal box|shifty box|\bbox\b/, box],
   [/potion|elix|ambrosia/, potion],
@@ -954,7 +1013,7 @@ const BY_NAME = [
   [/scroll/, scroll],
   [/note|news|pass\b|trankpass|warning|letter|map\b/, paper],
   [/book|tome/, book],
-  [/amethyst|emerald|ruby|opal|diamond|sapphire|forest gem|\bgem\b/, gem],
+  [/amethyst|emerald|ruby|opal|diamond|sapphire|aquamarine|topaz|forest gem|\bgem\b/, gem],
   [/crystal/, crystal],
   [/\bore\b/, ore],
   [/orb\b|^soul$/, orb],
@@ -975,7 +1034,7 @@ const BY_NAME = [
   [/bones/, bones],
   [/^skull$/, skull],
   [/fairy dust|dust/, dust],
-  [/bag|pouch|sack/, bag],
+  [/bag|pouch|sack|purse/, bag],
   [/chest$/, chest],
   [/quiver/, quiver],
   [/arrow/, arrows],
