@@ -14,6 +14,14 @@
 //     reward: { gold, exp, items: [name], says },
 //     after,                                   the giver once it's done
 //     repeatable,
+//     again: { minutes, flag, says },          a repeatable one: it can be
+//                                              taken once per `minutes`
+//                                              (0: any time); `flag` (default
+//                                              <id>_again) remembers it, and
+//                                              quests sharing a flag share
+//                                              the wait (a bounty board's
+//                                              posters); `says` is said
+//                                              to anyone who must wait
 //     requires, notYet,                        another quest to finish first
 //                                              (its id), and what the giver
 //                                              says until then (optional)
@@ -22,7 +30,7 @@
 // Flags: <id>_on while it's running, <id>_1 ... <id>_n for each step,
 // <id>_done when it's finished (not kept for a repeatable quest).
 
-import { cleanFlag, toBase64, fromBase64 } from './dialogue.js';
+import { cleanFlag, toBase64, fromBase64, TIMER_FLAG } from './dialogue.js';
 
 export const cleanQuestId = (s) => String(s ?? '').trim().toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 30);
 
@@ -36,6 +44,7 @@ export const newQuest = (id = '') => ({
   reward: { gold: 0, exp: 0, items: [], says: '' },
   after: 'Thank you again for your help.',
   repeatable: false,
+  again: { minutes: 0, flag: '', says: '' },
   requires: '',
   notYet: '',
   depth: 0,
@@ -51,6 +60,9 @@ export const newStep = (kind, giver = '') => {
 const flagOn = (q) => `${q.id}_on`;
 const flagStep = (q, i) => `${q.id}_${i + 1}`;
 const flagDone = (q) => `${q.id}_done`;
+// A repeatable quest's wait between takings: its flag, or '' for none.
+const againMinutes = (q) => (q.repeatable ? Math.max(0, Math.floor(Number(q.again?.minutes) || 0)) : 0);
+export const flagAgain = (q) => (againMinutes(q) ? cleanFlag(q.again?.flag || '') || `${q.id}_again` : '');
 const t = (s) => String(s ?? '').trim();
 const n = (v) => Math.max(0, Math.floor(Number(v) || 0));
 const hasNum = (v) => v !== '' && v != null && Number.isFinite(Number(v));
@@ -61,7 +73,9 @@ const radius = (s) => Math.min(RADIUS_MAX, n(s.radius));
 
 // Every flag the quest uses (the server's "quest who" looks for these).
 export function questFlags(q) {
-  return [flagOn(q), ...q.steps.map((_, i) => flagStep(q, i)), flagDone(q)];
+  const out = [flagOn(q), ...q.steps.map((_, i) => flagStep(q, i)), flagDone(q)];
+  if (flagAgain(q)) out.push(flagAgain(q), TIMER_FLAG);
+  return out;
 }
 
 // What's wrong with it, as sentences; empty when it can be saved.
@@ -167,6 +181,8 @@ export function questStagesFor(q, npc) {
   if (isGiver) {
     stages.push({ ...tag, when: { kind: 'flag', value: flagOn(q) }, says: t(q.reminder) || 'How goes it?', answers: [] });
     const accept = { label: t(q.offer.accept) || 'I will help', reply: t(q.offer.acceptReply), effects: [{ kind: 'flag', flag: flagOn(q) }, { kind: 'flag', flag: flagStep(q, 0) }] };
+    // Once per wait (the conversation's "again after N minutes").
+    if (flagAgain(q)) accept.once = { flag: flagAgain(q), minutes: againMinutes(q), says: t(q.again.says) || 'Come back later; there\'s nothing new yet.' };
     const answers = [accept];
     if (t(q.offer.decline)) answers.push({ label: t(q.offer.decline), reply: t(q.offer.declineReply), effects: [] });
     // Offered to anyone who hasn't finished it (a repeatable one: anyone
@@ -274,6 +290,7 @@ export function tidyQuest(raw) {
   q.id = cleanQuestId(q.id);
   q.offer = { ...newQuest().offer, ...(raw?.offer ?? {}) };
   q.reward = { ...newQuest().reward, ...(raw?.reward ?? {}) };
+  q.again = { ...newQuest().again, ...(raw?.again ?? {}) };
   q.requires = cleanQuestId(q.requires);
   q.depth = n(q.depth);
   q.reward.items = Array.isArray(q.reward.items) ? q.reward.items : [];

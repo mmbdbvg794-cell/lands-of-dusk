@@ -284,9 +284,18 @@ export class QuestEditor {
       field('Given by', q.giver, (v) => { q.giver = v; }, { list: 'qe-npcs', placeholder: 'an NPC\'s name, e.g. Farmer Joe' }),
       (() => {
         const c = h('input', { type: 'checkbox', checked: !!q.repeatable });
-        c.addEventListener('change', () => { q.repeatable = c.checked; });
+        c.addEventListener('change', () => { q.repeatable = c.checked; again(); });
         return h('label', { className: 'toggle le-row' }, c, ' Can be done again (no "finished" flag; offered again afterwards)');
       })(),
+      q.repeatable ? (() => {
+        // A wait between takings, in hours (kept in minutes).
+        q.again ??= { minutes: 0, flag: '', says: '' };
+        const hours = h('input', { type: 'number', min: 0, max: 720, step: 0.5, value: q.again.minutes ? +(q.again.minutes / 60).toFixed(2) : 0, className: 'de-num', title: '0: any time' });
+        hours.addEventListener('input', () => { q.again.minutes = Math.max(0, Math.round((Number(hours.value) || 0) * 60)); });
+        return h('div', { className: 'le-row' }, h('span', { className: 'le-label', textContent: 'Taken again after' }), hours, h('span', { textContent: ' hours (0: any time; 20 is "once a day")' }));
+      })() : null,
+      q.repeatable ? field('Shared wait flag', q.again?.flag ?? '', (v) => { q.again.flag = v; }, { placeholder: '(empty: its own) quests with the same flag share one wait, e.g. bounty_kingshaven' }) : null,
+      q.repeatable ? field('…until then they say', q.again?.says ?? '', (v) => { q.again.says = v; }, { long: true, placeholder: 'e.g. You\'ve had today\'s bounty. Come back tomorrow.' }) : null,
       (() => {
         // Only quests that can't be repeated have a "finished" flag to need.
         const others = this.quests.filter((o) => o.id !== q.id);

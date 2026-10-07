@@ -882,7 +882,37 @@ function coffin(ctx) {
   ctx.restore();
 }
 
+// A notice board on two posts, papers pinned to it; a bounty poster's
+// paper says WANTED.
+function noticeBoard(ctx, n) {
+  shadow(ctx, 40, 8, 112);
+  for (const x of [CX - 34, CX + 28]) fill(ctx, rr(ctx, x, 30, 6, 82, 2), '#5a3a1e', [x, 30, x + 6, 112], 1);
+  fill(ctx, rr(ctx, CX - 42, 22, 84, 60, 4), '#8a5e32', [CX - 42, 22, CX + 42, 82]);
+  fill(ctx, rr(ctx, CX - 36, 28, 72, 48, 2), '#6e4826', [CX - 36, 28, CX + 36, 76]);
+  const paper = (x, y, w, h, tilt) => {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(tilt);
+    fill(ctx, rr(ctx, -w / 2, -h / 2, w, h, 1), '#e8dcb8', [-w / 2, -h / 2, w / 2, h / 2], 1);
+    ctx.fillStyle = '#9a8a68';
+    for (let ly = -h / 2 + 8; ly < h / 2 - 3; ly += 5) ctx.fillRect(-w / 2 + 4, ly, w - 8, 1.5);
+    ctx.fillStyle = '#b02a20'; ctx.beginPath(); ctx.arc(0, -h / 2 + 2, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  };
+  if (/bounty/.test(n)) {
+    paper(CX - 18, 50, 22, 30, -0.06);
+    paper(CX + 18, 54, 20, 26, 0.08);
+    ctx.save(); ctx.translate(CX, 52); ctx.rotate(0.02);
+    fill(ctx, rr(ctx, -15, -20, 30, 40, 1), '#f2e6c4', [-15, -20, 15, 20], 1);
+    ctx.fillStyle = '#9a1e16'; ctx.font = 'bold 8px Georgia, serif'; ctx.textAlign = 'center'; ctx.fillText('WANTED', 0, -9);
+    ctx.fillStyle = '#5a4a3a'; ctx.beginPath(); ctx.arc(0, 4, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#9a8a68'; ctx.fillRect(-10, 14, 20, 1.5);
+    ctx.restore();
+  } else {
+    paper(CX - 20, 48, 22, 28, -0.08); paper(CX + 2, 54, 22, 30, 0.05); paper(CX + 22, 46, 18, 24, -0.04);
+  }
+}
+
 const PROPS = [
+  [/bounty|newsboard|notice ?board/, noticeBoard],
   [/teller|banker/, propPerson],
   [/\belf\b|elven/, propPerson],
   [/throne/, throne],

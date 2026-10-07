@@ -228,6 +228,10 @@ backups; see `server/`.
   credits page; loop tracks repeat without a gap. Where there's no track
   yet, the quiet generated music plays. The track's name shows over the map
   for a few seconds when it changes (Settings → Track names turns it off).
+- **Bounty boards** in Kingshaven, Aelindor, Velkarath, Eastreach, the City
+  of Light, Midnight and Southfield: three notices each (an easy, a middling
+  and a hard job against the monsters round the town), paid in gold and
+  experience at the board. Each board gives you one bounty a day.
 - **Lit towns**: torches on the walls and lamp posts or braziers in the
   streets at night in Kingshaven, Aelindor, Velkarath and Eastreach, and in
   the old world's City of Light, Midnight Pub town, Firetown, Riverside,

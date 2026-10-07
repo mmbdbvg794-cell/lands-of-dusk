@@ -345,11 +345,14 @@ export async function build(planPath, mapPath, outDir, { baseProps = {} } = {}) 
   mkdirSync(outDir, { recursive: true });
   writeFileSync(`${outDir}/bundle.json`, JSON.stringify(bundle, null, 1));
   // The plan with everyone on it, for checking by eye.
+  // (Things placed off the grid, as a plan spread over the map can, are
+  // left off the picture.)
   const marks = plan.grid.map((row) => row.slice());
-  for (const p of plan.props) marks[p.y][p.x] = '@';
-  for (const m of plan.merchants) marks[m.y][m.x] = '$';
-  for (const s of plan.signs) marks[s.y][s.x] = '!';
-  for (const m of plan.mobs) marks[m.y][m.x] = '&';
+  const mark = (o, ch) => { if (plan.in(o.x, o.y)) marks[o.y][o.x] = ch; };
+  for (const p of plan.props) mark(p, '@');
+  for (const m of plan.merchants) mark(m, '$');
+  for (const s of plan.signs) mark(s, '!');
+  for (const m of plan.mobs) mark(m, '&');
   writeFileSync(`${outDir}/plan.txt`, marks.map((r) => r.join('')).join('\n') + '\n');
   // The town's tiles over the map's, for a picture.
   const crop = [];

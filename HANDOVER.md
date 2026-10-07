@@ -537,6 +537,27 @@ commands that touch live.
   dusk-browser-client/server/build.sh`, `ssh duskserver sh
   dusk-browser-client/server/install.sh`, then `restart 10` in game.
 
+## 2026-10-07: bounty boards (NOT live: install + restart + deploy)
+
+- tools/world/cities/bounties.mjs: 7 boards (Kingshaven 1449,352; Aelindor
+  478,1227; Velkarath 1344,907; Eastreach 1675,1305; City of Light 104,153;
+  Midnight 444,83; Southfield 535,16), each 3 posters (props looking like
+  the newsboard, named "<Monster> Bounty") + a "Bounty Board" sign; each
+  poster a repeatable kill quest bt_<board>_<1-3> (kill, then claim at the
+  poster), rewards 40/60, 90/160, 180/350 gold/exp (Lizard Axemen 220/450).
+  One bounty a day per board: quests.js `again: { minutes, flag, says }`
+  (repeatable only) puts a `once` with a flag timer on the accept answer;
+  the board's posters share flag bounty_<board> (1200 min). The quest wizard
+  has "Taken again after (hours)", "Shared wait flag", "…until then they say".
+- city.mjs: things placed off the plan's grid are fine now (left off
+  plan.txt), so one plan can spread over the map with a 1x1 grid.
+- tools/paintart/items.js: noticeBoard painter for /bounty|newsboard|notice
+  board/ props (names like "Highway Thief Bounty" were being painted as people).
+- Tested on scratch (egate): take, second poster refused, kill 6, claim,
+  retake refused, another board taken; flagtimers has bounty_kh/bounty_sf.
+- To go live: `ssh duskserver sh /tmp/bounties-install.sh` (bundle staged in
+  /tmp, dry run matched), `restart 10` in game, then tools/deploy.sh.
+
 ## Open / ideas (ask the user before starting)
 
 - Play-test feedback on today's changes (spawns difficulty, hunger, spells).

@@ -59,6 +59,19 @@ const repJoe = questStagesFor(rep, 'Farmer Joe');
 assert.equal(repJoe.at(-1).when.value, 'wolf_trouble_on');
 assert.ok(!repJoe.some((s) => s.when.value === 'wolf_trouble_done'));
 assert.ok(!repJoe[0].answers[0].effects.some((e) => e.flag === 'wolf_trouble_done'));
+assert.equal(repJoe.at(-1).answers[0].once, undefined, 'no wait unless asked');
+
+// A wait between takings: the accept works once per wait, and quests can
+// share the wait's flag (a bounty board's posters).
+const daily = tidyQuest({ ...q, repeatable: true, again: { minutes: 1200, flag: 'bounty_kh', says: 'Come back tomorrow.' } });
+const offerD = questStagesFor(daily, 'Farmer Joe').at(-1);
+assert.deepEqual(offerD.answers[0].once, { flag: 'bounty_kh', minutes: 1200, says: 'Come back tomorrow.' });
+assert.ok(questFlags(daily).includes('bounty_kh') && questFlags(daily).includes('timernow'));
+assert.match(toScript('Farmer Joe', mergeQuest({ stages: [] }, daily, 'Farmer Joe')), /flagtimer bounty_kh 1200/);
+const ownFlag = tidyQuest({ ...q, repeatable: true, again: { minutes: 60 } });
+assert.equal(questStagesFor(ownFlag, 'Farmer Joe').at(-1).answers[0].once.flag, 'wolf_trouble_again');
+assert.equal(questStagesFor(tidyQuest({ ...q, again: { minutes: 60 } }), 'Farmer Joe').at(-1).answers[0].once, undefined, 'only for repeatable quests');
+assert.deepEqual(tidyQuest({ id: 'x' }).again, { minutes: 0, flag: '', says: '' });
 
 // What's missing.
 assert.ok(questProblems(newQuest()).length >= 4);
