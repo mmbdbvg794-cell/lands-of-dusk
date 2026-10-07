@@ -520,7 +520,7 @@ commands that touch live.
   teleport, talk, kill with "a <id>"). egate on scratch was weak (20 HP);
   boosted to 6000 HP, str 90 in users/egate(.backup).
 
-## 2026-10-07: admin page (NOT live: deploy + server build/install + restart)
+## 2026-10-07: admin page (LIVE since the 03:05 restart)
 
 - js/admin.js + #admin-dialog: a window in the game for gods, from the God
   tab's Server section ("Admin page…") or #admin in the address (opens
