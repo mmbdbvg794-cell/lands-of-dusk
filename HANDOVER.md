@@ -714,10 +714,25 @@ commands that touch live.
   16:31: needs a restart). js/sprites.js now fetches sheets with no-cache
   (a browser kept the old 168-tile map.gif: the isles drew as sea).
 
+## 2026-10-07 evening: lore (installed 16:58; live after the restart)
+
+- LORE.md is the canon (read it before any story work): Morvane, King
+  Aldric's brother, opened the gate under Firetown; the Ashen Horde under
+  Kraghul came through; its dead rise for Morvane (the Skeleton King). The
+  refugees sailed east from Westsea and built Kingshaven; Princess Elowen's
+  ship, the Dawnward, never came (an open thread for a later chain).
+- Players get it in pieces (tools/world/cities/lore.mjs): Old Wenna
+  (Kingshaven), Loremistress Faelith (Aelindor), Archivist Zyrith
+  (Velkarath), Shaman Ithrae (Ssarakh), and four read-once stones/notices
+  (walk-on squares). Each tale: flag lore_<key>, a "Tale: ..." journal line
+  (the client shows a Lore badge), achievement Keeper of Tales (all 16).
+  Hesska warns of the Dry Ones; Kraghul and Morvane have descriptions.
+- Website: ~/DuskRPG/web/lore.html (the opening legend only) linked in every
+  page's nav (backup backups/web-lore-20261007), and forum.html here.
+
 ## Open / ideas (ask the user before starting)
 
-- Lore: the user wants one overall history tying the races, the old world,
-  Kingshaven and the isles together. Next to discuss.
+- Lore next: the lost heir (Dawnward) chain; Morvane's journal pages as boss drops.
 - Swamp monsters/dens on the isles; a lizardman tutorial.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
