@@ -16,9 +16,11 @@ export const FARE = 50;
 export const PORTS = {
   westsea: { name: 'Westsea Harbour', pier: [95, 357], berths: { landing: [100, 360, 0], eastreach: [90, 360, 180], kingshaven: [95, 366, 90] } },
   landing: { name: 'Aelindor Landing', pier: [444, 1184], berths: { westsea: [444, 1178, 0], eastreach: [444, 1173, 0] } },
-  eastreach: { name: 'Eastreach', pier: [1691, 1303], berths: { landing: [1694, 1300, 0], westsea: [1695, 1306, 0], kingshaven: [1700, 1303, 0] } },
+  eastreach: { name: 'Eastreach', pier: [1691, 1303], berths: { landing: [1694, 1300, 0], westsea: [1695, 1306, 0], kingshaven: [1700, 1303, 0], mire: [1702, 1297, 270] } },
   // The capital's harbour (capital.mjs): the long middle pier.
   kingshaven: { name: 'Kingshaven', pier: [1414, 418], berths: { westsea: [1420, 420, 0], eastreach: [1408, 420, 180] } },
+  // The lizardmen's Mire City (ssarakh.mjs): the pier into the bay.
+  mire: { name: 'Ssarakh', pier: [1690, 990], berths: { eastreach: [1690, 995, 90] } },
 };
 
 // The routes, back and forth; each one's squares are in
@@ -34,6 +36,7 @@ export const ROUTES = [
   { from: 'eastreach', to: 'westsea', file: 'eastreach-westsea-2', ship: 'Silver Tern' },
   { from: 'kingshaven', to: 'westsea', file: 'kingshaven-westsea' },
   { from: 'kingshaven', to: 'eastreach', file: 'kingshaven-eastreach' },
+  { from: 'mire', to: 'eastreach', file: 'mire-eastreach' },
 ];
 // Each ship and the ports it calls at, back and forth, from the first.
 // Two on one crossing start at opposite ends, so a ship leaves each port
@@ -45,6 +48,7 @@ export const SHIPS = [
   { name: 'Silver Tern', calls: ['westsea', 'eastreach'] },
   { name: 'Royal Swan', calls: ['kingshaven', 'westsea'] },
   { name: 'Gannet', calls: ['kingshaven', 'eastreach'] },
+  { name: 'Marsh Wren', calls: ['mire', 'eastreach'] },
 ];
 
 const routeFile = (file) => `ferryroutes/${file}`;

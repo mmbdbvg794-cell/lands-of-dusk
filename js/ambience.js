@@ -8,10 +8,10 @@
 
 // The kinds of square that matter (tile numbers, js/atmosphere.js and
 // tools/world/tiles.json); snow comes from the renderer's snowy tiles.
-const TREES = new Set([25, 26, 64, 103]);
-const GRASS = new Set([0, 1, 36, 37]);
+const TREES = new Set([25, 26, 64, 103, 171]); // 171: swamp cypress
+const GRASS = new Set([0, 1, 36, 37, 168, 169, 172]); // and the swamp's mud, marsh, reeds
 const SAND = new Set([38]);
-const isWater = (t) => t === 2 || (t >= 65 && t <= 77);
+const isWater = (t) => t === 2 || t === 170 || (t >= 65 && t <= 77); // 170: bog water
 
 // Counts of each kind among the squares in view -> how much of each sound
 // (0-1). light: 1 by day, 0 at night; snow: Set of snowy tiles.

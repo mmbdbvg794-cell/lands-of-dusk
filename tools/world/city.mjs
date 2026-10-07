@@ -55,6 +55,13 @@ export const LEGEND = {
   'u': 106,  // stairs
   'U': 107,
   'i': 24,   // torch on a stone wall
+  // The swamp (tools/server/swamptiles.py).
+  'q': 168,  // swamp mud
+  'Q': 169,  // marsh
+  'b': 170,  // bog water (not walkable)
+  'v': 171,  // swamp cypress (not walkable)
+  'r': 172,  // reeds
+  'h': 173,  // boardwalk
 };
 const TREES = [64, 64, 103];
 const GOLDEN = [25, 26]; // autumn trees

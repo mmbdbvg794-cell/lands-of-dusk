@@ -22,7 +22,8 @@ export const DAY_MS = 2 * 60 * 60 * 1000;
 export const WEATHER_MS = 15 * 60 * 1000;
 // Open ground and trees (tools/paintart/painter.js's GROUND and TREES).
 const OUTDOOR = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 64, 102, 103, 124,
-  ...Array.from({ length: 25 }, (_, i) => 65 + i), ...Array.from({ length: 13 }, (_, i) => 109 + i)]);
+  ...Array.from({ length: 25 }, (_, i) => 65 + i), ...Array.from({ length: 13 }, (_, i) => 109 + i),
+  168, 169, 170, 171, 172, 173]); // the swamp: mud, marsh, bog, cypress, reeds, boardwalk
 export const isOutdoorTile = (t) => OUTDOOR.has(t);
 
 // 1 by day, 0 at the depth of night, in between at dusk and dawn.

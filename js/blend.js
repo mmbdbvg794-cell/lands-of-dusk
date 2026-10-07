@@ -9,6 +9,7 @@ const KINDS = {
   38: 'sand', 27: 'sand', 39: 'grit',
   40: 'dirt', 109: 'snow', 122: 'snow',
   104: 'rock', 95: 'rock',
+  168: 'mud', 169: 'marsh', 172: 'marsh', // the swamp (tools/server/swamptiles.py)
 };
 export const groundKind = (tile) => KINDS[tile] ?? null;
 

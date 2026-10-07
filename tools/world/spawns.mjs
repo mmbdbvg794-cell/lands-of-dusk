@@ -22,7 +22,7 @@ const tile = (x, y) => (x < 0 || y < 0 || x >= COLS || y >= ROWS ? 0 : map.readU
 const known = new Set(readFileSync(namesPath, 'utf8').split('\n').map((s) => s.trim()).filter(Boolean));
 
 // Squares a player (and a creature) can stand on (defTileScripts "true").
-const WALK = new Set([1, 20, 23, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 106, 109, 122, 126, 127, 128, 129, 137, 138, 139, 140, 141, 142, 149, 150, 158, 159]);
+const WALK = new Set([1, 20, 23, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 106, 109, 122, 126, 127, 128, 129, 137, 138, 139, 140, 141, 142, 149, 150, 158, 159, 168, 169, 172, 173]);
 const OAK = new Set([64, 103]), AUTUMN = new Set([25, 26]), PALM = new Set([102, 124]);
 const SAND = new Set([38, 39]), SNOW = new Set([109, 122, ...Array.from({ length: 12 }, (_, i) => 110 + i)]);
 const ROCKY = new Set([37, 104, 95, 49, 59, 98, 58]);
