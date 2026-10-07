@@ -707,8 +707,12 @@ commands that touch live.
   start here (defRaces/lizardman x/y). Ferry: the Marsh Wren, Ssarakh <->
   Eastreach (ferry.mjs, routes/mire-eastreach.txt); Brann offers Ssarakh.
 - Tested on scratch: the swamp renders, NPCs talk, death sends each race home.
-- Painted art copies the new tiles from map.gif: rebuild it (tools/deploy.sh)
-  AFTER the live install, or painted shows them as water.
+- Painted art: painter.js paints 168-173 itself; js/trees.js draws tile 171
+  as a big weeping willow. Pixel 171 redrawn as a willow (live map.gif
+  replaced 16:28, backup backups/map-before-willow-20261007.gif). All 1,115
+  trees left on the isles made willows (swamp_islands.py --trees, installed
+  16:31: needs a restart). js/sprites.js now fetches sheets with no-cache
+  (a browser kept the old 168-tile map.gif: the isles drew as sea).
 
 ## Open / ideas (ask the user before starting)
 
