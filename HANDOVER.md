@@ -684,7 +684,37 @@ commands that touch live.
   /tmp/tune-install.sh` (staged; --force for the defMobs files, all 25 were
   unchanged since install), `restart 10`.
 
+## 2026-10-07 night: death, tutorial exits, the lizardman isles (NOT live until /tmp/lizard-install.sh + restart, then deploy)
+
+- Death: conf/onDeath rewritten (the old one sent joe to 20,20, into a wall).
+  Every race wakes at its capital with 5 HP and `safe`: human Kingshaven
+  1440,352; elf 473,1241; darkelf 1345,912; lizardman Ssarakh 1695,943.
+  Backup backups/onDeath-20261007. (joe: as a god `callplayer joe`.)
+- Tutorial end + skip (defMoveActions 142_392, 143_392, 117_373 and their
+  tileactions json) now bind and teleport to Kingshaven 1440,352. Lore: the
+  old world is the war-torn land the human refugees flee; Kingshaven is the
+  free city across the sea. Backup backups/tutorial-exit-20261007.
+- Swamp tiles 168-173 (tools/server/swamptiles.py, added to map.gif in spare
+  palette slots; tools/server/add_swamp.sh writes defTileScripts and raises
+  tilecap to 174): mud, marsh, bog (blocks), cypress (blocks), reeds,
+  boardwalk. city.mjs legend q Q b v r h. Client: blend/atmosphere/ambience/spawns know them.
+- tools/world/swamp_islands.py: the 11 islands in box 1580,740-1960,1150
+  (flan's "Lizardman Island Continent" notes) repainted: 60,593 squares;
+  bog pools kept only if they cut nothing off.
+- tools/world/cities/ssarakh.mjs: Ssarakh, the Mire City (Brood Stone
+  1695,943; Chieftain Hesska, Shaman Ithrae + training, Mire Bank, The
+  Basking Rock, market, stilt huts, pier with Captain Sskarr). Lizardmen
+  start here (defRaces/lizardman x/y). Ferry: the Marsh Wren, Ssarakh <->
+  Eastreach (ferry.mjs, routes/mire-eastreach.txt); Brann offers Ssarakh.
+- Tested on scratch: the swamp renders, NPCs talk, death sends each race home.
+- Painted art copies the new tiles from map.gif: rebuild it (tools/deploy.sh)
+  AFTER the live install, or painted shows them as water.
+
 ## Open / ideas (ask the user before starting)
+
+- Lore: the user wants one overall history tying the races, the old world,
+  Kingshaven and the isles together. Next to discuss.
+- Swamp monsters/dens on the isles; a lizardman tutorial.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.

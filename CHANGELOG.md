@@ -393,6 +393,18 @@ backups; see `server/`.
   sold again and again. Shops themselves were sound: they buy at half
   price whatever they sell. (tools/server/fix_economy.py)
 
+- **The lizardman isles.** The giant islands east of Eastreach are now
+  swamp: marsh, mud, reeds, bog pools and mossy cypresses (six new map tiles).
+  On the westernmost stands **Ssarakh, the Mire City**: the Hall of the Brood,
+  the Shaman's hut, the Mire Bank, The Basking Rock tavern, a market and a
+  harbour. The Marsh Wren sails between Ssarakh and Eastreach. Lizardmen
+  start here.
+- **Death takes you home.** Each race wakes in its own capital after dying
+  (humans in Kingshaven, elves in the elf city, drow in the Underdark city,
+  lizardmen in Ssarakh) instead of somewhere random.
+- **The tutorial ends in Kingshaven**, the free city the refugees sail to
+  from the war-torn old world, whether you finish it or skip it.
+
 ## Website
 
 - **Forum** (forum.html): an old-school forum with boards for news,
