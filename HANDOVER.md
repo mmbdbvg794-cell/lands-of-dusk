@@ -558,7 +558,7 @@ commands that touch live.
 - To go live: `ssh duskserver sh /tmp/bounties-install.sh` (bundle staged in
   /tmp, dry run matched), `restart 10` in game, then tools/deploy.sh.
 
-## 2026-10-07: world bosses (NOT live: deploy, build/install, bundle, restart)
+## 2026-10-07: world bosses (LIVE since the 11:57 restart)
 
 - server/WorldBoss.java (started from Skills, command hooked in Props,
   kill hook in Quests.killed; in build.sh and install.sh lists): every
