@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-07 13:05 (duskserver time).
+State as of 2026-10-12 20:20 (duskserver time).
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -32,6 +32,12 @@ commands that touch live.
 3. Content scripts in `tools/server/*.py` and city/spawn bundles: run
    against `~/DuskRPG` (most need a restart; the map, mobs, props,
    merchants and signs files are only read at startup).
+- conf/ scripts (onStart = the login welcome, onDeath, canAttack, ...) and
+  conf/prefs need no restart: flan types the god command `reloadprefs`
+  (re-reads them all; the tracker is off, so nothing else happens). The
+  conf/*.dsko timestamps show it ran.
+- dusk-web (serve.py) restarts without the user, as part of a deploy:
+  `ssh root@192.168.7.28 'pct exec 303 -- systemctl restart dusk-web'`.
 - **Never** let a god "save"/"Save map" between installing content and the
   restart: the running server writes its old copy back.
 - The auto-mode permission check often **blocks me** from writing live
@@ -839,7 +845,7 @@ commands that touch live.
   warning); bed "prop", golden key "key" types. Rerun: tools/server/audit_items.py <game dir>
   (read-only; copy the game's defItems, scripts, defMobs... locally first).
 
-## 2026-10-12: closed beta gate (LIVE, gate OFF; bridge restarted 18:24)
+## 2026-10-12: closed beta gate (LIVE, gate ON since ~18:35; bridge restarted 18:24)
 
 - server/betagate.py + dusk_bridge.py (both copied to ~/DuskRPG/; the bridge
   imports betagate from its own dir). Data in ~/dusk-beta (0700, outside
@@ -874,6 +880,9 @@ commands that touch live.
   `sudo tailscale funnel --tcp 10000 off` (check `tailscale funnel status`).
 - Backup before the change: ~/backups-beta-20261012-180323 (bridge,
   service unit, serve.py, users.tar.gz, users.md5).
+- Keys: "Tester 1".."Tester 5" made for the user (unlimited use; the full
+  keys were shown once, only hashes kept). Applicants' keys are labelled
+  "#<id> <name or contact>".
 
 ## 2026-10-12: beta applications (LIVE since the 18:44 dusk-web restart)
 
@@ -901,6 +910,33 @@ commands that touch live.
 - Note: like the rest of /play, the source files (apply.py, server/*.py)
   can be downloaded; they hold no data or secrets.
 
+## 2026-10-12: Discord invite (LIVE; welcome reloaded 20:09)
+
+- One setting: DISCORD_URL in ~/dusk-beta/beta.conf, set with
+  `tools/betakey discord <invite>` (now https://discord.gg/N9f5TR5Hz).
+  That command also rewrites the invite in the game welcome
+  (conf/onStart, removing its .dsko); then flan types `reloadprefs`.
+- apply.py serves it at GET /play/apply/api/info -> {discord}. Every
+  `a[data-discord]` gets it and its `[data-discord-item]` is unhidden
+  (empty invite -> all stay hidden); links open in a new tab, noopener.
+  - Website: site/discord.js -> ~/DuskRPG/web/discord.js. "Join our
+    Discord" in the sidebar Links of all 8 public pages after "Apply for
+    the Beta" (tools/server/beta_site_links.py adds the item and the
+    script tag; idempotent; backups web-beta-20261012-194212). The apply
+    page also has a line above the form and in the thank-you. The pages
+    have no footer. On the LAN address (:8000) /play isn't reachable, so
+    the links stay hidden there.
+  - Client: main.js showDiscord() fills the login screen line (next to
+    Leaderboard) and a "Community" section at the end of the in-game help.
+  - Login "Need a key?" still goes to the apply page (KEY_REQUEST_URL).
+- Welcome (conf/onStart; backup ~/DuskRPG/backups/onStart-20261012):
+  "Welcome to the Lands of Dusk!", Website and Discord links. Chat now
+  makes links clickable (main.js CHAT_LINK/linked()), but only https to
+  discord.gg, discord.com and our own host, matched whole (lookalikes such
+  as discord.gg.evil.com stay plain text). Seen working live by the user.
+
+## Open / ideas
+
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
@@ -915,6 +951,3 @@ My memory directory (`~/.claude/projects/-root-dusk-browser-client/memory/`)
 has session-state, server-source, tile-walkability, duskserver-access and
 future-ideas notes. `CHANGELOG.md` is the player-facing log (not updated
 for today's spell/quest/spawn work yet).
-
-### 2026-10-12: Discord invite (live)
-DISCORD_URL in ~/dusk-beta/beta.conf (`tools/betakey discord <invite>`) is the one place it's set. apply.py serves it at GET /play/apply/api/info; /web/discord.js (site/discord.js) fills every `a[data-discord]` and unhides its `[data-discord-item]`: "Join our Discord" in the sidebar Links of all 8 public pages (added by tools/server/beta_site_links.py, idempotent), plus a line above the apply form and in its thank-you. Empty invite → all hidden. The login's "Need a key?" still goes to the apply page (KEY_REQUEST_URL), and the login screen (next to Leaderboard) and the in-game help (a Community section at the end) get it from main.js showDiscord (apply/api/info, same data-discord attributes). The game welcome (conf/onStart, loaded at start or by the god command `reloadprefs`) names it too; `betakey discord` rewrites it there. Chat makes https links to discord.gg/discord.com and our own host clickable (main.js CHAT_LINK), nothing else.
