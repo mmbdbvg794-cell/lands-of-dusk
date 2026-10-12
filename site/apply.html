@@ -398,6 +398,7 @@
           <li><a href="/web/index.html">Home</a></li>
           <li><a href="/web/howtoplay.html">How to Play</a></li>
           <li><a href="/web/apply.html">Apply for the Beta</a></li>
+          <li data-discord-item hidden><a data-discord href="#" target="_blank" rel="noopener">Join our Discord</a></li>
           <li><a href="/web/faq.html">FAQ</a></li>
           <li><a href="/web/updates.html">Updates</a></li>
           <li><a href="/web/lore.html">Lore</a></li>
@@ -414,6 +415,7 @@
         <h2>Apply for the Beta</h2>
         <div id="applyForm">
           <p class="note"><strong>This is a closed beta.</strong> Characters may be wiped. We reply with a key when we have space.</p>
+          <p data-discord-item hidden>Questions? Come and ask on our <a data-discord href="#" target="_blank" rel="noopener">Discord</a>.</p>
           <form class="apply" id="apply" novalidate>
             <label for="contact">Email or Discord name</label>
             <p class="hint">Required, so we can send you your key. Nobody else sees it.</p>
@@ -448,7 +450,7 @@
           <h3>Thank you!</h3>
           <p>Your application is in. When there's room in the beta, we'll send a beta key to the email or Discord name you gave us.</p>
           <p>When it arrives, open <a href="/play/">Play</a>, type your character name and a password, and paste the key into the <strong>Beta key</strong> box. You only need to enter it once on each device.</p>
-          <p id="discordLine" hidden>While you wait, come and say hello on our <a id="discordLink" href="#" target="_blank" rel="noopener">Discord</a>.</p>
+          <p data-discord-item hidden>While you wait, come and say hello on our <a data-discord href="#" target="_blank" rel="noopener">Discord</a>.</p>
         </div>
       </div>
     </div>
@@ -513,10 +515,6 @@
       if (!res.ok) throw new Error(answer.error || 'Your application couldn\'t be sent. Please try again later.');
       document.getElementById('applyForm').hidden = true;
       document.getElementById('thanks').hidden = false;
-      if (answer.discord && /^https:\/\//.test(answer.discord)) {
-        document.getElementById('discordLink').href = answer.discord;
-        document.getElementById('discordLine').hidden = false;
-      }
       window.scrollTo(0, 0);
     } catch (err) {
       say(err.message, true);
@@ -524,5 +522,6 @@
     }
   });
 </script>
+<script src="/web/discord.js" defer></script>
 </body>
 </html>

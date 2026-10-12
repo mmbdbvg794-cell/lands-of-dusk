@@ -5,6 +5,7 @@ betagate.py), outside every web root.
 
 serve.py hands every request under .../apply/api/ to handle():
 
+    GET  info                             {discord}: the invite from beta.conf
     POST submit {name?, contact, device, why?, website}   an application
     GET  admin/list                       gods: applications, newest first
     POST admin/approve {id}               gods: makes its key, shown once
@@ -83,6 +84,8 @@ def handle(method, path, body, headers, peer, local, god):
         parts = [p for p in path.split("/") if p]
         db = betagate.connect()
         try:
+            if parts == ["info"] and method == "GET":
+                return 200, {"discord": _settings.discord_url}
             if parts == ["submit"]:
                 if method != "POST":
                     return 405, {"error": "Not allowed."}
