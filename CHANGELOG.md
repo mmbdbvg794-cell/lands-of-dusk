@@ -415,7 +415,50 @@ backups; see `server/`.
 - **Hatching Pools**: the lizardmen's own tutorial. **Swamp creatures** and a
   bounty board on the isles.
 
+- **Using an item uses the one you clicked.** Buying three ales and drinking
+  one no longer leaves the other two "used up"; items already stuck that way
+  got their use back.
+- **Training HP and MP works**: each point at a trainer adds 10 to your
+  maximum HP or MP (it added nothing before). Old HP/MP training was
+  converted to the same.
+- **Food and drink last about 3 hours** instead of 45 minutes.
+- **Item audit.** Every item checked: monster drops with wrong names fixed,
+  typos in item stats fixed, and 34 items that did nothing when worn now
+  have real effects (the diamond set adds HP per piece, the dark rod
+  intelligence and MP, Excalibur strength, constitution and HP, and so on).
+  Taking them off removes the bonus.
+- **A gods-only island**: flan's cabin island is for gods and game masters;
+  anyone else who ends up there is sent home.
+- **The Duelling Ring and the Dawnward wreck** were put back after a map
+  save wiped them.
+
+## Closed beta
+
+- **Beta keys.** Playing in the browser needs a beta key. Type it once in the
+  new **Beta key** box on the login screen; that browser remembers it after
+  that. Clear messages when a key is wrong, has been withdrawn, or the beta
+  is full. Works on phones and the installed app.
+- Up to 25 players at once, and a short block for anyone trying lots of
+  wrong keys.
+- **Apply for the beta** on the website (`/web/apply.html`): an email or
+  Discord name, an optional character name, your device and why you're
+  interested. "Need a key? Ask for one" on the login screen goes there.
+  Gods review applications in the Admin page (or `betakey` on the server)
+  and approve them with one click, which makes the key to send.
+- **Discord**: https://discord.gg/N9f5TR5Hz. Linked from the website's
+  sidebar, the apply page, the login screen, the in-game help (a new
+  Community section) and the welcome message when you log in. Links to
+  Discord and the Dusk website in chat can be clicked.
+- **New welcome message** at login: "Welcome to the Lands of Dusk!", with
+  the website and Discord.
+- The game's pages ask search engines not to list them while the beta is
+  closed. The public home page and Lore page stay as they are.
+
 ## Website
+
+- **Apply for the Beta** and **Join our Discord** in the sidebar of every
+  page, and a "Closed beta: apply for a key" line under Play Now on the home
+  and How to Play pages.
 
 - **Forum** (forum.html): an old-school forum with boards for news,
   general talk, quests and lore, trading, help and off-topic. Sign in with
