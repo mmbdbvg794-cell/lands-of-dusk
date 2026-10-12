@@ -792,6 +792,20 @@ commands that touch live.
 - Not handled: a third player joining the battle (anyone in a clan could).
 
 
+## 2026-10-12: ring and wreck reinstalled (a god save wiped them)
+
+- The live server ran from 2026-10-07 19:13 without a restart, so the
+  Dawnward, duels, canAttack and spell restore never went live. On
+  2026-10-09 21:19, while flan built Flans Cabin (bed, couch, brazier,
+  chest, sign near 191-195,1102-1106), the server wrote its in-memory
+  shortmap/props/signs/mobs/merchants/doors, dropping the ring and the wreck.
+- 2026-10-12 17:03: rebuilt arena.mjs (base props json = live defProps of
+  Guard, Villager Woman, hermit, chair) and dawnward.mjs against the live
+  shortmap and reinstalled both (map, signs, braziers, 5 raiders back;
+  every script/talk file was intact; cabin kept). Live after a restart.
+- The Armor Shop sign at 45,222 is also gone from the running server's
+  copy (flan probably removed it in game); not put back.
+- Lesson: restart right after installing; a long gap invites a save.
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
 
