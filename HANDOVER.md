@@ -839,6 +839,42 @@ commands that touch live.
   warning); bed "prop", golden key "key" types. Rerun: tools/server/audit_items.py <game dir>
   (read-only; copy the game's defItems, scripts, defMobs... locally first).
 
+## 2026-10-12: closed beta gate (LIVE, gate OFF; bridge restarted 18:24)
+
+- server/betagate.py + dusk_bridge.py (both copied to ~/DuskRPG/; the bridge
+  imports betagate from its own dir). Data in ~/dusk-beta (0700, outside
+  both web roots): beta.conf (BETA_GATE, MAX_PLAYERS=25, KEY_REQUEST_URL),
+  re-read within seconds (no restart); betakeys.sqlite (keys as SHA-256 +
+  last 4, tokens hashed, online sessions, daily peaks).
+- Protocol: first WS frame from the client is TEXT "#beta {key|token}";
+  game traffic is always binary. Gate on: TCP to the game opens only after
+  ok; refusals close 4400 required / 4401 invalid,used / 4403 revoked /
+  4429 blocked / 4503 full. Gate off: a #beta frame is answered ok and
+  dropped; no frame = old behaviour. GET /ws/status -> {gate, keyUrl}.
+  Revoked sessions dropped by a 20 s check. Limits per real address: 10 bad
+  keys/10 min -> 30 min block; 30 connections/min (gate on only). Cap
+  counts browser sessions (gate on only). Single-use key = one redemption
+  (one browser's token); unlimited = any number.
+- Client: #login-beta field shown from /status; localStorage dusk.betakey
+  and dusk.betatoken (cleared on invalid/revoked/used). js/connection.js
+  holds 'open' until the bridge's ok. test/beta.test.mjs.
+- tools/betakey (on duskserver: ~/dusk-browser-client/tools/betakey):
+  create/list/revoke/unrevoke/stats/gate/cap/url. No sudo.
+- noindex: serve.py sends X-Robots-Tag on everything under /play; robots
+  meta on index/who/leaderboard/profile/forum; site robots.txt is
+  ~/DuskRPG/rc/robots.txt (the Java resource server serves rc/ at "/" and
+  the website under /web/): disallows /play, /ws, two test pages.
+- Tested on scratch (scratch.sh now starts its bridge with DUSK_GAME_PORT,
+  DUSK_BRIDGE_PORT, DUSK_BETA_DIR=~/dusktest/beta) and in Chromium.
+  Funnel X-Forwarded-For checked live: a forged header is replaced by the
+  real address.
+- KNOWN HOLE (user chose to leave it for now): the funnel also publishes
+  tcp :10000 -> game 10001 (old Java client), which skips the gate; the
+  game port 10001 is also open on the LAN. Close with
+  `sudo tailscale funnel --tcp 10000 off` (check `tailscale funnel status`).
+- Backup before the change: ~/backups-beta-20261012-180323 (bridge,
+  service unit, serve.py, users.tar.gz, users.md5).
+
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
