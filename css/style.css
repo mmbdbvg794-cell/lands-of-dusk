@@ -1030,6 +1030,11 @@ body.in-login #play-area { display: none; }
 .login-card label:not(.toggle) { margin-top: 6px; font-size: 12px; color: var(--muted); }
 .login-card input[type="text"], .login-card input[type="password"] { padding: 9px 10px; }
 .login-card .remember { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; color: var(--muted); font-size: 13px; }
+.login-beta { display: flex; flex-direction: column; gap: 6px; }
+.login-beta[hidden] { display: none; }
+#login-key { padding: 9px 10px; font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+.login-beta-note { margin: 0; font-size: 12px; color: var(--muted); }
+.login-beta-note a { color: var(--accent); }
 #login-play { margin-top: 6px; padding: 9px; font-weight: 600; }
 #login-msg { min-height: 1.4em; margin: 6px 0 0; font-size: 13px; color: var(--muted); }
 #login-msg.error { color: var(--bad); }

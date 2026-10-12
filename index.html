@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Dusk</title>
   <script>
@@ -126,6 +127,11 @@
       <input id="login-name" name="username" type="text" autocomplete="username" spellcheck="false" autocapitalize="off" maxlength="20" required>
       <label for="login-pass">Password</label>
       <input id="login-pass" name="password" type="password" autocomplete="current-password" required>
+      <div id="login-beta" class="login-beta" hidden>
+        <label for="login-key">Beta key</label>
+        <input id="login-key" name="beta-key" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="24" placeholder="XXXX-XXXX-XXXX-XXXX">
+        <p class="login-beta-note">Closed beta. Need a key? <a id="login-key-link" href="#" target="_blank" rel="noopener" hidden>Ask for one</a></p>
+      </div>
       <label class="toggle remember"><input id="login-remember" type="checkbox"> Remember me on this device</label>
       <button id="login-play" type="submit" class="primary">Play</button>
       <div id="login-new" class="login-new" hidden>

@@ -97,6 +97,9 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-cache")
+        # The client and its pages stay out of search engines (closed beta);
+        # the public home and Lore pages are served elsewhere (DuskRPG/web).
+        self.send_header("X-Robots-Tag", "noindex, nofollow")
         super().end_headers()
 
 

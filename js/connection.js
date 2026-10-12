@@ -5,10 +5,17 @@
 import { ByteReader } from './bytereader.js';
 import { OP, parseAvailable } from './protocol.js';
 
+//
+// The closed beta: given beta ({ key } or { token }), the first thing sent
+// is a text frame "#beta {...}", and 'open' waits for the bridge's
+// "#beta {ok: true, token}". Its answers, and a later notice (a revoked
+// key), come as 'beta' events; text frames are never game data.
 export class DuskConnection extends EventTarget {
-  constructor(url) {
+  constructor(url, beta = null) {
     super();
     this.url = url;
+    this.beta = beta;
+    this.betaPending = false;
     this.reader = new ByteReader();
     this.ctx = { mapSize: 11 }; // Dusk.java's default until opcode 19 arrives.
     this.ws = null;
@@ -19,7 +26,11 @@ export class DuskConnection extends EventTarget {
     const ws = new WebSocket(this.url);
     ws.binaryType = 'arraybuffer';
     this.ws = ws;
-    ws.onopen = () => this.emit('open');
+    ws.onopen = () => {
+      if (!this.beta) return this.emit('open');
+      this.betaPending = true;
+      ws.send('#beta ' + JSON.stringify(this.beta));
+    };
     ws.onerror = () => this.emit('error', { message: `could not reach bridge at ${this.url}` });
     ws.onclose = (e) => {
       this.ws = null;
@@ -64,6 +75,18 @@ export class DuskConnection extends EventTarget {
   }
 
   onData(data) {
+    if (typeof data === 'string' && data.startsWith('#beta')) {
+      let answer = {};
+      try {
+        answer = JSON.parse(data.slice(5)) ?? {};
+      } catch {}
+      this.emit('beta', answer);
+      if (answer.ok && this.betaPending) {
+        this.betaPending = false;
+        this.emit('open');
+      }
+      return;
+    }
     // A text frame would mean the bridge changed; handle it anyway.
     this.reader.append(typeof data === 'string' ? new TextEncoder().encode(data) : data);
     try {

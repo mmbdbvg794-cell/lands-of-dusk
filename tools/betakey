@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+"""Closed-beta keys (server/betagate.py; kept in ~/dusk-beta on duskserver).
+
+    tools/betakey create <label> [--single-use]   a new key, shown once
+    tools/betakey list                            every key: label, status,
+                                                  created, last used, who's on
+    tools/betakey revoke <key|label|last 4>       stops it (players on it are
+                                                  dropped within ~20 s)
+    tools/betakey unrevoke <key|label|last 4>
+    tools/betakey stats                           active keys, players on now,
+                                                  busiest moment today
+    tools/betakey gate [on|off]                   shows or flips BETA_GATE
+    tools/betakey cap [<n>]                       shows or sets MAX_PLAYERS
+    tools/betakey url [<link>]                    shows or sets KEY_REQUEST_URL
+
+The bridge reads ~/dusk-beta/beta.conf again within seconds of a change:
+no restart, no sudo.
+"""
+import os
+import re
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+for d in (os.path.join(HERE, "..", "server"), os.path.expanduser("~/DuskRPG")):
+    if os.path.exists(os.path.join(d, "betagate.py")):
+        sys.path.insert(0, d)
+        break
+import betagate  # noqa: E402
+
+
+def pick(db, what):
+    rows = betagate.find(db, what)
+    if not rows:
+        sys.exit(f"No key matches {what!r} (give the key, its label, or its last 4 characters).")
+    if len(rows) > 1:
+        sys.exit(f"{len(rows)} keys match {what!r}: " + ", ".join(f"{r['label']} (..{r['tail']})" for r in rows)
+                 + ". Use the key's last 4 characters.")
+    return rows[0]
+
+
+def set_conf(name, value):
+    betagate.ensure_dir()
+    with open(betagate.CONF) as f:
+        lines = f.read().splitlines()
+    for i, line in enumerate(lines):
+        if re.match(rf"^\s*{name}\s*=", line):
+            lines[i] = f"{name}={value}"
+            break
+    else:
+        lines.append(f"{name}={value}")
+    tmp = betagate.CONF + ".tmp"
+    with open(tmp, "w") as f:
+        f.write("\n".join(lines) + "\n")
+    os.replace(tmp, betagate.CONF)
+
+
+def main(args):
+    if not args or args[0] in ("-h", "--help", "help"):
+        print(__doc__.strip())
+        return
+    cmd, rest = args[0], args[1:]
+    db = betagate.connect()
+    if cmd == "create":
+        single = "--single-use" in rest
+        label = " ".join(a for a in rest if a != "--single-use").strip()
+        if not label:
+            sys.exit("Usage: betakey create <label> [--single-use]")
+        key = betagate.create(db, label, single)
+        print(f"{key}    {label}{'  (single use)' if single else ''}")
+        print("Shown only now: copy it. It can't be read back later.")
+    elif cmd == "list":
+        online = {}
+        for r in db.execute("SELECT key_id, character FROM online"):
+            online.setdefault(r["key_id"], []).append(r["character"] or "?")
+        rows = db.execute("SELECT * FROM keys ORDER BY id").fetchall()
+        if not rows:
+            print("No keys yet. Make one: betakey create <label>")
+            return
+        print(f"{'key':9} {'label':20} {'status':8} {'uses':9} {'created':19} {'last used':19} on now / characters")
+        for r in rows:
+            uses = "unlimited" if r["uses_left"] is None else ("used" if r["uses_left"] <= 0 else "1 left")
+            on = online.get(r["id"])
+            who = ("ON: " + ", ".join(on)) if on else "-"
+            chars = r["characters"].replace(",", ", ")
+            print(f"..{r['tail']:7} {r['label'][:20]:20} {r['status']:8} {uses:9} {r['created']:19} {r['last_used'] or 'never':19} {who}"
+                  + (f"  ({chars})" if chars else ""))
+    elif cmd in ("revoke", "unrevoke"):
+        if not rest:
+            sys.exit(f"Usage: betakey {cmd} <key|label|last 4>")
+        r = pick(db, " ".join(rest))
+        db.execute("UPDATE keys SET status = ? WHERE id = ?", ("revoked" if cmd == "revoke" else "active", r["id"]))
+        n = db.execute("SELECT COUNT(*) FROM online WHERE key_id = ?", (r["id"],)).fetchone()[0]
+        print(f"{r['label']} (..{r['tail']}) is now {'revoked' if cmd == 'revoke' else 'active'}."
+              + (f" {n} player(s) on it will be dropped within about 20 seconds." if cmd == "revoke" and n else ""))
+    elif cmd == "stats":
+        s = betagate.Settings()
+        active = db.execute("SELECT COUNT(*) FROM keys WHERE status = 'active'").fetchone()[0]
+        revoked = db.execute("SELECT COUNT(*) FROM keys WHERE status != 'active'").fetchone()[0]
+        on = db.execute("SELECT COUNT(*) FROM online").fetchone()[0]
+        peak = db.execute("SELECT peak FROM peaks WHERE day = ?", (betagate.today(),)).fetchone()
+        print(f"Gate: {'ON' if s.gate_on else 'off'}   cap: {s.max_players or 'none'}   key link: {s.key_url or '(none)'}")
+        print(f"Keys: {active} active, {revoked} revoked")
+        print(f"Browser players on now: {on}   busiest today: {peak['peak'] if peak else 0}")
+    elif cmd == "gate":
+        if rest:
+            if rest[0] not in ("on", "off"):
+                sys.exit("Usage: betakey gate on|off")
+            set_conf("BETA_GATE", rest[0])
+        print(f"BETA_GATE={'on' if betagate.Settings().gate_on else 'off'}"
+              + (" (the bridge picks it up within seconds)" if rest else ""))
+    elif cmd == "cap":
+        if rest:
+            if not rest[0].isdigit():
+                sys.exit("Usage: betakey cap <number> (0: no cap)")
+            set_conf("MAX_PLAYERS", rest[0])
+        print(f"MAX_PLAYERS={betagate.Settings().max_players}")
+    elif cmd == "url":
+        if rest:
+            if not re.match(r"^(https?://|mailto:)\S+$", rest[0]):
+                sys.exit("Usage: betakey url https://... (or mailto:...)")
+            set_conf("KEY_REQUEST_URL", rest[0])
+        print(f"KEY_REQUEST_URL={betagate.Settings().key_url}")
+    else:
+        sys.exit(f"Unknown command {cmd!r}. Try: betakey help")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

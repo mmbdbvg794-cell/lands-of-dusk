@@ -36,7 +36,10 @@ setup)
          $0 ~ /^rcaddress(tailscale)?\r?$/ { print; print "http://127.0.0.1:8011/"; skip = 1; next }
          { print }' "$LIVE/conf/prefs" > "$DIR/conf/prefs"
     sed -i 's/^GAME_PORT = 10001$/GAME_PORT = 10011/; s/^BRIDGE_PORT = 8765$/BRIDGE_PORT = 8767/' "$DIR/dusk_bridge.py"
-    grep -q '^GAME_PORT = 10011$' "$DIR/dusk_bridge.py" && grep -q '^BRIDGE_PORT = 8767$' "$DIR/dusk_bridge.py" \
+    # A newer bridge takes its ports (and the beta's directory) from the
+    # environment, set at start below; an older one had them written in.
+    grep -q 'DUSK_GAME_PORT' "$DIR/dusk_bridge.py" \
+        || { grep -q '^GAME_PORT = 10011$' "$DIR/dusk_bridge.py" && grep -q '^BRIDGE_PORT = 8767$' "$DIR/dusk_bridge.py"; } \
         || { echo "bridge ports not changed: check dusk_bridge.py"; exit 1; }
     grep -A1 -x 'port' "$DIR/conf/prefs" | grep -q 10011 || { echo "prefs port not changed"; exit 1; }
     echo "scratch copied from live into $DIR"
@@ -45,7 +48,8 @@ start)
     [ -n "$(pids)" ] && { echo "already running: $(pids)"; exit 0; }
     cd "$DIR" || exit 1
     nohup java DuskServer > srv.log 2>&1 &
-    nohup python3 -u dusk_bridge.py > bridge.log 2>&1 &
+    mkdir -p "$DIR/beta"
+    DUSK_GAME_PORT=10011 DUSK_BRIDGE_PORT=8767 DUSK_BETA_DIR="$DIR/beta" nohup python3 -u dusk_bridge.py > bridge.log 2>&1 &
     sleep 8
     grep -m1 "Started Server" srv.log && echo "pids: $(pids)"
     ;;

@@ -878,6 +878,93 @@ let inGame = false; // past "Login Accepted." on this connection
 let quitting = false; // the player pressed Log out
 let dropReason = '';
 
+// The closed beta (server/dusk_bridge.py, server/betagate.py). The bridge's
+// /status says whether a key is needed; then the key field shows, and the
+// connection opens with the key, or with the token the bridge gave this
+// browser for it last time, so it's typed once.
+const BETA_KEY = 'dusk.betakey';
+const BETA_TOKEN = 'dusk.betatoken';
+const BETA_MESSAGES = {
+  required: 'This is a closed beta: enter your beta key to play.',
+  invalid: 'Invalid or revoked beta key. Check it and try again.',
+  used: 'That beta key has already been used. Ask for a new one.',
+  revoked: 'Your beta key has been revoked.',
+  blocked: 'Too many attempts. Please wait a while before trying again.',
+  full: 'The beta is full right now, try again in a few minutes.',
+};
+let betaGate = false;
+$('login-key').value = storage('get', BETA_KEY) ?? '';
+
+function betaStatusUrl(bridge) {
+  try {
+    const u = new URL(bridge);
+    u.protocol = u.protocol === 'wss:' ? 'https:' : 'http:';
+    u.pathname = u.pathname.replace(/\/+$/, '') + '/status';
+    u.search = '';
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+function showBeta(on, keyUrl = '') {
+  betaGate = on;
+  $('login-beta').hidden = !on;
+  const link = $('login-key-link');
+  link.hidden = !keyUrl;
+  if (keyUrl) link.href = keyUrl;
+}
+
+// An old bridge has no /status: then there's no gate to show.
+function refreshBeta() {
+  const url = betaStatusUrl(serverUrl.value.trim());
+  if (!url || typeof fetch !== 'function') return Promise.resolve();
+  const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = setTimeout(() => ctl?.abort(), 5000);
+  return fetch(url, { cache: 'no-store', signal: ctl?.signal })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => j && showBeta(!!j.gate, typeof j.keyUrl === 'string' && /^(https?:|mailto:)/.test(j.keyUrl) ? j.keyUrl : ''))
+    .catch(() => {})
+    .finally(() => clearTimeout(timer));
+}
+
+// What to open the connection with, or null when no key is needed.
+function betaCredentials() {
+  if (!betaGate) return null;
+  const typed = $('login-key').value.trim().toUpperCase();
+  const token = storage('get', BETA_TOKEN);
+  const saved = storage('get', BETA_KEY) ?? '';
+  // A newly typed key goes with the token, which the bridge tries first.
+  if (token) return typed && typed !== saved ? { token, key: typed } : { token };
+  return typed ? { key: typed } : null;
+}
+
+function forgetBeta() {
+  storage('remove', BETA_TOKEN);
+  storage('remove', BETA_KEY);
+  $('login-key').value = '';
+}
+
+// The bridge's answer to the key, or a notice later (a revoked key).
+function betaAnswer(a) {
+  if (a.ok) {
+    if (a.token) storage('set', BETA_TOKEN, a.token);
+    const typed = $('login-key').value.trim().toUpperCase();
+    if (a.gate && typed) storage('set', BETA_KEY, typed);
+    return;
+  }
+  const text = BETA_MESSAGES[a.code] || a.message || BETA_MESSAGES.invalid;
+  if (a.code === 'invalid' || a.code === 'revoked' || a.code === 'used') forgetBeta();
+  if (a.code === 'required' || a.code === 'invalid' || a.code === 'revoked' || a.code === 'used') showBeta(true, $('login-key-link').hidden ? '' : $('login-key-link').href);
+  dropReason = text;
+  // Reconnecting with the same key can't help.
+  if (a.code !== 'full') creds = null;
+  if (loginFlow) {
+    failLogin(text);
+    if (a.code !== 'full' && a.code !== 'blocked') $('login-key').focus();
+  }
+}
+
 const LOGIN_KEY = 'dusk.login';
 try {
   const saved = JSON.parse(storage('get', LOGIN_KEY) ?? 'null');
@@ -888,7 +975,11 @@ try {
   }
 } catch {}
 $('login-server').textContent = serverUrl.value;
-serverUrl.addEventListener('change', () => ($('login-server').textContent = serverUrl.value.trim()));
+serverUrl.addEventListener('change', () => {
+  $('login-server').textContent = serverUrl.value.trim();
+  refreshBeta();
+});
+refreshBeta();
 
 $('connect-form').addEventListener('submit', (e) => {
   e.preventDefault();
@@ -1142,7 +1233,13 @@ function startLogin(name, password, again = false) {
     conn.close();
     conn = null;
   }
-  connect(serverUrl.value.trim());
+  const beta = betaCredentials();
+  if (betaGate && !beta) {
+    failLogin(BETA_MESSAGES.required);
+    $('login-key').focus();
+    return;
+  }
+  connect(serverUrl.value.trim(), beta);
   if (!conn) return failLogin('The server address under Settings should start with ws:// or wss://');
   loginFlow = new LoginFlow(name, password);
   useExploredFor(name);
@@ -1214,6 +1311,7 @@ function showLogin() {
     conn.close();
   }
   setMode('login');
+  refreshBeta();
   $('login-pass').focus();
 }
 
@@ -1433,7 +1531,7 @@ function withDevice(url) {
   }
 }
 
-function connect(url) {
+function connect(url, beta = null) {
   if (!/^wss?:\/\//.test(url)) {
     errLine('Bridge address should start with ws:// or wss://');
     return;
@@ -1460,7 +1558,8 @@ function connect(url) {
   setState('pending');
   sysLine(`Connecting to ${url}…`);
 
-  conn = new DuskConnection(withDevice(url));
+  conn = new DuskConnection(withDevice(url), beta);
+  conn.addEventListener('beta', (e) => betaAnswer(e.detail));
   // Background lines wait while logging in (the server reads the next
   // line as the answer to "Is that correct? (yes/no)" and the like) and
   // while an NPC waits for an answer.
@@ -2364,6 +2463,7 @@ function showPanels() {
 
 function storage(op, key, value) {
   try {
+    if (op === 'remove') return localStorage.removeItem(key);
     return op === 'get' ? localStorage.getItem(key) : localStorage.setItem(key, value);
   } catch {
     return null;
