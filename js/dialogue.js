@@ -9,7 +9,8 @@
 //         answers: [{ label: 'yes', reply: 'Bless you!', effects: [...] }] },
 //     ] }
 // when.kind: 'always' | 'flag' (the player has it) | 'noflag' | 'item'
-// (carries it) | 'gold' (has at least that much). Effects: { kind:
+// (carries it) | 'gold' (has at least that much) | 'race'|'norace' (value
+// human, elf...) | 'sex' (value male or female). Effects: { kind:
 // 'give'|'take', item }, { kind: 'gold'|'takegold'|'exp', amount }, { kind:
 // 'flag'|'unflag', flag }, { kind: 'teleport', x, y }. An answer can also
 // have needs: { kind: 'gold'|'item'|'flag', value } (said to be missing
@@ -19,6 +20,7 @@
 // An answer with `once: { flag, minutes, says }` works once per player
 // (`flag` remembers it), or again after `minutes` (server/Quests.java
 // flagtimer takes the flag away then); otherwise they're told `says`.
+// Anything said can hold {male|female} words (see bySex).
 // Flags are conditions on the player (a quest remembers where you got to
 // with them); the server makes a hidden condition file for each.
 
@@ -67,6 +69,29 @@ export const cleanLabel = (s) => text(s).toLowerCase().replace(/[()/]/g, ' ').re
 // The races, for conditions and walking rules: [id, name].
 export const RACES = [['human', 'Human'], ['elf', 'Elf'], ['darkelf', 'Dark elf'], ['lizardman', 'Lizardman']];
 
+// A player's sex (server/Sex.java): the hidden flag "female" decides; anyone
+// without it, including those who haven't chosen yet, counts as male.
+export const SEXES = [['male', 'Male'], ['female', 'Female']];
+const sexCondition = (v) => (v === 'female' ? 'hasCondition trigger female' : '! hasCondition trigger female');
+
+// Words that depend on who's listening, written {male|female} or
+// {male|female|not chosen yet}: "Welcome, {sir|madam}!". bySex(s, sex)
+// picks the words for 'male', 'female' or '' (not chosen: the third, else
+// the first).
+const SEXED = /\{([^{}|]*)\|([^{}|]*)(?:\|([^{}|]*))?\}/g;
+export const hasSexed = (s) => new RegExp(SEXED.source).test(String(s ?? ''));
+export const bySex = (s, sex) => String(s ?? '').replace(SEXED, (_, m, f, n) => (sex === 'female' ? f : sex === 'male' ? m : n ?? m));
+
+// A chat line, once for each kind of listener when it has {male|female} words.
+function chatTo(out, pad, line) {
+  if (!hasSexed(line)) return out.push(`${pad}chat trigger "${line}"`);
+  const [m, f, n] = ['male', 'female', ''].map((x) => bySex(line, x));
+  out.push(`${pad}if hasCondition trigger female`, `${pad}\tchat trigger "${f}"`, `${pad}end`);
+  if (n === m) return out.push(`${pad}if ! hasCondition trigger female`, `${pad}\tchat trigger "${m}"`, `${pad}end`);
+  out.push(`${pad}if hasCondition trigger male`, `${pad}\tchat trigger "${m}"`, `${pad}end`,
+    `${pad}if and ! hasCondition trigger male ! hasCondition trigger female`, `${pad}\tchat trigger "${n}"`, `${pad}end`);
+}
+
 function condition(when) {
   const v = when?.value;
   switch (when?.kind) {
@@ -76,6 +101,7 @@ function condition(when) {
     case 'gold': return Number(v) > 0 && `! < trigger cash ${Math.floor(Number(v))}`;
     case 'race': return cleanFlag(v) && `isRace trigger ${cleanFlag(v).toLowerCase()}`;
     case 'norace': return cleanFlag(v) && `! isRace trigger ${cleanFlag(v).toLowerCase()}`;
+    case 'sex': return sexCondition(v);
     default: return null;
   }
 }
@@ -159,14 +185,18 @@ function question(out, who, node, pad, depth) {
 function ask(out, who, node, line, pad, depth) {
   const answers = (node.answers ?? []).filter((a) => cleanLabel(a.label));
   const choices = answers.length ? ` (${answers.map((a) => cleanLabel(a.label)).join('/')})` : '';
-  if (line || choices) out.push(`${pad}chat trigger "${spoken(who, node.verb, line + choices)}"`);
+  if (line || choices) chatTo(out, pad, spoken(who, node.verb, line + choices));
   if (!answers.length) return;
   const v = depth ? `answer${depth + 1}` : 'answer';
   out.push(`${pad}input trigger ${v}`);
   for (const a of answers) {
     out.push(`${pad}if strequals ${v} "${cleanLabel(a.label)}"`);
     const once = onceFlag(a);
-    if (once) out.push(`${pad}\tif hasCondition trigger ${once}`, `${pad}\t\tchat trigger "${spoken(who, 'says', text(a.once.says) || ONCE_SAYS)}"`, `${pad}\t\tendscript`, `${pad}\tend`);
+    if (once) {
+      out.push(`${pad}\tif hasCondition trigger ${once}`);
+      chatTo(out, `${pad}\t\t`, spoken(who, 'says', text(a.once.says) || ONCE_SAYS));
+      out.push(`${pad}\t\tendscript`, `${pad}\tend`);
+    }
     const need = needs(a.needs, who);
     if (need) out.push(`${pad}\tif ${need[0]}`, `${pad}\t\tchat trigger "${need[1]}"`, `${pad}\t\tendscript`, `${pad}\tend`);
     for (const e of a.effects ?? []) {
@@ -178,7 +208,7 @@ function ask(out, who, node, line, pad, depth) {
       const mins = Math.floor(Number(a.once.minutes) || 0);
       if (mins > 0) out.push(`${pad}\taddCondition trigger ${TIMER_FLAG}`, `${pad}\torder trigger "flagtimer ${once} ${mins}"`);
     }
-    if (text(a.reply)) out.push(`${pad}\tchat trigger "${spoken(who, a.replyVerb, text(a.reply))}"`);
+    if (text(a.reply)) chatTo(out, `${pad}\t`, spoken(who, a.replyVerb, text(a.reply)));
     if (a.next && depth + 1 < MAX_DEPTH) question(out, who, a.next, pad + '\t', depth + 1);
     out.push(`${pad}\tendscript`, `${pad}end`);
   }
@@ -209,8 +239,9 @@ export function toScript(name, dlg) {
   return out.join('\n') + '\n';
 }
 
-// The .greet file: one shout per line.
-export const toGreet = (dlg) => (dlg.shouts ?? []).map(text).filter(Boolean).join('\n');
+// The .greet file: one shout per line. Shouts reach everyone nearby at
+// once, so {male|female} words take their not-chosen (or male) form.
+export const toGreet = (dlg) => (dlg.shouts ?? []).map((x) => text(bySex(x, ''))).filter(Boolean).join('\n');
 
 // Every flag the dialogue uses, so the server can make their files.
 export function flagsOf(dlg) {
@@ -315,7 +346,7 @@ export function toTileScript(rules) {
       const line = effect(e, pad);
       if (line) out.push(line);
     }
-    if (text(r.says)) out.push(`${pad}chat trigger "${tileLine(r)}"`);
+    if (text(r.says)) chatTo(out, pad, tileLine(r));
     out.push(`${pad}endscript`);
     if (cond) out.push('end');
     else break; // an "always" rule: nothing after it is reached
@@ -348,7 +379,7 @@ export function canMoveExpr(walk) {
     default: return '';
   }
 }
-export const blockedText = (walk) => (text(walk?.says) ? tileLine(walk) : '');
+export const blockedText = (walk) => (text(walk?.says) ? bySex(tileLine(walk), '') : '');
 // A tile's message: from a speaker (said, shouted... or an action), or just
 // the words when no one says it.
 export function tileLine(r) {
@@ -402,7 +433,7 @@ export function parseTileReply(line) {
 
 // ---- trying a conversation out (the editor's "Try it") ----
 // A pretend player: { flags: Set of lower-case flags, items: [names],
-// gold, race }. No server involved; it follows the same rules the
+// gold, race, sex ('male' or 'female') }. No server involved; it follows the same rules the
 // script does.
 
 function holds(when, p) {
@@ -415,6 +446,7 @@ function holds(when, p) {
     case 'gold': return p.gold >= (Number(v) || 0);
     case 'race': return p.race === v;
     case 'norace': return p.race !== v;
+    case 'sex': return (p.sex === 'female') === (v === 'female');
     default: return true;
   }
 }
@@ -430,7 +462,7 @@ export function stageFor(dlg, p) {
 export function tryAnswer(a, p, who) {
   const name = text(who) || 'They';
   const once = onceFlag(a).toLowerCase();
-  if (once && p.flags.has(once)) return { lines: [`${name} says: ${text(a.once.says) || ONCE_SAYS}`] };
+  if (once && p.flags.has(once)) return { lines: [bySex(`${name} says: ${text(a.once.says) || ONCE_SAYS}`, p.sex)] };
   const need = a.needs;
   if (need?.kind === 'gold' && p.gold < (Number(need.value) || 0)) return { lines: [`${name} says: You don't have enough gold for that. It's ${Math.floor(Number(need.value))} gp.`] };
   if (need?.kind === 'item' && !holds({ kind: 'item', value: need.value }, p)) return { lines: [`${name} says: You'll need a ${text(need.value)} for that.`] };
@@ -458,6 +490,6 @@ export function tryAnswer(a, p, who) {
     p.flags.add(once);
     lines.push(Number(a.once.minutes) > 0 ? `(works again in ${Math.floor(Number(a.once.minutes))} minutes)` : '(only once)');
   }
-  if (text(a.reply)) lines.unshift(spoken(name, a.replyVerb, text(a.reply)));
+  if (text(a.reply)) lines.unshift(bySex(spoken(name, a.replyVerb, text(a.reply)), p.sex));
   return { lines, next: a.next ?? null };
 }

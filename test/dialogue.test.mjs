@@ -273,3 +273,74 @@ console.log('ok - dialogue');
   assert.ok(flagsOf({ stages: [{ when: { kind: 'always' }, answers: [{ label: 'g', effects: [], once: { flag: 'once_nym', minutes: 30 } }] }] }).includes('timernow'));
   console.log('ok - trying conversations');
 }
+
+// ---- the player's sex: a condition, and {male|female} words ----
+{
+  const { bySex, hasSexed, stageFor, tryAnswer } = await import('../js/dialogue.js');
+  assert.equal(bySex('Welcome, {sir|madam}!', 'male'), 'Welcome, sir!');
+  assert.equal(bySex('Welcome, {sir|madam}!', 'female'), 'Welcome, madam!');
+  assert.equal(bySex('Welcome, {sir|madam}!', ''), 'Welcome, sir!');
+  assert.equal(bySex('Welcome, {sir|madam|friend}!', ''), 'Welcome, friend!');
+  assert.equal(bySex('{He|She} said {his|her} piece.', 'female'), 'She said her piece.');
+  assert.equal(bySex('No {braces} here, {a|b|c|d}', 'female'), 'No {braces} here, {a|b|c|d}');
+  assert.equal(hasSexed('plain'), false);
+  assert.equal(hasSexed('{lad|lass}'), true);
+  assert.equal(hasSexed('{lad|lass}'), true); // no regex state left behind
+
+  const dlg = {
+    shouts: ['Over here, {lad|lass|stranger}!'],
+    stages: [
+      { when: { kind: 'sex', value: 'female' }, says: 'Good day, {sir|madam}.', answers: [] },
+      { when: { kind: 'always', value: '' }, says: 'Well met, {lad|lass|traveller}.', answers: [
+        { label: 'Thanks', reply: 'Off you go, {son|daughter}.', effects: [] },
+      ] },
+    ],
+  };
+  assert.equal(toScript('Gran', dlg), `#Gran's dialogue, made with the God tab's dialogue editor.
+#Change it there: saving the editor rewrites this file.
+if hasCondition trigger female
+	if hasCondition trigger female
+		chat trigger "Gran says: Good day, madam."
+	end
+	if ! hasCondition trigger female
+		chat trigger "Gran says: Good day, sir."
+	end
+	endscript
+end
+if hasCondition trigger female
+	chat trigger "Gran says: Well met, lass. (thanks)"
+end
+if hasCondition trigger male
+	chat trigger "Gran says: Well met, lad. (thanks)"
+end
+if and ! hasCondition trigger male ! hasCondition trigger female
+	chat trigger "Gran says: Well met, traveller. (thanks)"
+end
+input trigger answer
+if strequals answer "thanks"
+	if hasCondition trigger female
+		chat trigger "Gran says: Off you go, daughter."
+	end
+	if ! hasCondition trigger female
+		chat trigger "Gran says: Off you go, son."
+	end
+	endscript
+end
+chat trigger "Gran says: Hm? Talk to me again when you've made up your mind."
+endscript
+endscript
+`);
+  assert.equal(toGreet(dlg), 'Over here, stranger!');
+  // "male" means not female, so those who haven't chosen count as male.
+  assert.match(toScript('X', { stages: [{ when: { kind: 'sex', value: 'male' }, says: 'hi', answers: [] }] }), /^if ! hasCondition trigger female$/m);
+  // Try it.
+  const her = { flags: new Set(), items: [], gold: 0, race: 'human', sex: 'female' };
+  const him = { ...her, sex: 'male' };
+  assert.equal(stageFor(dlg, her), 0);
+  assert.equal(stageFor(dlg, him), 1);
+  assert.deepEqual(tryAnswer(dlg.stages[1].answers[0], him, 'Gran').lines, ['Gran says: Off you go, son.']);
+  // Tile actions too.
+  assert.match(toTileScript([{ when: { kind: 'always' }, speaker: '', says: 'You feel {strong|graceful}.', effects: [] }]), /if hasCondition trigger female\n\tchat trigger "You feel graceful."\nend/);
+}
+
+console.log('ok - sex words');

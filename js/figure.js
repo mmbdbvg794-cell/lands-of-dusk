@@ -16,6 +16,8 @@ export const OUT = 144;
 
 // The looks, by players.gif image. Races (defRaces): human 0, elf 1,
 // darkelf 2, lizardman 6; 3-5 and 7 are other characters on this server.
+// 8-11 are the races' female looks (server/Sex.java): slimmer, a skirt,
+// hair to the shoulders; the lizardfolk a chest wrap.
 export const LOOKS = [
   { skin: '#c89468', hair: '#4a2e18', top: '#7a5230', trim: '#4a3018', legs: '#3e3a2c', boots: '#2a1c10', style: 'plain' },
   { skin: '#f0d0b0', hair: '#e8d078', hairStyle: 'long', top: '#e6dcc0', trim: '#b8a878', legs: '#9a2a22', boots: '#4a2a18', style: 'plain', ears: true },
@@ -25,6 +27,10 @@ export const LOOKS = [
   { skin: '#c89468', top: '#2a4ab0', trim: '#d8303a', legs: '#1a2a78', boots: '#10183a', style: 'armour', helm: '#2440a0', emblem: '#e0343c' },
   { skin: '#5e7d3c', belly: '#c4b283', top: '#5e7d3c', trim: '#5a3e22', legs: '#587639', boots: '#4c6832', style: 'lizard' },
   { skin: '#c8a888', top: '#8a8278', trim: '#5a544c', legs: '#4a4640', boots: '#2a2622', style: 'plain', helm: '#b0aca0', horns: true, beard: '#8a6a44' },
+  { skin: '#c89468', hair: '#5a3418', hairStyle: 'long', top: '#7a5230', trim: '#4a3018', legs: '#3e3a2c', skirt: '#5a4632', boots: '#2a1c10', style: 'plain', slim: true },
+  { skin: '#f0d0b0', hair: '#e8d078', hairStyle: 'long', top: '#e6dcc0', trim: '#b8a878', legs: '#9a2a22', skirt: '#9a2a22', boots: '#4a2a18', style: 'plain', ears: true, slim: true },
+  { skin: '#8a8c9a', hair: '#e8e8f0', hairStyle: 'long', top: '#3a3a44', trim: '#6a6a78', legs: '#1c1c22', skirt: '#2a2a32', boots: '#101014', style: 'plain', ears: true, slim: true },
+  { skin: '#5e7d3c', belly: '#c4b283', top: '#5e7d3c', trim: '#5a3e22', legs: '#587639', boots: '#4c6832', style: 'lizard', wrap: '#d8b040' },
 ];
 
 const DIRS = ['n', 's', 'w', 'e'];
@@ -313,7 +319,7 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
   const hand = gear.hands ?? look.skin;
   const plated = look.style === 'armour' || armour?.kind === 'plate' || armour?.kind === 'chain';
   const helm = gear.helm ?? (look.helm ? { kind: look.horns ? 'horned' : 'helm', colour: look.helm } : null);
-  const bodyW = side ? 26 : 36;
+  const bodyW = (side ? 26 : 36) - (look.slim ? 4 : 0);
   const bx = cx - bodyW / 2;
   const capePath = () => {
     ctx.beginPath();
@@ -495,6 +501,11 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
     // Plate: a breastplate highlight.
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
     roundRect(ctx, bx + 5, shoulderY + 6, bodyW * 0.4, 18, 6)(); ctx.fill();
+  }
+  // A chest wrap (look.wrap: its colour), under any armour.
+  if (look.wrap && !armour) {
+    const wy = shoulderY + 10;
+    part(ctx, roundRect(ctx, bx - 1, wy, bodyW + 2, 9, 3), look.wrap, { x0: bx, x1: bx + bodyW });
   }
   ctx.restore();
   if (look.emblem && dir === 's' && !armour) {

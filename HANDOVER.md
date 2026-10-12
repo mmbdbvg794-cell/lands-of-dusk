@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-12 20:20 (duskserver time).
+State as of 2026-10-12 21:30 (duskserver time).
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -874,7 +874,8 @@ commands that touch live.
   DUSK_BRIDGE_PORT, DUSK_BETA_DIR=~/dusktest/beta) and in Chromium.
   Funnel X-Forwarded-For checked live: a forged header is replaced by the
   real address.
-- KNOWN HOLE (user chose to leave it for now): the funnel also publishes
+- LEFT OPEN ON PURPOSE (2026-10-12: the user wants old-Java-client players
+  to keep playing the classic game; don't suggest closing it again): the funnel also publishes
   tcp :10000 -> game 10001 (old Java client), which skips the gate; the
   game port 10001 is also open on the LAN. Close with
   `sudo tailscale funnel --tcp 10000 off` (check `tailscale funnel status`).
@@ -934,6 +935,39 @@ commands that touch live.
   makes links clickable (main.js CHAT_LINK/linked()), but only https to
   discord.gg, discord.com and our own host, matched whole (lookalikes such
   as discord.gg.evil.com stay plain text). Seen working live by the user.
+
+## 2026-10-12 night: male / female (NOT live yet: see the end of this section)
+
+- The user's choices: existing characters are asked once at their next
+  login (browser client); after that only gods change it.
+- Stored as a hidden flag, "female" or "male" (defConditions files made on
+  first use). Scripts ask `hasCondition trigger female`; anyone without it
+  counts as male (Java-client players are never asked).
+- Look: players.gif images 8-11 are the female human, elf, dark elf and
+  lizardman (from 0, 1, 2, 6). tools/server/female_sprites.py makes them
+  from the race frames (hair to the shoulders, a skirt; the lizardfolk a
+  chest wrap); it always rebuilds from the first 8 images. Painted looks:
+  js/figure.js LOOKS[8..11] (look.slim, look.skirt, look.wrap).
+- server/Sex.java: `sex` -> "Sex: male|female|unset"; `sex male|female`
+  once; `setsex <name> male|female` (privs 3, player online). The engine
+  resets the image from the race at every login (Player.loadRace), so
+  PlayerPatch also calls Sex.afterRace before loadRace returns. A change
+  while online is sent to everyone in view as an ENTITY_IMAGE (op 31).
+- Client: js/sex.js; main.js asks `sex` (background, so after a god's
+  presence question) once graphics load; "Sex: unset" opens #sex-dialog
+  with painted previews. Focus starts on the heading so Enter typed for the
+  chat can't choose (it did at first).
+- Dialogue: condition "Player is (sex)" in the dialogue and tile editors
+  (kind 'sex'; male = `! hasCondition trigger female`), and words like
+  {sir|madam} or {lad|lass|stranger} (third = not chosen yet) in anything
+  said: dialogue.js chatTo writes one chat line per kind of listener.
+  Shouts (.greet) take the third or first form. Try it has a sex picker.
+  Existing talk files needed no changes: almost none address the player
+  by sex (only the player's own "yes sir" answers to the Drill Sergeant
+  and Recruiter).
+- Also fixed: the tile editor's race condition crashed (a shadowed `r`).
+- Tested on scratch (hgate, egate, new character sxnew): picker, pixel and
+  painted looks, relogin keeps it, setsex both ways seen live, refusal.
 
 ## Open / ideas
 

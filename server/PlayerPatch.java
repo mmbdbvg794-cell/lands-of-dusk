@@ -10,6 +10,11 @@
  * save), which saves while the player still counts as working. Straight
  * code, no branches, so the method's frames stay as they are.
  *
+ * And loadRace(), which sets everyone's image from their race at every
+ * login, calls Sex.afterRace(this) just before each of its returns, so a
+ * female character gets her image before anyone sees her
+ * (server/Sex.java). Again no branches added.
+ *
  *   java --add-exports ... PlayerPatch <Player.class in> <Player.class out>
  *
  * Part of the browser client project (dusk-browser-client/server).
@@ -42,9 +47,23 @@ public class PlayerPatch {
         save.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "Skills", "beforeClose", "(LPlayer;Z)V", false));
         close.instructions.insert(save);
         close.maxStack = Math.max(close.maxStack, 2);
+        MethodNode race = null;
+        for (MethodNode m : cls.methods) if (m.name.equals("loadRace") && m.desc.equals("()V")) race = m;
+        if (race == null) throw new Exception("no loadRace() in " + args[0]);
+        int hooked = 0;
+        for (jdk.internal.org.objectweb.asm.tree.AbstractInsnNode n : race.instructions.toArray()) {
+            if (n.getOpcode() != Opcodes.RETURN) continue;
+            InsnList after = new InsnList();
+            after.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            after.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "Sex", "afterRace", "(LPlayer;)V", false));
+            race.instructions.insertBefore(n, after);
+            hooked++;
+        }
+        if (hooked == 0) throw new Exception("loadRace() has no return");
+        race.maxStack = Math.max(race.maxStack, 1);
         ClassWriter w = new ClassWriter(0);
         cls.accept(w);
         Files.write(Paths.get(args[1]), w.toByteArray());
-        System.out.println("Patched logout saving in " + args[1]);
+        System.out.println("Patched logout saving and the login look (" + hooked + " returns) in " + args[1]);
     }
 }

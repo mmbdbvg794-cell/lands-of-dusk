@@ -2,10 +2,10 @@
 // what they do, for one NPC. Opened from the God tab or an NPC's click
 // menu; saved as the NPC's talk script (js/dialogue.js turns it into one).
 
-import { newDialogue, tidyDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS, RACES, newOnceFlag, ONCE_SAYS, flagsOf, stageFor, tryAnswer } from './dialogue.js';
+import { newDialogue, tidyDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS, RACES, SEXES, newOnceFlag, ONCE_SAYS, flagsOf, stageFor, tryAnswer, bySex } from './dialogue.js';
 import { journalSet, JOURNAL_ALL } from './social.js';
 
-const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)'], ['race', 'Player is race'], ['norace', "Player isn't race"]];
+const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)'], ['race', 'Player is race'], ['norace', "Player isn't race"], ['sex', 'Player is (sex)']];
 const ONCE = [['any', 'Works any time'], ['once', 'Only once per player'], ['wait', 'Again after a wait']];
 const EFFECTS = [
   ['give', 'Give item'], ['take', 'Take item'], ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'],
@@ -39,7 +39,7 @@ export class DialogueEditor {
   }
 
   resetTry() {
-    this.pretend = { flags: new Set(), items: [], gold: 100, race: 'human' };
+    this.pretend = { flags: new Set(), items: [], gold: 100, race: 'human', sex: 'male' };
     this.tryLog = [];
     this.tryNode = null;
   }
@@ -57,7 +57,7 @@ export class DialogueEditor {
     const ask = (node) => {
       const said = [node.says, ...(node.lines ?? [])].filter((x) => String(x ?? '').trim());
       const line = said.length ? said[Math.floor(Math.random() * said.length)] : '';
-      if (line || node.answers?.length) say(`${who} ${node.verb === 'acts' ? '' : `${node.verb ?? 'says'}: `}${line}${said.length > 1 ? `   (one of ${said.length} lines)` : ''}`);
+      if (line || node.answers?.length) say(bySex(`${who} ${node.verb === 'acts' ? '' : `${node.verb ?? 'says'}: `}${line}${said.length > 1 ? `   (one of ${said.length} lines)` : ''}`, p.sex));
       this.tryNode = node.answers?.some((a) => String(a.label ?? '').trim()) ? node : null;
     };
     const talk = () => {
@@ -86,7 +86,7 @@ export class DialogueEditor {
     return h('section', { className: 'de-stage de-try' },
       h('div', { className: 'de-row de-stage-head' }, h('strong', { textContent: 'Try it' }), h('span', { className: 'de-hint', textContent: ' as a pretend player; nothing is sent to the server' })),
       h('div', { className: 'de-row' },
-        select(RACES, p.race, (v) => { p.race = v; }), gold, items),
+        select(RACES, p.race, (v) => { p.race = v; }), select(SEXES, p.sex, (v) => { p.sex = v; }), gold, items),
       flags.length ? h('div', { className: 'de-row de-tryflags' }, h('span', { className: 'de-label-text', textContent: 'Has flags' }), ...flags) : null,
       h('div', { className: 'de-trylog' }, ...this.tryLog.slice(-30).map((l) => h('div', { textContent: l, className: l.startsWith('(') ? 'de-tryfx' : '' }))),
       h('div', { className: 'de-row' }, ...answers, h('span', { className: 'de-grow' }),
@@ -260,6 +260,7 @@ export class DialogueEditor {
       const raceWhen = st.when.kind === 'race' || st.when.kind === 'norace';
       const valueBox = st.when.kind === 'always' ? null
         : raceWhen ? select(RACES, RACES.some(([r]) => r === st.when.value) ? st.when.value : (st.when.value = 'human'), (v) => { st.when.value = v; })
+        : st.when.kind === 'sex' ? select(SEXES, st.when.value === 'female' ? 'female' : (st.when.value = 'male'), (v) => { st.when.value = v; })
         : input(st.when.value, st.when.kind === 'item' ? 'item name' : st.when.kind === 'gold' ? 'gold' : 'flag name, e.g. wolfquest', (v) => { st.when.value = v; },
           st.when.kind === 'item' ? { list: 'de-items' } : st.when.kind === 'gold' ? { type: 'number', min: 1, className: 'de-num' } : {});
       const answers = renderAnswers(st, 0);
@@ -269,6 +270,7 @@ export class DialogueEditor {
           select(WHEN.filter(([k]) => k !== 'always'), st.also.kind, (v) => { st.also = { kind: v, value: '' }; again(); }),
           st.also.kind === 'race' || st.also.kind === 'norace'
             ? select(RACES, RACES.some(([r]) => r === st.also.value) ? st.also.value : (st.also.value = 'human'), (v) => { st.also.value = v; })
+            : st.also.kind === 'sex' ? select(SEXES, st.also.value === 'female' ? 'female' : (st.also.value = 'male'), (v) => { st.also.value = v; })
             : input(st.also.value, st.also.kind === 'item' ? 'item name' : st.also.kind === 'gold' ? 'gold' : 'flag name', (v) => { st.also.value = v; },
               st.also.kind === 'item' ? { list: 'de-items' } : st.also.kind === 'gold' ? { type: 'number', min: 1, className: 'de-num' } : {}),
           button('✕', () => { delete st.also; again(); }, 'ghost de-x'))
@@ -301,7 +303,7 @@ export class DialogueEditor {
     const tryIt = this.trying ? this.tryPanel(h, select, button) : null;
     this.body.replaceChildren(...(tryIt ? [tryIt] : []), shouts,
       h('h4', { className: 'list-head', textContent: 'Conversation' }),
-      h('p', { className: 'de-hint', textContent: 'Stages are checked from the top; the first whose "When" fits the player is used. Put "Always" last. Flags remember quest progress: set one with an effect, then check it in a stage above.' }),
+      h('p', { className: 'de-hint', textContent: 'Stages are checked from the top; the first whose "When" fits the player is used. Put "Always" last. Flags remember quest progress: set one with an effect, then check it in a stage above. Words for men and women go in braces: {sir|madam}, or {sir|madam|friend} for those who haven\'t chosen.' }),
       ...stages,
       h('div', { className: 'de-row' }, button('+ Stage', () => { d.stages.splice(Math.max(0, d.stages.length - 1), 0, { when: { kind: 'flag', value: '' }, says: '', answers: [] }); again(); })),
       itemsList);

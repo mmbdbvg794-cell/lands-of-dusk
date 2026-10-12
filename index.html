@@ -459,6 +459,17 @@
       </div>
     </div>
   </dialog>
+  <!-- Asked once, after logging in, when the character hasn't chosen (sex.js). -->
+  <dialog id="sex-dialog" aria-labelledby="sex-title">
+    <!-- Focus on the heading, not a button: Enter typed for the chat mustn't choose. -->
+    <h2 id="sex-title" tabindex="-1" autofocus>Your character</h2>
+    <p class="dialog-sub">Is your character a man or a woman? It changes how you look, and how some people in the world speak to you. You choose once; a god can change it later if you need.</p>
+    <div class="sex-picks">
+      <button type="button" class="sex-pick" data-sex="male"><canvas width="96" height="96"></canvas><span>Male</span></button>
+      <button type="button" class="sex-pick" data-sex="female"><canvas width="96" height="96"></canvas><span>Female</span></button>
+    </div>
+  </dialog>
+
   <dialog id="bug-dialog" aria-labelledby="bug-title">
     <form id="bug-form" method="dialog">
       <h2 id="bug-title">Report a bug</h2>

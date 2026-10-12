@@ -25,6 +25,8 @@ import { AreaAmbience, areaCounts, areaMix } from './ambience.js';
 import { MailView, parseMail } from './mail.js';
 import { PartyView, parseParty, partyChatCommand } from './party.js';
 import { AchievementsView, parseAchv } from './achievements.js';
+import { SEX_ASK, parseSex, sexCommand, maleImage, femaleImage } from './sex.js';
+import { LOOKS, paintFigureStrip, OUT as FIGURE_OUT } from './figure.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
@@ -1689,6 +1691,9 @@ function handle(msg) {
       if (serverReply) { god.serverReply(serverReply); adminView.serverReply(serverReply); break; }
       const adminReply = isGod && parseAdmin(msg.text);
       if (adminReply) { adminView.reply(adminReply); break; }
+      // Not chosen yet: the male/female picker (js/sex.js).
+      const sexReply = parseSex(msg.text);
+      if (sexReply) { if (sexReply === 'unset') showSexPicker(); else if (sexDialog.open) sexDialog.close(); break; }
       const achvReply = parseAchv(msg.text);
       if (achvReply && achievementsView.reply(achvReply)) break;
       const partyReply = parseParty(msg.text);
@@ -1807,7 +1812,30 @@ async function loadGraphics(address) {
     c.send('playerloaded true');
     c.send(TALKERS); // which NPCs have something to say
     c.send(PROP_LOOKS); // props with names of their own, and what they look like
+    c.background(SEX_ASK); // male or female, if not chosen yet (after a god's presence question)
   }
+}
+
+// ---- male or female (js/sex.js, server/Sex.java) ----------------------------
+
+const sexDialog = $('sex-dialog');
+function showSexPicker() {
+  if (sexDialog.open) return;
+  // The character as each, painted, standing and facing south.
+  const base = maleImage(world.self()?.image ?? 0);
+  for (const b of sexDialog.querySelectorAll('[data-sex]')) {
+    const image = b.dataset.sex === 'female' ? femaleImage(base) : base;
+    const ctx = b.querySelector('canvas').getContext('2d');
+    ctx.clearRect(0, 0, 96, 96);
+    ctx.drawImage(paintFigureStrip(LOOKS[image] ?? LOOKS[0]), 2 * FIGURE_OUT, 0, FIGURE_OUT, FIGURE_OUT, 0, 0, 96, 96);
+  }
+  sexDialog.showModal();
+}
+for (const b of sexDialog.querySelectorAll('[data-sex]')) {
+  b.addEventListener('click', () => {
+    conn?.send(sexCommand(b.dataset.sex));
+    sexDialog.close();
+  });
 }
 
 // ---- art style ---------------------------------------------------------------
