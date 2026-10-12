@@ -875,6 +875,32 @@ commands that touch live.
 - Backup before the change: ~/backups-beta-20261012-180323 (bridge,
   service unit, serve.py, users.tar.gz, users.md5).
 
+## 2026-10-12: beta applications (LIVE since the 18:44 dusk-web restart)
+
+- site/apply.html -> ~/DuskRPG/web/apply.html (copied by hand; deploy.sh
+  doesn't ship site/). Built from howtoplay.html's head/sidebar. Posts to
+  /play/apply/api/submit. tools/server/beta_site_links.py added "Apply for
+  the Beta" to the sidebar of the 7 public pages and a "Closed beta: apply
+  for a key" line under Play Now on home and How to Play (backups in
+  DuskRPG/backups/web-beta-20261012-184215). KEY_REQUEST_URL points at it.
+- apply.py (repo root, beside forum.py; serve.py routes .../apply/api/):
+  X-Apply header + Origin allowlist (DUSK_APPLY_ORIGINS adds test origins),
+  honeypot "website", caps (name 20, contact 100, why 500, body 4 KB), tags
+  and <> stripped, 3/hour per real address (XFF trusted only when the peer
+  is this machine: loopback or the bound address 192.168.4.61, which is how
+  the funnel reaches serve.py; checked live with a forged header). Only a
+  hash of the address is stored. Table "applications" in
+  ~/dusk-beta/betakeys.sqlite. DISCORD_URL in beta.conf shows on the
+  thank-you (betakey discord <invite>).
+- Admin: betakey applications [all] | approve <id> | reject <id>; and the
+  admin page's "Beta applications" (js/applications.js), which uses the
+  forum's god sign-in (cookie dusk_forum) since the web service can't see
+  the game login. Approve makes a key labelled "#<id> <name or contact>".
+- No mail is sent (no outbound mail exists): the key and contact are shown
+  to the god, who sends it.
+- Note: like the rest of /play, the source files (apply.py, server/*.py)
+  can be downloaded; they hold no data or secrets.
+
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
