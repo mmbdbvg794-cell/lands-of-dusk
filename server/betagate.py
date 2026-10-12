@@ -9,8 +9,10 @@ Everything lives in one directory outside both web roots, by default
                      BETA_GATE=off        on: a key is needed; off: as before
                      MAX_PLAYERS=25       browser players at once (0: no cap)
                      KEY_REQUEST_URL=     the "Need a key?" link on the login
+                     DISCORD_URL=         the invite shown after applying
   betakeys.sqlite  keys, the browser tokens they gave out, who is on now,
-                   and the busiest moment of each day
+                   the busiest moment of each day, and beta applications
+                   (from the website's apply page, apply.py)
 
 Keys look like K7QM-4XWD-9TPB-2HNR: 16 characters from an alphabet without
 0/O, 1/I/L. Only a SHA-256 of each is kept (and its last group, to tell
@@ -34,7 +36,7 @@ ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"  # no 0/O, 1/I/L
 DIR = os.environ.get("DUSK_BETA_DIR") or os.path.expanduser("~/dusk-beta")
 CONF = os.path.join(DIR, "beta.conf")
 DB = os.path.join(DIR, "betakeys.sqlite")
-DEFAULTS = {"BETA_GATE": "off", "MAX_PLAYERS": "25", "KEY_REQUEST_URL": ""}
+DEFAULTS = {"BETA_GATE": "off", "MAX_PLAYERS": "25", "KEY_REQUEST_URL": "", "DISCORD_URL": ""}
 CONF_TEXT = """# The closed-beta gate (dusk_bridge.py reads this again within seconds of a change).
 # BETA_GATE=on needs a beta key to play in the browser; off is open, as before.
 BETA_GATE=off
@@ -42,6 +44,8 @@ BETA_GATE=off
 MAX_PLAYERS=25
 # Where the login's "Closed beta. Need a key?" link goes (empty: no link).
 KEY_REQUEST_URL=
+# The Discord invite shown after someone applies (empty: none).
+DISCORD_URL=
 """
 
 
@@ -93,6 +97,11 @@ class Settings:
     def key_url(self):
         url = self.get().get("KEY_REQUEST_URL", "")
         return url if url.startswith(("https://", "http://", "mailto:")) else ""
+
+    @property
+    def discord_url(self):
+        url = self.get().get("DISCORD_URL", "")
+        return url if url.startswith("https://") else ""
 
 
 def normalize(key):
@@ -152,6 +161,20 @@ def connect():
             day TEXT PRIMARY KEY,
             peak INTEGER NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS applications (
+            id INTEGER PRIMARY KEY,
+            created TEXT NOT NULL,
+            at INTEGER NOT NULL,
+            name TEXT NOT NULL DEFAULT '',
+            contact TEXT NOT NULL,
+            device TEXT NOT NULL,
+            why TEXT NOT NULL DEFAULT '',
+            ip_hash TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'waiting',
+            decided TEXT,
+            key_tail TEXT
+        );
+        CREATE INDEX IF NOT EXISTS applications_ip ON applications (ip_hash, at);
     """)
     return db
 
@@ -253,3 +276,55 @@ def set_online(db, session, key_id, character, address):
 
 def set_offline(db, session):
     db.execute("DELETE FROM online WHERE session = ?", (session,))
+
+
+# ---- beta applications (the website's apply page; apply.py) ----
+
+DEVICES = ("computer", "phone", "tablet")
+
+
+def ip_hash(address):
+    """Addresses aren't kept, only a hash, enough to count per address."""
+    return digest("apply:" + (address or ""))[:32]
+
+
+def recent_applications(db, address, seconds=3600):
+    return db.execute("SELECT COUNT(*) FROM applications WHERE ip_hash = ? AND at > ?",
+                      (ip_hash(address), int(time.time()) - seconds)).fetchone()[0]
+
+
+def add_application(db, name, contact, device, why, address):
+    cur = db.execute("INSERT INTO applications (created, at, name, contact, device, why, ip_hash) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                     (now(), int(time.time()), name, contact, device, why, ip_hash(address)))
+    return cur.lastrowid
+
+
+def applications(db, status=None):
+    if status:
+        return db.execute("SELECT * FROM applications WHERE status = ? ORDER BY id", (status,)).fetchall()
+    return db.execute("SELECT * FROM applications ORDER BY id").fetchall()
+
+
+def application(db, app_id):
+    return db.execute("SELECT * FROM applications WHERE id = ?", (app_id,)).fetchone()
+
+
+def approve(db, app_id):
+    """-> (row, key) and the application marked approved; (row, None) if it
+    was already decided; (None, None) if there's no such application."""
+    row = application(db, app_id)
+    if row is None or row["status"] != "waiting":
+        return row, None
+    label = f"#{row['id']} {row['name'] or row['contact']}"[:60]
+    key = create(db, label)
+    db.execute("UPDATE applications SET status = 'approved', decided = ?, key_tail = ? WHERE id = ?",
+               (now(), normalize(key)[-4:], app_id))
+    return application(db, app_id), key
+
+
+def reject(db, app_id):
+    row = application(db, app_id)
+    if row is None or row["status"] != "waiting":
+        return row, False
+    db.execute("UPDATE applications SET status = 'rejected', decided = ? WHERE id = ?", (now(), app_id))
+    return application(db, app_id), True

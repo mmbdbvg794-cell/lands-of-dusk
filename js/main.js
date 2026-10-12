@@ -223,7 +223,7 @@ const achievementsView = new AchievementsView($('achievements'), { send: quiet, 
 // Parties (js/party.js, server/Party.java): the frame over the map.
 const partyView = new PartyView($('party-frame'), $('party-invite'), { send: quiet, me: () => loginName, line: (t) => appendLine(t, 'party') });
 // The admin page (js/admin.js): from the God tab, or #admin in the address.
-const adminView = new AdminView($('admin-dialog'), { send: quiet, run: (cmd) => runCommand(cmd) });
+const adminView = new AdminView($('admin-dialog'), { send: quiet, run: (cmd) => runCommand(cmd), me: () => loginName });
 // The Journal, Friends and Trade tabs.
 const socialUI = new SocialUI({
   panels,

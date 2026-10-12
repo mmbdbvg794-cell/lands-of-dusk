@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lands of Dusk - Apply for the Beta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --stone-dark: #2e2e30;
+    --stone-mid: #45464a;
+    --stone-light: #a9abb2;
+    --sapphire: #1a2f5c;
+    --sapphire-bright: #3a5ba0;
+    --gold: #cbb26a;
+    --gold-bright: #e8d391;
+    --parchment: #d8d2c0;
+    --ember: #b5432f;
+    --emerald: #2e6b4f;
+    --emerald-bright: #4caf7d;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--stone-dark);
+    background-image: url('/images/bgTile.jpg');
+    background-repeat: repeat;
+    color: var(--parchment);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 28px 16px 64px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 8px 0 6px;
+  }
+
+  .header img {
+    height: 60px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  }
+
+  .header img.dragon { height: 78px; transform: scaleX(-1); }
+
+  h1.title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 44px;
+    letter-spacing: 0.04em;
+    margin: 0;
+    color: var(--gold-bright);
+    text-shadow:
+      0 0 10px rgba(203,178,106,0.35),
+      2px 2px 0 #1a1a1a,
+      -1px -1px 0 #1a1a1a;
+  }
+
+  .tagline {
+    text-align: center;
+    font-style: italic;
+    color: var(--stone-light);
+    margin: 0 0 24px;
+    font-size: 15px;
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+
+  .panel {
+    position: relative;
+    border-image: url('/images/bgframe.jpg') 40 fill stretch;
+    border-image-width: 40px;
+    border-style: solid;
+    border-width: 40px;
+    background-color: rgba(20,20,22,0.55);
+    padding: 4px 20px 20px;
+    margin-bottom: 22px;
+  }
+
+  .panel h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 19px;
+    letter-spacing: 0.03em;
+    color: var(--gold);
+    border-bottom: 1px solid rgba(203,178,106,0.3);
+    padding-bottom: 8px;
+    margin: 14px 0 14px;
+  }
+
+  .sidebar { min-width: 0; }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+
+  .status-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--ember);
+    box-shadow: 0 0 8px 2px rgba(181,67,47,0.7);
+    flex-shrink: 0;
+    transition: background 0.4s, box-shadow 0.4s;
+  }
+
+  .status-dot.online {
+    background: var(--emerald-bright);
+    box-shadow: 0 0 9px 3px rgba(76,175,125,0.75);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 9px 3px rgba(76,175,125,0.75); }
+    50% { box-shadow: 0 0 14px 5px rgba(76,175,125,0.45); }
+  }
+
+  .status-text { font-size: 17px; }
+  .status-text strong { color: var(--gold-bright); }
+  .status-sub { color: var(--stone-light); font-size: 14px; width: 100%; }
+
+  .play-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 14px;
+    padding: 15px 8px;
+    width: 100%;
+    background-image: url('/images/blockButton.jpg');
+    background-size: 100% 100%;
+    border: none;
+    border-radius: 4px;
+    color: #eaf1ff;
+    font-family: 'Cinzel', serif;
+    font-size: 19px;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+    transition: transform 0.15s, filter 0.15s;
+  }
+
+  .play-btn:hover { transform: translateY(-1px); filter: brightness(1.15); }
+  .play-btn:active { transform: translateY(1px); }
+
+  .play-sub {
+    font-size: 13px;
+    color: var(--stone-light);
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+
+  .play-sub a { color: var(--gold); }
+
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-list li { margin-bottom: 10px; }
+
+  .nav-list a {
+    color: var(--gold-bright);
+    text-decoration: none;
+    font-size: 16px;
+    border-bottom: 1px dotted transparent;
+  }
+
+  .nav-list a:hover { border-bottom-color: var(--gold-bright); }
+
+  .howto-section {
+    border-top: 1px solid rgba(203,178,106,0.22);
+    padding: 18px 0;
+  }
+
+  .howto-section:first-of-type { border-top: none; padding-top: 4px; }
+
+  .howto-section h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: var(--gold-bright);
+    margin: 0 0 10px;
+  }
+
+  .howto-section p { margin: 0 0 10px; color: var(--parchment); }
+  .howto-section ol { margin: 0 0 10px; padding-left: 22px; color: var(--parchment); }
+  .howto-section li { margin-bottom: 8px; }
+
+  .howto-section code {
+    background: rgba(203,178,106,0.15);
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 16px;
+  }
+
+  .howto-section a, .tip a { color: var(--gold); }
+
+  .keys {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 10px;
+    font-size: 16px;
+  }
+
+  .keys td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(203,178,106,0.15);
+    vertical-align: top;
+  }
+
+  .keys td:first-child { width: 38%; color: var(--gold-bright); }
+
+  kbd {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 0 6px;
+    border: 1px solid rgba(203,178,106,0.45);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.3);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 15px;
+    text-align: center;
+    color: var(--parchment);
+  }
+
+  .tip {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(203,178,106,0.3);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 8px;
+    font-size: 16px;
+  }
+
+  .tip strong { color: var(--gold-bright); }
+
+
+  .os-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 14px;
+  }
+
+  .os-card {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(203,178,106,0.25);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+
+  .os-card h4 {
+    font-family: Cinzel, serif;
+    font-size: 15px;
+    color: var(--gold);
+    margin: 0 0 8px;
+  }
+
+  .os-card ol { margin: 0; padding-left: 20px; font-size: 15px; }
+  .os-card li { margin-bottom: 6px; }
+  .os-card code { font-size: 14px; }
+
+  .connect-box {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(203,178,106,0.3);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-top: 8px;
+  }
+
+  .connect-box div { margin-bottom: 6px; font-size: 16px; }
+  .connect-box div:last-child { margin-bottom: 0; }
+  .connect-box strong { color: var(--gold-bright); }
+
+  .download-btn {
+    display: inline-block;
+    margin: 4px 0 10px;
+    padding: 8px 16px;
+    background-image: url(/images/blockButton.jpg);
+    background-size: 100% 100%;
+    border-radius: 4px;
+    color: #eaf1ff;
+    font-family: Cinzel, serif;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+  }
+  .download-btn:hover { filter: brightness(1.15); }
+
+  @media (max-width: 720px) {
+    .columns { grid-template-columns: 1fr; }
+    h1.title { font-size: 34px; }
+    .header img { height: 44px; }
+    .header img.dragon { height: 56px; }
+    .keys td:first-child { width: 45%; }
+    .os-grid { grid-template-columns: 1fr; }
+  }
+
+  /* The apply form */
+  .note {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(203,178,106,0.3);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 4px 0 18px;
+    font-size: 16px;
+  }
+  .note strong { color: var(--gold-bright); }
+  form.apply { display: flex; flex-direction: column; gap: 6px; max-width: 560px; }
+  form.apply label { font-family: 'Cinzel', serif; font-size: 15px; color: var(--gold); margin-top: 10px; }
+  form.apply .hint { font-size: 14px; color: var(--stone-light); margin: 0; }
+  form.apply input[type="text"], form.apply textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(203,178,106,0.35);
+    border-radius: 5px;
+    background: rgba(0,0,0,0.35);
+    color: var(--parchment);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 17px;
+  }
+  form.apply input[type="text"]:focus, form.apply textarea:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+  form.apply textarea { min-height: 110px; resize: vertical; }
+  .devices { display: flex; flex-wrap: wrap; gap: 8px; border: 0; padding: 0; margin: 0; }
+  .devices legend { font-family: 'Cinzel', serif; font-size: 15px; color: var(--gold); margin: 10px 0 6px; padding: 0; }
+  .devices label.choice {
+    display: flex; align-items: center; gap: 8px;
+    margin: 0; padding: 8px 14px;
+    border: 1px solid rgba(203,178,106,0.35); border-radius: 5px;
+    background: rgba(0,0,0,0.25);
+    font-family: 'EB Garamond', Georgia, serif; font-size: 17px; color: var(--parchment);
+    cursor: pointer;
+  }
+  .devices input { accent-color: var(--gold); }
+  .count { align-self: flex-end; font-size: 13px; color: var(--stone-light); }
+  .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  button.play-btn { cursor: pointer; margin-top: 18px; max-width: 320px; }
+  button.play-btn:disabled { filter: grayscale(0.6) brightness(0.8); cursor: wait; }
+  .form-msg { min-height: 1.4em; margin: 8px 0 0; font-size: 16px; }
+  .form-msg.error { color: #f08a75; }
+  .thanks h3 { font-family: 'Cinzel', serif; font-size: 20px; color: var(--gold-bright); margin: 6px 0 10px; }
+  .thanks p { margin: 0 0 10px; }
+  .thanks a { color: var(--gold); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <img class="knight" src="/images/knight.gif" alt="">
+    <h1 class="title">The Lands of Dusk</h1>
+    <img class="dragon" src="/images/dragon.gif" alt="">
+  </div>
+  <p class="tagline">A tile-based multiplayer world, alive since 2002.</p>
+
+  <div class="columns">
+
+    <div class="sidebar">
+      <div class="panel">
+        <h2>Server Status</h2>
+        <div class="status-row">
+          <div class="status-dot" id="statusDot"></div>
+          <div class="status-text" id="statusText">Checking&hellip;</div>
+        </div>
+        <div class="status-sub" id="statusSub"></div>
+        <a class="play-btn" href="/play/">Play Now</a>
+      </div>
+
+      <div class="panel">
+        <h2>Links</h2>
+        <ul class="nav-list">
+          <li><a href="/web/index.html">Home</a></li>
+          <li><a href="/web/howtoplay.html">How to Play</a></li>
+          <li><a href="/web/apply.html">Apply for the Beta</a></li>
+          <li><a href="/web/faq.html">FAQ</a></li>
+          <li><a href="/web/updates.html">Updates</a></li>
+          <li><a href="/web/lore.html">Lore</a></li>
+          <li><a href="/play/forum.html">Forum</a></li>
+          <li><a href="/web/credits.html">Credits</a></li>
+          <li><a href="/web/rules.html">Rules &amp; Privacy</a></li>
+          <li><a href="mailto:duskadmins@gmail.com" onclick="navigator.clipboard.writeText('duskadmins@gmail.com');this.nextElementSibling.style.display='block';setTimeout(()=>{this.nextElementSibling.style.display='none'},3000)">Report a Bug</a><div style="display:none;font-size:12px;color:var(--stone-light);margin-top:4px;">Email copied: duskadmins@gmail.com</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="panel">
+        <h2>Apply for the Beta</h2>
+        <div id="applyForm">
+          <p class="note"><strong>This is a closed beta.</strong> Characters may be wiped. We reply with a key when we have space.</p>
+          <form class="apply" id="apply" novalidate>
+            <label for="contact">Email or Discord name</label>
+            <p class="hint">Required, so we can send you your key. Nobody else sees it.</p>
+            <input id="contact" name="contact" type="text" maxlength="100" autocomplete="email" autocapitalize="off" spellcheck="false" required>
+
+            <label for="name">Character name you'd like</label>
+            <p class="hint">Optional. Letters, numbers and spaces, up to 20.</p>
+            <input id="name" name="name" type="text" maxlength="20" autocomplete="off" spellcheck="false">
+
+            <fieldset class="devices">
+              <legend>You'll play on</legend>
+              <label class="choice"><input type="radio" name="device" value="computer" required> Computer</label>
+              <label class="choice"><input type="radio" name="device" value="phone"> Phone</label>
+              <label class="choice"><input type="radio" name="device" value="tablet"> Tablet</label>
+            </fieldset>
+
+            <label for="why">Why are you interested?</label>
+            <p class="hint">Optional.</p>
+            <textarea id="why" name="why" maxlength="500"></textarea>
+            <span class="count" id="whyCount">0 / 500</span>
+
+            <div class="trap" aria-hidden="true">
+              <label for="website">Leave this empty</label>
+              <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+
+            <button class="play-btn" id="send" type="submit">Send Application</button>
+            <p class="form-msg" id="msg" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+        <div class="thanks" id="thanks" hidden>
+          <h3>Thank you!</h3>
+          <p>Your application is in. When there's room in the beta, we'll send a beta key to the email or Discord name you gave us.</p>
+          <p>When it arrives, open <a href="/play/">Play</a>, type your character name and a password, and paste the key into the <strong>Beta key</strong> box. You only need to enter it once on each device.</p>
+          <p id="discordLine" hidden>While you wait, come and say hello on our <a id="discordLink" href="#" target="_blank" rel="noopener">Discord</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  async function refreshStatus() {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    const sub = document.getElementById('statusSub');
+    try {
+      const res = await fetch('/api/status', { cache: 'no-store' });
+      if (!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      dot.classList.add('online');
+      text.innerHTML = '<strong>Online</strong>';
+      const n = data.players;
+      sub.textContent = n === 1 ? '1 adventurer online' : (n + ' adventurers online');
+    } catch (err) {
+      dot.classList.remove('online');
+      text.innerHTML = '<strong>Offline</strong>';
+      sub.textContent = '';
+    }
+  }
+
+  refreshStatus();
+  setInterval(refreshStatus, 15000);
+
+  // The application form (apply.py on duskserver behind /play/apply/api/).
+  const form = document.getElementById('apply');
+  const msg = document.getElementById('msg');
+  const why = document.getElementById('why');
+  const whyCount = document.getElementById('whyCount');
+  why.addEventListener('input', () => { whyCount.textContent = why.value.length + ' / 500'; });
+  function say(text, error) {
+    msg.textContent = text;
+    msg.classList.toggle('error', !!error);
+  }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+      contact: form.contact.value.trim(),
+      name: form.name.value.trim(),
+      device: (form.querySelector('input[name="device"]:checked') || {}).value || '',
+      why: why.value.trim(),
+      website: form.website.value,
+    };
+    if (!data.contact) { say('Please give an email address or Discord name, so we can send your key.', true); form.contact.focus(); return; }
+    if (!data.device) { say('Please pick the device you\'ll play on.', true); return; }
+    const button = document.getElementById('send');
+    button.disabled = true;
+    say('Sending\u2026');
+    try {
+      const res = await fetch('/play/apply/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Apply': '1' },
+        body: JSON.stringify(data),
+        credentials: 'omit',
+        cache: 'no-store',
+      });
+      const answer = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(answer.error || 'Your application couldn\'t be sent. Please try again later.');
+      document.getElementById('applyForm').hidden = true;
+      document.getElementById('thanks').hidden = false;
+      if (answer.discord && /^https:\/\//.test(answer.discord)) {
+        document.getElementById('discordLink').href = answer.discord;
+        document.getElementById('discordLine').hidden = false;
+      }
+      window.scrollTo(0, 0);
+    } catch (err) {
+      say(err.message, true);
+      button.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

@@ -6,6 +6,7 @@
 // errors"), sent quietly; the parsers here are tested in node.
 
 import { describeServer } from './god.js';
+import { ApplicationsPanel } from './applications.js';
 
 // A reply line from "admin ..." -> { player } | { bug } | { login } |
 // { error } | { done: 'players'|'bugs'|'logins'|'errors', count } | null.
@@ -59,7 +60,7 @@ const REFRESH_MS = 30000;
 export class AdminView {
   // el: the #admin-dialog. send(cmd) sends quietly; run(cmd) sends as if
   // typed (so the reply shows in the chat).
-  constructor(el, { send, run }) {
+  constructor(el, { send, run, me = () => '' }) {
     Object.assign(this, { el, send, run });
     this.timer = 0;
     this.fresh();
@@ -96,12 +97,14 @@ export class AdminView {
     const refresh = h('button', { type: 'button', textContent: 'Refresh' });
     refresh.addEventListener('click', () => this.refresh());
     this.updated = h('span', { className: 'ad-updated' });
+    this.apps = new ApplicationsPanel(h, me);
     el.querySelector('.de-body').replaceChildren(
       h('div', { className: 'ad-bar' }, refresh, h('label', { className: 'toggle' }, this.auto, ' Every 30 s'), this.updated),
       h('section', { className: 'ad-sec' }, h('h3', { textContent: 'Server' }), this.status, this.restartIn,
         h('div', { className: 'de-row' }, h('span', { textContent: 'Restart in' }), this.secs, h('span', { textContent: 's' }), restart, cancel,
           h('a', { href: 'leaderboard.html', target: '_blank', rel: 'noopener', textContent: 'Leaderboard' }),
           h('a', { href: 'who.html', target: '_blank', rel: 'noopener', textContent: 'Who\'s online page' }))),
+      this.apps.el,
       h('section', { className: 'ad-sec' }, this.heads.players, this.players),
       h('section', { className: 'ad-sec' }, this.heads.bugs, this.bugs),
       h('div', { className: 'ad-cols' },
@@ -148,6 +151,7 @@ export class AdminView {
   }
 
   refresh() {
+    this.apps.refresh();
     this.fresh();
     for (const cmd of ['serverinfo', 'admin players', 'admin bugs 30', 'admin logins 40', 'admin errors 30']) this.send(cmd);
   }

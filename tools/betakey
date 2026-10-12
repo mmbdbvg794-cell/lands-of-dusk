@@ -12,6 +12,14 @@
     tools/betakey gate [on|off]                   shows or flips BETA_GATE
     tools/betakey cap [<n>]                       shows or sets MAX_PLAYERS
     tools/betakey url [<link>]                    shows or sets KEY_REQUEST_URL
+    tools/betakey discord [<invite>]              shows or sets DISCORD_URL
+
+    tools/betakey applications [all]              waiting applications (all:
+                                                  approved and rejected too)
+    tools/betakey approve <id>                    makes a key labelled with
+                                                  the applicant, shown once,
+                                                  with where to send it
+    tools/betakey reject <id>
 
 The bridge reads ~/dusk-beta/beta.conf again within seconds of a change:
 no restart, no sudo.
@@ -120,6 +128,45 @@ def main(args):
                 sys.exit("Usage: betakey url https://... (or mailto:...)")
             set_conf("KEY_REQUEST_URL", rest[0])
         print(f"KEY_REQUEST_URL={betagate.Settings().key_url}")
+    elif cmd == "discord":
+        if rest:
+            if not rest[0].startswith("https://"):
+                sys.exit("Usage: betakey discord https://discord.gg/...")
+            set_conf("DISCORD_URL", rest[0])
+        print(f"DISCORD_URL={betagate.Settings().discord_url}")
+    elif cmd in ("applications", "apps"):
+        rows = betagate.applications(db, None if rest[:1] == ["all"] else "waiting")
+        waiting = db.execute("SELECT COUNT(*) FROM applications WHERE status = 'waiting'").fetchone()[0]
+        if not rows:
+            print("No applications waiting." if rest[:1] != ["all"] else "No applications yet.")
+            return
+        print(f"{'id':>4}  {'date':16}  {'status':8}  {'device':8}  {'name':20}  contact")
+        for r in rows:
+            extra = f"   key ..{r['key_tail']}" if r["key_tail"] else ""
+            print(f"{r['id']:>4}  {r['created'][:16]:16}  {r['status']:8}  {r['device']:8}  {(r['name'] or '-')[:20]:20}  {r['contact']}{extra}")
+            if r["why"]:
+                why = " ".join(r["why"].split())
+                print(f"      why: {why[:200]}{'...' if len(why) > 200 else ''}")
+        print(f"{waiting} waiting.")
+    elif cmd in ("approve", "reject"):
+        if not rest or not rest[0].isdigit():
+            sys.exit(f"Usage: betakey {cmd} <application id>")
+        app_id = int(rest[0])
+        if cmd == "approve":
+            row, key = betagate.approve(db, app_id)
+        else:
+            row, key = betagate.reject(db, app_id)
+        if row is None:
+            sys.exit(f"No application {app_id}.")
+        if not key:
+            sys.exit(f"Application {app_id} was already {row['status']}.")
+        if cmd == "approve":
+            print(f"Approved application {app_id}.")
+            print(f"  Key:     {key}    (shown only now)")
+            print(f"  Send to: {row['contact']}")
+            print(f"  Label:   #{row['id']} {row['name'] or row['contact']}")
+        else:
+            print(f"Rejected application {app_id} ({row['contact']}).")
     else:
         sys.exit(f"Unknown command {cmd!r}. Try: betakey help")
 

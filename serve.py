@@ -73,12 +73,46 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(out)
         return True
 
+    def apply_request(self, method):
+        """Beta applications (apply.py), under .../apply/api/."""
+        url = urllib.parse.urlsplit(self.path)
+        if "/apply/api/" not in url.path:
+            return False
+        path = url.path.split("/apply/api/", 1)[1]
+        body = b""
+        if method == "POST":
+            n = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(min(n, 8192)) if n <= 8192 else b"x" * 8193
+        god = None
+        try:
+            cookies = http.cookies.SimpleCookie(self.headers.get("Cookie", ""))
+            token = cookies["dusk_forum"].value if "dusk_forum" in cookies else None
+            me = forum().session(token) if token else None
+            god = me["name"] if me and me.get("god") else None
+        except Exception:
+            pass
+        try:
+            import apply as apply_module
+            status, data = apply_module.handle(method, path, body, self.headers, self.client_address[0],
+                                               self.connection.getsockname()[0], god)
+        except Exception as e:
+            print("apply:", type(e).__name__, flush=True)
+            status, data = 503, {"error": "Applications aren't open right now."}
+        out = json.dumps(data).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(out)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(out)
+        return True
+
     def do_POST(self):
-        if not self.forum_request("POST"):
+        if not self.forum_request("POST") and not self.apply_request("POST"):
             self.send_error(405)
 
     def do_GET(self):
-        if self.forum_request("GET"):
+        if self.forum_request("GET") or self.apply_request("GET"):
             return
         name = self.path.split("?")[0].rsplit("/", 1)[-1]
         if name in GAME_JSON:
