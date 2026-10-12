@@ -936,7 +936,7 @@ commands that touch live.
   discord.gg, discord.com and our own host, matched whole (lookalikes such
   as discord.gg.evil.com stay plain text). Seen working live by the user.
 
-## 2026-10-12 night: male / female (NOT live yet: see the end of this section)
+## 2026-10-12 night: male / female (LIVE: installed 21:42, restart 21:59, client deployed)
 
 - The user's choices: existing characters are asked once at their next
   login (browser client); after that only gods change it.
