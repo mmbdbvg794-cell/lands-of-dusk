@@ -928,6 +928,20 @@ function refreshBeta() {
     .finally(() => clearTimeout(timer));
 }
 
+// The Discord invite (DISCORD_URL in beta.conf, via apply.py) on the login.
+function showDiscord() {
+  if (typeof fetch !== 'function') return;
+  fetch('apply/api/info', { cache: 'no-store', credentials: 'omit' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => {
+      const url = j && typeof j.discord === 'string' && /^https:\/\//.test(j.discord) ? j.discord : '';
+      const line = $('login-discord');
+      line.hidden = !url;
+      if (url) line.querySelector('a').href = url;
+    })
+    .catch(() => {});
+}
+
 // What to open the connection with, or null when no key is needed.
 function betaCredentials() {
   if (!betaGate) return null;
@@ -980,6 +994,7 @@ serverUrl.addEventListener('change', () => {
   refreshBeta();
 });
 refreshBeta();
+showDiscord();
 
 $('connect-form').addEventListener('submit', (e) => {
   e.preventDefault();
