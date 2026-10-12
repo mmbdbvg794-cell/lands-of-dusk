@@ -1010,6 +1010,25 @@ commands that touch live.
 - To go live: build+install classes, run install_crafting.py --apply on
   ~/DuskRPG, restart at once, then deploy (rebuilds the Painted art).
 
+## 2026-10-12 late: the Java client's Help button (LIVE 23:56)
+
+- Players of the classic client download DuskRPG/web/duskclient.jar via
+  web/dusk.jnlp (How to Play links it); it's signed with
+  for_web_page/dusk.keystore (alias duskkey, pass changeit; see
+  for_web_page/resign_client.sh). rc/duskclient.jar is an older copy.
+- javaclient/: patch_mainframe.py (CFR decompile of MainFrame: Help under
+  Equipment, Quit moved to y=304), HelpFrame.java (a window that reads
+  <rcaddress>javahelp.txt, falling back to a short built-in guide),
+  javahelp.txt (the guide: edit it and copy to DuskRPG/rc/ - no new jar),
+  build.sh (from for_web_page/duskclient-before-help.jar, signs) and
+  install.sh (backups/javaclient-<time>). The recompiled unpatched
+  MainFrame had the same calls, fields and constants as the original.
+- Tested under Xvfb on the Proxmox host with duskserver's JDK copied to a
+  scratchpad (+ libXtst unpacked from its .deb; nothing installed): a
+  harness clicks Help and screenshots with java.awt.Robot.
+- OpenWebStart may keep the old jar until it checks for updates; players
+  can re-open dusk.jnlp from the website.
+
 ## Open / ideas
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
