@@ -826,11 +826,14 @@ commands that touch live.
 - tools/server/fix_items.py (applied): food/drink 2700 -> 10800 ticks (3 h),
   misspelt monster drops, items the engine stopped reading (cost "3,000",
   "weopon", typo keys), belt of the giants' wear script.
-- Audit, not fixed (ask the user): ~20 obtainable items whose special
-  wear/unwear scripts don't exist, so they're plain gear (diamond set
-  "diamondoff", excalibur, dran armor/sword, dark rod, wizard rod,
-  anarchy blade, chaotic amulet, steel plate mail, thieves dagger, ruby
-  studded dragon gloves, satans spear, shifty sword, blood suit); drops of
+- Item effects (tools/server/item_effects.py, installed 17:42, live after
+  a restart): wear/unwear scripts for 34 items whose scripts never existed
+  (diamond set +25 max HP a piece, dark rod +5 INT +50 MP, excalibur,
+  dran gear, satans spear...; table in the script). Bonuses aren't saved;
+  wear scripts rerun at login and when monsters dress, so no stacking
+  (tested on, off, relog). God tools (killsword, smek, fireball, shifty
+  cost-1 set...) still have none, on purpose.
+- Audit, not fixed: drops of
   "Water Gem" (Serpetion) and "wonder elixer" (Cyrii) have no item; junk
   files in defItems (40-83, bulk_create_items.sh, dc.log, name, specter,
   warning); bed "prop", golden key "key" types. Rerun: tools/server/audit_items.py <game dir>
