@@ -969,7 +969,7 @@ commands that touch live.
 - Tested on scratch (hgate, egate, new character sxnew): picker, pixel and
   painted looks, relogin keeps it, setsex both ways seen live, refusal.
 
-## 2026-10-12 night: talk for the Java client; mining and smithing (NOT live yet)
+## 2026-10-12 night: talk for the Java client; mining and smithing (LIVE: installed 23:36-23:38, restart 23:38, client deployed)
 
 - server/Talk.java: `talk` with no ID talks to the nearest NPC with a
   script within reach, `talk <words>` to one whose name has the words.
