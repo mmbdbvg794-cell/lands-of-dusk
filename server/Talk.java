@@ -19,6 +19,10 @@
  * at a player within a few squares, at most every few minutes each.
  *
  *   talk <id>     talk to the NPC with that ID
+ *   talk          talk to the nearest NPC with something to say, and
+ *   talk <name>   to one whose name has that in it: for the old Java
+ *                 client, which knows no IDs (its players type the
+ *                 answers in brackets, which works as it is)
  *   talk names    which NPCs have something to say (for the client's menu)
  *
  * The God tab's dialogue editor (js/dialogue.js) writes these files for
@@ -62,12 +66,17 @@ public class Talk {
         if (!(who instanceof Player)) return "Only players can talk to people.";
         String arg = lower.substring(4).trim();
         if (arg.equals("names")) return "Talkers: " + join(talkers());
-        if (arg.length() == 0 || !Storage.isNumber(arg)) return "Talk to whom? Click someone and choose Talk.";
         DuskObject npc;
-        try {
-            npc = engine.getDuskObject(Integer.parseInt(arg));
-        } catch (Exception e) {
-            npc = null;
+        if (!Storage.isNumber(arg)) {
+            npc = nearest(engine, who, arg);
+            if (npc == null) return arg.length() == 0 ? "There's no one to talk to here. Stand next to someone and type: talk"
+                : "There's no one called " + arg + " to talk to here.";
+        } else {
+            try {
+                npc = engine.getDuskObject(Integer.parseInt(arg));
+            } catch (Exception e) {
+                npc = null;
+            }
         }
         if (npc == null || npc instanceof Player) return "There's no one like that here.";
         String name = bare(npc.strName);
@@ -169,6 +178,32 @@ public class Talk {
     }
 
     // The talk/ script for an NPC's name, or null.
+    // The nearest NPC within reach with a conversation, whose name has
+    // `words` in it (any, when empty).
+    static DuskObject nearest(DuskEngine engine, LivingThing who, String words) {
+        DuskObject best = null;
+        int bestD = Integer.MAX_VALUE;
+        for (Vector v : new Vector[] { engine.vctProps, engine.vctMobs, engine.vctMerchants }) {
+            for (Object o : v.toArray()) {
+                DuskObject npc = (DuskObject) o;
+                if (npc == null || npc instanceof Player) continue;
+                int reach = Props.isTeller(npc) ? Props.TELLER_REACH : REACH;
+                int dx = Math.abs(npc.intLocX - who.intLocX), dy = Math.abs(npc.intLocY - who.intLocY);
+                if (dx > reach || dy > reach) continue;
+                if (words.length() > 0 && bare(npc.strName).toLowerCase().indexOf(words) < 0) continue;
+                String file = scriptFor(npc.strName);
+                if (file == null && npc instanceof Prop) {
+                    String look = Props.lookOf(new File(Props.DIR, npc.strName));
+                    if (look != null) file = scriptFor(look);
+                }
+                if (file == null) continue;
+                int d = Math.max(dx, dy);
+                if (d < bestD) { best = npc; bestD = d; }
+            }
+        }
+        return best;
+    }
+
     static String scriptFor(String npcName) {
         String name = bare(npcName);
         String file = CaseFix.file(DIR, name);
