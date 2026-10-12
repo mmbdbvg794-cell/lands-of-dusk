@@ -833,8 +833,8 @@ commands that touch live.
   studded dragon gloves, satans spear, shifty sword, blood suit); drops of
   "Water Gem" (Serpetion) and "wonder elixer" (Cyrii) have no item; junk
   files in defItems (40-83, bulk_create_items.sh, dc.log, name, specter,
-  warning); bed "prop", golden key "key" types. Audit script: rerun it
-  from the session scratchpad idea (parse defItems the engine's way).
+  warning); bed "prop", golden key "key" types. Rerun: tools/server/audit_items.py <game dir>
+  (read-only; copy the game's defItems, scripts, defMobs... locally first).
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
 
