@@ -65,8 +65,8 @@ patch('Commands.java', [
                 LivingThing livingThing9;''', 1),
     # Trainers' stats by their full names, and Spell Power on casting
     # (server/Skills.java).
-    ('''                        merchant.train((String)object, n, livingThing);''', '''                        merchant.train(Skills.statFor((String)object), n, livingThing);''', 1),
-    ('''merchant.train((String)object, n, livingThing.thnFollowing);''', '''merchant.train(Skills.statFor((String)object), n, livingThing.thnFollowing);''', 1),
+    ('''                        merchant.train((String)object, n, livingThing);''', '''                        Skills.train(merchant, (String)object, n, livingThing);''', 1),
+    ('''merchant.train((String)object, n, livingThing.thnFollowing);''', '''Skills.train(merchant, (String)object, n, livingThing.thnFollowing);''', 1),
     ('''                livingThing.castSpell(string);
                 return null;''', '''                Skills.cast(livingThing, string);
                 return null;''', 1),

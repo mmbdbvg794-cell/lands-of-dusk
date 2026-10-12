@@ -10,6 +10,12 @@
  *
  *   java --add-exports ... LivingThingPatch <LivingThing.class in> <out>
  *
+ * Also, before the item's use script runs, Skills.useFirst(this, item)
+ * puts the clicked item ahead of others with its name, so the script's
+ * "removeitem trigger <name>" takes that one (it takes the first by name)
+ * and not a fresh copy, which left the clicked one "used up". It goes in
+ * just before "new Script", where the stack is empty.
+ *
  * Part of the browser client project (dusk-browser-client/server).
  */
 import java.nio.file.Files;
@@ -23,6 +29,7 @@ import jdk.internal.org.objectweb.asm.tree.InsnList;
 import jdk.internal.org.objectweb.asm.tree.LdcInsnNode;
 import jdk.internal.org.objectweb.asm.tree.MethodInsnNode;
 import jdk.internal.org.objectweb.asm.tree.MethodNode;
+import jdk.internal.org.objectweb.asm.tree.TypeInsnNode;
 import jdk.internal.org.objectweb.asm.tree.VarInsnNode;
 
 public class LivingThingPatch {
@@ -44,6 +51,16 @@ public class LivingThingPatch {
         verb.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "Skills", "useVerb", "(LItem;)Ljava/lang/String;", false));
         use.instructions.insert(eat, verb);
         use.instructions.remove(eat);
+        TypeInsnNode script = null;
+        int scripts = 0;
+        for (AbstractInsnNode n : use.instructions.toArray())
+            if (n.getOpcode() == Opcodes.NEW && ((TypeInsnNode) n).desc.equals("Script")) { script = (TypeInsnNode) n; scripts++; }
+        if (scripts != 1) throw new Exception("expected one new Script in useItem, found " + scripts);
+        InsnList first = new InsnList();
+        first.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        first.add(new VarInsnNode(Opcodes.ALOAD, 3));
+        first.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "Skills", "useFirst", "(LLivingThing;LItem;)V", false));
+        use.instructions.insertBefore(script, first);
         use.maxStack = Math.max(use.maxStack, 3);
         ClassWriter w = new ClassWriter(0);
         cls.accept(w);

@@ -38,7 +38,34 @@ public class Skills {
         if (name == null) return null;
         String n = name.trim().toLowerCase();
         for (String[] s : STATS) if (n.equals(s[0].toLowerCase()) || n.equals(s[1]) || n.equals(s[1].substring(0, 3))) return s[1];
+        if (n.equals("hp") || n.equals("health")) return "hp";
+        if (n.equals("mp") || n.equals("mana")) return "mp";
         return name;
+    }
+
+    // Buying training from a trainer. HP and MP are done here: trainers
+    // sell them as "HP" and "MP", which the server didn't know (so they
+    // became a skill called HP that did nothing), and its own "hp" raised
+    // max HP without taking the exp. Each point is +10 max HP or MP, for
+    // the usual traincost exp.
+    public static void train(Merchant m, String ware, int n, LivingThing who) {
+        String what = statFor(ware);
+        if (!"hp".equals(what) && !"mp".equals(what)) {
+            m.train(what, n, who);
+            return;
+        }
+        if (n > 100) n = 100;
+        if (n < 1) return;
+        long cost = (long) m.engGame.traincost * n;
+        if (who.exp < cost) {
+            who.chatMessage("Sorry, you don't have enough experience points\n");
+            return;
+        }
+        who.attributes.raiseStat("max" + what, n * 10);
+        who.exp -= cost;
+        who.updateInfo();
+        who.updateStats();
+        who.chatMessage("Your max " + what.toUpperCase() + " rises by " + (n * 10) + ".\n");
     }
 
     // Setting someone's respawn point from a script. The script language's
@@ -123,6 +150,69 @@ public class Skills {
         }, "Skills");
         t.setDaemon(true);
         t.start();
+        Thread g = new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(GODONLY_MS);
+                        godOnly(engine);
+                    } catch (InterruptedException e) {
+                        return;
+                    } catch (Exception e) {
+                        Log.logError(e, "Skills godonly", false);
+                    }
+                }
+            }
+        }, "GodOnly");
+        g.setDaemon(true);
+        g.start();
+    }
+
+    // Places only gods and game masters (privs 2 and up) may be: the file
+    // "godonly" in the game directory, a line "x1 y1 x2 y2 name" for each
+    // (flan's cabin island: 56 1062 212 1198). Nothing walks or sails
+    // there; this catches a player put there any other way (a god's
+    // teleport, a bind point) and sends them to their bind point, or
+    // Kingshaven's harbour if that's in the same place or not set.
+    static final long GODONLY_MS = 2000;
+    static final int[] GODONLY_HOME = { 1414, 418 };
+    static long godOnlyRead = -1;
+    static List<int[]> godOnlyAreas = new ArrayList<int[]>();
+
+    static void godOnly(DuskEngine engine) throws Exception {
+        java.io.File f = new java.io.File("godonly");
+        long stamp = f.exists() ? f.lastModified() : 0;
+        if (stamp != godOnlyRead) {
+            List<int[]> areas = new ArrayList<int[]>();
+            if (stamp != 0) {
+                for (String line : java.nio.file.Files.readAllLines(f.toPath(), java.nio.charset.StandardCharsets.ISO_8859_1)) {
+                    String[] w = line.trim().split("\\s+");
+                    if (w.length < 4 || !w[0].matches("-?\\d+")) continue;
+                    try {
+                        areas.add(new int[] { Integer.parseInt(w[0]), Integer.parseInt(w[1]), Integer.parseInt(w[2]), Integer.parseInt(w[3]) });
+                    } catch (NumberFormatException e) {
+                        // not an area line
+                    }
+                }
+            }
+            godOnlyAreas = areas;
+            godOnlyRead = stamp;
+        }
+        if (godOnlyAreas.isEmpty()) return;
+        for (Object o : engine.vctSockets.toArray()) {
+            LivingThing p = (LivingThing) o;
+            if (p.privs >= 2 || !inGodOnly(p.intLocX, p.intLocY)) continue;
+            int x = p.bindLocX, y = p.bindLocY;
+            if (x < 0 || y < 0 || inGodOnly(x, y)) { x = GODONLY_HOME[0]; y = GODONLY_HOME[1]; }
+            p.chatMessage("Only gods and game masters may walk here. You are sent away.");
+            Log.logEvent("GodOnly: sent " + p.strName + " from " + p.intLocX + "," + p.intLocY + " to " + x + "," + y);
+            p.changeLocBypass(x, y);
+        }
+    }
+
+    static boolean inGodOnly(int x, int y) {
+        for (int[] a : godOnlyAreas) if (x >= a[0] && x <= a[2] && y >= a[1] && y <= a[3]) return true;
+        return false;
     }
 
     // Every trainer that offered Strength or Stamina offers the five stats
@@ -155,7 +245,7 @@ public class Skills {
 
     // Old Strength and Stamina "skills" become what they were paid for.
     static void convert(DuskEngine engine, LivingThing p) {
-        int str = 0, stamina = 0;
+        int str = 0, stamina = 0, hp = 0, mp = 0;
         synchronized (p.skillTable) {
             for (Object k : p.skillTable.keySet().toArray()) {
                 String key = String.valueOf(k);
@@ -163,9 +253,12 @@ public class Skills {
                 if (s == null) continue;
                 if (key.equalsIgnoreCase("strength")) { str += s.value; p.skillTable.remove(k); }
                 else if (key.equalsIgnoreCase("stamina")) { stamina += s.value; p.skillTable.remove(k); }
+                else if (key.equalsIgnoreCase("hp")) { hp += s.value; p.skillTable.remove(k); }
+                else if (key.equalsIgnoreCase("mp")) { mp += s.value; p.skillTable.remove(k); }
             }
         }
-        if (str == 0 && stamina == 0) return;
+        int revived = revive(p);
+        if (str == 0 && stamina == 0 && hp == 0 && mp == 0 && revived == 0) return;
         StringBuffer said = new StringBuffer();
         if (str > 0) {
             p.attributes.raiseStat("stre", str);
@@ -174,7 +267,16 @@ public class Skills {
         if (stamina > 0) {
             long refund = (long) engine.traincost * stamina;
             p.exp += refund;
-            said.append("Stamina training did nothing, so its ").append(refund).append(" exp has been given back.");
+            said.append("Stamina training did nothing, so its ").append(refund).append(" exp has been given back. ");
+        }
+        if (revived > 0) said.append(revived == 1 ? "An item wrongly marked used up can be used again. " : revived + " items wrongly marked used up can be used again. ");
+        if (hp > 0) {
+            p.attributes.raiseStat("maxhp", hp * 10);
+            said.append("Your HP training now counts: +").append(hp * 10).append(" max HP. ");
+        }
+        if (mp > 0) {
+            p.attributes.raiseStat("maxmp", mp * 10);
+            said.append("Your MP training now counts: +").append(mp * 10).append(" max MP. ");
         }
         try {
             p.savePlayer();
@@ -184,7 +286,36 @@ public class Skills {
             // Saved on the next tick or logout.
         }
         p.chatMessage(said.toString().trim());
-        Log.logEvent("Skills: converted " + p.strName + "'s old skills (Strength " + str + ", Stamina " + stamina + ")");
+        Log.logEvent("Skills: converted " + p.strName + "'s old skills (Strength " + str + ", Stamina " + stamina + ", HP " + hp + ", MP " + mp + ", used-up items " + revived + ")");
+    }
+
+    // Items left "used up" by the old useItem mix-up (see useFirst): one at
+    // 0 uses whose use script removes it should have gone, and a fresh one
+    // went instead, so it gets its use back.
+    static int revive(LivingThing p) {
+        int n = 0;
+        synchronized (p.items) {
+            for (Object o : p.items.toArray()) {
+                Item it = (Item) o;
+                if (it == null || it.intUses != 0 || it.strOnUseScript == null) continue;
+                if (!removesAlways(useScriptText(it.strOnUseScript))) continue;
+                it.intUses = 1;
+                n++;
+            }
+        }
+        if (n > 0) p.updateItems();
+        return n;
+    }
+
+    // A use script that takes its item away before any "if" or early end,
+    // so every use removes it (a god tool that checks first is left alone).
+    static boolean removesAlways(String script) {
+        for (String line : script.split("\n")) {
+            String l = line.trim();
+            if (l.startsWith("removeitem")) return true;
+            if (l.startsWith("if") || l.startsWith("endscript")) return false;
+        }
+        return false;
     }
 
     // Regeneration and Mana Regen: extra healing on the server's own rhythm.
@@ -256,6 +387,28 @@ public class Skills {
     // The game's food and drink are plain items, so: food and drink types
     // first, then what the use script does (takes away thirst or hunger),
     // then the name; anything else (a box, a book, a scroll) is used.
+    // Using one of several items with the same name (three ales): the use
+    // script's "removeitem trigger ale" takes the first ale, and the engine
+    // then counts the use on the one clicked, so a fresh ale went and the
+    // clicked one stayed behind "used up". Before the script runs, the
+    // clicked one is put in front of its namesakes, so it's the one taken.
+    // Only same-named items swap places, so the inventory looks the same.
+    public static void useFirst(LivingThing who, Item item) {
+        if (who == null || item == null || item.strName == null) return;
+        synchronized (who.items) {
+            int at = who.items.indexOf(item);
+            if (at < 0) return;
+            for (int i = 0; i < at; i++) {
+                Item o = (Item) who.items.elementAt(i);
+                if (o != null && item.strName.equalsIgnoreCase(o.strName)) {
+                    who.items.removeElementAt(at);
+                    who.items.insertElementAt(item, i);
+                    return;
+                }
+            }
+        }
+    }
+
     public static String useVerb(Item item) {
         if (item == null) return "use";
         if (item.intType == 3) return "eat";
