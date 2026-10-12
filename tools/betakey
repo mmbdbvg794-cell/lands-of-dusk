@@ -13,6 +13,8 @@
     tools/betakey cap [<n>]                       shows or sets MAX_PLAYERS
     tools/betakey url [<link>]                    shows or sets KEY_REQUEST_URL
     tools/betakey discord [<invite>]              shows or sets DISCORD_URL
+                                                  (and the invite in the
+                                                  game's welcome, conf/onStart)
 
     tools/betakey applications [all]              waiting applications (all:
                                                   approved and rejected too)
@@ -60,6 +62,27 @@ def set_conf(name, value):
     with open(tmp, "w") as f:
         f.write("\n".join(lines) + "\n")
     os.replace(tmp, betagate.CONF)
+
+
+def set_welcome(invite):
+    """The game's welcome message (conf/onStart) names the invite too; its
+    compiled copy is removed so the next login runs the new text."""
+    game = os.environ.get("DUSK_GAME_DIR") or os.path.expanduser("~/DuskRPG")
+    path = os.path.join(game, "conf", "onStart")
+    try:
+        with open(path) as f:
+            text = f.read()
+    except OSError:
+        return
+    new = re.sub(r"https://discord\.gg/\S+?(?=[\s\"])", invite, text)
+    if new != text:
+        with open(path, "w") as f:
+            f.write(new)
+        try:
+            os.remove(path + ".dsko")
+        except OSError:
+            pass
+        print("The game's welcome message now names it too.")
 
 
 def main(args):
@@ -133,6 +156,7 @@ def main(args):
             if not rest[0].startswith("https://"):
                 sys.exit("Usage: betakey discord https://discord.gg/...")
             set_conf("DISCORD_URL", rest[0])
+            set_welcome(rest[0])
         print(f"DISCORD_URL={betagate.Settings().discord_url}")
     elif cmd in ("applications", "apps"):
         rows = betagate.applications(db, None if rest[:1] == ["all"] else "waiting")

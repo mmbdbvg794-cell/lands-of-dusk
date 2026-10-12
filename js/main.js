@@ -2212,6 +2212,29 @@ function traceLine(msg) {
   appendLine(`[${op} ${opName(op)}] ${detail}`, 'trace');
 }
 
+// Links in chat that open when clicked: https only, and only to our own
+// site and Discord, so nobody can put a clickable link to anywhere else in
+// front of other players. The rest of the line stays plain text.
+const CHAT_LINK = /https:\/\/(?:discord\.gg|(?:www\.)?discord\.com|duskserver\.tailaee0f2\.ts\.net)(?![\w-]|\.[\w-])(?:\/[^\s<>"']*)?/g;
+
+function linked(text) {
+  const parts = [];
+  let at = 0;
+  for (const m of text.matchAll(CHAT_LINK)) {
+    const url = m[0].replace(/[.,;:!?)]+$/, '');
+    parts.push(text.slice(at, m.index));
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = url;
+    parts.push(a);
+    at = m.index + url.length;
+  }
+  parts.push(text.slice(at));
+  return parts.filter((p) => p !== '');
+}
+
 function appendLine(text, cls, color) {
   // Server lines are sorted into General or Combat; our own are General.
   const kind = cls ? 'general' : chatKind(text);
@@ -2221,7 +2244,7 @@ function appendLine(text, cls, color) {
   const stamp = document.createElement('span');
   stamp.className = 'stamp';
   stamp.textContent = new Date().toTimeString().slice(0, 5) + ' ';
-  div.append(stamp, kind === 'combat' ? text.replace(/^\t+/, '') : text);
+  div.append(stamp, ...(kind === 'combat' ? [text.replace(/^\t+/, '')] : linked(text)));
   output.appendChild(div);
   lineCount[kind]++;
   // Each kind keeps its own last MAX_LINES, so a long fight doesn't push
