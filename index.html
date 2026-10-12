@@ -146,7 +146,7 @@
         <div id="race-buttons" class="race-buttons"></div>
       </div>
       <p id="login-msg" role="status" aria-live="polite"></p>
-      <p class="login-who"><a href="who.html" target="_blank" rel="noopener">Who's online</a> <span id="login-who-count"></span> · <a href="leaderboard.html" target="_blank" rel="noopener">Leaderboard</a><span id="login-discord" hidden> · <a href="#" target="_blank" rel="noopener">Join our Discord</a></span></p>
+      <p class="login-who"><a href="who.html" target="_blank" rel="noopener">Who's online</a> <span id="login-who-count"></span> · <a href="leaderboard.html" target="_blank" rel="noopener">Leaderboard</a><span id="login-discord" data-discord-item hidden> · <a data-discord href="#" target="_blank" rel="noopener">Join our Discord</a></span></p>
       <p class="login-server">Server <code id="login-server"></code> · change it under Settings</p>
     </form>
   </section>
@@ -453,6 +453,10 @@
       <p>Towns have bounty boards: read a notice to take a job, one a day per board. Now and then a <b>world boss</b> rises somewhere and everyone is told; type <code>boss</code> to hear where. Everyone in the fight when it falls shares the reward.</p>
       <h4>Settings</h4>
       <p>The gear button: night, weather, lighting, music, names, the look of the game, and Report a bug.</p>
+      <div data-discord-item hidden>
+        <h4>Community</h4>
+        <p>Come and talk with other players and the gods on our <a data-discord href="#" target="_blank" rel="noopener">Discord</a>: news, help, and a place to tell us what you think of the beta.</p>
+      </div>
     </div>
   </dialog>
   <dialog id="bug-dialog" aria-labelledby="bug-title">

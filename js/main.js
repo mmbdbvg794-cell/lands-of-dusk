@@ -928,16 +928,20 @@ function refreshBeta() {
     .finally(() => clearTimeout(timer));
 }
 
-// The Discord invite (DISCORD_URL in beta.conf, via apply.py) on the login.
+// The Discord invite (DISCORD_URL in beta.conf, via apply.py): every
+// a[data-discord] (the login, the help) gets it and its [data-discord-item]
+// is shown; with no invite they stay hidden.
 function showDiscord() {
   if (typeof fetch !== 'function') return;
   fetch('apply/api/info', { cache: 'no-store', credentials: 'omit' })
     .then((r) => (r.ok ? r.json() : null))
     .then((j) => {
       const url = j && typeof j.discord === 'string' && /^https:\/\//.test(j.discord) ? j.discord : '';
-      const line = $('login-discord');
-      line.hidden = !url;
-      if (url) line.querySelector('a').href = url;
+      if (!url) return;
+      for (const a of document.querySelectorAll('a[data-discord]')) {
+        a.href = url;
+        a.closest('[data-discord-item]').hidden = false;
+      }
     })
     .catch(() => {});
 }
