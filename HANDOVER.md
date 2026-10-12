@@ -807,6 +807,35 @@ commands that touch live.
   copy (flan probably removed it in game); not put back.
 - Lesson: restart right after installing; a long gap invites a save.
 
+## 2026-10-12: items, HP/MP training, gods-only island, 3-hour food (installed 17:25; live after the restart)
+
+- "That item is used up" with several ales: the use script's "removeitem
+  trigger ale" takes the first ale, then useItem counted the use on the
+  one clicked. LivingThingPatch now calls Skills.useFirst (clicked item
+  ahead of its namesakes) just before "new Script". Skills.revive (on the
+  18 s tick) gives a use back to items at 0 uses whose script always
+  removes them (not god tools that check first).
+- HP/MP training: trainers sell "train:HP"/"train:MP"; the engine only knew
+  lower-case hp/mp (and then charged nothing), so "HP" became a skill.
+  patch.py now calls Skills.train: +10 max HP/MP a point for traincost exp.
+  Old HP/MP skills convert on the tick (elrond, joe, flan had them).
+- Gods-only places: file `godonly` in the game dir, "x1 y1 x2 y2 name";
+  Skills checks every 2 s and sends players below privs 2 to their bind
+  point (or 1414,418). Live: flan's cabin island 56 1062 212 1198 (only
+  that island is in the rectangle; nothing sails or teleports there).
+- tools/server/fix_items.py (applied): food/drink 2700 -> 10800 ticks (3 h),
+  misspelt monster drops, items the engine stopped reading (cost "3,000",
+  "weopon", typo keys), belt of the giants' wear script.
+- Audit, not fixed (ask the user): ~20 obtainable items whose special
+  wear/unwear scripts don't exist, so they're plain gear (diamond set
+  "diamondoff", excalibur, dran armor/sword, dark rod, wizard rod,
+  anarchy blade, chaotic amulet, steel plate mail, thieves dagger, ruby
+  studded dragon gloves, satans spear, shifty sword, blood suit); drops of
+  "Water Gem" (Serpetion) and "wonder elixer" (Cyrii) have no item; junk
+  files in defItems (40-83, bulk_create_items.sh, dc.log, name, specter,
+  warning); bed "prop", golden key "key" types. Audit script: rerun it
+  from the session scratchpad idea (parse defItems the engine's way).
+
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
