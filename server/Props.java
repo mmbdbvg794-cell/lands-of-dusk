@@ -96,6 +96,8 @@ public class Props {
             if (party != null) return party;
             String duel = Duel.command(who, engine, trimmed);
             if (duel != null) return duel;
+            String craft = Crafting.command(who, engine, trimmed);
+            if (craft != null) return craft;
             String sex = Sex.command(who, engine, trimmed);
             if (sex != null) return sex;
             String achv = Achievements.command(who, engine, trimmed);

@@ -7,6 +7,7 @@
 // Materials, first match wins (so "blood stained dagger" is blood, not
 // steel). Colours are the metal or cloth's middle tone.
 const MATERIALS = [
+  [/\bcoal\b/, '#2c2a2a'],
   [/blood|ruby|devil|hell|satan/, '#a0222a'],
   [/chaos|anarchy|annihil|anihil|darkness|dark|death|dead|shadow|soul/, '#5a3478'],
   [/demon|daemon/, '#6a2020'],
@@ -17,6 +18,7 @@ const MATERIALS = [
   [/platinum/, '#e6e6ee'],
   [/titanium/, '#8a94a8'],
   [/alumin/, '#c6cacf'],
+  [/mithril/, '#9ec8e8'], // (smithed: tools/server/install_crafting.py)
   [/silver|mythril|masamune|excalibur/, '#d4d8e2'],
   [/energy|lightning|thor|vortan|vortanic/, '#5ac8f0'],
   [/gold|golden|sun|solar|light|holy|god|divine|heaven|nova/, '#e2b436'],

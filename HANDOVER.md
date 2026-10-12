@@ -969,14 +969,55 @@ commands that touch live.
 - Tested on scratch (hgate, egate, new character sxnew): picker, pixel and
   painted looks, relogin keeps it, setsex both ways seen live, refusal.
 
+## 2026-10-12 night: talk for the Java client; mining and smithing (NOT live yet)
+
+- server/Talk.java: `talk` with no ID talks to the nearest NPC with a
+  script within reach, `talk <words>` to one whose name has the words.
+  Java-client players already saw NPC lines and could type answers.
+- server/Crafting.java (Props.command, started in Skills.start; in build.sh
+  and install.sh): `mine [id]` / `mine stop`, `smith`, `smith <result> [n]`.
+  Veins are props (bronze vein, iron vein, coal seam, mithril vein; Mining
+  0/15/30/60); a worked-out vein only changes image (62), never its name,
+  so a god save can't write it down changed; vein state is in memory (a
+  restart refills all). Swings every 4.5 s minus 20 ms a Mining point (2.5 s
+  min). Skills "Mining" and "Smithing" (engine skills, saved, Skills tab)
+  rise by chance with use. Recipes: game file `recipes`
+  (station|level|result|ingredients), re-read when changed.
+- Browser-only lines (hidden by the client): "Mining: <ms>|<vein>",
+  "Mining: done", "Recipe: ...", "Recipes: stations|level". Only sent when
+  BridgedSocket.browser(): sockets that came with the bridge's secret line
+  (field viaBridge). Every other reply is plain one-line text: the old
+  protocol can't take line breaks (each extra line is read as a new
+  message), so the Java list goes out one tell() per line.
+- tools/world/veins.mjs: 244 veins in clusters against mountain rock
+  (tiles 49/95/104; grey 58/59/98 are town walls too), tiers like
+  spawns.mjs; old world bronze/iron/coal only. The list used is
+  tools/server/veins.json (made from the live map on 2026-10-12).
+- tools/server/install_crafting.py <game> <veins.json> [--apply]: 15 items,
+  7 prop kinds, recipes, 244 veins + 5 forges/anvils, tool wares (Brann
+  1417,343 and Izaru Mine Shop 440,71) and 3 stalls, ore prices, steel
+  gloves/leggings mod 70, sprites 58-64 (tools/server/craftsprites.py).
+  Idempotent; backups in backups/crafting-<time>.
+- Client: js/crafting.js (menu actions, parsers, SmithView), #mining-bar,
+  #smith-dialog, renderer draws image 62 veins as "prop worked-out vein",
+  Painted art in tools/paintart/items.js (veins, forge, anvil, ingots),
+  js/gear.js mithril and coal colours. Help has a Mining and smithing part.
+- Tested on scratch: typed (testclient.py, now with "wait N") and in
+  Chromium: mining to worked out, skill gains, smelting, smithing, level
+  and material refusals, the window, both art styles (Painted needs the art
+  rebuilt from a server that has the new props and sprites: deploy after
+  the install).
+- To go live: build+install classes, run install_crafting.py --apply on
+  ~/DuskRPG, restart at once, then deploy (rebuilds the Painted art).
+
 ## Open / ideas
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.
-- Game ideas the user liked, not started (duels are done, see above): gathering & crafting (biggest),
-  owned ships (on hold).
+- Game ideas the user liked, not started: owned ships (on hold). Crafting
+  next steps: woodcutting/herbalism, a God-tab recipe editor, vein placing.
 - Website: Forum link added to the site nav (~/DuskRPG/web/*.html, after Updates; backups/web-20261007).
 
 ## More notes

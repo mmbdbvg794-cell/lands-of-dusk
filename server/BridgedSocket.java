@@ -43,6 +43,7 @@ public class BridgedSocket extends Socket {
     private final Socket raw;
     private final InetAddress address;
     final String device; // null if none
+    boolean viaBridge;   // came with the bridge's line: a browser player
     private final InputStream in;
 
     private BridgedSocket(Socket raw, InetAddress address, String device, byte[] unread) throws IOException {
@@ -107,7 +108,9 @@ public class BridgedSocket extends Socket {
                     // A literal address only (never a name to look up).
                     InetAddress a = InetAddress.getByName(p[1]);
                     String dev = p.length >= 3 && p[2].matches("[A-Za-z0-9-]{8,64}") ? p[2].toLowerCase() : null;
-                    return new BridgedSocket(raw, a, dev, new byte[0]);
+                    BridgedSocket b = new BridgedSocket(raw, a, dev, new byte[0]);
+                    b.viaBridge = true;
+                    return b;
                 }
                 Log.logEvent("Ignored a bridge line with the wrong secret");
                 return new BridgedSocket(raw, raw.getInetAddress(), null, new byte[0]);
@@ -116,6 +119,12 @@ public class BridgedSocket extends Socket {
         } catch (Exception e) {
             return raw;
         }
+    }
+
+    // Whether a player plays in the browser (through the bridge), so can be
+    // sent lines only the browser client reads.
+    static boolean browser(Socket s) {
+        return s instanceof BridgedSocket && ((BridgedSocket) s).viaBridge;
     }
 
     // The device a socket came from, if the bridge said.

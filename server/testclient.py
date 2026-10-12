@@ -6,7 +6,7 @@ scratch copy of the game (never the live one):
 Logs in (creating the character, as a human, if it's new), sends each
 command, and prints the server's text replies as they come, one per line,
 prefixed with "> " for what was sent. Inventory updates (opcode 6) print as
-"inventory: ...".
+"inventory: ...". A command "wait N" just listens for N seconds.
 """
 import socket, sys, time
 
@@ -88,6 +88,11 @@ for _ in range(20):
 for l in pump(2.0):
     print(l)
 for c in commands:
+    # "wait N": just listen for N seconds.
+    if c.startswith('wait ') and c[5:].isdigit():
+        for l in pump(float(c[5:])):
+            print(l)
+        continue
     print('> ' + c)
     send(c)
     for l in pump(1.5):

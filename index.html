@@ -197,6 +197,8 @@
           <p id="speech-text"></p>
           <div id="speech-choices"></div>
         </div>
+        <!-- Mining: each swing of the pick (js/crafting.js). -->
+        <div id="mining-bar" role="status" hidden><span></span><div class="mining-track"><div class="mining-fill"></div></div></div>
         <canvas id="minimap" role="img" aria-label="Minimap of explored area" title="Click to zoom, drag to move"></canvas>
       </div>
     </div>
@@ -447,6 +449,9 @@
       <p>Stand at a shop's counter and the Shop tab opens. Shops buy things back for half what they cost.</p>
       <p>Eat and drink now and then: shops sell food and water, and you'll be told when you're hungry or thirsty.</p>
       <p>Bank tellers keep a deposit box for you; barrels and chests in town are for everyone. Click a player and choose Trade to swap with them.</p>
+      <h4>Mining and smithing</h4>
+      <p>Buy a <b>mining pick</b> from a smith, stand next to an ore vein in the hills and choose <b>Mine</b>: you keep digging until the vein is worked out or you move. Bronze veins lie near the landings; iron, coal and mithril further out, for higher Mining.</p>
+      <p>At a <b>forge</b> smelt ore into bars; at an <b>anvil</b>, with a <b>smithing hammer</b>, make bars into weapons and armour. Mithril gear can only be smithed. Forges stand in Kingshaven, Velkarath, Izaru, the old town and Ssarakh. (Typing <code>mine</code> and <code>smith</code> works too.)</p>
       <h4>Quests</h4>
       <p>Talk to people: many have work for you. The Journal keeps track of what you've taken on.</p>
       <p>Click a player and choose <b>Invite to party</b> to hunt together: kills for quests count for everyone in the party who's nearby. Start a line with <kbd>%</kbd> to talk to your party. The <b>Mail</b> tab sends letters that wait for someone until they read them. The <a href="forum.html" target="_blank" rel="noopener">forum</a> is for news, quest help and trading: sign in with your character.</p>
@@ -459,6 +464,16 @@
       </div>
     </div>
   </dialog>
+  <!-- What the forge or anvil you're by can make (js/crafting.js). -->
+  <dialog id="smith-dialog" class="smith-dialog" aria-labelledby="smith-title">
+    <div class="smith-head">
+      <h2 id="smith-title">Smithing</h2>
+      <span class="smith-level"></span>
+      <button type="button" data-smith="close" class="ghost" aria-label="Close">×</button>
+    </div>
+    <div class="smith-list"></div>
+  </dialog>
+
   <!-- Asked once, after logging in, when the character hasn't chosen (sex.js). -->
   <dialog id="sex-dialog" aria-labelledby="sex-title">
     <!-- Focus on the heading, not a button: Enter typed for the chat mustn't choose. -->

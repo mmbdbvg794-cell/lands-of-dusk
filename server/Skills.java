@@ -124,6 +124,8 @@ public class Skills {
         Duel.start(engine);
         // Achievements (server/Achievements.java).
         Achievements.start(engine);
+        // Mining veins and the swing clock (server/Crafting.java).
+        Crafting.start(engine);
         try {
             fixTrainers(engine);
         } catch (Exception e) {

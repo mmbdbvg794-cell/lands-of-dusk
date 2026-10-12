@@ -14,6 +14,7 @@ import { LOOKS, OUT, paintFigureStrip } from './figure.js';
 import { outdoorShare } from './atmosphere.js';
 import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
+import { isVein, WORKED_OUT } from './crafting.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
 
@@ -233,7 +234,8 @@ export class Renderer {
       const art = step !== -1 ? null : e.type === 4 ? this.named : e.type === 1 || e.type === 3 ? this.items : null;
       // A prop with a name of its own is drawn as the prop it copies.
       const propName = e.type === 3 ? bareName(e.name).toLowerCase() : '';
-      const key = storage ? `storage ${storageKind(bareName(e.name))}` : e.type === 3 ? `prop ${this.propLooks.get(propName) ?? propName}` : bareName(e.name).toLowerCase();
+      // A mined-out vein keeps its name but not its picture (js/crafting.js).
+      const key = storage ? `storage ${storageKind(bareName(e.name))}` : e.type === 3 && e.image === WORKED_OUT && isVein(propName) ? 'prop worked-out vein' : e.type === 3 ? `prop ${this.propLooks.get(propName) ?? propName}` : bareName(e.name).toLowerCase();
       // Creatures painted by name step with a walking frame of their own
       // ("<name> walk", tools/paintart/bestiary.js), as players do.
       const byName = (art && art === this.named && world.walking(e, now) ? art.index.get(`${key} walk`) : undefined) ?? art?.index.get(key);

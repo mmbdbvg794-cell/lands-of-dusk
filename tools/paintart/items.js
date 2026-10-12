@@ -148,6 +148,15 @@ function ore(ctx, n) {
   for (const [x, y, r] of [[-10, 76, 4], [6, 70, 3], [12, 84, 4.5], [-2, 86, 3]]) fill(ctx, ell(ctx, CX + x, y, r, r * 0.8), c, [CX + x - r, y - r, CX + x + r, y + r], 1);
 }
 
+// A bar of smelted metal: an ingot.
+function ingot(ctx, n) {
+  const c = material(n);
+  shadow(ctx, 32, 8);
+  fill(ctx, poly(ctx, [[CX - 34, 92], [CX + 34, 92], [CX + 24, 68], [CX - 24, 68]]), c, [CX - 34, 68, CX + 34, 92]);
+  fill(ctx, poly(ctx, [[CX - 24, 68], [CX + 24, 68], [CX + 20, 62], [CX - 20, 62]]), shade(c, 1.25), [CX - 24, 62, CX + 24, 68], 1);
+  glint(ctx, CX - 12, 66, 4);
+}
+
 function orb(ctx, n) {
   const c = /fire|flame/.test(n) ? '#f06020' : /demon/.test(n) ? '#a01818' : /chaos/.test(n) ? '#9040c8' : /soul/.test(n) ? '#a8d0ff' : '#60c0f0';
   shadow(ctx, 20, 6);
@@ -841,6 +850,58 @@ function brazier(ctx) {
   fire(ctx, CX, 64, 54, 56);
 }
 
+// Mining and smithing (server/Crafting.java): ore veins in a mound of
+// rock, a vein once it's worked out, the forge and the anvil.
+function rockMound(ctx, low) {
+  shadow(ctx, 46, 9, 110);
+  const top = low ? 74 : 40;
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(CX - 52, 110); ctx.bezierCurveTo(CX - 50, top + 24, CX - 26, top, CX + 2, top); ctx.bezierCurveTo(CX + 30, top, CX + 52, top + 26, CX + 52, 110); ctx.closePath(); }, '#7a6450', [CX - 52, top, CX + 52, 110]);
+  ctx.strokeStyle = 'rgba(40,30,22,0.55)'; ctx.lineWidth = 2;
+  for (const [x, y, dx, dy] of [[-24, top + 30, 6, 14], [14, top + 18, -5, 16], [30, top + 44, 6, 10], [-6, top + 50, -8, 9]]) {
+    if (top + 50 > 108 && y > 104) continue;
+    ctx.beginPath(); ctx.moveTo(CX + x, y); ctx.lineTo(CX + x + dx, y + dy); ctx.stroke();
+  }
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(CX - 30, top + 22); ctx.quadraticCurveTo(CX - 6, top + 2, CX + 22, top + 10); ctx.quadraticCurveTo(CX, top + 20, CX - 30, top + 22); ctx.closePath(); }, '#a48a70', [CX - 30, top, CX + 22, top + 22], 0);
+}
+
+function vein(ctx, n) {
+  rockMound(ctx, false);
+  const c = material(n);
+  const lumps = [[-26, 70, 7], [-8, 62, 5], [12, 74, 8], [28, 88, 6], [-18, 92, 6], [4, 96, 5], [24, 60, 4]];
+  const shine = /mithril/.test(n);
+  for (const [x, y, r] of lumps) {
+    const draw = () => fill(ctx, ell(ctx, CX + x, y, r, r * 0.8), c, [CX + x - r, y - r, CX + x + r, y + r], 1);
+    if (shine) glow(ctx, '#b8e4ff', 8, draw); else draw();
+    if (!/coal/.test(n)) glint(ctx, CX + x - r * 0.3, y - r * 0.3, r * 0.3);
+  }
+}
+
+function workedOut(ctx) {
+  rockMound(ctx, true);
+  for (const [x, y, r] of [[-40, 104, 7], [-22, 108, 5], [30, 106, 6], [44, 102, 5], [8, 110, 5]]) fill(ctx, ell(ctx, CX + x, y, r, r * 0.7), '#6a5644', [CX + x - r, y - r, CX + x + r, y + r], 1);
+}
+
+function forgeProp(ctx) {
+  shadow(ctx, 50, 9, 116);
+  fill(ctx, rr(ctx, CX - 14, 6, 28, 46, 2), '#5e5a56', [CX - 14, 6, CX + 14, 52]);
+  fill(ctx, rr(ctx, CX - 50, 46, 100, 68, 4), '#76706a', [CX - 50, 46, CX + 50, 114]);
+  ctx.strokeStyle = 'rgba(40,36,34,0.6)'; ctx.lineWidth = 1.5;
+  for (const y of [62, 78, 94]) { ctx.beginPath(); ctx.moveTo(CX - 50, y); ctx.lineTo(CX + 50, y); ctx.stroke(); }
+  [46, 62, 78, 94].forEach((y, i) => { for (let x = CX - 50 + (i % 2) * 16; x < CX + 50; x += 32) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 16); ctx.stroke(); } });
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(CX - 28, 112); ctx.lineTo(CX - 28, 80); ctx.quadraticCurveTo(CX, 56, CX + 28, 80); ctx.lineTo(CX + 28, 112); ctx.closePath(); }, '#241c18', [CX - 28, 60, CX + 28, 112], 1);
+  glow(ctx, '#ff7020', 14, () => fill(ctx, rr(ctx, CX - 24, 100, 48, 12, 3), '#c8461a', [CX - 24, 100, CX + 24, 112], 0));
+  fire(ctx, CX, 104, 40, 38);
+}
+
+function anvilProp(ctx) {
+  shadow(ctx, 40, 8, 116);
+  fill(ctx, rr(ctx, CX - 20, 78, 40, 36, 4), '#7a5230', [CX - 20, 78, CX + 20, 114]);
+  fill(ctx, ell(ctx, CX, 78, 20, 6), '#a4764a', [CX - 20, 72, CX + 20, 84], 1);
+  fill(ctx, poly(ctx, [[CX - 14, 76], [CX + 14, 76], [CX + 18, 62], [CX - 18, 62]]), '#3c3e46', [CX - 18, 62, CX + 18, 76]);
+  fill(ctx, poly(ctx, [[CX - 48, 44], [CX + 30, 44], [CX + 40, 50], [CX + 58, 50], [CX + 34, 62], [CX - 36, 62], [CX - 44, 54]]), '#4a4c56', [CX - 48, 44, CX + 58, 62]);
+  ctx.fillStyle = 'rgba(220,226,240,0.55)'; ctx.fillRect(CX - 44, 45, 74, 3);
+}
+
 function lampPost(ctx) {
   shadow(ctx, 16, 5, 116);
   fill(ctx, rr(ctx, CX - 12, 108, 24, 8, 2), '#2e2c2c', [CX - 12, 108, CX + 12, 116]);
@@ -926,6 +987,10 @@ const PROPS = [
   [/flower box|^plants?$/, flowerBox],
   [/candle/, candlestick],
   [/brazier/, brazier],
+  [/worked.?out/, workedOut],
+  [/\bvein\b|\bseam\b/, vein],
+  [/\bforge\b/, forgeProp],
+  [/\banvil\b/, anvilProp],
   [/lamp ?post|street ?lamp/, lampPost],
   [/campfire|camp fire/, campfire],
   [/slot machine/, slotMachine],
@@ -1016,6 +1081,9 @@ const BY_NAME = [
   [/amethyst|emerald|ruby|opal|diamond|sapphire|aquamarine|topaz|forest gem|\bgem\b/, gem],
   [/crystal/, crystal],
   [/\bore\b/, ore],
+  [/^coal$/, ore],
+  [/(bronze|iron|steel|mithril|silver|gold) bar$/, ingot],
+  [/mining pick|smithing hammer/, (ctx, n) => weapon(ctx, n)],
   [/orb\b|^soul$/, orb],
   [/stone/, stone],
   [/^gold$|god gold|^gp$|coin/, coins],

@@ -432,6 +432,27 @@ backups; see `server/`.
 - **The Duelling Ring and the Dawnward wreck** were put back after a map
   save wiped them.
 
+## Male or female, mining and smithing (12 October 2026)
+
+- **Male or female.** Each character chooses once, right after logging in
+  (existing characters too, at their next login). Every race has a female
+  look in both art styles. Gods can change it with `setsex <name>
+  male|female`. Dialogue can depend on it: "Player is (sex)" in the
+  dialogue and tile editors, and words like `{sir|madam}` in anything said.
+- **Talking in the old Java client.** Type `talk` beside someone (or
+  `talk <name>`), then type the answer in brackets.
+- **Mining.** Ore veins in the hills: bronze near the landings, then iron,
+  coal and mithril further out. With a mining pick, click a vein and choose
+  Mine (or type `mine`); you keep digging until it's worked out or you
+  move. Worked-out veins fill again after a few minutes. Mining is a skill
+  that rises as you dig and unlocks the better ores.
+- **Smithing.** Forges and anvils in Kingshaven, Velkarath, Izaru, the old
+  town and Ssarakh. Smelt ore into bars at the forge, then make weapons and
+  armour at the anvil with a smithing hammer (or type `smith`). Bronze,
+  iron and steel gear, a steel sword, and a mithril set that can only be
+  smithed. Smithing is a skill too. Smiths sell the pick and the hammer.
+- Steel gloves and leggings are now worth their steel (70 armour).
+
 ## Closed beta
 
 - **Beta keys.** Playing in the browser needs a beta key. Type it once in the

@@ -26,6 +26,7 @@ import { MailView, parseMail } from './mail.js';
 import { PartyView, parseParty, partyChatCommand } from './party.js';
 import { AchievementsView, parseAchv } from './achievements.js';
 import { SEX_ASK, parseSex, sexCommand, maleImage, femaleImage } from './sex.js';
+import { parseMining, parseRecipe, SmithView } from './crafting.js';
 import { LOOKS, paintFigureStrip, OUT as FIGURE_OUT } from './figure.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
@@ -1691,6 +1692,10 @@ function handle(msg) {
       if (serverReply) { god.serverReply(serverReply); adminView.serverReply(serverReply); break; }
       const adminReply = isGod && parseAdmin(msg.text);
       if (adminReply) { adminView.reply(adminReply); break; }
+      // Mining's swing bar and the smithing window (js/crafting.js).
+      const mining = parseMining(msg.text);
+      if (mining) { showMining(mining); break; }
+      if (smithView.reply(parseRecipe(msg.text))) break;
       // Not chosen yet: the male/female picker (js/sex.js).
       const sexReply = parseSex(msg.text);
       if (sexReply) { if (sexReply === 'unset') showSexPicker(); else if (sexDialog.open) sexDialog.close(); break; }
@@ -1814,6 +1819,22 @@ async function loadGraphics(address) {
     c.send(PROP_LOOKS); // props with names of their own, and what they look like
     c.background(SEX_ASK); // male or female, if not chosen yet (after a god's presence question)
   }
+}
+
+// ---- mining and smithing (js/crafting.js, server/Crafting.java) ------------
+
+const smithView = new SmithView($('smith-dialog'), (cmd) => conn?.send(cmd));
+function showMining(m) {
+  const bar = $('mining-bar');
+  if (m.done) { bar.hidden = true; return; }
+  bar.querySelector('span').textContent = `Mining the ${m.vein}…`;
+  const fill = bar.querySelector('.mining-fill');
+  fill.style.transition = 'none';
+  fill.style.width = '0';
+  bar.hidden = false;
+  void fill.offsetWidth; // start the fill again from empty
+  fill.style.transition = `width ${m.ms}ms linear`;
+  fill.style.width = '100%';
 }
 
 // ---- male or female (js/sex.js, server/Sex.java) ----------------------------
