@@ -941,7 +941,7 @@ commands that touch live.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.
-- Game ideas the user liked, not started: arena duels (Riverside arena), gathering & crafting (biggest),
+- Game ideas the user liked, not started (duels are done, see above): gathering & crafting (biggest),
   owned ships (on hold).
 - Website: Forum link added to the site nav (~/DuskRPG/web/*.html, after Updates; backups/web-20261007).
 
