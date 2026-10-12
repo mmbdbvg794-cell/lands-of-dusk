@@ -1,0 +1,118 @@
+DUSK - A GUIDE FOR THE CLASSIC CLIENT
+=====================================
+
+You're playing with the classic Java client. Most things are done by
+typing a command in the box at the bottom and pressing Enter. (The browser
+client at https://duskserver.tailaee0f2.ts.net/play/ has buttons for all
+of this, if you ever want to try it.)
+
+Type  help  in the game for the original list of classic commands.
+
+
+TALKING
+-------
+'hello            say something to the people near you
+;hello            gossip: heard by everyone in the game
+/Tom hi           tell one player something privately
+.waves            an action ("Flan waves")
+who               who's online
+
+
+TALKING TO PEOPLE IN THE WORLD
+------------------------------
+talk              talk to the person next to you (stand beside them)
+talk elder        talk to the one with "elder" in their name, if several
+                  are near
+
+When they ask you something, the answers are at the end of what they say,
+in brackets, split by /. Type one of them exactly:
+
+  Taskmistress Vhal says: ... Will you be trained? (train me/i am ready)
+  > train me
+
+Some people also call out to you as you walk past.
+
+
+MOVING AND FIGHTING
+-------------------
+n  s  e  w        walk one square (or click the map)
+a rat             attack ("a rat 1" for the second rat)
+look rat          how strong it looks
+flee              run from a fight
+sleep / wake      rest to heal faster (you can't walk while asleep)
+
+The lists on the right (Attack, Action, Look, Get, Drop) do the same with
+a click.
+
+
+THINGS, SHOPS AND MONEY
+-----------------------
+get <item>        pick something up         drop <item>   put it down
+wear <item>       wear or wield it          unwear <item> take it off
+use <item>        eat, drink, read...
+give Tom gp 100   give gold (or an item) to another player
+
+Stand on a shopkeeper's square and press the Merchant button to buy and
+sell. Shops buy things back for half what they cost.
+
+Storage: barrels and chests in town are for everyone, bank tellers keep a
+deposit box just for you. Stand next to one:
+  storage                 what's in it
+  storage put <item>      put something in
+  storage take <item>     take it out
+  box                     your deposit box, by a bank teller
+
+
+MINING
+------
+Buy a mining pick from a smith (Brann in Kingshaven, the Izaru Mine Shop,
+or the stalls by the forges). Find an ore vein: a mound of rock against the
+hills, with lumps of ore in it. Stand next to it and type:
+
+  mine              start digging; you keep going until the vein is
+                    worked out or you move
+  mine stop         stop
+
+Bronze veins are near the ferry landings. Iron, coal and mithril lie
+further out and need a higher Mining skill. A worked-out vein fills again
+after a few minutes. Mining rises as you dig.
+
+
+SMITHING
+--------
+Forges and anvils stand in Kingshaven (Brann's shop), Velkarath, Izaru's
+mine hall, the old town by The Armorer, and Ssarakh.
+
+  smith             (by a forge or anvil) what you can make there, what it
+                    needs, and how many you could make
+  smith bronze bar  make one
+  smith bronze bar 5     make five
+
+At a forge you smelt ore into bars. At an anvil, with a smithing hammer in
+your pack, you make bars into weapons and armour. Mithril armour and swords
+can only be smithed. Smithing rises as you work.
+
+
+PLAYING WITH OTHERS
+-------------------
+party invite Tom  ask Tom to join your party (kills for quests count for
+                  everyone in the party who's nearby)
+party accept      join the party you were asked to
+party             who's in your party
+party leave       leave it
+party say hi      talk to your party
+duel Tom          (both standing in the Duelling Ring outside Kingshaven)
+                  challenge Tom; nobody loses anything
+duel accept       accept a challenge
+duel              your duel record
+follow Tom        walk behind Tom (leave to stop)
+
+
+OTHER THINGS TO KNOW
+--------------------
+boss              is a world boss about, or when the next one is due
+Bounty boards in towns have jobs: stand by a notice and talk to it, e.g.
+  talk black dog
+to take the job; talk to it again when it's done to be paid.
+The website has the forum, who's online and the leaderboard:
+  https://duskserver.tailaee0f2.ts.net/web/index.html
