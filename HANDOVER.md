@@ -1161,6 +1161,15 @@ commands that touch live.
   prisoner/Villager/hermit) -> install_city.py --old-world -> add_achievement
   -> regen_talk -> merge_quests -> restart -> deploy.
 
+## 2026-10-13: fewer NPC shouts
+
+- server/Talk.java shout(): once an hour per player per NPC (was 5
+  minutes), and only to someone who can walk to beside the NPC within 8
+  steps (nearOnFoot: a BFS over tiles whose defTileScripts say "true").
+  Not sight: shop counters and town walls are the same tile (62), and only
+  19 tiles have see rules (DuskEngine.canSee answers no for a square with
+  no defCanSeeScripts file of its own). The hour is kept in memory.
+
 ## Open / ideas
 
 - Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in the dunes; Morvane's journal pages as boss drops.

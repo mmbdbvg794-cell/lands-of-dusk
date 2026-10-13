@@ -61,7 +61,7 @@ public class Talk {
     static final String DIR = "talk";
     static final int REACH = 2;             // squares away you can talk from
     static final int SHOUT_RANGE = 4;       // squares away an NPC calls out to you
-    static final long SHOUT_EVERY = 5 * 60 * 1000L; // per player, per NPC
+    static final long SHOUT_EVERY = 60 * 60 * 1000L; // per player, per NPC: once an hour
     static final long TICK = 2000L;
 
     static final Hashtable<String, Long> lastShout = new Hashtable<String, Long>();
@@ -294,6 +294,56 @@ public class Talk {
         return best;
     }
 
+    // Whether p can walk to beside x, y in a few steps: in the same room,
+    // not on the far side of a wall. (Sight can't tell: town walls and shop
+    // counters are the same tile, and the map's see rules cover few tiles.)
+    static final int NEAR_STEPS = 8;
+    static boolean[] walkable;
+    static long walkableRead;
+
+    static boolean walkableTile(int t) {
+        long now = System.currentTimeMillis();
+        if (walkable == null || now - walkableRead > 10 * 60 * 1000L) {
+            boolean[] w = new boolean[1024];
+            for (int i = 0; i < w.length; i++) {
+                try {
+                    java.util.List<String> l = java.nio.file.Files.readAllLines(new File("defTileScripts", String.valueOf(i)).toPath());
+                    w[i] = !l.isEmpty() && l.get(0).trim().equalsIgnoreCase("true");
+                } catch (Exception e) {
+                    w[i] = false;
+                }
+            }
+            walkable = w;
+            walkableRead = now;
+        }
+        return t >= 0 && t < walkable.length && walkable[t];
+    }
+
+    static boolean nearOnFoot(DuskEngine engine, LivingThing p, int x, int y) {
+        int sx = p.intLocX, sy = p.intLocY;
+        java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<int[]>();
+        java.util.HashSet<Long> seen = new java.util.HashSet<Long>();
+        queue.add(new int[] { sx, sy, 0 });
+        seen.add(((long) sx << 32) | sy);
+        while (!queue.isEmpty()) {
+            int[] c = queue.poll();
+            if (Math.abs(c[0] - x) <= 1 && Math.abs(c[1] - y) <= 1) return true;
+            if (c[2] >= NEAR_STEPS) continue;
+            int[][] steps = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+            for (int[] d : steps) {
+                int nx = c[0] + d[0], ny = c[1] + d[1];
+                if (!seen.add(((long) nx << 32) | ny)) continue;
+                try {
+                    if (!walkableTile(engine.shrMap[nx][ny])) continue;
+                } catch (Exception e) {
+                    continue;
+                }
+                queue.add(new int[] { nx, ny, c[2] + 1 });
+            }
+        }
+        return false;
+    }
+
     static String scriptFor(String npcName) {
         String name = bare(npcName);
         String file = CaseFix.file(DIR, name);
@@ -356,6 +406,8 @@ public class Talk {
             for (int j = 0; j < npcs.size(); j++) {
                 DuskObject npc = npcs.elementAt(j);
                 if (Math.abs(npc.intLocX - p.intLocX) > SHOUT_RANGE || Math.abs(npc.intLocY - p.intLocY) > SHOUT_RANGE) continue;
+                // Only in the same room: a short walk away, not through a wall.
+                if (!nearOnFoot(engine, p, npc.intLocX, npc.intLocY)) continue;
                 String key = p.strName + "|" + npc.ID;
                 Long last = lastShout.get(key);
                 if (last != null && now - last.longValue() < SHOUT_EVERY) continue;
