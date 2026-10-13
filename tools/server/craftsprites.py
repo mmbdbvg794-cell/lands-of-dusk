@@ -2,7 +2,10 @@
 # mining and smithing sprites (server/Crafting.java) to the sprite sheet,
 # drawn here and fitted to the sheet's own palette, as lightsprites.py does:
 #   58 bronze vein, 59 iron vein, 60 coal seam, 61 mithril vein,
-#   62 worked-out vein (any ore, once mined out), 63 forge, 64 anvil.
+#   62 worked-out vein (any ore, once mined out), 63 forge, 64 anvil,
+#   65 mushroom patch, 66 mandrake patch, 67 lavender patch, 68 wolfsbane
+#   patch, 69 azeala bush, 70 moonpetal patch, 71 picked patch (any herb,
+#   once picked bare), 72 alchemy table.
 # Always starts from the first 58 sprites, so running it again gives the
 # same sheet.
 import math
@@ -88,8 +91,81 @@ def anvil():
     return im
 
 
+def ground(d, rnd):
+    """A low patch of earth with grass round it."""
+    d.ellipse((8, 46, 56, 62), fill=(92, 70, 46))
+    for _ in range(14):
+        x = rnd.randint(8, 56)
+        d.line([(x, 56), (x + rnd.randint(-3, 3), 46 + rnd.randint(-4, 2))], fill=(70, 120, 40), width=1)
+
+
+def herb(kind):
+    def draw():
+        rnd = random.Random(kind)
+        im = Image.new("RGBA", (64, 64)); d = ImageDraw.Draw(im)
+        ground(d, rnd)
+        spots = [(18, 50), (30, 46), (42, 50), (24, 56), (38, 56), (48, 44)]
+        for x, y in spots:
+            if kind == "mushroom":
+                d.rectangle((x - 1, y - 6, x + 1, y), fill=(230, 220, 200))
+                d.pieslice((x - 6, y - 12, x + 6, y - 2), 180, 360, fill=(150, 90, 50))
+                d.point((x - 2, y - 9), fill=(240, 220, 190))
+            elif kind == "mandrake":
+                for dx in (-5, 0, 5):
+                    d.polygon([(x, y), (x + dx - 2, y - 12), (x + dx + 2, y - 12)], fill=(46, 110, 40))
+                d.ellipse((x - 3, y - 2, x + 3, y + 3), fill=(170, 130, 80))
+            elif kind == "lavender":
+                for dx in (-3, 0, 3):
+                    d.line([(x + dx, y), (x + dx, y - 14)], fill=(70, 120, 50))
+                    d.rectangle((x + dx - 1, y - 18, x + dx + 1, y - 10), fill=(150, 110, 210))
+            elif kind == "wolfsbane":
+                d.line([(x, y), (x, y - 18)], fill=(50, 100, 40), width=2)
+                for k in range(3):
+                    d.ellipse((x - 3, y - 20 + k * 5, x + 3, y - 15 + k * 5), fill=(80, 70, 190))
+            elif kind == "azeala":
+                d.ellipse((x - 7, y - 12, x + 7, y + 1), fill=(40, 120, 40))
+                for _ in range(4):
+                    fx, fy = x + rnd.randint(-5, 5), y + rnd.randint(-10, -2)
+                    d.ellipse((fx - 2, fy - 2, fx + 2, fy + 2), fill=(230, 60, 110))
+            elif kind == "moonpetal":
+                d.line([(x, y), (x, y - 12)], fill=(90, 140, 110))
+                for a in range(5):
+                    ang = a / 5 * math.tau
+                    px, py = x + math.cos(ang) * 4, y - 14 + math.sin(ang) * 4
+                    d.ellipse((px - 2, py - 2, px + 2, py + 2), fill=(200, 230, 255))
+                d.point((x, y - 14), fill=(255, 255, 255))
+        return im
+    return draw
+
+
+def picked():
+    rnd = random.Random("picked")
+    im = Image.new("RGBA", (64, 64)); d = ImageDraw.Draw(im)
+    ground(d, rnd)
+    for x in (18, 30, 42, 26, 38):
+        d.line([(x, 54), (x, 50)], fill=(110, 140, 70), width=2)  # stubs
+    return im
+
+
+def alchemy_table():
+    im = Image.new("RGBA", (64, 64)); d = ImageDraw.Draw(im)
+    d.rectangle((8, 34, 56, 40), fill=(130, 90, 52))  # top
+    d.line([(8, 34), (56, 34)], fill=(170, 124, 76))
+    for x in (11, 51):
+        d.rectangle((x, 40, x + 3, 60), fill=(100, 68, 38))  # legs
+    d.ellipse((12, 20, 26, 34), fill=(70, 170, 80))  # round flask, green
+    d.rectangle((17, 14, 21, 21), fill=(200, 220, 220))
+    d.rectangle((30, 18, 38, 34), fill=(200, 50, 50))  # tall bottle, red
+    d.rectangle((32, 12, 36, 18), fill=(200, 220, 220))
+    d.polygon([(42, 34), (54, 34), (48, 22)], fill=(80, 100, 210))  # cone flask, blue
+    d.rectangle((46, 16, 50, 23), fill=(200, 220, 220))
+    return im
+
+
 frames = [vein((184, 110, 52), (240, 190, 120))(), vein((168, 58, 44), (210, 210, 215))(),
-          vein((10, 10, 10), (120, 120, 128))(), vein((150, 200, 240), (240, 250, 255))(), worked_out(), forge(), anvil()]
+          vein((10, 10, 10), (120, 120, 128))(), vein((150, 200, 240), (240, 250, 255))(), worked_out(), forge(), anvil(),
+          herb("mushroom")(), herb("mandrake")(), herb("lavender")(), herb("wolfsbane")(), herb("azeala")(), herb("moonpetal")(),
+          picked(), alchemy_table()]
 out = Image.new("P", ((KEEP + len(frames)) * 64, 64), 0)
 out.putpalette(pal)
 out.paste(sheet.crop((0, 0, KEEP * 64, 64)), (0, 0))

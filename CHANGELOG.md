@@ -452,6 +452,18 @@ backups; see `server/`.
   iron and steel gear, a steel sword, and a mithril set that can only be
   smithed. Smithing is a skill too. Smiths sell the pick and the hammer.
 - Steel gloves and leggings are now worth their steel (70 armour).
+- **Herbalism.** Herb patches at the edges of woods: mushrooms and mandrake
+  near the landings, lavender, wolfsbane and azeala further out, rare
+  moonpetal far away. With a herb sickle choose Gather (or type `gather`).
+  Picked patches grow back. Lavender and wolfsbane cost less in shops now
+  that they can be picked; azeala a little more.
+- **Alchemy.** Alchemy tables by Alchemist Pell (Kingshaven), Miriel
+  (Aelindor), Herbalist Wenna, and in Velkarath and Ssarakh: brew the
+  hand-brewed potions, and the moonpetal elixir (1000 health and mana),
+  which can only be brewed. Alchemy is a skill.
+- **The classic Java client has a Help button** under Equipment, with a
+  guide to every command to type (the guide lives on the server, so it can
+  be changed without a new client).
 
 ## Closed beta
 

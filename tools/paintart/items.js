@@ -46,6 +46,7 @@ function glow(ctx, colour, blur, draw) {
 
 // Colours named in item names, for potions, gems, books and stones.
 const HUES = [
+  [/moonpetal|moonlight/, '#b8dcff'],
   [/aquamarine/, '#4ccad0'],
   [/topaz/, '#e89a2c'],
   [/red|ruby|blood|fire|flame|rose/, '#c8242c'],
@@ -146,6 +147,14 @@ function ore(ctx, n) {
   stone(ctx, 'grey');
   const c = material(n);
   for (const [x, y, r] of [[-10, 76, 4], [6, 70, 3], [12, 84, 4.5], [-2, 86, 3]]) fill(ctx, ell(ctx, CX + x, y, r, r * 0.8), c, [CX + x - r, y - r, CX + x + r, y + r], 1);
+}
+
+// A herb sickle: a curved blade on a short handle.
+function sickle(ctx) {
+  shadow(ctx, 26, 6);
+  fill(ctx, rr(ctx, CX - 4, 70, 8, 26, 3), '#7a5230', [CX - 4, 70, CX + 4, 96]);
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(CX - 2, 72); ctx.bezierCurveTo(CX - 6, 40, CX + 34, 30, CX + 30, 60); ctx.bezierCurveTo(CX + 22, 42, CX + 4, 48, CX + 4, 72); ctx.closePath(); }, '#b8c0ca', [CX - 6, 34, CX + 34, 72]);
+  glint(ctx, CX + 18, 44, 3);
 }
 
 // A bar of smelted metal: an ingot.
@@ -250,7 +259,7 @@ function mug(ctx) {
 }
 
 function herb(ctx, n) {
-  const c = /rose|red/.test(n) ? '#c8242c' : /lavend|sleep/.test(n) ? '#9a78d0' : /wolfsbane/.test(n) ? '#5a4ab0' : /azeala|azalea/.test(n) ? '#e060a0' : '#e8d850';
+  const c = /rose|red/.test(n) ? '#c8242c' : /lavend|sleep/.test(n) ? '#9a78d0' : /wolfsbane/.test(n) ? '#5a4ab0' : /azeala|azalea/.test(n) ? '#e060a0' : /moonpetal/.test(n) ? '#d8ecff' : '#e8d850';
   shadow(ctx, 22, 5);
   ctx.strokeStyle = '#3a6a2a'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
   for (const [dx, top] of [[-8, 62], [0, 54], [9, 60]]) {
@@ -902,6 +911,46 @@ function anvilProp(ctx) {
   ctx.fillStyle = 'rgba(220,226,240,0.55)'; ctx.fillRect(CX - 44, 45, 74, 3);
 }
 
+// Herb patches (server/Crafting.java): a patch of earth with the herb
+// growing in it, as the item is drawn, smaller, three times over.
+function earth(ctx) {
+  shadow(ctx, 48, 9, 112);
+  fill(ctx, ell(ctx, CX, 102, 50, 14), '#5c4630', [CX - 50, 88, CX + 50, 116], 1);
+  ctx.strokeStyle = '#4e8a34'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  for (let i = 0; i < 16; i++) { const x = CX - 46 + i * 6; ctx.beginPath(); ctx.moveTo(x, 106 + (i % 3)); ctx.lineTo(x + (i % 2 ? 3 : -3), 92 + (i % 4) * 2); ctx.stroke(); }
+}
+
+function herbPatch(ctx, n) {
+  earth(ctx);
+  const item = /mushroom/.test(n) ? 'mushroom' : n.replace(/ (patch|bush)$/, '');
+  const draw = /mushroom/.test(n) ? mushroom : herb;
+  for (const [dx, dy, k] of [[-28, 4, 0.62], [26, 6, 0.62], [0, -4, 0.75]]) {
+    ctx.save(); ctx.translate(CX + dx, GROUND + dy); ctx.scale(k, k); ctx.translate(-CX, -GROUND);
+    draw(ctx, item);
+    ctx.restore();
+  }
+}
+
+function pickedPatch(ctx) {
+  earth(ctx);
+  ctx.strokeStyle = '#7a9a4a'; ctx.lineWidth = 3;
+  for (const x of [-26, -10, 8, 24]) { ctx.beginPath(); ctx.moveTo(CX + x, 104); ctx.lineTo(CX + x + 1, 96); ctx.stroke(); }
+}
+
+function alchemyTable(ctx) {
+  shadow(ctx, 50, 8, 116);
+  for (const x of [CX - 44, CX + 38]) fill(ctx, rr(ctx, x, 76, 7, 38, 2), '#6a4626', [x, 76, x + 7, 114]);
+  fill(ctx, rr(ctx, CX - 52, 68, 104, 10, 3), '#8a5e34', [CX - 52, 68, CX + 52, 78]);
+  const flask = (x, colour, body) => {
+    ctx.fillStyle = 'rgba(220,235,240,0.5)'; body(); ctx.fill();
+    glow(ctx, colour, 8, () => { ctx.save(); body(); ctx.clip(); ctx.fillStyle = colour; ctx.fillRect(x - 20, 50, 40, 20); ctx.restore(); });
+    glint(ctx, x - 4, 52, 2.5);
+  };
+  flask(CX - 30, '#40b050', () => { ctx.beginPath(); ctx.arc(CX - 30, 56, 12, 0, Math.PI * 2); ctx.rect(CX - 34, 32, 8, 14); });
+  flask(CX, '#d03030', () => { ctx.beginPath(); ctx.rect(CX - 7, 36, 14, 32); ctx.rect(CX - 3, 26, 6, 12); });
+  flask(CX + 30, '#4060d8', () => { ctx.beginPath(); ctx.moveTo(CX + 18, 68); ctx.lineTo(CX + 42, 68); ctx.lineTo(CX + 33, 44); ctx.lineTo(CX + 33, 34); ctx.lineTo(CX + 27, 34); ctx.lineTo(CX + 27, 44); ctx.closePath(); });
+}
+
 function lampPost(ctx) {
   shadow(ctx, 16, 5, 116);
   fill(ctx, rr(ctx, CX - 12, 108, 24, 8, 2), '#2e2c2c', [CX - 12, 108, CX + 12, 116]);
@@ -991,6 +1040,9 @@ const PROPS = [
   [/\bvein\b|\bseam\b/, vein],
   [/\bforge\b/, forgeProp],
   [/\banvil\b/, anvilProp],
+  [/picked/, pickedPatch],
+  [/ patch$| bush$/, herbPatch],
+  [/alchemy table/, alchemyTable],
   [/lamp ?post|street ?lamp/, lampPost],
   [/campfire|camp fire/, campfire],
   [/slot machine/, slotMachine],
@@ -1093,7 +1145,8 @@ const BY_NAME = [
   [/sandwich|lunch/, sandwich],
   [/crisps/, packet],
   [/^ale$|mead|beer|wine/, mug],
-  [/lavend|azeala|wolfsbane|mandrake|weed|rose\b|herb/, herb],
+  [/sickle/, sickle],
+  [/lavend|azeala|wolfsbane|mandrake|moonpetal|weed|rose\b|herb/, herb],
   [/tooth|fang/, fang],
   [/stinger/, stinger],
   [/horns/, horns],

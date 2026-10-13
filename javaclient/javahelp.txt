@@ -93,6 +93,29 @@ your pack, you make bars into weapons and armour. Mithril armour and swords
 can only be smithed. Smithing rises as you work.
 
 
+HERBS AND ALCHEMY
+-----------------
+Buy a herb sickle (alchemists and the stalls by the forges sell them).
+Herbs grow in patches at the edges of woods. Stand next to one and type:
+
+  gather            start picking; you keep going until the patch is
+                    picked bare or you move
+  gather stop       stop
+
+Mushrooms and mandrake grow near the ferry landings; lavender, wolfsbane
+and azeala further out; rare moonpetal far away. Herbalism rises as you
+pick and lets you gather the rarer herbs.
+
+Alchemy tables stand in Kingshaven (Alchemist Pell), Aelindor (Miriel),
+Velkarath, Ssarakh, and by Herbalist Wenna:
+
+  brew              (by an alchemy table) what you can brew there
+  brew brewed red potion      brew one   (add a number for more)
+
+Brewed potions work like bought ones but merchants won't buy them. The
+moonpetal elixir (1000 health and mana) can only be brewed.
+
+
 PLAYING WITH OTHERS
 -------------------
 party invite Tom  ask Tom to join your party (kills for quests count for

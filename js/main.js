@@ -26,7 +26,7 @@ import { MailView, parseMail } from './mail.js';
 import { PartyView, parseParty, partyChatCommand } from './party.js';
 import { AchievementsView, parseAchv } from './achievements.js';
 import { SEX_ASK, parseSex, sexCommand, maleImage, femaleImage } from './sex.js';
-import { parseMining, parseRecipe, SmithView } from './crafting.js';
+import { parseWorking, parseRecipe, SmithView } from './crafting.js';
 import { LOOKS, paintFigureStrip, OUT as FIGURE_OUT } from './figure.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
@@ -1693,8 +1693,8 @@ function handle(msg) {
       const adminReply = isGod && parseAdmin(msg.text);
       if (adminReply) { adminView.reply(adminReply); break; }
       // Mining's swing bar and the smithing window (js/crafting.js).
-      const mining = parseMining(msg.text);
-      if (mining) { showMining(mining); break; }
+      const working = parseWorking(msg.text);
+      if (working) { showWorking(working); break; }
       if (smithView.reply(parseRecipe(msg.text))) break;
       // Not chosen yet: the male/female picker (js/sex.js).
       const sexReply = parseSex(msg.text);
@@ -1821,13 +1821,13 @@ async function loadGraphics(address) {
   }
 }
 
-// ---- mining and smithing (js/crafting.js, server/Crafting.java) ------------
+// ---- gathering and making (js/crafting.js, server/Crafting.java) ----------
 
 const smithView = new SmithView($('smith-dialog'), (cmd) => conn?.send(cmd));
-function showMining(m) {
+function showWorking(m) {
   const bar = $('mining-bar');
   if (m.done) { bar.hidden = true; return; }
-  bar.querySelector('span').textContent = `Mining the ${m.vein}…`;
+  bar.querySelector('span').textContent = `${m.what}…`;
   const fill = bar.querySelector('.mining-fill');
   fill.style.transition = 'none';
   fill.style.width = '0';

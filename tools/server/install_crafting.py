@@ -1,22 +1,31 @@
 #!/usr/bin/env python3
-"""Puts mining and smithing (server/Crafting.java) into a Dusk game directory.
+"""Puts mining, smithing, herbalism and alchemy (server/Crafting.java) into a
+Dusk game directory.
 
-    python3 install_crafting.py <game dir> <veins.json> [--apply]
+    python3 install_crafting.py <game dir> <veins.json> <herbs.json> [--apply]
 
-veins.json comes from tools/world/veins.mjs. Without --apply it only says
+veins.json and herbs.json come from tools/world/veins.mjs and herbs.mjs
+(the lists used live are kept beside this file). Without --apply it only says
 what it would do. With it, every file it changes is first copied to
 backups/crafting-<time>/. Running it again changes nothing that's in.
 
-  defItems/      mining pick, smithing hammer, coal, mithril ore, the four
-                 bars, a steel sword and the mithril set (only made, never
-                 sold); ore prices put in order (bronze < iron < mithril);
-                 steel gloves and leggings made worth their steel
-  defProps/      the four veins, a worked-out vein, forge, anvil
-  recipes        what forges and anvils make (kept if it's there: a god
-                 may have changed it)
-  props          the veins, and a forge and an anvil in five towns
-  merchants      the smiths sell picks and hammers
-  rc/images/sprites.gif   sprites 58-64 (craftsprites.py, beside this file)
+  defItems/      mining pick, smithing hammer, herb sickle, coal, mithril
+                 ore, the four bars, a steel sword and the mithril set (only
+                 made, never sold), moonpetal and the moonpetal elixir; ore
+                 prices put in order (bronze < iron < mithril); steel gloves
+                 and leggings made worth their steel; lavender and
+                 wolfsbane cheaper (gathered now), azeala dearer (rarer)
+  scripts/       moonpetal elixir.use
+  defProps/      the veins and herb patches, used-up looks, forge, anvil,
+                 alchemy table
+  recipes        what forges, anvils and alchemy tables make: written if
+                 missing, else only the recipes it lacks are added (a god's
+                 changes are kept)
+  props          veins, patches, and a forge and an anvil in five towns,
+                 an alchemy table in five
+  merchants      smiths sell picks and hammers, alchemists sickles, and the
+                 stalls all three
+  rc/images/sprites.gif   sprites 58-72 (craftsprites.py, beside this file)
 
 The server reads props, merchants and the sprites at start, and writes
 props and merchants back when a god saves: install, then restart, with no
@@ -45,6 +54,12 @@ ITEMS = {
     "mithril leggings": "type\narmor\nkind\nlegs\ndescription\nmithril leggings, smith-made\ncost\n6000\nmod\n150\nimage\n7\ndurability\n30000\n.\n",
     "mithril gloves": "type\narmor\nkind\nhands\ndescription\nmithril gloves, smith-made\ncost\n5000\nmod\n120\nimage\n7\ndurability\n30000\n.\n",
     "mithril shield": "type\narmor\nkind\narms\ndescription\na mithril shield, smith-made\ncost\n9000\nmod\n450\nimage\n7\ndurability\n30000\n.\n",
+    "herb sickle": "type\nitem\ndescription\na small curved sickle for cutting herbs\ncost\n150\nimage\n8\n.\n",
+    "moonpetal": "type\nitem\ndescription\na moonpetal, pale and faintly glowing; it grows only far from any town\ncost\n150\nimage\n6\n.\n",
+    "moonpetal elixir": "type\nitem\ndescription\na hand-brewed elixir of moonpetal: restores 1000 health and mana; worth nothing to merchants\ncost\n0\nimage\n6\nonuse\nmoonpetal elixir.use\nuses\n1\n.\n",
+}
+SCRIPTS = {
+    "moonpetal elixir.use": 'chat trigger "Moonlight runs through your veins."\ninc trigger hp 1000\ninc trigger mp 1000\nremoveitem trigger "moonpetal elixir"\nendscript\n',
 }
 # Existing items: one value changed ("key": new value).
 CHANGES = {
@@ -52,6 +67,9 @@ CHANGES = {
     "iron ore": {"cost": "30"},
     "steel gloves": {"mod": "70", "cost": "800"},
     "steel leggings": {"mod": "70", "cost": "800"},
+    "lavendar": {"cost": "60"},
+    "wolfsbane": {"cost": "80"},
+    "azeala": {"cost": "100"},
 }
 PROPS = {
     "bronze vein": ("a rock face with bronze ore in it", 58),
@@ -61,6 +79,14 @@ PROPS = {
     "worked-out vein": ("broken rock: nothing left to dig", 62),
     "forge": ("a smith's forge, hot enough to melt ore", 63),
     "anvil": ("a heavy iron anvil", 64),
+    "mushroom patch": ("mushrooms, growing in the shade", 65),
+    "mandrake patch": ("mandrake, its roots poking from the earth", 66),
+    "lavender patch": ("a patch of sweet-smelling lavender", 67),
+    "wolfsbane patch": ("tall blue wolfsbane", 68),
+    "azeala bush": ("an azeala bush in flower", 69),
+    "moonpetal patch": ("moonpetals, glowing faintly", 70),
+    "picked patch": ("a patch of earth, picked bare", 71),
+    "alchemy table": ("a table of flasks and bottles for brewing", 72),
 }
 RECIPES = """# What forges and anvils make (server/Crafting.java), one per line:
 #   station|Smithing needed|result|ingredients
@@ -94,6 +120,12 @@ anvil|71|mithril leggings|3 mithril bar
 anvil|74|mithril sword|3 mithril bar
 anvil|77|mithril shield|4 mithril bar
 anvil|80|mithril breastplate|5 mithril bar
+alchemy|0|brewed minor potion|1 mushroom, 1 water
+alchemy|10|brewed anti-curse potion|1 mandrake
+alchemy|25|brewed red potion|1 mandrake, 1 wolfsbane
+alchemy|30|brewed green potion|1 lavendar, 1 wolfsbane
+alchemy|50|brewed blue potion|1 brewed red potion, 1 brewed green potion, 1 azeala
+alchemy|70|moonpetal elixir|2 moonpetal, 1 brewed blue potion
 """
 # A forge, an anvil and (where there's no shop already) a stall, by town.
 STATIONS = [
@@ -108,7 +140,17 @@ STATIONS = [
     # Ssarakh, in the open by the village.
     {"forge": (1681, 939), "anvil": (1683, 939), "stall": (1684, 941)},
 ]
-TOOLS = ["mining pick", "smithing hammer"]
+# Alchemy tables, by the alchemists; theirs is a shop that sells sickles.
+TABLES = [
+    {"table": (1440, 373), "sell_at": (1442, 371)},  # Kingshaven: behind Alchemist Pell's counter
+    {"table": (485, 1254), "sell_at": (487, 1252)},  # Aelindor: Miriel's Herbs
+    {"table": (1296, 964)},  # Velkarath: by the forge (its stall sells sickles)
+    {"table": (30, 127)},  # the old world, by Herbalist Wenna
+    {"table": (1680, 941)},  # Ssarakh: by the forge
+]
+TOOLS = ["mining pick", "smithing hammer", "herb sickle"]
+SMITH_TOOLS = ["mining pick", "smithing hammer"]
+ALCHEMY_TOOLS = ["herb sickle"]
 
 
 def read(path):
@@ -121,13 +163,16 @@ def read(path):
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    if len(args) != 2:
+
+    if len(args) != 3:
         sys.exit(__doc__)
-    game, veins_path = os.path.abspath(args[0]), os.path.abspath(args[1])
+    game, veins_path, herbs_path = os.path.abspath(args[0]), os.path.abspath(args[1]), os.path.abspath(args[2])
     apply = "--apply" in sys.argv
     here = os.path.dirname(os.path.abspath(__file__))
     with open(veins_path) as f:
         veins = json.load(f)
+    with open(herbs_path) as f:
+        veins += json.load(f)
     os.chdir(game)
     backup = os.path.join("backups", "crafting-" + time.strftime("%Y%m%d-%H%M%S"))
     said = []
@@ -173,6 +218,11 @@ def main():
                 os.remove(path + ".dsko")
         said.append("  %s: %s" % (n, "; ".join(changed) or "already so"))
 
+    new = [n for n in SCRIPTS if not os.path.exists(os.path.join("scripts", n))]
+    for n in new:
+        write(os.path.join("scripts", n), SCRIPTS[n])
+    said.append("scripts: %d new" % len(new))
+
     # Props.
     new = [n for n in PROPS if not os.path.exists(os.path.join("defProps", n))]
     for n in new:
@@ -180,11 +230,17 @@ def main():
         write(os.path.join("defProps", n), "description\n%s\nimage\n%d\n.\n" % (desc, image))
     said.append("prop kinds: %d new" % len(new))
 
-    if read("recipes") is None:
+    have_recipes = read("recipes")
+    if have_recipes is None:
         write("recipes", RECIPES)
         said.append("recipes: written")
     else:
-        said.append("recipes: already there, kept")
+        key = lambda line: tuple(x.strip().lower() for x in line.split("|")[0:3:2])
+        known = {key(l) for l in have_recipes.splitlines() if l.strip() and not l.startswith("#") and l.count("|") == 3}
+        missing = [l for l in RECIPES.splitlines() if l.strip() and not l.startswith("#") and key(l) not in known]
+        if missing:
+            write("recipes", have_recipes.rstrip("\n") + "\n" + "\n".join(missing) + "\n")
+        said.append("recipes: %d added (%s)" % (len(missing), ", ".join(l.split("|")[2] for l in missing) or "none missing"))
 
     # Where things stand.
     text = read("props") or ""
@@ -197,6 +253,8 @@ def main():
     want = [(v["name"], v["x"], v["y"]) for v in veins]
     for s in STATIONS:
         want += [("forge",) + s["forge"], ("anvil",) + s["anvil"]]
+    for t in TABLES:
+        want.append(("alchemy table",) + t["table"])
     add = [w for w in want if (w[0], str(w[1]), str(w[2])) not in have]
     if add:
         base = text.rstrip("\r\n \t")
@@ -206,8 +264,16 @@ def main():
     # Tools for sale.
     text = (read("merchants") or "").replace("\r", "")
     out, i, lines, added = [], 0, text.split("\n"), []
-    sell_at = {s["sell_at"] for s in STATIONS if "sell_at" in s}
-    stalls = [s["stall"] for s in STATIONS if "stall" in s]
+    # What each place sells: smiths the smith's tools, alchemists sickles,
+    # and the stalls everything.
+    sells = {}
+    for s in STATIONS:
+        if "sell_at" in s:
+            sells.setdefault(s["sell_at"], []).extend(SMITH_TOOLS)
+    for t in TABLES:
+        if "sell_at" in t:
+            sells.setdefault(t["sell_at"], []).extend(ALCHEMY_TOOLS)
+    stalls = [tuple(s["stall"]) for s in STATIONS if "stall" in s]
     places = set()
     while i < len(lines):
         if lines[i] == "Merchant" and i + 2 < len(lines):
@@ -218,8 +284,11 @@ def main():
             while j < len(lines) and lines[j] != "end":
                 wares.append(lines[j])
                 j += 1
-            if (int(x), int(y)) in sell_at:
-                for t in TOOLS:
+            wanted = sells.get((int(x), int(y)), [])
+            if (int(x), int(y)) in stalls:
+                wanted = TOOLS
+            if wanted:
+                for t in wanted:
                     if t not in wares:
                         wares.append(t)
                         added.append("%s at %s,%s" % (t, x, y))
@@ -240,13 +309,13 @@ def main():
     # The sprites.
     sheet = os.path.join("rc", "images", "sprites.gif")
     count = int(subprocess.check_output(["python3", "-c", "from PIL import Image; print(Image.open('%s').size[0] // 64)" % sheet]).decode())
-    if count == 58:
+    if count in (58, 65):
         if apply:
             keep(sheet)
             subprocess.check_call(["python3", os.path.join(here, "craftsprites.py"), os.path.join(backup, sheet), sheet, os.path.join(backup, "craft-preview.png")])
-        said.append("sprites: 58 -> 65")
+        said.append("sprites: %d -> 73" % count)
     else:
-        said.append("sprites: %d already (58-64 are mining and smithing when there are 65)" % count)
+        said.append("sprites: %d already (58-72 are gathering and making when there are 73)" % count)
 
     print("\n".join(said))
     print("Backups in %s" % backup if apply else "Dry run; add --apply.")

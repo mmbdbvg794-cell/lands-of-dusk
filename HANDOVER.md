@@ -1029,6 +1029,30 @@ commands that touch live.
 - OpenWebStart may keep the old jar until it checks for updates; players
   can re-open dusk.jnlp from the website.
 
+## 2026-10-13: herbalism and alchemy (NOT live yet)
+
+- server/Crafting.java is now general: SOURCES (veins and herb patches:
+  prop name, item, skill, level, full/empty image, tool, command mine or
+  gather) and STATIONS (forge, anvil, alchemy table: skill, tool, verb).
+  Commands mine/gather [id|stop], smith/brew [result [n]]. Browser lines
+  are now "Working: <ms>|<what>" / "Working: done" (was "Mining:").
+  Skills Herbalism and Alchemy. Herb patches: mushroom 0, mandrake 10,
+  lavender 20 (item "lavendar"), wolfsbane 35, azeala bush 50, moonpetal
+  65; picked image 71; alchemy table 72. Herb sickle needed to gather.
+- Alchemy recipes brew the existing unsellable "brewed ..." potions (as
+  the herbology spell does, so no gold farm) plus moonpetal elixir (cost
+  0, 1000 HP/MP, scripts/moonpetal elixir.use).
+- tools/world/herbs.mjs (from veins.mjs: wood edges, trees 64/103/25/26/
+  102/124) -> tools/server/herbs.json (263 patches). install_crafting.py
+  now takes <game> <veins.json> <herbs.json>; adds only missing recipe
+  lines to an existing recipes file; sprites rebuilt 58/65 -> 73; sickles
+  sold at Pell (1442,371), Miriel (487,1252) and the stalls.
+- Tested on scratch typed and in Chromium (gather bar, picked look,
+  brew window, mining unchanged).
+- To go live: copy sources, build+install classes, run install_crafting.py
+  with both lists --apply, restart at once, deploy (Painted art), copy
+  javaclient/javahelp.txt to DuskRPG/rc/.
+
 ## Open / ideas
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
@@ -1036,7 +1060,7 @@ commands that touch live.
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.
 - Game ideas the user liked, not started: owned ships (on hold). Crafting
-  next steps: woodcutting/herbalism, a God-tab recipe editor, vein placing.
+  next steps: woodcutting, a God-tab recipe editor, placing veins/patches.
 - Website: Forum link added to the site nav (~/DuskRPG/web/*.html, after Updates; backups/web-20261007).
 
 ## More notes

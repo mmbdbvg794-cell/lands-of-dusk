@@ -1,40 +1,45 @@
 /*
- * Mining and smithing.
+ * Gathering and making: mining, herbalism, smithing and alchemy.
  *
- * Mining: ore veins are props ("bronze vein", "iron vein", "coal seam",
- * "mithril vein"; VEINS). Standing next to one with a mining pick in your
- * pack, "mine" swings at it every few seconds until you move, fight, the
- * vein is worked out or you type "mine stop". Each swing may give a lump
- * of ore. A vein holds a few lumps, then shows as worked out (WORKED_OUT,
- * the image only: its name stays, so a god's save never writes it down
- * changed) and fills again some minutes later.
+ * Gathering: ore veins and herb patches are props (SOURCES: "iron vein",
+ * "mandrake patch"...). Standing next to one with the right tool in your
+ * pack (a mining pick, a herb sickle), "mine" or "gather" works it every
+ * few seconds until you move, fight, it's used up or you type "mine stop"
+ * ("gather stop"). Each go may give one of what it holds. A source holds a
+ * few, then shows as used up (its empty image only: its name stays, so a
+ * god's save never writes it down changed) and fills again some minutes
+ * later.
  *
- * Smithing: by a forge, ore is smelted into bars; by an anvil, with a
- * smithing hammer, bars are made into gear. What can be made is in the
- * game's "recipes" file, one per line:
+ * Making: by a forge ore is smelted into bars; by an anvil, with a
+ * smithing hammer, bars are made into gear; by an alchemy table, herbs are
+ * brewed into potions (STATIONS). What can be made is in the game's
+ * "recipes" file, one per line:
  *
  *   station|level|result|ingredient, ingredient...
  *   forge|0|bronze bar|2 bronze ore
  *   anvil|0|bronze sword|3 bronze bar
+ *   alchemy|25|brewed red potion|1 mandrake, 1 wolfsbane
  *
- * read again whenever it changes. "level" is the Smithing needed.
+ * read again whenever it changes. "level" is the skill needed (Smithing
+ * for forge and anvil, Alchemy for the table).
  *
- * Mining and Smithing are skills (0-100, kept and shown like any other),
- * which rise now and then with use, slower as they get higher and much
- * slower on work far below them.
+ * Mining, Herbalism, Smithing and Alchemy are skills (0-100, kept and
+ * shown like any other), which rise now and then with use, slower as they
+ * get higher and much slower on work far below them.
  *
- *   mine [<id>]          start mining (the nearest vein, or that one)
- *   mine stop            stop
- *   smith                what you can make here
- *   smith <result> [n]   make it (n at once, up to 20)
+ *   mine [<id>] | gather [<id>]    start (the nearest, or that one)
+ *   mine stop | gather stop        stop
+ *   smith | brew                   what you can make here
+ *   smith <result> [n] | brew <result> [n]   make it (n at once, up to 20)
  *
- * Every reply is plain words, so the old Java client can play too; the
- * browser client also gets lines it reads and hides (only it is sent them,
- * through the bridge): "Mining: <ms>|<vein>" as each swing starts and
- * "Mining: done" at the end (a progress bar), and for "smith" one
- * "Recipe: station|level|result|ingredients|how many you can make" per
- * recipe, then "Recipes: <station,station>|<your Smithing>" (the smithing
- * window).
+ * Every reply is plain one-line words, so the old Java client can play too
+ * (its protocol takes no line breaks: each extra line would be read as a
+ * new message). The browser client also gets lines it reads and hides
+ * (only it is sent them, through the bridge): "Working: <ms>|<what>" as
+ * each go starts and "Working: done" at the end (a progress bar), and for
+ * "smith" or "brew" one "Recipe: station|level|result|ingredients|how many
+ * you can make" per recipe, then "Recipes: <station,station>|<skill>" (the
+ * making window).
  *
  * Part of the browser client project (dusk-browser-client/server).
  */
@@ -47,42 +52,75 @@ import java.util.Map;
 import java.util.Random;
 
 public class Crafting {
-    // name -> { ore, Mining needed, image when full }
-    static final Object[][] VEINS = {
-        { "bronze vein", "bronze ore", 0, 58 },
-        { "iron vein", "iron ore", 15, 59 },
-        { "coal seam", "coal", 30, 60 },
-        { "mithril vein", "mithril ore", 60, 61 },
+    // A thing to gather from: the prop's name, what it gives, the skill and
+    // level it needs, its image when full and used up, the tool, and the
+    // command that works it.
+    static class Source {
+        final String name, item, skill;
+        final int level, image, empty;
+        final String tool, command;
+
+        Source(String name, String item, String skill, int level, int image, int empty, String tool, String command) {
+            this.name = name; this.item = item; this.skill = skill; this.level = level;
+            this.image = image; this.empty = empty; this.tool = tool; this.command = command;
+        }
+
+        boolean mining() { return command.equals("mine"); }
+    }
+
+    static final int WORKED_OUT = 62, PICKED = 71;
+    static final String PICK = "mining pick", HAMMER = "smithing hammer", SICKLE = "herb sickle";
+    static final Source[] SOURCES = {
+        new Source("bronze vein", "bronze ore", "Mining", 0, 58, WORKED_OUT, PICK, "mine"),
+        new Source("iron vein", "iron ore", "Mining", 15, 59, WORKED_OUT, PICK, "mine"),
+        new Source("coal seam", "coal", "Mining", 30, 60, WORKED_OUT, PICK, "mine"),
+        new Source("mithril vein", "mithril ore", "Mining", 60, 61, WORKED_OUT, PICK, "mine"),
+        new Source("mushroom patch", "mushroom", "Herbalism", 0, 65, PICKED, SICKLE, "gather"),
+        new Source("mandrake patch", "mandrake", "Herbalism", 10, 66, PICKED, SICKLE, "gather"),
+        new Source("lavender patch", "lavendar", "Herbalism", 20, 67, PICKED, SICKLE, "gather"),
+        new Source("wolfsbane patch", "wolfsbane", "Herbalism", 35, 68, PICKED, SICKLE, "gather"),
+        new Source("azeala bush", "azeala", "Herbalism", 50, 69, PICKED, SICKLE, "gather"),
+        new Source("moonpetal patch", "moonpetal", "Herbalism", 65, 70, PICKED, SICKLE, "gather"),
     };
-    static final int WORKED_OUT = 62;
-    static final String PICK = "mining pick", HAMMER = "smithing hammer";
+    // A place to make things: the recipe file's station, the word in the
+    // prop's name, the skill, the tool needed (or null), and what making
+    // there is called.
+    static final String[][] STATIONS = {
+        { "forge", "forge", "Smithing", null, "smelt" },
+        { "anvil", "anvil", "Smithing", HAMMER, "make" },
+        { "alchemy", "alchemy table", "Alchemy", null, "brew" },
+    };
     static final long TICK = 250;
-    static final int STATION_REACH = 2, VEIN_REACH = 1, MAX_MAKE = 20;
+    static final int STATION_REACH = 2, SOURCE_REACH = 1, MAX_MAKE = 20;
     static final Random random = new Random();
 
-    // ---- veins ----
+    // ---- gathering ----
 
-    static class Vein {
-        int left = -1;       // lumps left; -1 until first mined
-        long fullAgain = 0;  // when a worked-out vein fills again
+    static class Store {
+        int left = -1;       // how many left; -1 until first worked
+        long fullAgain = 0;  // when a used-up one fills again
     }
 
-    static class Dig {
+    static class Work {
         Player who;
-        Prop vein;
-        Object[] kind;
+        Prop prop;
+        Source source;
         int x, y;
-        long swingEnds;
+        long goEnds;
     }
 
-    static final Map<Integer, Vein> veins = new HashMap<Integer, Vein>();
-    static final Map<String, Dig> digging = new HashMap<String, Dig>();
+    static final Map<Integer, Store> stores = new HashMap<Integer, Store>();
+    static final Map<String, Work> working = new HashMap<String, Work>();
 
-    static Object[] veinKind(DuskObject o) {
+    static Source sourceOf(DuskObject o) {
         if (!(o instanceof Prop) || o.strName == null) return null;
         String n = Talk.bare(o.strName).toLowerCase();
-        for (Object[] v : VEINS) if (n.equals(v[0])) return v;
+        for (Source s : SOURCES) if (n.equals(s.name)) return s;
         return null;
+    }
+
+    static boolean usedUp(DuskObject o, Source s) {
+        return o.intImage == s.empty;
     }
 
     static boolean has(LivingThing who, String item) {
@@ -113,6 +151,15 @@ public class Crafting {
         who.chatMessage(line + "\n");
     }
 
+    // What a go is called, for the browser's bar: "Mining the iron vein".
+    static String doing(Source s) {
+        return s.mining() ? "Mining the " + s.name : "Gathering " + s.item;
+    }
+
+    static String usedUpWords(Source s) {
+        return s.mining() ? "is worked out" : "is picked bare";
+    }
+
     // A changed picture, sent to everyone who can see it.
     static void showImage(DuskEngine engine, DuskObject o) {
         String msg = "\u001f" + o.ID + "\n" + o.intImage + "\n";
@@ -133,34 +180,38 @@ public class Crafting {
         }
     }
 
-    static Prop nearestVein(DuskEngine engine, LivingThing who) {
+    // The nearest source within reach that this command works (mine: veins,
+    // gather: patches), a full one before a used-up one.
+    static Prop nearest(DuskEngine engine, LivingThing who, String command) {
         Prop best = null;
         int bestD = Integer.MAX_VALUE;
         for (Object o : engine.vctProps.toArray()) {
             Prop p = (Prop) o;
-            if (p == null || veinKind(p) == null) continue;
+            Source s = p == null ? null : sourceOf(p);
+            if (s == null || !s.command.equals(command)) continue;
             int d = Math.max(Math.abs(p.intLocX - who.intLocX), Math.abs(p.intLocY - who.intLocY));
-            if (d > VEIN_REACH) continue;
-            // A vein with ore in it before a worked-out one.
-            if (p.intImage == WORKED_OUT) d += 10;
+            if (d > SOURCE_REACH) continue;
+            if (usedUp(p, s)) d += 10;
             if (d < bestD) { best = p; bestD = d; }
         }
         return best;
     }
 
-    static String mine(Player who, DuskEngine engine, String arg) {
+    static String gather(Player who, DuskEngine engine, String command, String arg) {
         String key = who.strName.toLowerCase();
+        String verb = command.equals("mine") ? "mining" : "gathering";
         if (arg.equals("stop")) {
-            Dig d;
-            synchronized (digging) { d = digging.remove(key); }
-            if (d == null) return "You aren't mining.";
-            if (browser(who)) tell(who, "Mining: done");
-            return "You stop mining.";
+            Work w;
+            synchronized (working) { w = working.remove(key); }
+            if (w == null) return "You aren't " + verb + ".";
+            if (browser(who)) tell(who, "Working: done");
+            return "You stop " + (w.source.mining() ? "mining" : "gathering") + ".";
         }
-        synchronized (digging) {
-            if (digging.containsKey(key)) return "You're already mining. (Move, or type: mine stop.)";
+        synchronized (working) {
+            Work w = working.get(key);
+            if (w != null) return "You're already " + (w.source.mining() ? "mining" : "gathering") + ". (Move, or type: " + w.source.command + " stop.)";
         }
-        Prop vein = null;
+        Prop prop;
         if (Storage.isNumber(arg)) {
             DuskObject o;
             try {
@@ -168,122 +219,122 @@ public class Crafting {
             } catch (Exception e) {
                 o = null;
             }
-            if (veinKind(o) == null) return "That isn't something you can mine.";
-            vein = (Prop) o;
-            if (Math.abs(vein.intLocX - who.intLocX) > VEIN_REACH || Math.abs(vein.intLocY - who.intLocY) > VEIN_REACH) return "Stand next to the " + Talk.bare(vein.strName) + " to mine it.";
+            Source s = sourceOf(o);
+            if (s == null || !s.command.equals(command)) return command.equals("mine") ? "That isn't something you can mine." : "That isn't something you can gather from.";
+            prop = (Prop) o;
+            if (Math.abs(prop.intLocX - who.intLocX) > SOURCE_REACH || Math.abs(prop.intLocY - who.intLocY) > SOURCE_REACH) return "Stand next to the " + Talk.bare(prop.strName) + " first.";
         } else {
-            vein = nearestVein(engine, who);
-            if (vein == null) return "There's nothing to mine here. Stand next to an ore vein and type: mine";
+            prop = nearest(engine, who, command);
+            if (prop == null) return command.equals("mine") ? "There's nothing to mine here. Stand next to an ore vein and type: mine"
+                : "There's nothing to gather here. Stand next to a patch of herbs and type: gather";
         }
-        Object[] kind = veinKind(vein);
-        String name = Talk.bare(vein.strName);
+        Source s = sourceOf(prop);
         if (who.batBattle != null) return "Not while you're fighting.";
-        if (!has(who, PICK)) return "You need a mining pick to mine. Smiths and the Izaru Mine Shop sell them.";
-        int need = (Integer) kind[2];
-        if (who.getSkill("Mining") < need) return "You need Mining " + need + " to work " + a(name) + ". (You have " + who.getSkill("Mining") + ".)";
-        if (vein.intImage == WORKED_OUT) return "This " + name + " is worked out for now. It will fill again in a few minutes.";
-        Dig d = new Dig();
-        d.who = who;
-        d.vein = vein;
-        d.kind = kind;
-        d.x = who.intLocX;
-        d.y = who.intLocY;
-        long swing = swingMs(who);
-        d.swingEnds = System.currentTimeMillis() + swing;
-        synchronized (digging) { digging.put(key, d); }
-        if (browser(who)) tell(who, "Mining: " + swing + "|" + name);
-        return "You start mining the " + name + ". (Move away, or type mine stop, to stop.)";
+        if (!has(who, s.tool)) return s.mining() ? "You need a mining pick to mine. Smiths and the Izaru Mine Shop sell them."
+            : "You need a herb sickle to gather herbs. The stalls by the forges sell them.";
+        if (who.getSkill(s.skill) < s.level) return "You need " + s.skill + " " + s.level + " to work " + a(s.name) + ". (You have " + who.getSkill(s.skill) + ".)";
+        if (usedUp(prop, s)) return "This " + s.name + " " + usedUpWords(s) + " for now. It will " + (s.mining() ? "fill" : "grow") + " again in a few minutes.";
+        Work w = new Work();
+        w.who = who;
+        w.prop = prop;
+        w.source = s;
+        w.x = who.intLocX;
+        w.y = who.intLocY;
+        long ms = goMs(who, s);
+        w.goEnds = System.currentTimeMillis() + ms;
+        synchronized (working) { working.put(key, w); }
+        if (browser(who)) tell(who, "Working: " + ms + "|" + doing(s));
+        return "You start " + verb + (s.mining() ? " the " + s.name : " at the " + s.name) + ". (Move away, or type " + command + " stop, to stop.)";
     }
 
-    static long swingMs(LivingThing who) {
-        return Math.max(2500, 4500 - who.getSkill("Mining") * 20L);
+    static long goMs(LivingThing who, Source s) {
+        return Math.max(2500, 4500 - who.getSkill(s.skill) * 20L);
     }
 
-    // One swing done: maybe some ore. Returns false when the digging ends.
-    static boolean swing(DuskEngine engine, Dig d) {
-        Player who = d.who;
-        String name = Talk.bare(d.vein.strName);
+    // One go done: maybe something. Returns false when the work ends.
+    static boolean go(DuskEngine engine, Work w) {
+        Player who = w.who;
+        Source s = w.source;
         if (!who.blnWorking || !engine.vctSockets.contains(who)) return false;
-        if (who.intLocX != d.x || who.intLocY != d.y) { tell(who, "You stop mining."); return false; }
-        if (who.batBattle != null) { tell(who, "You stop mining to fight."); return false; }
-        if (!has(who, PICK)) { tell(who, "You've no mining pick any more."); return false; }
-        if (d.vein.intImage == WORKED_OUT || !engine.vctProps.contains(d.vein)) { tell(who, "The " + name + " is worked out."); return false; }
-        Vein v = vein(d.vein);
-        int level = who.getSkill("Mining"), need = (Integer) d.kind[2];
-        double chance = Math.max(0.35, Math.min(0.95, 0.5 + (level - need) / 100.0));
+        if (who.intLocX != w.x || who.intLocY != w.y) { tell(who, "You stop " + (s.mining() ? "mining" : "gathering") + "."); return false; }
+        if (who.batBattle != null) { tell(who, "You stop to fight."); return false; }
+        if (!has(who, s.tool)) { tell(who, "You've no " + s.tool + " any more."); return false; }
+        if (usedUp(w.prop, s) || !engine.vctProps.contains(w.prop)) { tell(who, "The " + s.name + " " + usedUpWords(s) + "."); return false; }
+        Store st = store(w.prop);
+        int level = who.getSkill(s.skill);
+        double chance = Math.max(0.35, Math.min(0.95, 0.5 + (level - s.level) / 100.0));
         if (random.nextDouble() < chance) {
-            String ore = (String) d.kind[1];
             Item it;
             try {
-                it = engine.getItem(CaseFix.file("defItems", ore));
+                it = engine.getItem(CaseFix.file("defItems", s.item));
             } catch (Exception e) {
                 it = null;
             }
-            if (it == null) { Log.logError(new Exception("no item " + ore), "Crafting", false); return false; }
+            if (it == null) { Log.logError(new Exception("no item " + s.item), "Crafting", false); return false; }
             if (!who.items.add(it)) { tell(who, "Your pack is full."); return false; }
             who.updateItems();
-            tell(who, "You mine some " + ore + ".");
-            gain(who, "Mining", "Mining", need);
-            v.left--;
-            if (v.left <= 0) {
-                v.fullAgain = System.currentTimeMillis() + (4 + random.nextInt(5)) * 60000L;
-                d.vein.intImage = WORKED_OUT;
-                showImage(engine, d.vein);
-                tell(who, "The " + name + " is worked out.");
+            tell(who, "You " + (s.mining() ? "mine" : "gather") + " some " + s.item + ".");
+            gain(who, s.skill, s.level);
+            st.left--;
+            if (st.left <= 0) {
+                st.fullAgain = System.currentTimeMillis() + (4 + random.nextInt(5)) * 60000L;
+                w.prop.intImage = s.empty;
+                showImage(engine, w.prop);
+                tell(who, "The " + s.name + " " + usedUpWords(s) + ".");
                 return false;
             }
         }
         return true;
     }
 
-    static Vein vein(Prop p) {
-        synchronized (veins) {
-            Vein v = veins.get(p.ID);
-            if (v == null) { v = new Vein(); veins.put(p.ID, v); }
-            if (v.left < 0) v.left = 4 + random.nextInt(4);
-            return v;
+    static Store store(Prop p) {
+        synchronized (stores) {
+            Store st = stores.get(p.ID);
+            if (st == null) { st = new Store(); stores.put(p.ID, st); }
+            if (st.left < 0) st.left = 4 + random.nextInt(4);
+            return st;
         }
     }
 
     static void tick(DuskEngine engine) {
         long now = System.currentTimeMillis();
-        List<Dig> due = new ArrayList<Dig>();
-        synchronized (digging) {
-            for (Dig d : digging.values()) if (now >= d.swingEnds) due.add(d);
+        List<Work> due = new ArrayList<Work>();
+        synchronized (working) {
+            for (Work w : working.values()) if (now >= w.goEnds) due.add(w);
         }
-        for (Dig d : due) {
+        for (Work w : due) {
             boolean more;
             try {
-                more = swing(engine, d);
+                more = go(engine, w);
             } catch (Exception e) {
-                Log.logError(e, "Crafting: mining for " + d.who.strName, false);
+                Log.logError(e, "Crafting: " + w.source.name + " for " + w.who.strName, false);
                 more = false;
             }
-            String key = d.who.strName.toLowerCase();
+            String key = w.who.strName.toLowerCase();
             if (more) {
-                long ms = swingMs(d.who);
-                d.swingEnds = now + ms;
-                if (browser(d.who)) tell(d.who, "Mining: " + ms + "|" + Talk.bare(d.vein.strName));
+                long ms = goMs(w.who, w.source);
+                w.goEnds = now + ms;
+                if (browser(w.who)) tell(w.who, "Working: " + ms + "|" + doing(w.source));
             } else {
-                synchronized (digging) { if (digging.get(key) == d) digging.remove(key); }
-                if (browser(d.who)) tell(d.who, "Mining: done");
+                synchronized (working) { if (working.get(key) == w) working.remove(key); }
+                if (browser(w.who)) tell(w.who, "Working: done");
             }
         }
-        // Worked-out veins filling again.
+        // Used-up sources filling again.
         List<Integer> full = new ArrayList<Integer>();
-        synchronized (veins) {
-            for (Map.Entry<Integer, Vein> e : veins.entrySet()) if (e.getValue().fullAgain > 0 && now >= e.getValue().fullAgain) full.add(e.getKey());
-            for (Integer id : full) veins.remove(id);
+        synchronized (stores) {
+            for (Map.Entry<Integer, Store> e : stores.entrySet()) if (e.getValue().fullAgain > 0 && now >= e.getValue().fullAgain) full.add(e.getKey());
+            for (Integer id : full) stores.remove(id);
         }
         for (Integer id : full) {
             try {
                 DuskObject o = engine.getDuskObject(id);
-                Object[] kind = veinKind(o);
-                if (kind == null) continue;
-                o.intImage = (Integer) kind[3];
+                Source s = sourceOf(o);
+                if (s == null) continue;
+                o.intImage = s.image;
                 showImage(engine, o);
             } catch (Exception e) {
-                Log.logError(e, "Crafting: refilling vein " + id, false);
+                Log.logError(e, "Crafting: refilling " + id, false);
             }
         }
     }
@@ -292,7 +343,7 @@ public class Crafting {
 
     // Now and then a point more: often at first, rarely near 100, and
     // hardly at all on work far below you.
-    static void gain(LivingThing who, String skill, String shown, int workLevel) {
+    static void gain(LivingThing who, String skill, int workLevel) {
         int level = who.getSkill(skill);
         if (level >= 100) return;
         double chance = 0.05 + 0.5 * (100 - level) / 100.0;
@@ -300,10 +351,10 @@ public class Crafting {
         if (random.nextDouble() >= chance) return;
         who.addToSkill(skill, 1);
         who.updateStats();
-        tell(who, "Your " + shown + " skill rises to " + who.getSkill(skill) + ".");
+        tell(who, "Your " + skill + " skill rises to " + who.getSkill(skill) + ".");
     }
 
-    // ---- smithing ----
+    // ---- making ----
 
     static class Recipe {
         String station, result;
@@ -363,24 +414,37 @@ public class Crafting {
         return out;
     }
 
-    // The kinds of station (forge, anvil) within reach.
-    static List<String> stations(DuskEngine engine, LivingThing who) {
+    static String[] station(String kind) {
+        for (String[] s : STATIONS) if (s[0].equals(kind)) return s;
+        return null;
+    }
+
+    // The stations this command uses: smith -> forge, anvil; brew -> alchemy.
+    static boolean usedBy(String command, String kind) {
+        return command.equals("brew") ? kind.equals("alchemy") : !kind.equals("alchemy");
+    }
+
+    // The kinds of station within reach that this command uses.
+    static List<String> stations(DuskEngine engine, LivingThing who, String command) {
         List<String> out = new ArrayList<String>();
         for (Object o : engine.vctProps.toArray()) {
             Prop p = (Prop) o;
             if (p == null || p.strName == null) continue;
             if (Math.abs(p.intLocX - who.intLocX) > STATION_REACH || Math.abs(p.intLocY - who.intLocY) > STATION_REACH) continue;
             String n = Talk.bare(p.strName).toLowerCase();
-            for (String kind : new String[] { "forge", "anvil" }) if (n.matches(".*\\b" + kind + "\\b.*") && !out.contains(kind)) out.add(kind);
+            for (String[] s : STATIONS) if (usedBy(command, s[0]) && n.matches(".*\\b" + s[1] + "\\b.*") && !out.contains(s[0])) out.add(s[0]);
         }
         return out;
     }
 
-    static String smith(Player who, DuskEngine engine, String arg) {
-        List<String> here = stations(engine, who);
-        if (here.isEmpty()) return "You need to stand by a forge (to smelt ore into bars) or an anvil (to make bars into gear).";
-        if (arg.length() == 0) return list(who, here);
-        // "smith <result> [n]"
+    static String make(Player who, DuskEngine engine, String command, String arg) {
+        List<String> here = stations(engine, who, command);
+        boolean brewing = command.equals("brew");
+        if (here.isEmpty()) return brewing ? "You need to stand by an alchemy table to brew."
+            : "You need to stand by a forge (to smelt ore into bars) or an anvil (to make bars into gear).";
+        String skill = brewing ? "Alchemy" : "Smithing";
+        if (arg.length() == 0) return list(who, here, skill, command);
+        // "<command> <result> [n]"
         int n = 1;
         String what = arg;
         int sp = arg.lastIndexOf(' ');
@@ -391,35 +455,36 @@ public class Crafting {
         Recipe r = null;
         for (Recipe x : recipes()) if (x.result.equalsIgnoreCase(what) && here.contains(x.station)) r = x;
         if (r == null) {
-            for (Recipe x : recipes()) if (x.result.equalsIgnoreCase(what)) return (x.result.endsWith("s") ? "" : "The ") + x.result + (x.result.endsWith("s") ? " are" : " is") + " made at " + (x.station.equals("anvil") ? "an anvil" : "a forge") + ".";
-            return "Nothing called " + what + " is made here. Type smith to see what is.";
+            for (Recipe x : recipes()) if (x.result.equalsIgnoreCase(what)) {
+                String[] st = station(x.station);
+                String at = st == null ? x.station : st[1];
+                return (x.result.endsWith("s") ? "" : "The ") + x.result + (x.result.endsWith("s") ? " are" : " is") + " made at " + a(at) + ".";
+            }
+            return "Nothing called " + what + " is made here. Type " + command + " to see what is.";
         }
+        String[] st = station(r.station);
+        String verb = st == null ? "make" : st[4];
         if (who.batBattle != null) return "Not while you're fighting.";
-        int level = who.getSkill("Smithing");
-        if (level < r.level) return "You need Smithing " + r.level + " to make " + a(r.result) + ". (You have " + level + ".)";
-        if (r.station.equals("anvil") && !has(who, HAMMER)) return "You need a smithing hammer to work at the anvil. Smiths sell them.";
+        int level = who.getSkill(skill);
+        if (level < r.level) return "You need " + skill + " " + r.level + " to " + verb + " " + a(r.result) + ". (You have " + level + ".)";
+        if (st != null && st[3] != null && !has(who, st[3])) return "You need " + a(st[3]) + " to work at the " + st[1] + ". Smiths sell them.";
         int can = r.canMake(who);
-        if (can == 0) return "To make " + a(r.result) + " you need " + r.needs() + ".";
+        if (can == 0) return "To " + verb + " " + a(r.result) + " you need " + r.needs() + ".";
         n = Math.min(n, can);
-        Item made;
-        try {
-            made = engine.getItem(CaseFix.file("defItems", r.result));
-        } catch (Exception e) {
-            made = null;
-        }
-        if (made == null) return "The " + r.result + " can't be made just now (a god should look at the recipes).";
         int done = 0;
         for (int k = 0; k < n; k++) {
-            for (int i = 0; i < r.items.size(); i++) for (int c = 0; c < r.counts.get(i); c++) who.items.remove(r.items.get(i), 0);
-            Item it = k == 0 ? made : null;
-            if (it == null) {
-                try {
-                    it = engine.getItem(CaseFix.file("defItems", r.result));
-                } catch (Exception e) {
-                    it = null;
-                }
+            Item it;
+            try {
+                it = engine.getItem(CaseFix.file("defItems", r.result));
+            } catch (Exception e) {
+                it = null;
             }
-            if (it == null || !who.items.add(it)) {
+            if (it == null) {
+                if (done == 0) return "The " + r.result + " can't be made just now (a god should look at the recipes).";
+                break;
+            }
+            for (int i = 0; i < r.items.size(); i++) for (int c = 0; c < r.counts.get(i); c++) who.items.remove(r.items.get(i), 0);
+            if (!who.items.add(it)) {
                 // Full: give the materials of this one back.
                 for (int i = 0; i < r.items.size(); i++) for (int c = 0; c < r.counts.get(i); c++) {
                     try {
@@ -432,7 +497,7 @@ public class Crafting {
                 break;
             }
             done++;
-            gain(who, "Smithing", "Smithing", r.level);
+            gain(who, skill, r.level);
         }
         who.updateItems();
         try {
@@ -442,40 +507,42 @@ public class Crafting {
         }
         if (done == 0) return "";
         Log.logEvent(who.strName + " made " + done + " " + r.result);
-        return "You " + (r.station.equals("forge") ? "smelt " : "make ") + many(done, r.result) + ".";
+        return "You " + verb + " " + many(done, r.result) + ".";
     }
 
-    static String list(Player who, List<String> here) {
-        int level = who.getSkill("Smithing");
+    static String list(Player who, List<String> here, String skill, String command) {
+        int level = who.getSkill(skill);
         boolean b = browser(who);
         // (One line at a time: the old protocol takes no line breaks.)
-        if (!b) tell(who, "Here you can make (your Smithing is " + level + "):");
+        if (!b) tell(who, "Here you can make (your " + skill + " is " + level + "):");
         for (Recipe r : recipes()) {
             if (!here.contains(r.station)) continue;
             int can = r.canMake(who);
             if (b) tell(who, "Recipe: " + r.station + "|" + r.level + "|" + r.result + "|" + r.needs() + "|" + can);
-            else tell(who, "  " + r.result + " (Smithing " + r.level + "): " + r.needs() + (level < r.level ? "" : can > 0 ? " - you can make " + can : ""));
+            else tell(who, "  " + r.result + " (" + skill + " " + r.level + "): " + r.needs() + (level < r.level ? "" : can > 0 ? " - you can make " + can : ""));
         }
         if (b) {
             StringBuilder s = new StringBuilder();
             for (String h : here) s.append(s.length() > 0 ? "," : "").append(h);
             return "Recipes: " + s + "|" + level;
         }
-        return "Type: smith <name> [how many]";
+        return "Type: " + command + " <name> [how many]";
     }
 
     // ---- commands ----
 
+    static boolean is(String lower, String command) {
+        return lower.equals(command) || lower.startsWith(command + " ");
+    }
+
     public static String command(LivingThing who, DuskEngine engine, String line) {
         String t = line.trim();
         String lower = t.toLowerCase();
-        boolean isMine = lower.equals("mine") || lower.startsWith("mine ");
-        boolean isSmith = lower.equals("smith") || lower.startsWith("smith ");
-        if (!isMine && !isSmith) return null;
-        if (!(who instanceof Player)) return null;
+        String cmd = is(lower, "mine") ? "mine" : is(lower, "gather") ? "gather" : is(lower, "smith") ? "smith" : is(lower, "brew") ? "brew" : null;
+        if (cmd == null || !(who instanceof Player)) return null;
         try {
-            if (isMine) return mine((Player) who, engine, lower.substring(4).trim());
-            return smith((Player) who, engine, t.substring(5).trim());
+            if (cmd.equals("mine") || cmd.equals("gather")) return gather((Player) who, engine, cmd, lower.substring(cmd.length()).trim());
+            return make((Player) who, engine, cmd, t.substring(cmd.length()).trim());
         } catch (Exception e) {
             Log.logError(e, "Crafting \"" + t + "\" by " + who.strName, false);
             return "Something went wrong.";
