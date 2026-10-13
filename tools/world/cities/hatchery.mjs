@@ -64,13 +64,13 @@ const LARDER = {
   shouts: ['Water and mushrooms!'],
   stages: [
     ifFlag('lizTut6', 'You have what you need. The Warm Stone is through the willows to the east.'),
+    // Both the water and the mushroom checked in one answer (a follow-up
+    // question lost anyone who typed something else).
+    { ...ifFlag('lizTut5', 'Nobody leaves the pools hungry. Buy a water and a mushroom from me: stand in front of my counter, open the Shop tab and press Buy. Then talk to me again.', [
+      { label: 'I have them', reply: 'Good. Eat and drink from your Backpack when you need to. Now through the willows to the east, and step on the Warm Stone.', needs: { kind: 'item', value: 'water' }, effects: [unflag('lizTut5'), jflag('lizTut6', 'Supplies in hand. The Warm Stone, through the willows to the east, leads to Ssarakh.')] },
+    ]), also: { kind: 'item', value: 'mushroom' } },
     ifFlag('lizTut5', 'Nobody leaves the pools hungry. Buy a water and a mushroom from me: stand in front of my counter, open the Shop tab and press Buy. Then talk to me again.', [
-      {
-        label: 'I have them', reply: 'Let me see...', needs: { kind: 'item', value: 'water' }, effects: [],
-        next: says('And the mushroom?', [
-          { label: 'Right here', reply: 'Good. Eat and drink from your Backpack when you need to. Now through the willows to the east, and step on the Warm Stone.', needs: { kind: 'item', value: 'mushroom' }, effects: [unflag('lizTut5'), jflag('lizTut6', 'Supplies in hand. The Warm Stone, through the willows to the east, leads to Ssarakh.')] },
-        ]),
-      },
+      { label: 'I have them', reply: '', needs: { kind: 'item', value: 'mushroom' }, effects: [] },
     ]),
     always('Water and mushrooms, for the road.'),
   ],

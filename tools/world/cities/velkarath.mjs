@@ -206,13 +206,13 @@ const PROVISIONER = {
   shouts: ['Water and mushrooms!'],
   stages: [
     ifFlag('drowTut6', 'You have what you need. The Spider Stone is through the east door.'),
+    // Both the water and the mushroom checked in one answer (a follow-up
+    // question lost anyone who typed something else).
+    { ...ifFlag('drowTut5', 'No one survives the city hungry. Buy a water and a mushroom from me: stand in front of my counter, open the Shop tab and press Buy. Then talk to me again.', [
+      { label: 'I have them', reply: 'Good. Eat and drink from your Backpack when you need to. Now through the east door, and step on the Spider Stone.', needs: { kind: 'item', value: 'water' }, effects: [unflag('drowTut5'), jflag('drowTut6', 'Supplies in hand. The Spider Stone, through the east door, leads to the city.')] },
+    ]), also: { kind: 'item', value: 'mushroom' } },
     ifFlag('drowTut5', 'No one survives the city hungry. Buy a water and a mushroom from me: stand in front of my counter, open the Shop tab and press Buy. Then talk to me again.', [
-      {
-        label: 'I have them', reply: 'Show me...', needs: { kind: 'item', value: 'water' }, effects: [],
-        next: says('And the mushroom?', [
-          { label: 'Right here', reply: 'Good. Eat and drink from your Backpack when you need to. Now through the east door, and step on the Spider Stone.', needs: { kind: 'item', value: 'mushroom' }, effects: [unflag('drowTut5'), jflag('drowTut6', 'Supplies in hand. The Spider Stone, through the east door, leads to the city.')] },
-        ]),
-      },
+      { label: 'I have them', reply: '', needs: { kind: 'item', value: 'mushroom' }, effects: [] },
     ]),
     always('Water and mushrooms, for those who can pay.'),
   ],
