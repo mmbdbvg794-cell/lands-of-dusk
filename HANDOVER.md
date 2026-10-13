@@ -1092,7 +1092,7 @@ commands that touch live.
   tutorial: taken out like Velkarath's (live after the next restart).
 - mushroom is food now (fix_mushroom.py).
 
-## 2026-10-13: the God tab's Crafting window (NOT live: build+install+restart, deploy)
+## 2026-10-13: the God tab's Crafting window (LIVE: installed + restarted 03:26, deployed)
 
 - server/Crafting.java god commands (privs 3): craft status
   ("CraftStatus: <kind>|<placed>|<used up>", "working|n", "done"), craft
