@@ -1105,6 +1105,14 @@ commands that touch live.
   and a recipe editor (station, level, result with item suggestions,
   ingredients). Removing: the click menu's Remove (god) as for any prop.
 
+## 2026-10-13: loose ends (LIVE)
+
+- tools/server/fix_loose_ends.py (applied 03:42): "Water Gem" (Serpetion's
+  drop, a 1500 gp gem) and "wonder elixer" (Cyrii's, 800 HP/MP, its use
+  script) made; junk defItems files (40-48, 83, name, specter, warning,
+  bulk_create_items.sh, dc.log; none sold, dropped or carried) moved to
+  backups/defItems-junk-20261013-034202.
+
 ## Open / ideas
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
