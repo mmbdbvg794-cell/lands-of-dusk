@@ -24,8 +24,9 @@ export class GodPanel {
   // looks; onNpcPlaced(name) opens the dialogue editor for a new NPC.
   // onTileEdit(x, y) opens the tile editor for your square.
   // onUseCommand(text) puts a command in the chat box to finish typing.
-  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit, onUseCommand, onJournal, onLibrary, onQuests, onAdmin }) {
+  constructor(tab, { send, note, tileSheet, itemArt, onFloat, people, onNpcPlaced, onTileEdit, onUseCommand, onJournal, onLibrary, onQuests, onAdmin, onCrafting }) {
     this.onJournal = onJournal;
+    this.onCrafting = onCrafting;
     this.onQuests = onQuests;
     this.onAdmin = onAdmin;
     this.onLibrary = onLibrary;
@@ -173,7 +174,10 @@ export class GodPanel {
         $.libItem = h('button', { type: 'button', textContent: 'Items…', title: 'Change an item or make a new one' })),
       h('div', { className: 'god-row' },
         $.quests = h('button', { type: 'button', textContent: 'Quests…', title: 'Make a quest (who gives it, its steps, the reward) and see who is on it' }),
-        $.journal = h('button', { type: 'button', textContent: 'Quest journal…', title: 'What players see in their Journal for each quest flag' })));
+        $.journal = h('button', { type: 'button', textContent: 'Quest journal…', title: 'What players see in their Journal for each quest flag' })),
+      h('div', { className: 'god-row' },
+        $.crafting = h('button', { type: 'button', textContent: 'Crafting…', title: 'Place veins, herb patches, forges and alchemy tables; refill them; edit the recipes' })));
+    $.crafting.addEventListener('click', () => this.onCrafting?.());
     $.quests.addEventListener('click', () => this.onQuests?.());
     $.journal.addEventListener('click', () => this.onJournal?.());
     $.libMob.addEventListener('click', () => this.onLibrary?.('mob'));
@@ -345,6 +349,12 @@ export class GodPanel {
   }
 
   // Runs a command, counting what "Save map" would keep.
+  // A prop placed where the god stands from elsewhere (the Crafting
+  // window), counted as unsaved like any other.
+  placeProp(name) {
+    this.run(place.prop(name), 'prop');
+  }
+
   run(cmd, kind) {
     this.send(cmd);
     if (SAVED_KINDS.has(kind)) {

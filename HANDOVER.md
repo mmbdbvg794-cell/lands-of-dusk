@@ -1092,6 +1092,19 @@ commands that touch live.
   tutorial: taken out like Velkarath's (live after the next restart).
 - mushroom is food now (fix_mushroom.py).
 
+## 2026-10-13: the God tab's Crafting window (NOT live: build+install+restart, deploy)
+
+- server/Crafting.java god commands (privs 3): craft status
+  ("CraftStatus: <kind>|<placed>|<used up>", "working|n", "done"), craft
+  refill, craft recipes ("CraftRecipes: <b64>"), craft recipes set <b64>
+  (every line checked: station, level 0-100, result and ingredient items
+  exist; old file to backups/recipes-<time>).
+- js/craftadmin.js (+ test): God tab -> Crafting…: place any vein, patch,
+  forge, anvil or alchemy table where the god stands (GodPanel.placeProp,
+  so it counts as unsaved; Save map keeps it), the counts with Refill all,
+  and a recipe editor (station, level, result with item suggestions,
+  ingredients). Removing: the click menu's Remove (god) as for any prop.
+
 ## Open / ideas
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.

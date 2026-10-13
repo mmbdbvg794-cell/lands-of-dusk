@@ -32,6 +32,15 @@
  *   smith | brew                   what you can make here
  *   smith <result> [n] | brew <result> [n]   make it (n at once, up to 20)
  *
+ * Gods (the God tab's Crafting window, js/craftadmin.js):
+ *   craft status             "CraftStatus: <source>|<placed>|<used up>" for
+ *                            each kind, "CraftStatus: working|<n>", then
+ *                            "CraftStatus: done"
+ *   craft refill             every used-up source full again, now
+ *   craft recipes            "CraftRecipes: <base64 of the recipes file>"
+ *   craft recipes set <b64>  checks every line (station, level, items that
+ *                            exist), keeps the old file in backups/, saves
+ *
  * Every reply is plain one-line words, so the old Java client can play too
  * (its protocol takes no line breaks: each extra line would be read as a
  * new message). The browser client also gets lines it reads and hides
@@ -529,6 +538,96 @@ public class Crafting {
         return "Type: " + command + " <name> [how many]";
     }
 
+    // ---- gods ----
+
+    static final int GOD_PRIVS = 3;
+
+    static String god(LivingThing who, DuskEngine engine, String arg) throws Exception {
+        if (who.privs < GOD_PRIVS) return "Only gods can do that.";
+        String lower = arg.toLowerCase();
+        if (lower.equals("status")) {
+            Map<String, int[]> counts = new java.util.LinkedHashMap<String, int[]>();
+            for (Source src : SOURCES) counts.put(src.name, new int[2]);
+            for (Object o : engine.vctProps.toArray()) {
+                Prop p = (Prop) o;
+                Source src = p == null ? null : sourceOf(p);
+                if (src == null) continue;
+                int[] c = counts.get(src.name);
+                c[0]++;
+                if (usedUp(p, src)) c[1]++;
+            }
+            for (Map.Entry<String, int[]> e : counts.entrySet()) tell(who, "CraftStatus: " + e.getKey() + "|" + e.getValue()[0] + "|" + e.getValue()[1]);
+            int n;
+            synchronized (working) { n = working.size(); }
+            tell(who, "CraftStatus: working|" + n);
+            return "CraftStatus: done";
+        }
+        if (lower.equals("refill")) {
+            int n = 0;
+            for (Object o : engine.vctProps.toArray()) {
+                Prop p = (Prop) o;
+                Source src = p == null ? null : sourceOf(p);
+                if (src == null || !usedUp(p, src)) continue;
+                p.intImage = src.image;
+                showImage(engine, p);
+                n++;
+            }
+            synchronized (stores) { stores.clear(); }
+            Log.logEvent(who.strName + " refilled " + n + " veins and patches");
+            return "Refilled " + n + (n == 1 ? " vein or patch." : " veins and patches.");
+        }
+        if (lower.equals("recipes")) {
+            File f = new File("recipes");
+            byte[] data = f.exists() ? Files.readAllBytes(f.toPath()) : new byte[0];
+            return "CraftRecipes: " + java.util.Base64.getEncoder().encodeToString(data);
+        }
+        if (lower.startsWith("recipes set ")) {
+            String text = new String(java.util.Base64.getDecoder().decode(arg.substring(12).trim()), "UTF-8");
+            List<String> bad = new ArrayList<String>();
+            int good = 0, n = 0;
+            for (String line : text.split("\n")) {
+                n++;
+                String t = line.trim();
+                if (t.isEmpty() || t.startsWith("#")) continue;
+                String[] p = t.split("\\|");
+                String why = null;
+                if (p.length != 4) why = "needs station|level|result|ingredients";
+                else if (station(p[0].trim().toLowerCase()) == null) why = "no station called " + p[0].trim();
+                else if (!p[1].trim().matches("\\d{1,3}") || Integer.parseInt(p[1].trim()) > 100) why = "the level should be 0-100";
+                else if (!itemExists(p[2].trim())) why = "no item called " + p[2].trim();
+                else {
+                    for (String part : p[3].split(",")) {
+                        String s2 = part.trim();
+                        int sp = s2.indexOf(' ');
+                        String item = sp > 0 && Storage.isNumber(s2.substring(0, sp)) ? s2.substring(sp + 1).trim() : s2;
+                        if (item.isEmpty() || !itemExists(item)) { why = "no item called " + item; break; }
+                    }
+                }
+                if (why != null) bad.add("line " + n + ": " + why);
+                else good++;
+            }
+            if (!bad.isEmpty()) return "Recipes not saved: " + String.join("; ", bad.subList(0, Math.min(5, bad.size()))) + (bad.size() > 5 ? " (and " + (bad.size() - 5) + " more)" : "");
+            File f = new File("recipes");
+            if (f.exists()) {
+                File keep = new File("backups", "recipes-" + new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date()));
+                keep.getParentFile().mkdirs();
+                Files.copy(f.toPath(), keep.toPath());
+            }
+            Talk.write(f, (text.endsWith("\n") ? text : text + "\n").getBytes("UTF-8"));
+            Log.logEvent(who.strName + " saved the recipes (" + good + ")");
+            return "Recipes saved: " + good + (good == 1 ? " recipe." : " recipes.");
+        }
+        return "Usage: craft status | craft refill | craft recipes";
+    }
+
+    static boolean itemExists(String name) {
+        try {
+            return new File("defItems", CaseFix.file("defItems", name)).isFile();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     // ---- commands ----
 
     static boolean is(String lower, String command) {
@@ -538,9 +637,10 @@ public class Crafting {
     public static String command(LivingThing who, DuskEngine engine, String line) {
         String t = line.trim();
         String lower = t.toLowerCase();
-        String cmd = is(lower, "mine") ? "mine" : is(lower, "gather") ? "gather" : is(lower, "smith") ? "smith" : is(lower, "brew") ? "brew" : null;
+        String cmd = is(lower, "mine") ? "mine" : is(lower, "gather") ? "gather" : is(lower, "smith") ? "smith" : is(lower, "brew") ? "brew" : is(lower, "craft") ? "craft" : null;
         if (cmd == null || !(who instanceof Player)) return null;
         try {
+            if (cmd.equals("craft")) return god(who, engine, t.substring(5).trim());
             if (cmd.equals("mine") || cmd.equals("gather")) return gather((Player) who, engine, cmd, lower.substring(cmd.length()).trim());
             return make((Player) who, engine, cmd, t.substring(cmd.length()).trim());
         } catch (Exception e) {

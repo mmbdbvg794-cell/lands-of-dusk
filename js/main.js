@@ -27,6 +27,7 @@ import { PartyView, parseParty, partyChatCommand } from './party.js';
 import { AchievementsView, parseAchv } from './achievements.js';
 import { SEX_ASK, parseSex, sexCommand, maleImage, femaleImage } from './sex.js';
 import { parseWorking, parseRecipe, SmithView } from './crafting.js';
+import { CraftAdmin, parseCraftAdmin } from './craftadmin.js';
 import { LOOKS, paintFigureStrip, OUT as FIGURE_OUT } from './figure.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
@@ -189,6 +190,7 @@ const god = new GodPanel($('tab-god'), {
   onLibrary: (kind) => libraryEditor.show(kind),
   onQuests: () => questEditor.show(),
   onAdmin: () => adminView.show(),
+  onCrafting: () => { god.opened(); craftAdmin.open(); },
 });
 // Monsters, props and items (gods): from the God tab or a click menu.
 const libraryEditor = new LibraryEditor($('library-editor'), {
@@ -1696,6 +1698,9 @@ function handle(msg) {
       const working = parseWorking(msg.text);
       if (working) { showWorking(working); break; }
       if (smithView.reply(parseRecipe(msg.text))) break;
+      if (isGod && craftAdmin.reply(parseCraftAdmin(msg.text))) break;
+      // Its saves and refills answer in words: shown there too.
+      if (isGod && craftAdmin.el.open && /^(Refilled \d|Recipes (not )?saved)/.test(msg.text.trim())) craftAdmin.note(msg.text.trim());
       // Not chosen yet: the male/female picker (js/sex.js).
       const sexReply = parseSex(msg.text);
       if (sexReply) { if (sexReply === 'unset') showSexPicker(); else if (sexDialog.open) sexDialog.close(); break; }
@@ -1824,6 +1829,12 @@ async function loadGraphics(address) {
 // ---- gathering and making (js/crafting.js, server/Crafting.java) ----------
 
 const smithView = new SmithView($('smith-dialog'), (cmd) => conn?.send(cmd));
+// Gods: the God tab's Crafting window.
+const craftAdmin = new CraftAdmin($('craft-admin'), {
+  send: (cmd) => conn?.send(cmd),
+  placeProp: (name) => god.placeProp(name),
+  items: () => god.lists.items ?? [],
+});
 function showWorking(m) {
   const bar = $('mining-bar');
   if (m.done) { bar.hidden = true; return; }

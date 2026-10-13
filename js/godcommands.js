@@ -24,6 +24,8 @@ export const GOD_COMMANDS = [
   { group: 'Players', use: 'ban <player>', desc: 'Ban an account, and if they\'re online their address and device too (unban <player> lifts all three).', level: 3 },
   { group: 'Players', use: 'banip <address or player>', desc: 'Ban an address, or the one an online player is on (unbanip <address> to undo).', level: 3 },
   { group: 'Players', use: 'bandevice <player>', desc: 'Ban the browser an online player is using (unbandevice <id> to undo).', level: 3 },
+  { group: 'World', use: 'craft status', desc: 'How many ore veins and herb patches there are, how many are used up, and who is mining or gathering (the Crafting window shows it too).', level: 3 },
+  { group: 'World', use: 'craft refill', desc: 'Fill every used-up vein and herb patch again, now.', level: 3 },
   { group: 'Players', use: 'setsex <player> male|female', desc: "Change an online player's sex (their look, and how people speak to them).", level: 3 },
   { group: 'Players', use: 'bans', desc: 'Every banned account, address and device.', level: 3 },
   { group: 'Players', use: 'changerace <player> <race>', desc: 'Turn a player into another race.', level: 3 },

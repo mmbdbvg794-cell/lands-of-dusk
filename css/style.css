@@ -1596,3 +1596,18 @@ dialog::backdrop { background: #000a; }
 .smith-name small, .smith-acts small { color: var(--muted); font-size: 12px; }
 .smith-acts { display: flex; gap: 6px; }
 .smith-acts button { padding: 3px 10px; }
+
+/* The God tab's Crafting window (craftadmin.js). */
+.craft-admin { width: min(680px, calc(100vw - 32px)); }
+.ca-body { padding: 0 14px 14px; }
+.ca-sec h3 { margin: 14px 0 4px; font-size: 14px; }
+.ca-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-top: 1px solid rgba(128, 128, 128, 0.2); }
+.ca-name { display: flex; flex-direction: column; flex: 1; }
+.ca-name small, .ca-row small { color: var(--muted); font-size: 12px; flex: 1; }
+.ca-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.ca-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ca-table th, .ca-table td { text-align: left; padding: 3px 6px; border-bottom: 1px solid rgba(128, 128, 128, 0.2); }
+.ca-recipe { display: flex; gap: 6px; align-items: center; padding: 3px 0; }
+.ca-recipe input[type=text] { flex: 1; min-width: 0; }
+.ca-recipe .ca-needs { flex: 1.6; }
+.ca-note { margin: 10px 0 0; padding: 6px 10px; border-radius: 6px; background: rgba(216, 160, 64, 0.15); font-size: 13px; }
