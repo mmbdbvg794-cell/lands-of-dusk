@@ -1061,7 +1061,12 @@ commands that touch live.
   with both lists --apply, restart at once, deploy (Painted art), copy
   javaclient/javahelp.txt to DuskRPG/rc/.
 
-## 2026-10-13: the tutorials for the classic Java client (NOT live: needs build+install+restart)
+## 2026-10-13: the tutorials for the classic Java client (LIVE: installed 02:34, restart 03:13)
+
+- WARNING learned: installing classes and not restarting broke every login
+  (lazy class loading mixed old Talk with new Sex: NoSuchMethodError).
+  Install only when restarting at once. Restart from outside the game:
+  ssh root@192.168.7.28 pct exec 303 -- systemctl restart duskserver
 
 - All four race tutorials played start to finish on scratch by typing only
   (server/testclient.py: RACE=..., "wait N", use/wear/a <name> turned into
