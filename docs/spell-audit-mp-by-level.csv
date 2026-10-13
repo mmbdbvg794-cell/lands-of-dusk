@@ -1,0 +1,146 @@
+class,level (see notes),max MP,"MP regen per 18 s tick, awake (1+WIS/2)",asleep (3+WIS),"ticks to refill, awake",group,group skill,tier,spell,MP cost,casts from a full bar,% of pool,flag
+Fighter,1,10,4,10,3,telepathy group,1,open,telepath,54,0,540,CAN'T CAST
+Fighter,1,10,4,10,3,alchemy group,1,open,warp,54,0,540,CAN'T CAST
+Fighter,1,10,4,10,3,m group,1,open,reflect,54,0,540,CAN'T CAST
+Fighter,5,42,4,10,11,telepathy group,5,open,telepath,52,0,124,CAN'T CAST
+Fighter,5,42,4,10,11,alchemy group,5,open,warp,52,0,124,CAN'T CAST
+Fighter,5,42,4,10,11,m group,5,open,reflect,52,0,124,CAN'T CAST
+Fighter,10,82,4,10,21,telepathy group,10,open,telepath,50,1,61,>20% of pool
+Fighter,10,82,4,10,21,alchemy group,10,open,warp,50,1,61,>20% of pool
+Fighter,10,82,4,10,21,m group,10,open,reflect,50,1,61,>20% of pool
+Fighter,20,162,4,10,41,telepathy group,20,open,telepath,45,3,28,>20% of pool
+Fighter,20,162,4,10,41,alchemy group,20,open,warp,45,3,28,>20% of pool
+Fighter,20,162,4,10,41,m group,20,open,reflect,45,3,28,>20% of pool
+Fighter,30,242,4,10,61,telepathy group,30,open,telepath,40,6,17,
+Fighter,30,242,4,10,61,alchemy group,30,open,warp,40,6,17,
+Fighter,30,242,4,10,61,m group,30,open,reflect,40,6,17,
+Mage,1,30,5,11,6,black magic group,1,core,bone shards,54,0,180,CAN'T CAST
+Mage,1,30,5,11,6,enchantment group,1,core,detect invis,54,0,180,CAN'T CAST
+Mage,1,30,5,11,6,telepathy group,1,open,telepath,54,0,180,CAN'T CAST
+Mage,1,30,5,11,6,alchemy group,1,open,warp,54,0,180,CAN'T CAST
+Mage,1,30,5,11,6,summons group,1,core,summon snakes,54,0,180,CAN'T CAST
+Mage,1,30,5,11,6,hells fire,1,core,hell fire,54,0,180,CAN'T CAST
+Mage,1,30,5,11,6,m group,1,open,reflect,54,0,180,CAN'T CAST
+Mage,5,78,5,11,16,black magic group,5,core,bone shards,52,1,67,>20% of pool
+Mage,5,78,5,11,16,enchantment group,5,core,detect invis,52,1,67,>20% of pool
+Mage,5,78,5,11,16,telepathy group,5,open,telepath,52,1,67,>20% of pool
+Mage,5,78,5,11,16,alchemy group,5,open,warp,52,1,67,>20% of pool
+Mage,5,78,5,11,16,summons group,5,core,summon snakes,52,1,67,>20% of pool
+Mage,5,78,5,11,16,hells fire,5,core,hell fire,52,1,67,>20% of pool
+Mage,5,78,5,11,16,m group,5,open,reflect,52,1,67,>20% of pool
+Mage,10,138,5,11,28,black magic group,10,core,bone shards,50,2,36,>20% of pool
+Mage,10,138,5,11,28,enchantment group,10,core,detect invis,50,2,36,>20% of pool
+Mage,10,138,5,11,28,telepathy group,10,open,telepath,50,2,36,>20% of pool
+Mage,10,138,5,11,28,alchemy group,10,open,warp,50,2,36,>20% of pool
+Mage,10,138,5,11,28,summons group,10,core,summon snakes,50,2,36,>20% of pool
+Mage,10,138,5,11,28,hells fire,10,core,hell fire,50,2,36,>20% of pool
+Mage,10,138,5,11,28,m group,10,open,reflect,50,2,36,>20% of pool
+Mage,20,258,5,11,52,black magic group,20,core,bone shards,45,5,17,
+Mage,20,258,5,11,52,enchantment group,20,core,detect invis,45,5,17,
+Mage,20,258,5,11,52,telepathy group,20,open,telepath,45,5,17,
+Mage,20,258,5,11,52,alchemy group,20,open,warp,45,5,17,
+Mage,20,258,5,11,52,summons group,20,core,summon snakes,45,5,17,
+Mage,20,258,5,11,52,hells fire,20,core,hell fire,45,5,17,
+Mage,20,258,5,11,52,m group,20,open,reflect,45,5,17,
+Mage,30,378,5,11,76,black magic group,30,core,bone shards,40,9,11,
+Mage,30,378,5,11,76,enchantment group,30,core,detect invis,40,9,11,
+Mage,30,378,5,11,76,telepathy group,30,open,telepath,40,9,11,
+Mage,30,378,5,11,76,alchemy group,30,open,warp,40,9,11,
+Mage,30,378,5,11,76,summons group,30,core,summon snakes,40,9,11,
+Mage,30,378,5,11,76,summons group,30,core,summon bahamut,52,7,14,
+Mage,30,378,5,11,76,hells fire,30,core,hell fire,40,9,11,
+Mage,30,378,5,11,76,m group,30,open,reflect,40,9,11,
+Cleric,1,25,6,13,5,clerical group,1,core,mend,54,0,216,CAN'T CAST
+Cleric,1,25,6,13,5,white magic group,1,core,focus,54,0,216,CAN'T CAST
+Cleric,1,25,6,13,5,telepathy group,1,open,telepath,54,0,216,CAN'T CAST
+Cleric,1,25,6,13,5,alchemy group,1,open,warp,54,0,216,CAN'T CAST
+Cleric,1,25,6,13,5,m group,1,open,reflect,54,0,216,CAN'T CAST
+Cleric,5,69,6,13,12,clerical group,5,core,mend,52,1,75,>20% of pool
+Cleric,5,69,6,13,12,white magic group,5,core,focus,52,1,75,>20% of pool
+Cleric,5,69,6,13,12,telepathy group,5,open,telepath,52,1,75,>20% of pool
+Cleric,5,69,6,13,12,alchemy group,5,open,warp,52,1,75,>20% of pool
+Cleric,5,69,6,13,12,m group,5,open,reflect,52,1,75,>20% of pool
+Cleric,10,124,6,13,21,clerical group,10,core,mend,50,2,40,>20% of pool
+Cleric,10,124,6,13,21,white magic group,10,core,focus,50,2,40,>20% of pool
+Cleric,10,124,6,13,21,telepathy group,10,open,telepath,50,2,40,>20% of pool
+Cleric,10,124,6,13,21,alchemy group,10,open,warp,50,2,40,>20% of pool
+Cleric,10,124,6,13,21,m group,10,open,reflect,50,2,40,>20% of pool
+Cleric,20,234,6,13,39,clerical group,20,core,mend,45,5,19,
+Cleric,20,234,6,13,39,white magic group,20,core,focus,45,5,19,
+Cleric,20,234,6,13,39,white magic group,20,core,angel strike,55,4,24,>20% of pool
+Cleric,20,234,6,13,39,telepathy group,20,open,telepath,45,5,19,
+Cleric,20,234,6,13,39,alchemy group,20,open,warp,45,5,19,
+Cleric,20,234,6,13,39,m group,20,open,reflect,45,5,19,
+Cleric,30,344,6,13,58,clerical group,30,core,mend,40,8,12,
+Cleric,30,344,6,13,58,white magic group,30,core,focus,40,8,12,
+Cleric,30,344,6,13,58,white magic group,30,core,angel strike,50,6,15,
+Cleric,30,344,6,13,58,telepathy group,30,open,telepath,40,8,12,
+Cleric,30,344,6,13,58,alchemy group,30,open,warp,40,8,12,
+Cleric,30,344,6,13,58,m group,30,open,reflect,40,8,12,
+Priest/Priestess,1,25,6,13,5,clerical group,1,core,mend,54,0,216,CAN'T CAST
+Priest/Priestess,1,25,6,13,5,white magic group,1,core,focus,54,0,216,CAN'T CAST
+Priest/Priestess,1,25,6,13,5,telepathy group,1,open,telepath,54,0,216,CAN'T CAST
+Priest/Priestess,1,25,6,13,5,alchemy group,1,open,warp,54,0,216,CAN'T CAST
+Priest/Priestess,1,25,6,13,5,m group,1,open,reflect,54,0,216,CAN'T CAST
+Priest/Priestess,5,69,6,13,12,clerical group,5,core,mend,52,1,75,>20% of pool
+Priest/Priestess,5,69,6,13,12,white magic group,5,core,focus,52,1,75,>20% of pool
+Priest/Priestess,5,69,6,13,12,telepathy group,5,open,telepath,52,1,75,>20% of pool
+Priest/Priestess,5,69,6,13,12,alchemy group,5,open,warp,52,1,75,>20% of pool
+Priest/Priestess,5,69,6,13,12,m group,5,open,reflect,52,1,75,>20% of pool
+Priest/Priestess,10,124,6,13,21,clerical group,10,core,mend,50,2,40,>20% of pool
+Priest/Priestess,10,124,6,13,21,white magic group,10,core,focus,50,2,40,>20% of pool
+Priest/Priestess,10,124,6,13,21,telepathy group,10,open,telepath,50,2,40,>20% of pool
+Priest/Priestess,10,124,6,13,21,alchemy group,10,open,warp,50,2,40,>20% of pool
+Priest/Priestess,10,124,6,13,21,m group,10,open,reflect,50,2,40,>20% of pool
+Priest/Priestess,20,234,6,13,39,clerical group,20,core,mend,45,5,19,
+Priest/Priestess,20,234,6,13,39,white magic group,20,core,focus,45,5,19,
+Priest/Priestess,20,234,6,13,39,white magic group,20,core,angel strike,55,4,24,>20% of pool
+Priest/Priestess,20,234,6,13,39,telepathy group,20,open,telepath,45,5,19,
+Priest/Priestess,20,234,6,13,39,alchemy group,20,open,warp,45,5,19,
+Priest/Priestess,20,234,6,13,39,m group,20,open,reflect,45,5,19,
+Priest/Priestess,30,344,6,13,58,clerical group,30,core,mend,40,8,12,
+Priest/Priestess,30,344,6,13,58,white magic group,30,core,focus,40,8,12,
+Priest/Priestess,30,344,6,13,58,white magic group,30,core,angel strike,50,6,15,
+Priest/Priestess,30,344,6,13,58,telepathy group,30,open,telepath,40,8,12,
+Priest/Priestess,30,344,6,13,58,alchemy group,30,open,warp,40,8,12,
+Priest/Priestess,30,344,6,13,58,m group,30,open,reflect,40,8,12,
+Ranger,1,15,4,10,4,druidic group,1,core,quarter staff,54,0,360,CAN'T CAST
+Ranger,1,15,4,10,4,telepathy group,1,open,telepath,54,0,360,CAN'T CAST
+Ranger,1,15,4,10,4,alchemy group,1,open,warp,54,0,360,CAN'T CAST
+Ranger,1,15,4,10,4,m group,1,open,reflect,54,0,360,CAN'T CAST
+Ranger,5,51,4,10,13,druidic group,5,core,quarter staff,52,0,102,CAN'T CAST
+Ranger,5,51,4,10,13,telepathy group,5,open,telepath,52,0,102,CAN'T CAST
+Ranger,5,51,4,10,13,alchemy group,5,open,warp,52,0,102,CAN'T CAST
+Ranger,5,51,4,10,13,m group,5,open,reflect,52,0,102,CAN'T CAST
+Ranger,10,96,4,10,24,druidic group,10,core,quarter staff,50,1,52,>20% of pool
+Ranger,10,96,4,10,24,telepathy group,10,open,telepath,50,1,52,>20% of pool
+Ranger,10,96,4,10,24,alchemy group,10,open,warp,50,1,52,>20% of pool
+Ranger,10,96,4,10,24,m group,10,open,reflect,50,1,52,>20% of pool
+Ranger,20,186,4,10,47,druidic group,20,core,quarter staff,45,4,24,>20% of pool
+Ranger,20,186,4,10,47,telepathy group,20,open,telepath,45,4,24,>20% of pool
+Ranger,20,186,4,10,47,alchemy group,20,open,warp,45,4,24,>20% of pool
+Ranger,20,186,4,10,47,m group,20,open,reflect,45,4,24,>20% of pool
+Ranger,30,276,4,10,69,druidic group,30,core,quarter staff,40,6,14,
+Ranger,30,276,4,10,69,telepathy group,30,open,telepath,40,6,14,
+Ranger,30,276,4,10,69,alchemy group,30,open,warp,40,6,14,
+Ranger,30,276,4,10,69,m group,30,open,reflect,40,6,14,
+Paladin,1,18,5,12,4,clerical group,1,core,mend,54,0,300,CAN'T CAST
+Paladin,1,18,5,12,4,telepathy group,1,open,telepath,54,0,300,CAN'T CAST
+Paladin,1,18,5,12,4,alchemy group,1,open,warp,54,0,300,CAN'T CAST
+Paladin,1,18,5,12,4,m group,1,open,reflect,54,0,300,CAN'T CAST
+Paladin,5,58,5,12,12,clerical group,5,core,mend,52,1,90,>20% of pool
+Paladin,5,58,5,12,12,telepathy group,5,open,telepath,52,1,90,>20% of pool
+Paladin,5,58,5,12,12,alchemy group,5,open,warp,52,1,90,>20% of pool
+Paladin,5,58,5,12,12,m group,5,open,reflect,52,1,90,>20% of pool
+Paladin,10,108,5,12,22,clerical group,10,core,mend,50,2,46,>20% of pool
+Paladin,10,108,5,12,22,telepathy group,10,open,telepath,50,2,46,>20% of pool
+Paladin,10,108,5,12,22,alchemy group,10,open,warp,50,2,46,>20% of pool
+Paladin,10,108,5,12,22,m group,10,open,reflect,50,2,46,>20% of pool
+Paladin,20,208,5,12,42,clerical group,20,core,mend,45,4,22,>20% of pool
+Paladin,20,208,5,12,42,telepathy group,20,open,telepath,45,4,22,>20% of pool
+Paladin,20,208,5,12,42,alchemy group,20,open,warp,45,4,22,>20% of pool
+Paladin,20,208,5,12,42,m group,20,open,reflect,45,4,22,>20% of pool
+Paladin,30,308,5,12,62,clerical group,30,core,mend,40,7,13,
+Paladin,30,308,5,12,62,telepathy group,30,open,telepath,40,7,13,
+Paladin,30,308,5,12,62,alchemy group,30,open,warp,40,7,13,
+Paladin,30,308,5,12,62,m group,30,open,reflect,40,7,13,

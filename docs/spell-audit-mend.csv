@@ -1,0 +1,27 @@
+class,tier,clerical skill,max MP (skill-1 MP points bought),mend MP cost,casts from full,heal (INT x 0.5-1.0),HP healed per MP (avg)
+Fighter,"cross (x2 price, max 50)",1,10,54,0,3-7,0.1
+Fighter,"cross (x2 price, max 50)",10,82,50,1,3-7,0.1
+Fighter,"cross (x2 price, max 50)",25,202,42,4,3-7,0.12
+Fighter,"cross (x2 price, max 50)",50,402,30,13,3-7,0.17
+Cleric,core,1,25,54,0,4-8,0.11
+Cleric,core,10,124,50,2,4-8,0.12
+Cleric,core,25,289,42,6,4-8,0.14
+Cleric,core,50,564,30,18,4-8,0.2
+Cleric,core,75,839,17,49,4-8,0.35
+Cleric,core,100,1114,5,222,4-8,1.2
+Priest/Priestess,core,1,25,54,0,4-8,0.11
+Priest/Priestess,core,10,124,50,2,4-8,0.12
+Priest/Priestess,core,25,289,42,6,4-8,0.14
+Priest/Priestess,core,50,564,30,18,4-8,0.2
+Priest/Priestess,core,75,839,17,49,4-8,0.35
+Priest/Priestess,core,100,1114,5,222,4-8,1.2
+Ranger,"cross (x2 price, max 50)",1,15,54,0,3-7,0.1
+Ranger,"cross (x2 price, max 50)",10,96,50,1,3-7,0.1
+Ranger,"cross (x2 price, max 50)",25,231,42,5,3-7,0.12
+Ranger,"cross (x2 price, max 50)",50,456,30,15,3-7,0.17
+Paladin,core,1,18,54,0,3-7,0.1
+Paladin,core,10,108,50,2,3-7,0.1
+Paladin,core,25,258,42,6,3-7,0.12
+Paladin,core,50,508,30,16,3-7,0.17
+Paladin,core,75,758,17,44,3-7,0.31
+Paladin,core,100,1008,5,201,3-7,1.05
