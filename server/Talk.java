@@ -24,6 +24,9 @@
  *                 client, which knows no IDs (its players type the
  *                 answers in brackets, which works as it is)
  *   talk names    which NPCs have something to say (for the client's menu)
+ *   give <npc> ...   NPCs take things in conversation, not by "give"
+ *                 (which is for players): next to one with something to
+ *                 say, this says so instead of the engine's "give to who?"
  *
  * The God tab's dialogue editor (js/dialogue.js) writes these files for
  * gods, so conversations can be made in the game:
@@ -62,6 +65,15 @@ public class Talk {
         if (line == null) return null;
         String lower = line.trim().toLowerCase();
         if (lower.startsWith("talkedit ")) return edit(who, line.trim().substring(9).trim());
+        if (lower.startsWith("give ") && who instanceof Player) {
+            String[] w = lower.substring(5).trim().split("\\s+");
+            // A player by that name gets it as before.
+            if (w.length > 0 && w[0].length() > 1 && engine.getPlayer(w[0]) == null) {
+                DuskObject npc = nearest(engine, who, w[0]);
+                if (npc != null) return "To hand something to " + bare(npc.strName) + ", talk to them (type: talk) and give the answer that offers it, such as \"here it is\". They take it themselves.";
+            }
+            return null;
+        }
         if (!(lower.equals("talk") || lower.startsWith("talk "))) return null;
         if (!(who instanceof Player)) return "Only players can talk to people.";
         String arg = lower.substring(4).trim();

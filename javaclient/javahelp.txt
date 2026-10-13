@@ -30,6 +30,16 @@ in brackets, split by /. Type one of them exactly:
   Taskmistress Vhal says: ... Will you be trained? (train me/i am ready)
   > train me
 
+Handing things over: people in the world don't take things with "give"
+(that's for other players). When someone asks you to bring them
+something, talk to them while you carry it and type the answer that
+offers it, e.g.
+
+  Blademistress Zeerith says: Well? ... bring it to me. (here it is)
+  > here it is
+
+and they take it from your pack themselves.
+
 Some people also call out to you as you walk past.
 
 
