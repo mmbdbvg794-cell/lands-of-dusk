@@ -1579,6 +1579,16 @@ dialog::backdrop { background: #000a; }
 .sex-picks { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }
 .sex-pick { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 18px; }
 .sex-pick canvas { width: 96px; height: 96px; }
+#class-dialog { max-width: 480px; padding: 18px; }
+#class-dialog h2 { margin: 0 0 8px; font-size: 18px; }
+#class-dialog h2:focus { outline: none; }
+.class-picks { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.class-pick { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 12px; text-align: left; }
+.class-pick span { font-size: 12px; color: var(--muted); }
+.class-tag { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 3px; font-size: 10px; font-weight: normal; line-height: 15px; vertical-align: middle; border: 1px solid currentColor; }
+.class-tag.core { color: #6fbf73; }
+.class-tag.cross { color: #d8a24a; }
+.class-tag.barred { color: #d0605a; }
 
 /* Mining and smithing (crafting.js). */
 #mining-bar { position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%); min-width: 180px; padding: 6px 10px; border-radius: 8px; background: rgba(20, 16, 12, 0.78); color: #f0e6d0; font-size: 13px; text-align: center; pointer-events: none; z-index: 4; }
@@ -1611,3 +1621,4 @@ dialog::backdrop { background: #000a; }
 .ca-recipe input[type=text] { flex: 1; min-width: 0; }
 .ca-recipe .ca-needs { flex: 1.6; }
 .ca-note { margin: 10px 0 0; padding: 6px 10px; border-radius: 6px; background: rgba(216, 160, 64, 0.15); font-size: 13px; }
+.skill-name .class-tag { align-self: flex-start; margin: 2px 0 0; }

@@ -1,0 +1,13 @@
+#The Thieves Guild's door: only ranger may go in (server/Classes.java).
+if > trigger privs 2
+endscript
+end
+if ! isPlayer trigger
+endscript
+end
+if hasCondition trigger "class_ranger"
+endscript
+end
+chat trigger "Only rangers may enter the Thieves Guild."
+inc trigger locy 1
+endscript

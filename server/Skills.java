@@ -50,6 +50,10 @@ public class Skills {
     // the usual traincost exp.
     public static void train(Merchant m, String ware, int n, LivingThing who) {
         String what = statFor(ware);
+        // Classes: another class's skill costs more or can't be learned
+        // (server/Classes.java); stats, HP and MP are for everyone.
+        boolean stat = what != null && what.length() == 4 && "stre inte dext cons wisd".contains(what);
+        if (!stat && !"hp".equals(what) && !"mp".equals(what) && Classes.train(m, what, n, who)) return;
         if (!"hp".equals(what) && !"mp".equals(what)) {
             m.train(what, n, who);
             return;
@@ -61,11 +65,12 @@ public class Skills {
             who.chatMessage("Sorry, you don't have enough experience points\n");
             return;
         }
-        who.attributes.raiseStat("max" + what, n * 10);
+        int per = Classes.growth(who, what);
+        who.attributes.raiseStat("max" + what, n * per);
         who.exp -= cost;
         who.updateInfo();
         who.updateStats();
-        who.chatMessage("Your max " + what.toUpperCase() + " rises by " + (n * 10) + ".\n");
+        who.chatMessage("Your max " + what.toUpperCase() + " rises by " + (n * per) + ".\n");
     }
 
     // Setting someone's respawn point from a script. The script language's

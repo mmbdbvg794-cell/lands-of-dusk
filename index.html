@@ -444,6 +444,9 @@
       <p>Click a creature and choose Attack (you have to stand next to it). The card at the top shows who you're fighting.</p>
       <p><kbd>1</kbd>–<kbd>9</kbd>, <kbd>0</kbd> use the hotbar slots. Click an empty slot to put a spell or any command in it; right-click or long-press to change it. The Spellbook lists your spells.</p>
       <p>Trainers teach spells and skills, paid for in experience. <b>Sleep</b> (the button beside hunger and thirst) heals faster, but you can't walk until you wake. In a fight, <b>Flee</b> is on the target card.</p>
+      <h4>Your class</h4>
+      <p>Everyone chooses a class when they first come in: <b>Fighter</b>, <b>Mage</b>, <b>Cleric</b> (a dark elf is a <b>Priest</b> or <b>Priestess</b> instead), <b>Ranger</b> or <b>Paladin</b>. Your class's own skills and spells cost the usual price at trainers; another class's cost twice as much and stop at 50; a few your class can't learn at all (a Mage can't learn holy magic or weapon skills). The Skills tab, the Spellbook and the trainers' lists mark which are which.</p>
+      <p>Your class also decides what you can wear and wield: a Mage uses staves and daggers in light armour; Clerics and Priests no bladed weapons; Rangers light armour. Some guild halls are for one class only. You choose once; a god can change it.</p>
       <h4>Things and money</h4>
       <p>The Backpack holds what you carry: use, wear or drop it there. Equipped shows what you wear.</p>
       <p>Stand at a shop's counter and the Shop tab opens. Shops buy things back for half what they cost.</p>
@@ -494,6 +497,13 @@
       <button type="button" class="sex-pick" data-sex="male"><canvas width="96" height="96"></canvas><span>Male</span></button>
       <button type="button" class="sex-pick" data-sex="female"><canvas width="96" height="96"></canvas><span>Female</span></button>
     </div>
+  </dialog>
+
+  <!-- Asked after logging in until the character has a class (classes.js). -->
+  <dialog id="class-dialog" aria-labelledby="class-title">
+    <h2 id="class-title" tabindex="-1" autofocus>Choose your class</h2>
+    <p class="dialog-sub">Your class decides what you learn at the usual price. Another class's skills cost twice as much and stop at 50; some you can't learn at all. It also decides what you can wear and wield. You choose once; a god can change it later.</p>
+    <div class="class-picks"></div>
   </dialog>
 
   <dialog id="bug-dialog" aria-labelledby="bug-title">

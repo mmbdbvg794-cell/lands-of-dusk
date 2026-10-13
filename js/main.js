@@ -26,6 +26,7 @@ import { MailView, parseMail } from './mail.js';
 import { PartyView, parseParty, partyChatCommand } from './party.js';
 import { AchievementsView, parseAchv } from './achievements.js';
 import { SEX_ASK, parseSex, sexCommand, maleImage, femaleImage } from './sex.js';
+import { CLASS_ASK, CLASS_CHOICES, CLASS_TIERS, parseClass, parseChoices, parseTiers, classCommand } from './classes.js';
 import { parseWorking, parseRecipe, SmithView, chopCommand } from './crafting.js';
 import { TREE_TILES } from './trees.js';
 import { CraftAdmin, parseCraftAdmin } from './craftadmin.js';
@@ -1712,6 +1713,14 @@ function handle(msg) {
       // Not chosen yet: the male/female picker (js/sex.js).
       const sexReply = parseSex(msg.text);
       if (sexReply) { if (sexReply === 'unset') showSexPicker(); else if (sexDialog.open) sexDialog.close(); break; }
+      // A class (js/classes.js): the picker until one is chosen, then what
+      // each skill is for it (tags in the Skills tab, Spellbook and shop).
+      const classReply = parseClass(msg.text);
+      if (classReply) { classAnswer(classReply); break; }
+      const classChoices = parseChoices(msg.text);
+      if (classChoices) { showClassPicker(classChoices); break; }
+      const classTiers = parseTiers(msg.text);
+      if (classTiers) { panels.classTiers = classTiers; spellbook.classTiers = classTiers; panels.update('stats'); spellbook.render(); break; }
       const achvReply = parseAchv(msg.text);
       if (achvReply && achievementsView.reply(achvReply)) break;
       const partyReply = parseParty(msg.text);
@@ -1831,6 +1840,7 @@ async function loadGraphics(address) {
     c.send(TALKERS); // which NPCs have something to say
     c.send(PROP_LOOKS); // props with names of their own, and what they look like
     c.background(SEX_ASK); // male or female, if not chosen yet (after a god's presence question)
+    c.background(CLASS_ASK); // a class, if not chosen yet (after male or female)
   }
 }
 
@@ -1877,6 +1887,44 @@ for (const b of sexDialog.querySelectorAll('[data-sex]')) {
     sexDialog.close();
   });
 }
+
+// ---- a class (js/classes.js, server/Classes.java) -----------------------------
+//
+// Everyone must choose before they can move, fight or train. The picker
+// waits for the male/female one: a dark elf's Priest is Priestess for a
+// woman, so the choices are asked for again once that's chosen.
+
+const classDialog = $('class-dialog');
+let classAfterSex = false;
+function classAnswer(r) {
+  if (r === 'unset') { conn?.background(CLASS_CHOICES); return; }
+  if (classDialog.open) classDialog.close();
+  conn?.background(CLASS_TIERS);
+}
+function showClassPicker(choices) {
+  if (sexDialog.open) { classAfterSex = true; return; }
+  const list = classDialog.querySelector('.class-picks');
+  list.replaceChildren(...choices.map((c) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'class-pick';
+    const name = document.createElement('strong');
+    name.textContent = c.name;
+    const blurb = document.createElement('span');
+    blurb.textContent = c.blurb;
+    b.append(name, blurb);
+    b.addEventListener('click', () => conn?.send(classCommand(c.id)));
+    return b;
+  }));
+  if (!classDialog.open) classDialog.showModal();
+}
+// It can't be put off: Escape doesn't close it.
+classDialog.addEventListener('cancel', (e) => e.preventDefault());
+sexDialog.addEventListener('close', () => {
+  if (!classAfterSex) return;
+  classAfterSex = false;
+  conn?.background(CLASS_CHOICES);
+});
 
 // ---- art style ---------------------------------------------------------------
 //

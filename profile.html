@@ -52,7 +52,7 @@
       if (!p.found) { $('name').textContent = name || 'Profile'; $('sub').textContent = p.message; $('body').replaceChildren(); return; }
       document.title = `${p.name} · Dusk`;
       $('name').replaceChildren(p.name, ...(p.online ? [h('span', { className: 'dot', title: 'In the game now' })] : []));
-      $('sub').textContent = [p.title, p.race, p.online ? 'in the game now' : ''].filter(Boolean).join(' · ');
+      $('sub').textContent = [p.title, [p.race, p.cls].filter(Boolean).join(' '), p.online ? 'in the game now' : ''].filter(Boolean).join(' · ');
       $('body').replaceChildren(
         h('section', {}, h('h2', { textContent: 'At a glance' }), dl(p.facts)),
         h('section', {}, h('h2', { textContent: 'Stats' }), dl(p.stats)),

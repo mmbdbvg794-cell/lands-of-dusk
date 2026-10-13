@@ -3,6 +3,7 @@
 // menu, standing in for the Java client's pnlStats and EquipmentFrame.
 // Every command goes out through `send`, just as if it had been typed.
 
+import { tierTag } from './classes.js';
 import { slotForType, command } from './player.js';
 import { parseStats, playerConditions } from './stats.js';
 import { buyCommand, sellCommand, wareLabel } from './shop.js';
@@ -280,6 +281,9 @@ export class Panels {
       const name = text('span', 'skill-name', sk.name);
       const what = SKILL_WORDS[sk.name.toLowerCase()];
       if (what) name.append(text('span', 'skill-what', what));
+      // Your class's own, or another class's (js/classes.js).
+      const tag = tierTag(this.classTiers, sk.name);
+      if (tag) { const t = text('span', `class-tag ${tag.kind}`, tag.text); t.title = tag.title; name.append(t); }
       row.append(name, bar, text('span', 'skill-value', String(sk.value)));
       return row;
     }));
@@ -380,6 +384,9 @@ export class Panels {
         [qtyBox(), tradeButton(trade === 'buy' ? (w.currency === 'exp' ? 'Train' : 'Buy') : 'Sell', trade, w.name)],
       );
       if (trade === 'buy' && !canAfford(w)) li.title = `You can't afford this yet`;
+      // Training another class's skill costs more (js/classes.js).
+      const tag = trade === 'buy' && /^train:/i.test(w.name) ? tierTag(this.classTiers, w.name.replace(/^train:\s*/i, '')) : null;
+      if (tag) { const t = text('span', `class-tag ${tag.kind}`, tag.text); t.title = tag.title; li.querySelector('.name')?.append(' ', t); }
       return this.itemRow(w.name, li);
     };
     this.$('#shop-buy').replaceChildren(...shop.wares.map((w) => tradeRow(w, 'buy')));

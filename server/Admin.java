@@ -282,7 +282,8 @@ public class Admin {
     // ---- the leaderboard ----
 
     static class Row {
-        String name, race = "", title = "";
+        String name, race = "", title = "", cls = ""; // cls: the class's name (server/Classes.java)
+        boolean female;
         long exp, playtime;
         int maxhp, stats, quests, privs;
         final Map<String, Integer> each = new LinkedHashMap<String, Integer>(); // stre... -> value
@@ -313,7 +314,7 @@ public class Admin {
         for (int i = 0; i < Math.min(50, rows.size()); i++) {
             Row r = rows.get(i);
             if (i > 0) b.append(',');
-            b.append("{\"name\":").append(Who.json(r.name)).append(",\"race\":").append(Who.json(r.race)).append(",\"title\":").append(Who.json(r.title))
+            b.append("{\"name\":").append(Who.json(r.name)).append(",\"race\":").append(Who.json(r.race)).append(",\"class\":").append(Who.json(Classes.displayName(r.cls, r.female))).append(",\"title\":").append(Who.json(r.title))
                 .append(",\"exp\":").append(r.exp).append(",\"maxhp\":").append(r.maxhp).append(",\"stats\":").append(r.stats)
                 .append(",\"quests\":").append(r.quests).append(",\"playtime\":").append(r.playtime).append('}');
         }
@@ -355,7 +356,7 @@ public class Admin {
         for (Row r : rows) {
             if (!first) b.append(',');
             first = false;
-            b.append(Who.json(r.name.toLowerCase())).append(":{\"name\":").append(Who.json(r.name)).append(",\"race\":").append(Who.json(r.race))
+            b.append(Who.json(r.name.toLowerCase())).append(":{\"name\":").append(Who.json(r.name)).append(",\"race\":").append(Who.json(r.race)).append(",\"class\":").append(Who.json(Classes.displayName(r.cls, r.female)))
                 .append(",\"title\":").append(Who.json(r.title)).append(",\"exp\":").append(r.exp).append(",\"maxhp\":").append(r.maxhp).append(",\"stats\":{");
             for (int i = 0; i < stat.length; i++) b.append(i > 0 ? "," : "").append('"').append(stat[i][1]).append("\":").append(r.each.containsKey(stat[i][0]) ? r.each.get(stat[i][0]) : 0);
             b.append("},\"gear\":[");
@@ -403,6 +404,8 @@ public class Admin {
                 else if (k.equals("totalplaytime")) r.playtime = Long.parseLong(v);
                 else if (k.equals("stre") || k.equals("dext") || k.equals("cons") || k.equals("inte") || k.equals("wisd")) { r.stats += Integer.parseInt(v); r.each.put(k, Integer.parseInt(v)); }
                 else if (k.equals("condition") && v.toLowerCase().endsWith("done")) { r.quests++; r.done.add(v); }
+                else if (k.equals("condition") && v.startsWith("class_")) r.cls = v.substring(6);
+                else if (k.equals("condition") && v.equals("female")) r.female = true;
                 else {
                     String slot = null;
                     for (String[] sl : SLOTS) if (sl[0].equals(k)) slot = sl[1];

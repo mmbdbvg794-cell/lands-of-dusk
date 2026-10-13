@@ -1,7 +1,9 @@
 """Patches the CFR decompile of the live server's Commands and DuskServer
 classes so they compile again, and hooks in Storage (server/Storage.java):
 
-  Commands.parseCommand   hands each command to Storage.command, then
+  Commands.parseCommand   hands each command to Classes.gate and
+                          Classes.command (server/Classes.java), then
+                          Storage.command, then
                           Talk.command (server/Talk.java) and
                           Props.command (server/Props.java), first
   DuskServer()            calls Storage.load and Talk.start before
@@ -91,6 +93,14 @@ patch('Commands.java', [
             Player player = null;''', '''        catch (Exception exception) {
             if (object == null) {
                 return null;
+            }
+            String classGate = Classes.gate(livingThing, duskEngine, (String)object);
+            if (classGate != null) {
+                return classGate;
+            }
+            String classReply = Classes.command(livingThing, duskEngine, (String)object);
+            if (classReply != null) {
+                return classReply;
             }
             String storageReply = Storage.command(livingThing, duskEngine, (String)object);
             if (storageReply != null) {

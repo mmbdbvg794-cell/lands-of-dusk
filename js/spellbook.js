@@ -3,6 +3,7 @@
 // the skill each spell needs come from js/spellinfo.json, built from the
 // server's own spell files by tools/spellinfo.py.
 
+import { tierTag } from './classes.js';
 import { effectKind, parseSpellList } from './spells.js';
 
 const GLYPH = { heal: '✚', holy: '✦', fire: '🔥', earth: '⛰', dark: '☾', arcane: '✧' };
@@ -114,6 +115,9 @@ export class Spellbook {
         s.title = `Your skill in ${school}`;
         h.append(' ', s);
       }
+      // Your class's own school, or another class's (js/classes.js).
+      const tag = tierTag(this.classTiers, school);
+      if (tag) h.append(' ', Object.assign(document.createElement('span'), { className: `class-tag ${tag.kind}`, textContent: tag.text, title: tag.title }));
       book.append(h);
       spells.sort((a, b) => (a.info?.order ?? 99) - (b.info?.order ?? 99) || a.spell.localeCompare(b.spell));
       for (const { spell, info } of spells) book.append(this.entry(spell, info, hasTarget));

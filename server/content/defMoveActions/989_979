@@ -1,0 +1,19 @@
+#The Healer Guild's door: only cleric, priest, paladin may go in (server/Classes.java).
+if > trigger privs 2
+endscript
+end
+if ! isPlayer trigger
+endscript
+end
+if hasCondition trigger "class_cleric"
+endscript
+end
+if hasCondition trigger "class_priest"
+endscript
+end
+if hasCondition trigger "class_paladin"
+endscript
+end
+chat trigger "Only clerics, priests and paladins may enter the Healer Guild."
+inc trigger locy -1
+endscript

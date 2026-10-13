@@ -1,0 +1,74 @@
+kind,name,group,what it does,taught by / where,requirement,price (live traincost 10),proposed tier,Priest/Priestess note,notes
+skill,Dodge,,Chance to avoid a melee hit (engine),"Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); 263,269 Izaru Mine; 458,73-75 Master Skills Training ground; 133,138 City of Light; 303,163 Sabin; 88,888 MTH; 188,897; 462,75",none (0-100 points),10 exp/point,"Core: Fighter, Ranger, Paladin",,
+skill,Double Attack,,Chance of a second melee swing (engine),"263,269 Izaru Mine; 458,73-75 Master Skills Training ground; 133,138 City of Light; 303,163 Sabin; 88,888 MTH; 188,897",none (0-100 points),10 exp/point,"Core: Fighter, Ranger, Paladin",,
+skill,Triple Attack,,Chance of a third melee swing (engine),"263,269 Izaru Mine; 458,73-75 Master Skills Training ground; 133,138 City of Light; 303,163 Sabin; 88,888 MTH; 188,897",none (0-100 points),10 exp/point,"Core: Fighter, Ranger",,
+skill,Quadruple Attack,,Chance of a fourth melee swing (engine),"263,269; 458,73; 303,163; 88,888; 188,897",none (0-100 points),10 exp/point,Core: Fighter,,
+skill,Regeneration,,Faster HP regen (Skills.java:328),"Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); 263,271; 310,160; 998,981; 189,898",none (0-100 points),10 exp/point,Open,,
+skill,Mana Regen,,Faster MP regen (Skills.java:336),"Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); 263,271; 310,160; 998,981; 189,898",none (0-100 points),10 exp/point,Open,,could be caster-core later
+skill,Spell Power,,Stronger spell damage and heals (Skills.java:476),"Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); 263,271; 310,160; 998,981; 189,898",none (0-100 points),10 exp/point,"Core: Mage, Cleric, Priest/Priestess, Paladin",,
+skill,Lock Picking,,Opens locked storage (Storage.java:192),"Thieves Guild 990,974",none (0-100 points),10 exp/point,Core: Ranger,,guild gate at 990_975 already blocks other guilds
+skill,Armor Identification,,Nothing reads it today (unused),"Thieves Guild 987,974",none (0-100 points),10 exp/point,Open,,unused; guild-gated today
+skill,Mana Tap,,Nothing reads it today (unused),"Mage Guild 984,974",none (0-100 points),10 exp/point,Open,,unused; guild-gated today
+skill,Life Tap,,Nothing reads it today (unused),"Healer Guild 989,980",none (0-100 points),10 exp/point,Open,,unused; guild-gated today
+skill,Strength,,"+1 strength per point (stat, not a skill)","Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); old world: 263,271 Izaru Mine; 31,19 statue; 301,163 Sabin; 995,28; 998,981 + 189,898 inns; 707,726 Mud Pit",none (0-100 points),10 exp/point,Open,,class bonus via starting stats/growth instead
+skill,Intelligence,,"+1 intelligence per point (stat, not a skill)","Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); old world: 263,271 Izaru Mine; 31,19 statue; 301,163 Sabin; 995,28; 998,981 + 189,898 inns; 707,726 Mud Pit",none (0-100 points),10 exp/point,Open,,class bonus via starting stats/growth instead
+skill,Dexterity,,"+1 dexterity per point (stat, not a skill)","Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); old world: 263,271 Izaru Mine; 31,19 statue; 301,163 Sabin; 995,28; 998,981 + 189,898 inns; 707,726 Mud Pit",none (0-100 points),10 exp/point,Open,,class bonus via starting stats/growth instead
+skill,Constitution,,"+1 constitution per point (stat, not a skill)","Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); old world: 263,271 Izaru Mine; 31,19 statue; 301,163 Sabin; 995,28; 998,981 + 189,898 inns; 707,726 Mud Pit",none (0-100 points),10 exp/point,Open,,class bonus via starting stats/growth instead
+skill,Wisdom,,"+1 wisdom per point (stat, not a skill)","Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); old world: 263,271 Izaru Mine; 31,19 statue; 301,163 Sabin; 995,28; 998,981 + 189,898 inns; 707,726 Mud Pit",none (0-100 points),10 exp/point,Open,,class bonus via starting stats/growth instead
+skill,HP,,+10 max HP per point (Skills.train),"Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); 263,269; 523,15; 187,898; 977,974; 373,350 Firetown prisoner",none (0-100 points),10 exp/point,Open,,class growth adds on top
+skill,MP,,+10 max MP per point (Skills.train),"Drillmaster Hask 1471,364 (Kingshaven); Master Aerendyl 496,1252 (Aelindor); Weaponmaster Dral 1374,925 (Velkarath); Shaman Ithrae 1712,931 (Ssarakh); 263,269; 523,15; 187,898",none (0-100 points),10 exp/point,Open,,class growth adds on top
+skill,Mining,crafting,Mine ore veins; raised by use,not trained: grows by doing (Crafting.java:477),recipe/source level,free (use),Open,, 
+skill,Herbalism,crafting,Gather herb patches; raised by use,not trained: grows by doing (Crafting.java:477),recipe/source level,free (use),Open,, 
+skill,Woodcutting,crafting,Chop trees; raised by use,not trained: grows by doing (Crafting.java:477),recipe/source level,free (use),Open,, 
+skill,Smithing,crafting,Forge and anvil recipes; raised by use,not trained: grows by doing (Crafting.java:477),recipe/source level,free (use),Open,, 
+skill,Alchemy,crafting,Alchemy table potions; raised by use,not trained: grows by doing (Crafting.java:477),recipe/source level,free (use),Open,, 
+skill,Fletching,crafting,Workbench staves and bows; raised by use,not trained: grows by doing (Crafting.java:477),recipe/source level,free (use),Open,, 
+spell,mend,clerical group,Heals a target by the caster's INT,"27,42 Troll's Head; 310,160 Sabin; 197,906 Spells shop",0% of group,10 exp/point (1 pt),"Core: Cleric, Priest/Priestess, Paladin",shared,
+spell,counter poison,clerical group,Disabled (prints a notice),"27,42 Troll's Head; 310,160 Sabin; 197,906 Spells shop",25% of group,250 exp to reach (25 pts x10),"Core: Cleric, Priest/Priestess, Paladin",shared,
+spell,armor,clerical group,Raises a target's armor class for a while,"27,42 Troll's Head; 310,160 Sabin; 197,906 Spells shop",50% of group,500 exp to reach (50 pts x10),"Core: Cleric, Priest/Priestess, Paladin",shared,
+spell,bless,clerical group,Raises a target's strength and damage for a while,"27,42 Troll's Head; 310,160 Sabin; 197,906 Spells shop",75% of group,750 exp to reach (75 pts x10),"Core: Cleric, Priest/Priestess, Paladin",shared,
+spell,focus,white magic group,Raises a target's INT and WIS for a while,"514,7 Southfield; 1,701 (AOP Clan Hall road)",0% of group,10 exp/point (1 pt),"Core: Cleric, Priest/Priestess",shared,
+spell,angel strike,white magic group,Battle: an angel strikes the foe,"514,7 Southfield; 1,701 (AOP Clan Hall road)",16% of group,160 exp to reach (16 pts x10),"Core: Cleric, Priest/Priestess",Cleric-only candidate (angel/light theme),
+spell,prayer,white magic group,"Lifts curse, tiredness, poison, hunger, thirst","514,7 Southfield; 1,701 (AOP Clan Hall road)",33% of group,330 exp to reach (33 pts x10),"Core: Cleric, Priest/Priestess",shared,
+spell,meditation,white magic group,Heals a target by caster INT x3.5-6 (random),"514,7 Southfield; 1,701 (AOP Clan Hall road)",50% of group,500 exp to reach (50 pts x10),"Core: Cleric, Priest/Priestess",shared,
+spell,scan,white magic group,"Shows a target's stats, AC and skills","514,7 Southfield; 1,701 (AOP Clan Hall road)",66% of group,660 exp to reach (66 pts x10),"Core: Cleric, Priest/Priestess",shared,
+spell,holy,white magic group,Battle: holy damage to the foe,"514,7 Southfield; 1,701 (AOP Clan Hall road)",83% of group,830 exp to reach (83 pts x10),"Core: Cleric, Priest/Priestess",Cleric-only candidate (holy theme); Priest needs a dark equivalent,
+spell,bone shards,black magic group,Battle: bone shrapnel damage,"514,7 Southfield; 197,906 Spells shop",0% of group,10 exp/point (1 pt),Core: Mage,,
+spell,curse,black magic group,Weakens a target (STR/DEX down),"514,7 Southfield; 197,906 Spells shop",25% of group,250 exp to reach (25 pts x10),Core: Mage,Priest-only candidate if moved from Mage,
+spell,quake,black magic group,Battle: earth damage,"514,7 Southfield; 197,906 Spells shop",50% of group,500 exp to reach (50 pts x10),Core: Mage,,
+spell,corrupt,black magic group,Drains a target's HP and MP,"514,7 Southfield; 197,906 Spells shop",75% of group,750 exp to reach (75 pts x10),Core: Mage,Priest-only candidate if moved from Mage,
+spell,quarter staff,druidic group,Creates a druidic quarter staff,"310,160 Sabin; 133,142 City of Light; 18,36 church",0% of group,10 exp/point (1 pt),Core: Ranger,,
+spell,healing staff,druidic group,Uses up a quarter staff to heal,"310,160 Sabin; 133,142 City of Light; 18,36 church",25% of group,250 exp to reach (25 pts x10),Core: Ranger,,
+spell,thorns,druidic group,Battle: slight nature damage,"310,160 Sabin; 133,142 City of Light; 18,36 church",50% of group,500 exp to reach (50 pts x10),Core: Ranger,,
+spell,camoflauge,druidic group,Hides the target from view,"310,160 Sabin; 133,142 City of Light; 18,36 church",75% of group,750 exp to reach (75 pts x10),Core: Ranger,,
+spell,detect invis,enchantment group,See invisible things,"27,42 Troll's Head; 310,160 Sabin; 197,906 Spells shop",0% of group,10 exp/point (1 pt),Core: Mage,,
+spell,invis,enchantment group,Hides the target from view,"27,42 Troll's Head; 310,160 Sabin; 197,906 Spells shop",33% of group,330 exp to reach (33 pts x10),Core: Mage,,
+spell,regenerate,enchantment group,Heals a little every few seconds,"27,42 Troll's Head; 310,160 Sabin; 197,906 Spells shop",66% of group,660 exp to reach (66 pts x10),Core: Mage,,
+spell,telepath,telepathy group,Sends a private message to anyone,"18,36 church",0% of group,10 exp/point (1 pt),Open,,
+spell,tire,telepathy group,Makes a foe drowsy/asleep,"18,36 church",50% of group,500 exp to reach (50 pts x10),Open,,
+spell,warp,alchemy group,Returns you to your bind point,"514,7 Southfield; 197,906 Spells shop",0% of group,10 exp/point (1 pt),Open,,
+spell,translate,alchemy group,Disabled (prints a notice),"514,7 Southfield; 197,906 Spells shop",33% of group,330 exp to reach (33 pts x10),Open,,
+spell,herbology,alchemy group,Brews potions from herbs,"514,7 Southfield; 197,906 Spells shop",66% of group,660 exp to reach (66 pts x10),Open,,
+spell,summon snakes,summons group,Battle: snakes attack (gem boosts),"514,7 Southfield",0% of group,10 exp/point (1 pt),Core: Mage,,
+spell,summon bahamut,summons group,Battle: Bahamut (ruby boosts),"514,7 Southfield",20% of group,200 exp to reach (20 pts x10),Core: Mage,,
+spell,summon wurm,summons group,Battle: giant Wurm (topaz boosts),"514,7 Southfield",40% of group,400 exp to reach (40 pts x10),Core: Mage,,
+spell,summon leviathan,summons group,Battle: Leviathan (aquamarine boosts),"514,7 Southfield",60% of group,600 exp to reach (60 pts x10),Core: Mage,,
+spell,summon ultima bahamut,summons group,Battle: Ultima Bahamut (needs gems),"514,7 Southfield",80% of group,800 exp to reach (80 pts x10),Core: Mage,,
+spell,hell fire,hells fire,Battle: fire damage,"64,48 old world north-west",0% of group,10 exp/point (1 pt),Core: Mage,,
+spell,apocalypse,hells fire,Battle: heavy fire damage,"64,48 old world north-west",50% of group,500 exp to reach (50 pts x10),Core: Mage,,
+spell,reflect,m group,Reflect shield (bounces some spells),"693,136 (remote, 'Turn back.' sign)",0% of group,10 exp/point (1 pt),Open,,
+spell,ifrit,Guardian Force Group,Battle: minor fire damage,nobody (god-granted only),0% of group,10 exp/point (1 pt),Open (keep untaught),,
+spell,shiva,Guardian Force Group,Battle: minor ice damage,nobody (god-granted only),20% of group,200 exp to reach (20 pts x10),Open (keep untaught),,
+spell,leviathan,Guardian Force Group,Battle: minor water damage,nobody (god-granted only),40% of group,400 exp to reach (40 pts x10),Open (keep untaught),,
+spell,cactuar,Guardian Force Group,Battle: major damage,nobody (god-granted only),60% of group,600 exp to reach (60 pts x10),Open (keep untaught),,
+spell,diablos,Guardian Force Group,Battle: major damage,nobody (god-granted only),80% of group,800 exp to reach (80 pts x10),Open (keep untaught),,
+spell group,god group,god group,"Leftover/test: exp, gold",nobody,-,-,Open (keep untaught),,not taught; god tools only
+spell group,MTH spells,MTH spells,"Leftover/test: mega heal1, stone1",nobody,-,-,Open (keep untaught),,not taught; god tools only
+spell group,meteo,meteo,"Leftover/test: asteroid, comet, meteor shield, meteo",nobody,-,-,Open (keep untaught),,not taught; god tools only
+spell group,bahamut,bahamut,"Leftover/test: Bahamut, death",nobody,-,-,Open (keep untaught),,not taught; god tools only
+spell group,death,death,Leftover/test: DEATH,nobody,-,-,Open (keep untaught),,not taught; god tools only
+spell group,special group,special group,Leftover/test: hero's spell,nobody,-,-,Open (keep untaught),,not taught; god tools only
+spell group,shifty group,shifty group,"Leftover/test: weapon, armour, killer, psychopath, steal",nobody,-,-,Open (keep untaught),,not taught; god tools only
+spell group,test group,test group,"Leftover/test: healing, GF",nobody,-,-,Open (keep untaught),,not taught; god tools only
+spell group,teleport_group,teleport_group,Leftover/test: (script),nobody,-,-,Open (keep untaught),,not taught; god tools only
+spell group,summon group / white magics group / *_group,summon group / white magics group / *_group,Leftover/test: old duplicates,nobody,-,-,Open (keep untaught),,not taught; god tools only

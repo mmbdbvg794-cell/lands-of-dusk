@@ -45,6 +45,22 @@ and they take it from your pack themselves.
 Some people also call out to you as you walk past.
 
 
+YOUR CLASS
+----------
+Everyone chooses a class before they can move, fight or train:
+class             your class, or the choices if you haven't chosen
+class fighter     choose (also mage, cleric, ranger, paladin; a dark elf
+                  chooses priest instead of cleric). You choose once; a
+                  god can change it.
+
+Your class's own skills and spells cost the usual price at trainers.
+Another class's cost twice as much and stop at 50, and a few your class
+can't learn at all (a Mage can't learn holy magic or weapon skills).
+Your class also decides what you can wear: a Mage uses staves and
+daggers in light armour, Clerics and Priests no bladed weapons, Rangers
+light armour.
+
+
 MOVING AND FIGHTING
 -------------------
 n  s  e  w        walk one square (or click the map)

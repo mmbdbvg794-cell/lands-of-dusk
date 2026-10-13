@@ -24,7 +24,8 @@ export function describeBoard(data, now) {
       rank: i + 1,
       name: String(p.name),
       title: String(p.title ?? '').replace(/\.$/, '').trim(),
-      race: RACE_NAMES[String(p.race ?? '').toLowerCase()] ?? String(p.race ?? ''),
+      // The race, and the class once chosen (server/Classes.java).
+      race: [RACE_NAMES[String(p.race ?? '').toLowerCase()] ?? String(p.race ?? ''), p.class ?? ''].filter(Boolean).join(' '),
       exp: big(p.exp),
       quests: Math.max(0, Math.floor(Number(p.quests) || 0)),
       hp: big(p.maxhp),

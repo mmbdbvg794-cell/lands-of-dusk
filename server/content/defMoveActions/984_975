@@ -1,0 +1,13 @@
+#The Mage Guild's door: only mage may go in (server/Classes.java).
+if > trigger privs 2
+endscript
+end
+if ! isPlayer trigger
+endscript
+end
+if hasCondition trigger "class_mage"
+endscript
+end
+chat trigger "Only mages may enter the Mage Guild."
+inc trigger locy 1
+endscript

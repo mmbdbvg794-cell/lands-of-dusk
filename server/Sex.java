@@ -50,6 +50,8 @@ public class Sex {
         }
         // (The one hook at login: the old Java client's players also get a tip.)
         Talk.classicTip(p);
+        // And anyone without a class is asked to choose (server/Classes.java).
+        Classes.atLogin(p);
     }
 
     public static String command(LivingThing who, DuskEngine engine, String line) {

@@ -21,6 +21,7 @@ export function describeProfile(data, name) {
     name: p.name,
     title: p.title && p.title !== 'null' ? p.title : '',
     race: p.race ? p.race[0].toUpperCase() + p.race.slice(1) : '',
+    cls: p.class ?? '', // the class's name (server/Classes.java), '' if none yet
     online: !!p.online,
     facts: [
       ['Experience', Number(p.exp || 0).toLocaleString()],

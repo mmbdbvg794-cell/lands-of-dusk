@@ -14,6 +14,8 @@ const data = { updated: 1791400000000, players: { hgate: { name: 'hgate', race: 
 const p = describeProfile(data, 'HGate');
 assert.equal(p.found, true);
 assert.equal(p.race, 'Human');
+assert.equal(p.cls, '');
+assert.equal(describeProfile({ players: { a: { name: 'a', race: 'darkelf', class: 'Priestess' } } }, 'a').cls, 'Priestess');
 assert.deepEqual(p.facts.find((f) => f[0] === 'Played'), ['Played', '2 h 2 min']);
 assert.deepEqual(p.gear, [['Weapon', 'broad sword']]);
 assert.deepEqual(p.achievements.map((a) => a.title), ['Hunter', 'First Blood'], 'newest first');
