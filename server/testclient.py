@@ -6,7 +6,8 @@ scratch copy of the game (never the live one):
 Logs in (creating the character, as a human, if it's new), sends each
 command, and prints the server's text replies as they come, one per line,
 prefixed with "> " for what was sent. Inventory updates (opcode 6) print as
-"inventory: ...". A command "wait N" just listens for N seconds.
+"inventory: ...". A command "wait N" just listens for N seconds; "useitem
+<name>" sends "use <ID>" for that item in the latest inventory.
 """
 import socket, sys, time
 
@@ -14,6 +15,7 @@ port, name, password, *commands = sys.argv[1:]
 s = socket.create_connection(('127.0.0.1', int(port)))
 s.settimeout(0.2)
 buf = b''
+inventory = {}  # item name -> an ID, from the latest inventory
 
 
 def pump(seconds):
@@ -56,7 +58,12 @@ def pump(seconds):
                 lines.append(parts[3])
         elif op == 6:
             parts = body.split('\n')
-            names = [parts[i + 1] for i in range(0, len(parts) - 2, 3) if parts[i].strip().isdigit()]
+            # Each item: its count, its name, its ID (for "use <id>").
+            names = ['%s #%s' % (parts[i + 1], parts[i + 2].strip()) for i in range(0, len(parts) - 2, 3) if parts[i].strip().isdigit()]
+            inventory.clear()
+            for i in range(0, len(parts) - 2, 3):
+                if parts[i].strip().isdigit():
+                    inventory[parts[i + 1].lower()] = parts[i + 2].strip()
             lines.append('inventory: ' + ', '.join(names))
         elif op in (4,):
             parts = body.split('\n')
@@ -93,6 +100,9 @@ for c in commands:
         for l in pump(float(c[5:])):
             print(l)
         continue
+    # "useitem <name>": "use <its ID>", as clients do.
+    if c.startswith('useitem ') and c[8:].lower() in inventory:
+        c = 'use ' + inventory[c[8:].lower()]
     print('> ' + c)
     send(c)
     for l in pump(1.5):
