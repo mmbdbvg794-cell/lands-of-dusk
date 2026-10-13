@@ -1161,7 +1161,7 @@ commands that touch live.
   prisoner/Villager/hermit) -> install_city.py --old-world -> add_achievement
   -> regen_talk -> merge_quests -> restart -> deploy.
 
-## 2026-10-13: fewer NPC shouts
+## 2026-10-13: fewer NPC shouts (LIVE: 11:52 restart)
 
 - server/Talk.java shout(): once an hour per player per NPC (was 5
   minutes), and only to someone who can walk to beside the NPC within 8
