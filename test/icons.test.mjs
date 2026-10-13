@@ -12,6 +12,6 @@ const java = readFileSync(new URL('../server/Classes.java', import.meta.url), 'u
 for (const [, id] of java.matchAll(/"class ([a-z]+) /g)) assert.ok(CLASS_ICONS[id], `no icon for ${id}`);
 // Only plain shapes, nothing that runs.
 for (const inner of [...Object.values(TAB_ICONS), ...Object.values(CLASS_ICONS)]) {
-  assert.ok(/^(<(path|rect|circle|ellipse)( [a-z-]+="[-0-9a-zA-Z. ]*")+\/>)+$/.test(inner), inner);
+  assert.ok(/^(<\/?(g|path|rect|circle|ellipse)( [a-z-]+="[-0-9a-zA-Z. ()]*")*\/?>)+$/.test(inner), inner);
 }
 console.log('icons tests passed');

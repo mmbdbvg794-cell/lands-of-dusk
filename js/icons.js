@@ -29,16 +29,16 @@ export const TAB_ICONS = {
 };
 
 export const CLASS_ICONS = {
-  // Fighter: a battle axe.
-  fighter: '<path d="M6 21 17 6"/><path d="M14.2 3.3c3.6-.5 6.6 2.3 6.6 6.3-1.8-1.6-3.6-2.1-5.6-1.4"/><path d="M14.2 3.3c-.5 2.2-.1 4 1.1 4.9"/>',
+  // Fighter: a double-bitted battle axe.
+  fighter: '<g transform="rotate(35 12 12)"><path d="M12 2.5v19.5"/><path d="M12.6 6.2c2.4-1 4.9-2.2 6.6-3.4 1.4 4.2 1.4 8.6 0 12.8-1.7-1.2-4.2-2.4-6.6-3.4Z" fill="currentColor" fill-opacity=".25"/><path d="M11.4 6.2c-2.4-1-4.9-2.2-6.6-3.4-1.4 4.2-1.4 8.6 0 12.8 1.7-1.2 4.2-2.4 6.6-3.4Z" fill="currentColor" fill-opacity=".25"/><circle cx="12" cy="22" r=".8"/></g>',
   // Mage: a staff with a star.
   mage: '<path d="M8 21 15.5 9"/><path d="m17 2.5 1.2 2.8 3 .3-2.3 2 .7 3-2.6-1.6-2.6 1.6.7-3-2.3-2 3-.3Z"/>',
   // Cleric: a sun, the Light.
   cleric: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
   // Priest or Priestess: the Spider Queen's spider.
   priest: '<ellipse cx="12" cy="14" rx="3" ry="4"/><circle cx="12" cy="8.3" r="1.9"/><path d="M9.3 11.5 5 8.5 3.5 4M9 13.5 3.5 12.5 2 15M9.2 15.5 5 18.5 4 21.5M14.7 11.5 19 8.5 20.5 4M15 13.5l5.5-1 1.5 2.5M14.8 15.5l4.2 3 1 3"/>',
-  // Ranger: a bow and arrow.
-  ranger: '<path d="M6 3c7 2 11 7 11 15"/><path d="M6 3 17 18"/><path d="M3 21 15.5 8.5"/><path d="M15.5 8.5v3M15.5 8.5h-3"/><path d="M3 21h3M3 21v-3"/>',
+  // Ranger: a drawn bow, the arrow pointing up and away.
+  ranger: '<path d="M5 7.5Q19.5 4.5 16.5 19"/><path d="M5 7.5 16.5 19" stroke-width="1"/><path d="M4.5 19.5 20 4"/><path d="M21 3l-4.6 1.5 3.1 3.1Z" fill="currentColor"/><path d="M4.5 19.5h-2M4.5 19.5v2M6.5 17.5h-2.2M6.5 17.5v2.2"/>',
   // Paladin: a shield with a cross.
   paladin: '<path d="M12 2.8 4.5 5.5v6c0 4.7 3.2 8 7.5 9.7 4.3-1.7 7.5-5 7.5-9.7v-6Z"/><path d="M12 7v10M8.5 10.5h7"/>',
 };

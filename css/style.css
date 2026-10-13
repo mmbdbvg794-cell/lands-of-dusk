@@ -387,8 +387,7 @@ body.playing #map-wrap { display: flex; }
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr);
   grid-template-areas:
-    ".     skull .    "
-    ".     eyes  .    "
+    ".     skull eyes "
     "arms  neck  .    "
     "arms  torso hands"
     "wield waist hands"
