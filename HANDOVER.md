@@ -1186,3 +1186,22 @@ My memory directory (`~/.claude/projects/-root-dusk-browser-client/memory/`)
 has session-state, server-source, tile-walkability, duskserver-access and
 future-ideas notes. `CHANGELOG.md` is the player-facing log (not updated
 for today's spell/quest/spawn work yet).
+
+## 2026-10-13 17:00: classes (LIVE: installed + restarted 16:57, deployed)
+
+- server/Classes.java; config DuskRPG/classes (written with defaults on
+  first use, re-read when changed): classes, races (drow: Priest/Priestess
+  only; others Cleric), core/open/barred lists, multiplier 2, crosscap 50,
+  start bonuses, HP/MP per point, gear kinds by item-name words, wears.
+- Class = hidden condition class_<id>. No class: moving, attack, buy,
+  cast, get, wear, mine... refused (gods exempt). Choosing removes cross
+  and barred skills/spell groups, refunding 10 exp per point.
+- Hooks: patch.py (Classes.gate + Classes.command first), Skills.train
+  (Classes.train, Classes.growth), Sex.afterRace (Classes.atLogin), Admin
+  (class in profiles.json and the leaderboard). God: setclass.
+- Guild doors (server/content/defMoveActions): Mage = mage, Thieves =
+  ranger, Healer = cleric/priest/paladin. The engine runs a script's .dsko
+  when it exists: delete it after editing a script.
+- Client: js/classes.js, #class-dialog (after the sex picker), tags in the
+  Skills tab, Spellbook and shop. Docs: docs/class-plan.md, class-inventory.csv.
+- Backup before live: ~/DuskRPG/backups/classes-before-20261013-164220.
