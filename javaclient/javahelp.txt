@@ -90,8 +90,8 @@ after a few minutes. Mining rises as you dig.
 
 SMITHING
 --------
-Forges and anvils stand in Kingshaven (Brann's shop), Velkarath, Izaru's
-mine hall, the old town by The Armorer, and Ssarakh.
+Forges and anvils stand in Kingshaven (Brann's shop), Izaru's mine hall,
+the old town by The Armorer, and Ssarakh.
 
   smith             (by a forge or anvil) what you can make there, what it
                     needs, and how many you could make
@@ -117,7 +117,7 @@ and azeala further out; rare moonpetal far away. Herbalism rises as you
 pick and lets you gather the rarer herbs.
 
 Alchemy tables stand in Kingshaven (Alchemist Pell), Aelindor (Miriel),
-Velkarath, Ssarakh, and by Herbalist Wenna:
+Ssarakh, and by Herbalist Wenna:
 
   brew              (by an alchemy table) what you can brew there
   brew brewed red potion      brew one   (add a number for more)

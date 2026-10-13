@@ -21,8 +21,9 @@ backups/crafting-<time>/. Running it again changes nothing that's in.
   recipes        what forges, anvils and alchemy tables make: written if
                  missing, else only the recipes it lacks are added (a god's
                  changes are kept)
-  props          veins, patches, and a forge and an anvil in five towns,
-                 an alchemy table in five
+  props          veins, patches, and a forge and an anvil in four towns,
+                 an alchemy table in four (none in the dark elves'
+                 tutorial: taken out if there)
   merchants      smiths sell picks and hammers, alchemists sickles, and the
                  stalls all three
   rc/images/sprites.gif   sprites 58-72 (craftsprites.py, beside this file)
@@ -131,8 +132,6 @@ alchemy|70|moonpetal elixir|2 moonpetal, 1 brewed blue potion
 STATIONS = [
     # Kingshaven: behind Brann the Smith's counter; his shop sells the tools.
     {"forge": (1419, 341), "anvil": (1415, 341), "sell_at": (1417, 343)},
-    # Velkarath: Armsmaster Quave's hall.
-    {"forge": (1292, 964), "anvil": (1294, 964), "stall": (1298, 964)},
     # The old human town, by The Armorer.
     {"forge": (123, 376), "anvil": (127, 376), "stall": (129, 379)},
     # Izaru's mine hall; the Mine Shop sells the tools.
@@ -144,10 +143,13 @@ STATIONS = [
 TABLES = [
     {"table": (1440, 373), "sell_at": (1442, 371)},  # Kingshaven: behind Alchemist Pell's counter
     {"table": (485, 1254), "sell_at": (487, 1252)},  # Aelindor: Miriel's Herbs
-    {"table": (1296, 964)},  # Velkarath: by the forge (its stall sells sickles)
     {"table": (30, 127)},  # the old world, by Herbalist Wenna
     {"table": (1680, 941)},  # Ssarakh: by the forge
 ]
+# Taken out again (2026-10-13): Armsmaster Quave's hall is the dark elves'
+# tutorial, no place for a smithy.
+DROP_PROPS = [("forge", 1292, 964), ("anvil", 1294, 964), ("alchemy table", 1296, 964)]
+DROP_STALLS = [(1298, 964)]
 TOOLS = ["mining pick", "smithing hammer", "herb sickle"]
 SMITH_TOOLS = ["mining pick", "smithing hammer"]
 ALCHEMY_TOOLS = ["herb sickle"]
@@ -256,10 +258,17 @@ def main():
     for t in TABLES:
         want.append(("alchemy table",) + t["table"])
     add = [w for w in want if (w[0], str(w[1]), str(w[2])) not in have]
-    if add:
-        base = text.rstrip("\r\n \t")
-        write("props", (base + "\n" if base else "") + "".join("%s\n%d\n%d\n" % w for w in add))
-    said.append("props placed: %d new, %d already there" % (len(add), len(want) - len(add)))
+    drop = {(n, str(x), str(y)) for n, x, y in DROP_PROPS}
+    gone = [t for t in have if t in drop]
+    if add or gone:
+        kept = []
+        for i in range(0, len(lines) - 2, 3):
+            if not lines[i]:
+                break
+            if (lines[i], lines[i + 1].strip(), lines[i + 2].strip()) not in drop:
+                kept.append("%s\n%s\n%s\n" % (lines[i], lines[i + 1], lines[i + 2]))
+        write("props", "".join(kept) + "".join("%s\n%d\n%d\n" % w for w in add))
+    said.append("props placed: %d new, %d already there; %d taken out" % (len(add), len(want) - len(add), len(gone)))
 
     # Tools for sale.
     text = (read("merchants") or "").replace("\r", "")
@@ -292,6 +301,11 @@ def main():
                     if t not in wares:
                         wares.append(t)
                         added.append("%s at %s,%s" % (t, x, y))
+            # A stall of ours that's no longer wanted (only our tools on it).
+            if (int(x), int(y)) in DROP_STALLS and all(w in TOOLS for w in wares):
+                added.append("stall at %s,%s taken out" % (x, y))
+                i = j + 1
+                continue
             out += ["Merchant", lines[i + 1], lines[i + 2]] + wares + ["end"]
             i = j + 1
             continue

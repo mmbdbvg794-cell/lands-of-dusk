@@ -1029,7 +1029,15 @@ commands that touch live.
 - OpenWebStart may keep the old jar until it checks for updates; players
   can re-open dusk.jnlp from the website.
 
-## 2026-10-13: herbalism and alchemy (NOT live yet)
+## 2026-10-13: herbalism and alchemy (LIVE: installed 00:08, restart 00:32, deployed)
+
+- 01:19: the forge, anvil, alchemy table and tool stall in Armsmaster
+  Quave's hall (1292-1298,964) taken out: it's the dark elves' tutorial
+  (install_crafting.py DROP_PROPS/DROP_STALLS). Live after the next
+  restart; a god save before it would write them back from memory.
+- mushroom made food (tools/server/fix_mushroom.py, 01:11): the drow and
+  lizard tutorials sell it as food. give <npc> hint in Talk.java installed
+  01:04, live after the next restart.
 
 - server/Crafting.java is now general: SOURCES (veins and herb patches:
   prop name, item, skill, level, full/empty image, tool, command mine or

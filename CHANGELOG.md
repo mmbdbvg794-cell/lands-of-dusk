@@ -446,7 +446,7 @@ backups; see `server/`.
   Mine (or type `mine`); you keep digging until it's worked out or you
   move. Worked-out veins fill again after a few minutes. Mining is a skill
   that rises as you dig and unlocks the better ores.
-- **Smithing.** Forges and anvils in Kingshaven, Velkarath, Izaru, the old
+- **Smithing.** Forges and anvils in Kingshaven, Izaru, the old
   town and Ssarakh. Smelt ore into bars at the forge, then make weapons and
   armour at the anvil with a smithing hammer (or type `smith`). Bronze,
   iron and steel gear, a steel sword, and a mithril set that can only be
@@ -458,7 +458,7 @@ backups; see `server/`.
   Picked patches grow back. Lavender and wolfsbane cost less in shops now
   that they can be picked; azeala a little more.
 - **Alchemy.** Alchemy tables by Alchemist Pell (Kingshaven), Miriel
-  (Aelindor), Herbalist Wenna, and in Velkarath and Ssarakh: brew the
+  (Aelindor), Herbalist Wenna, and in Ssarakh: brew the
   hand-brewed potions, and the moonpetal elixir (1000 health and mana),
   which can only be brewed. Alchemy is a skill.
 - **The classic Java client has a Help button** under Equipment, with a
