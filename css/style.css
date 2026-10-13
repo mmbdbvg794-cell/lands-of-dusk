@@ -1579,12 +1579,21 @@ dialog::backdrop { background: #000a; }
 .sex-picks { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }
 .sex-pick { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 18px; }
 .sex-pick canvas { width: 96px; height: 96px; }
-#class-dialog { max-width: 480px; padding: 18px; }
+#class-dialog { max-width: 560px; padding: 18px; }
 #class-dialog h2 { margin: 0 0 8px; font-size: 18px; }
 #class-dialog h2:focus { outline: none; }
-.class-picks { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-.class-pick { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 12px; text-align: left; }
-.class-pick span { font-size: 12px; color: var(--muted); }
+.class-picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin-top: 12px; }
+.class-pick { display: flex; align-items: center; gap: 12px; padding: 10px 12px; text-align: left; }
+.class-icon { flex: none; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 8px; background: var(--class-bg, rgba(255,255,255,.06)); color: var(--class-fg, var(--accent)); }
+.class-words { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.class-words strong { font-size: 15px; }
+.class-words span { font-size: 12px; color: var(--muted); }
+.class-pick[data-class="fighter"] { --class-fg: #d8774a; --class-bg: rgba(216,119,74,.14); }
+.class-pick[data-class="mage"] { --class-fg: #8f8cf0; --class-bg: rgba(143,140,240,.14); }
+.class-pick[data-class="cleric"] { --class-fg: #e8c45a; --class-bg: rgba(232,196,90,.14); }
+.class-pick[data-class="priest"] { --class-fg: #b77ad8; --class-bg: rgba(183,122,216,.14); }
+.class-pick[data-class="ranger"] { --class-fg: #6fbf73; --class-bg: rgba(111,191,115,.14); }
+.class-pick[data-class="paladin"] { --class-fg: #7fb0e0; --class-bg: rgba(127,176,224,.14); }
 .class-tag { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 3px; font-size: 10px; font-weight: normal; line-height: 15px; vertical-align: middle; border: 1px solid currentColor; }
 .class-tag.core { color: #6fbf73; }
 .class-tag.cross { color: #d8a24a; }
@@ -1622,3 +1631,10 @@ dialog::backdrop { background: #000a; }
 .ca-recipe .ca-needs { flex: 1.6; }
 .ca-note { margin: 10px 0 0; padding: 6px 10px; border-radius: 6px; background: rgba(216, 160, 64, 0.15); font-size: 13px; }
 .skill-name .class-tag { align-self: flex-start; margin: 2px 0 0; }
+
+/* The character panel's tabs as icons (js/icons.js): the words are the tooltip and for screen readers. */
+[role="tab"].icon-tab { position: relative; display: inline-grid; place-items: center; padding: 7px 10px 5px; }
+[role="tab"].icon-tab svg { display: block; }
+.tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+[role="tab"].icon-tab .count { position: absolute; top: 2px; right: 1px; min-width: 14px; padding: 0 3px; border-radius: 7px; background: var(--border); color: var(--text); font-size: 10px; line-height: 14px; text-align: center; }
+[role="tab"].icon-tab .count:empty { display: none; }

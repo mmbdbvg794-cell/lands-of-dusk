@@ -376,3 +376,19 @@ body.classic .trade-gold { color: var(--ink-soft); }
 body.classic #output .line.k-whisper { color: #e0b8f5; }
 body.classic .skill-what { color: var(--ink-soft); font-size: 13px; font-style: italic; }
 body.classic .school-skill { background: linear-gradient(90deg, rgba(122,46,20,0.35) var(--pct, 0%), rgba(122,46,20,0.08) var(--pct, 0%)); }
+
+/* The class picker's cards: stone, not the blue block, so the words read. */
+body.classic .class-pick {
+  background: linear-gradient(180deg, #2e2f33, #232427);
+  border: 1px solid #45464a;
+  color: var(--parchment);
+}
+body.classic .class-pick:hover:not(:disabled) { border-color: var(--gold); }
+body.classic .class-words strong { font-family: "Cinzel", serif; color: var(--gold-bright); }
+body.classic .class-words span { font-family: Georgia, "Times New Roman", serif; font-size: 13px; letter-spacing: 0; color: var(--stone-light); }
+body.classic [role="tab"].icon-tab { padding: 7px 7px 5px; }
+body.classic [role="tab"].icon-tab .count { background: var(--sapphire); color: var(--gold-bright); }
+/* Class tags on parchment: darker. */
+body.classic .class-tag.core { color: #2f7a3a; }
+body.classic .class-tag.cross { color: #9a5a0c; }
+body.classic .class-tag.barred { color: #9b2a22; }

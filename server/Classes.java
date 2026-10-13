@@ -364,6 +364,8 @@ public class Classes {
     public static void atLogin(Player p) {
         try {
             if (exempt(p) || of(p) != null) return;
+            // The browser client opens its picker instead.
+            if (BridgedSocket.browser(p.sckConnection)) return;
             p.chatMessage("Before you set out, choose your class: " + choices(p) + ". Type class <name> (for example: class fighter). You choose once.\n");
         } catch (Exception e) {
             Log.logError(e, "Classes.atLogin for " + p.strName, false);

@@ -26,6 +26,7 @@ import { MailView, parseMail } from './mail.js';
 import { PartyView, parseParty, partyChatCommand } from './party.js';
 import { AchievementsView, parseAchv } from './achievements.js';
 import { SEX_ASK, parseSex, sexCommand, maleImage, femaleImage } from './sex.js';
+import { iconTabs, svg, CLASS_ICONS } from './icons.js';
 import { CLASS_ASK, CLASS_CHOICES, CLASS_TIERS, parseClass, parseChoices, parseTiers, classCommand } from './classes.js';
 import { parseWorking, parseRecipe, SmithView, chopCommand } from './crafting.js';
 import { TREE_TILES } from './trees.js';
@@ -1895,6 +1896,8 @@ for (const b of sexDialog.querySelectorAll('[data-sex]')) {
 // woman, so the choices are asked for again once that's chosen.
 
 const classDialog = $('class-dialog');
+// The character panel's tabs as icons (js/icons.js).
+iconTabs(document.querySelector('#panel-tabs [role="tablist"]'));
 let classAfterSex = false;
 function classAnswer(r) {
   if (r === 'unset') { conn?.background(CLASS_CHOICES); return; }
@@ -1908,11 +1911,18 @@ function showClassPicker(choices) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'class-pick';
+    b.dataset.class = c.id;
+    const icon = document.createElement('span');
+    icon.className = 'class-icon';
+    if (CLASS_ICONS[c.id]) icon.append(svg(CLASS_ICONS[c.id], 44));
     const name = document.createElement('strong');
     name.textContent = c.name;
     const blurb = document.createElement('span');
     blurb.textContent = c.blurb;
-    b.append(name, blurb);
+    const words = document.createElement('span');
+    words.className = 'class-words';
+    words.append(name, blurb);
+    b.append(icon, words);
     b.addEventListener('click', () => conn?.send(classCommand(c.id)));
     return b;
   }));
