@@ -1132,9 +1132,38 @@ commands that touch live.
 - Client: clicking a tree square beside you chops it; Fletch… on
   workbenches; the Crafting window knows workbenches and fletching.
 
+## 2026-10-13: The Firetown Expedition (story chapter) (LIVE: installed 11:37, restart 11:37, deployed)
+
+- tools/world/cities/firetown.mjs: 6 quests ft_page (Aldous) -> ft_stone
+  (Zyrith: 6 magma slimes) -> ft_cross (Old Bram, Westsea 96,358: offer
+  effects teleport to 380,351; Tam 379,352 rows back to 95,358) -> ft_free
+  (Elowen 369,348, a "prisoner" look; kill Ashen Gaoler, new mob 392,377,
+  drops brood stone shard 100%) -> ft_seal (the square 393,379 before the
+  rift prop 394,379 seals it with shard + fragment, gives ember of the rift;
+  tile rules can have `also` now) -> ft_word (letter to Old Wenna).
+  Achievement riftsealed (ft_word_done). Per player.
+- The cells (370-397, 348-383) connect to nothing on foot; the route to
+  the rift avoids 384,349 (drops humans to 1 HP).
+- js/quests.js: offer.effects (extra effects on accepting); quest stages
+  carry the NPC's own answers (their last "always" stage), rebuilt from
+  st.base each merge; offers ordered deepest first. js/dialogue.js:
+  "you'll need" with the right article; looseLabel drops apostrophes;
+  withArticle: no article before a capitalised name.
+- ITEM FILE NAMES MUST BE LOWER CASE: DuskEngine.getItem lower-cases the
+  name it opens. "Water Gem" was renamed "water gem" on live.
+- tools/server/merge_quests.mjs <talk> <quests> <out>: re-merges every
+  quest in quests/*.json into the NPCs it involves (only scripts exactly
+  as the editor made them). tools/server/regen_talk.mjs first, with the
+  dialogue.js that made the live scripts (git show HEAD:js/dialogue.js
+  before committing changes to it). tools/server/add_achievement.py.
+- Install order (node isn't on duskserver: run the two .mjs tools locally
+  on copies and push back): city.mjs bundle (base props json for
+  prisoner/Villager/hermit) -> install_city.py --old-world -> add_achievement
+  -> regen_talk -> merge_quests -> restart -> deploy.
+
 ## Open / ideas
 
-- Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.
+- Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in the dunes; Morvane's journal pages as boss drops.
 
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains.

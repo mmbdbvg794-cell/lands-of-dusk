@@ -351,8 +351,16 @@ console.log('ok - sex words');
   assert.equal(looseLabel('Who me? Yes sir.'), 'who me yes sir');
   assert.equal(looseLabel('Here, sir'), 'here sir');
   assert.equal(looseLabel('farewell'), 'farewell');
+  assert.equal(looseLabel("Elowen's letter"), 'elowens letter');
   const s2 = toScript('Rec', { stages: [{ when: { kind: 'always' }, says: 'Hey', answers: [{ label: 'Here, sir', reply: 'Good.', effects: [] }, { label: 'No', reply: 'Fine.', effects: [] }] }] });
   assert.match(s2, /^if or strequals answer "here, sir" strequals answer "here sir"$/m);
   assert.match(s2, /^if strequals answer "no"$/m);
   console.log('ok - loose answers');
+}
+
+// A tile rule with a second condition.
+{
+  const s3 = toTileScript([{ when: { kind: 'item', value: 'shard' }, also: { kind: 'item', value: 'stone' }, speaker: '', says: 'Sealed.', effects: [] }]);
+  assert.match(s3, /^if and hasItem trigger "shard" hasItem trigger "stone"$/m);
+  console.log('ok - tile also');
 }

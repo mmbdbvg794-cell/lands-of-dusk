@@ -20,8 +20,10 @@ import shutil
 import sys
 import time
 
+# (File names in lower case: the engine lower-cases the name it looks for,
+# so Serpetion's "Water Gem" is defItems/water gem.)
 ITEMS = {
-    "Water Gem": "type\nitem\ndescription\na Water Gem, deep blue, with a tide moving inside it. Serpetion guarded it\ncost\n1500\nmod\n0\nimage\n6\n.\n",
+    "water gem": "type\nitem\ndescription\na Water Gem, deep blue, with a tide moving inside it. Serpetion guarded it\ncost\n1500\nmod\n0\nimage\n6\n.\n",
     "wonder elixer": "type\nitem\ndescription\na wonder elixir: restores 800 health and mana\ncost\n1200\nimage\n6\nonuse\nwonder elixer.use\nuses\n1\n.\n",
 }
 SCRIPTS = {
@@ -37,6 +39,12 @@ def main():
     apply = "--apply" in sys.argv
     os.chdir(args[0])
     said = []
+    # A first run made "Water Gem", which the engine can't find: rename it.
+    wrong = os.path.join("defItems", "Water Gem")
+    if os.path.exists(wrong) and not os.path.exists(os.path.join("defItems", "water gem")):
+        said.append("Water Gem -> water gem (the file name the engine looks for)")
+        if apply:
+            os.rename(wrong, os.path.join("defItems", "water gem"))
     for name, text in ITEMS.items():
         path = os.path.join("defItems", name)
         if os.path.exists(path):

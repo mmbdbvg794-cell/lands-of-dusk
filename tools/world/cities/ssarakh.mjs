@@ -19,6 +19,7 @@
 import { captain } from './ferry.mjs';
 import { teller } from './lore.mjs';
 import { dawnward } from './dawnward.mjs';
+import { firetown } from './firetown.mjs';
 
 const O = [1660, 914];
 const A = (x, y) => [x - O[0], y - O[1]];
@@ -80,7 +81,7 @@ export default {
     WALK([[1712, 936], [1712, 940]]);
     MER(1712, 931, WARES.train);
     NPC({ name: 'Shaman Ithrae', look: 'lizardfolk', desc: 'Shaman Ithrae, hung with bones and river shells, eyes like wet stones.', x: 1714, y: 930,
-      dlg: dawnward('Shaman Ithrae', teller('The mire teaches, if you sit still long enough. Stand at my mat and I will teach you faster, for a price in what you have learned. Or sit, and ask what the brood remembers.', ['brood', 'dryones', 'wyrms'], 'Patience, warm-blood.')) });
+      dlg: firetown('Shaman Ithrae', dawnward('Shaman Ithrae', teller('The mire teaches, if you sit still long enough. Stand at my mat and I will teach you faster, for a price in what you have learned. Or sit, and ask what the brood remembers.', ['brood', 'dryones', 'wyrms'], 'Patience, warm-blood.'))) });
     SIGN('Shaman', 'The Shaman\'s hut. Training, for those with the patience of reeds.', 1713, 937);
 
     // The Mire Bank.

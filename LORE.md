@@ -52,8 +52,22 @@ and add to it here first.
   she knelt at King Zilen's grave and left a letter with Tombkeeper Aldous:
   her uncle opened the gate under Firetown, and she meant to close it; if
   she didn't come back, the stone is with her "somewhere in the fire".
-  **Open thread:** an expedition into Firetown to find her, or the shard,
-  and close the rift.
+- **The Firetown Expedition** (firetown.mjs): Elowen left a second page
+  with Tombkeeper Aldous: a gate is shut with warden stone, Brood Stone and
+  the old words. Archivist Zyrith (who refused Elowen twelve years ago and
+  is sorry) gives a fragment of Velkarath's broken warden stone. Old Bram,
+  a boatman at Westsea Harbour, rows across past the king's closed road;
+  his grandson Tam rows back. Elowen is alive, grey and thin, a prisoner of
+  the Fallen in Firetown's cells: they keep her because the rift likes a
+  king's blood near it. The Ashen Gaoler, captain of the Fallen, wore the
+  shard. At the rift, at the passage's end, the shard and the warden stone
+  and the words "Under the world, be still" close it. Elowen gives
+  **Dawnbreaker**, King Zilen's sword, and a letter to Old Wenna: "Do not
+  keep the chair warm for me; keep the people warm." She stays in Firetown
+  until she can walk the passage. (Per player: the rift is closed in each
+  player's own story.)
+  **Open threads:** Elowen coming home to Kingshaven; Kraghul and the Horde
+  still in the dunes above Eastreach; Morvane, still risen.
 - New human characters are refugees: the tutorial ("From Refugee to
   Soldier...") is the last of the crossing, and it ends in Kingshaven.
 

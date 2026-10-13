@@ -142,7 +142,8 @@ function advance(q, i) {
 }
 
 // "a leather cap", "an iron sword", "leather gloves" (a pair or a set).
-export const withArticle = (item) => (/s$/i.test(item) ? item : /^[aeiou]/i.test(item) ? `an ${item}` : `a ${item}`);
+// (A name takes none: "Dawnbreaker", "Elowen's letter".)
+export const withArticle = (item) => (/s$/i.test(item) || /^[A-Z]/.test(item) ? item : /^[aeiou]/i.test(item) ? `an ${item}` : `a ${item}`);
 
 // What the reward is, said after the last step ("You get 50 gold, ...").
 export function rewardLine(q) {
@@ -180,7 +181,9 @@ export function questStagesFor(q, npc) {
   });
   if (isGiver) {
     stages.push({ ...tag, when: { kind: 'flag', value: flagOn(q) }, says: t(q.reminder) || 'How goes it?', answers: [] });
-    const accept = { label: t(q.offer.accept) || 'I will help', reply: t(q.offer.acceptReply), effects: [{ kind: 'flag', flag: flagOn(q) }, { kind: 'flag', flag: flagStep(q, 0) }] };
+    // (offer.effects: anything more that happens on taking it, as a
+    // dialogue answer's effects: a boatman rowing you off, say.)
+    const accept = { label: t(q.offer.accept) || 'I will help', reply: t(q.offer.acceptReply), effects: [{ kind: 'flag', flag: flagOn(q) }, { kind: 'flag', flag: flagStep(q, 0) }, ...(Array.isArray(q.offer.effects) ? q.offer.effects : [])] };
     // Once per wait (the conversation's "again after N minutes").
     if (flagAgain(q)) accept.once = { flag: flagAgain(q), minutes: againMinutes(q), says: t(q.again.says) || 'Come back later; there\'s nothing new yet.' };
     const answers = [accept];
@@ -244,8 +247,27 @@ export function mergeQuest(dlg, q, npc) {
   const needs = new Map(all.map((st) => [st.quest, st.requires]));
   const depth = (id, seen = new Set()) => (needs.get(id) && !seen.has(id) ? 1 + depth(needs.get(id), seen.add(id)) : 0);
   // The depth the quest was saved with, or what this NPC's quests show.
-  const key = (st) => (stageRank(st) === 4 ? -Math.max(n(st.depth), depth(st.quest)) : 0);
+  // Offers too: the one furthest along a chain first (it only shows once
+  // the quest before it is done, so it doesn't hide a newcomer's first
+  // quest; and a newcomer's first quest mustn't hide it).
+  const key = (st) => (stageRank(st) === 4 || stageRank(st) === 2 ? -Math.max(n(st.depth), depth(st.quest)) : 0);
   const quests = all.map((st, i) => [stageRank(st), key(st), i, st]).sort((x, y) => x[0] - y[0] || x[1] - y[1] || x[2] - y[2]).map((x) => x[3]);
+  // An NPC with a conversation of their own (a last "always" stage with
+  // answers: Old Wenna's tales, say) keeps it reachable: a quest's offer,
+  // reminder and thank-you also offer its answers, after their own. Built
+  // again from each stage's own words (base) every time, so nothing doubles.
+  const home = [...own].reverse().find((st) => st.when?.kind === 'always' && (st.answers ?? []).some((a) => t(a.label)));
+  for (const st of quests) {
+    st.base ??= { says: st.says, answers: st.answers ?? [] };
+    st.says = st.base.says;
+    st.answers = [...st.base.answers];
+    const rank = stageRank(st);
+    if (!home || !(rank === 1 || rank === 2 || rank === 4)) continue;
+    if (rank === 1 && !(st.when?.kind === 'flag' && cleanFlag(st.when.value).toLowerCase() === `${st.quest}_on`)) continue;
+    const labels = new Set(st.answers.map((a) => t(a.label).toLowerCase()));
+    if (!st.answers.length) st.says = [t(st.base.says), t(home.says)].filter(Boolean).join(' ');
+    st.answers.push(...structuredClone(home.answers.filter((a) => t(a.label) && !labels.has(t(a.label).toLowerCase()))));
+  }
   const stages = [...quests, ...own];
   if (!own.length) stages.push({ when: { kind: 'always', value: '' }, says: '', answers: [] });
   return { ...dlg, stages };

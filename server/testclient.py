@@ -7,7 +7,8 @@ Logs in (creating the character, as a human or $RACE, if it's new), sends each
 command, and prints the server's text replies as they come, one per line,
 prefixed with "> " for what was sent. Inventory updates (opcode 6) print as
 "inventory: ...". A command "wait N" just listens for N seconds; "useitem
-<name>" sends "use <ID>" for that item in the latest inventory.
+<name>" sends "use <ID>" for that item in the latest inventory; "a <name>"
+attacks the nearest of that name, and "approach <name>" walks up to it.
 """
 import os, socket, sys, time
 
@@ -118,6 +119,10 @@ for c in commands:
     verb, _, rest = c.partition(' ')
     if verb in ('use', 'wear', 'eat', 'drink') and rest.lower() in inventory:
         c = verb + ' ' + inventory[rest.lower()]
+    # "approach <name>": walk up to the nearest of that name.
+    if verb == 'approach' and rest.lower() in seen:
+        e = min(seen[rest.lower()], key=lambda e: max(abs(e[1] - me[0]), abs(e[2] - me[1])))
+        c = 'goto %d %d' % (e[1], e[2])
     if verb in ('a', 'attack') and rest.lower() in seen:
         # The nearest of that name, as you'd pick it.
         c = 'a ' + min(seen[rest.lower()], key=lambda e: max(abs(e[1] - me[0]), abs(e[2] - me[1])))[0]

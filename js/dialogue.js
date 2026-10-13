@@ -67,7 +67,7 @@ const text = (s) => plain(s).replace(/"/g, "'").replace(/[\r\n]+/g, ' ').replace
 export const cleanLabel = (s) => text(s).toLowerCase().replace(/[()/]/g, ' ').replace(/\s+/g, ' ').trim();
 // The same without punctuation: typed answers often leave it out ("here sir"
 // for "here, sir"), so a script takes either (the case never matters).
-export const looseLabel = (s) => cleanLabel(s).replace(/[?.,!;:'"-]/g, ' ').replace(/\s+/g, ' ').trim();
+export const looseLabel = (s) => cleanLabel(s).replace(/'/g, '').replace(/[?.,!;:"-]/g, ' ').replace(/\s+/g, ' ').trim();
 // The script's test for an answer: the label, or it without punctuation.
 const answerIs = (v, label) => {
   const clean = cleanLabel(label), loose = looseLabel(label);
@@ -144,13 +144,16 @@ function stageCondition(stage) {
   return a || b || null;
 }
 
+// "a sword", "an apple", "Elowen's letter" (a name takes none).
+const withA = (item) => (/^[A-Z]/.test(item) ? item : `${/^[aeiou]/i.test(item) ? 'an' : 'a'} ${item}`);
+
 // What an answer needs before it works (answer.needs): the check, and
 // what the NPC says when it isn't met.
 function needs(n, who) {
   const v = n?.value;
   switch (n?.kind) {
     case 'gold': return Number(v) > 0 ? [`< trigger cash ${Math.floor(Number(v))}`, `${who} says: You don't have enough gold for that. It's ${Math.floor(Number(v))} gp.`] : null;
-    case 'item': return text(v) ? [`! hasItem trigger "${text(v)}"`, `${who} says: You'll need a ${text(v)} for that.`] : null;
+    case 'item': return text(v) ? [`! hasItem trigger "${text(v)}"`, `${who} says: You'll need ${withA(text(v))} for that.`] : null;
     case 'flag': return cleanFlag(v) ? [`! hasCondition trigger ${cleanFlag(v)}`, `${who} says: You can't do that yet.`] : null;
     default: return null;
   }
@@ -347,7 +350,8 @@ export const newRule = () => ({ when: { kind: 'always', value: '' }, speaker: ''
 export function toTileScript(rules) {
   const out = ['#Tile action, made in the God tab.', '#Change it there: saving the tile editor rewrites this file.'];
   for (const r of rules ?? []) {
-    const cond = condition(r.when);
+    // (A rule can have a second condition too, as a stage can: r.also.)
+    const cond = stageCondition(r);
     const pad = cond ? '\t' : '';
     if (cond) out.push(`if ${cond}`);
     for (const e of r.effects ?? []) {
@@ -473,7 +477,7 @@ export function tryAnswer(a, p, who) {
   if (once && p.flags.has(once)) return { lines: [bySex(`${name} says: ${text(a.once.says) || ONCE_SAYS}`, p.sex)] };
   const need = a.needs;
   if (need?.kind === 'gold' && p.gold < (Number(need.value) || 0)) return { lines: [`${name} says: You don't have enough gold for that. It's ${Math.floor(Number(need.value))} gp.`] };
-  if (need?.kind === 'item' && !holds({ kind: 'item', value: need.value }, p)) return { lines: [`${name} says: You'll need a ${text(need.value)} for that.`] };
+  if (need?.kind === 'item' && !holds({ kind: 'item', value: need.value }, p)) return { lines: [`${name} says: You'll need ${withA(text(need.value))} for that.`] };
   if (need?.kind === 'flag' && !holds({ kind: 'flag', value: need.value }, p)) return { lines: [`${name} says: You can't do that yet.`] };
   const lines = [];
   for (const e of a.effects ?? []) {

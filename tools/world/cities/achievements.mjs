@@ -27,6 +27,7 @@ export const ACHIEVEMENTS = [
   ...CHAINS.map(([id, title, what, flag]) => [id, title, what, 'flags', flag, 1]),
   ['questmaster', 'Questmaster', 'Finish all seven quest chains', 'flags', CHAINS.map((c) => c[3]).join(','), CHAINS.length],
   ['dawnward', 'The Dawnward', 'Learn what became of Princess Elowen', 'flags', 'dw_road_done', 1],
+  ['riftsealed', 'The Rift Sealed', 'Close the rift under Firetown and bring word home', 'flags', 'ft_word_done', 1],
   ['champion', 'Champion', 'Win the Champion\'s Blade in the Champions\' Gauntlet', 'flags', 'Champion', 1],
   ['loremaster', 'Keeper of Tales', 'Learn every tale of Dusk, from the chroniclers and the old stones', 'flags', LORE_FLAGS.join(','), LORE_FLAGS.length],
   ['duellist', 'Duellist', 'Win a duel in the Duelling Ring', 'duelwins', '', 1],

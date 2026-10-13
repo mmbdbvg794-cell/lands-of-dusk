@@ -465,6 +465,21 @@ backups; see `server/`.
   guide to every command to type (the guide lives on the server, so it can
   be changed without a new client).
 
+## The Firetown Expedition (13 October 2026)
+
+- **A new story chapter** after The Dawnward: six quests from the City of
+  Light's graveyard, through Ssarakh and Velkarath, across the burning sea
+  to Firetown, and home to Kingshaven. Find Princess Elowen, take back the
+  Brood Stone shard, and close the rift under Firetown. Rewards include
+  **Dawnbreaker**, King Zilen's sword. Achievement: **The Rift Sealed**.
+- **Old Bram the boatman** at Westsea Harbour rows expedition members to
+  Firetown; Tam rows them back.
+- NPCs who give quests now keep their own conversation too (Old Wenna's
+  tales, for one, were hidden behind her quests); quests further along a
+  story are offered first; typed answers ignore apostrophes ("elowens
+  letter").
+- Fixed: Serpetion's Water Gem drop (the item file's name).
+
 ## Closed beta
 
 - **Beta keys.** Playing in the browser needs a beta key. Type it once in the

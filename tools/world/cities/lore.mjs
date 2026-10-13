@@ -1,4 +1,5 @@
 import { dawnward } from './dawnward.mjs';
+import { firetown } from './firetown.mjs';
 
 // The lore of Dusk, in pieces round the world (LORE.md is the whole story;
 // players only ever get it a piece at a time, each place telling its own
@@ -111,7 +112,7 @@ export default {
   build(p) {
     // Kingshaven.
     p.npc({ name: 'Old Wenna', look: 'Villager Woman', desc: 'Old Wenna the Chronicler, white-haired and sharp-eyed, a book of names on her knee.', x: 1429, y: 351,
-      dlg: dawnward('Old Wenna', teller('Sit, sit. I was a girl of nine when the ships came over from the old world. Ask, and I will tell you what I remember.', ['crossing', 'throne', 'fall'], 'Mind how you go.')) });
+      dlg: firetown('Old Wenna', dawnward('Old Wenna', teller('Sit, sit. I was a girl of nine when the ships came over from the old world. Ask, and I will tell you what I remember.', ['crossing', 'throne', 'fall'], 'Mind how you go.'))) });
     p.file('defProps/Stone of the Crossing', propFile(TALES.memorial[1], 5));
     p.prop('Stone of the Crossing', 1427, 351);
     readOnce(p, 'memorial', 1427, 352);
@@ -122,7 +123,7 @@ export default {
 
     // Velkarath.
     p.npc({ name: 'Archivist Zyrith', look: 'Dark Elf Woman', desc: 'Archivist Zyrith, thin as a shadow, a lamp of blue fungus at her side.', x: 1340, y: 914,
-      dlg: teller('You have come a long way down to ask questions. Ask them quietly.', ['gates', 'morvane', 'tremor'], 'The dark keeps you.') });
+      dlg: firetown('Archivist Zyrith', teller('You have come a long way down to ask questions. Ask them quietly.', ['gates', 'morvane', 'tremor'], 'The dark keeps you.')) });
     p.file('defProps/Broken Warden Stone', propFile(TALES.shard[1], 48));
     p.prop('Broken Warden Stone', 1357, 909);
     readOnce(p, 'shard', 1357, 910);

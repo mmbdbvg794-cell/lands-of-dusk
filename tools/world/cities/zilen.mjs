@@ -25,6 +25,7 @@
 
 import { newQuest, newStep, mergeQuest, questDepth } from '../../../js/quests.js';
 import { dawnward } from './dawnward.mjs';
+import { firetown } from './firetown.mjs';
 
 const O = [12, 105];
 const at = (x, y) => [x - O[0], y - O[1]];
@@ -151,7 +152,7 @@ export default {
     p.file('defItems/zilen crown', itemFile('King Zilen\'s crown, old gold, dented at one side', 7));
 
     // The Tombkeeper, in the graveyard.
-    p.npc({ name: KEEPER, look: 'hermit', desc: 'Tombkeeper Aldous, stooped and grey, a ring of old iron keys at his belt.', x: 42 - O[0], y: 111 - O[1], dlg: dawnward(KEEPER, talk(KEEPER)) });
+    p.npc({ name: KEEPER, look: 'hermit', desc: 'Tombkeeper Aldous, stooped and grey, a ring of old iron keys at his belt.', x: 42 - O[0], y: 111 - O[1], dlg: firetown(KEEPER, dawnward(KEEPER, talk(KEEPER))) });
 
     // The robbers' glade, west of the south road (the road is x 106).
     p.path([P(105, 280), P(88, 280)]);

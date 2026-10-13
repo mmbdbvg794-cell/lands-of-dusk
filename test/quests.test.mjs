@@ -136,9 +136,11 @@ const both = mergeQuest(mergeQuest(own, q, 'Captain Ros'), w, 'Captain Ros');
 assert.deepEqual(both.stages.map((s) => s.when.value || s.says), ['watch_2', 'watch_on', 'watch_done', 'wolf_trouble_done', 'watch_done', 'Nice weather.']);
 assert.deepEqual(both.stages.map((s) => s.quest ?? '-'), ['watch', 'watch', 'watch', 'watch', 'watch', '-']);
 const joeBoth = mergeQuest(mergeQuest(own, q, 'Farmer Joe'), { ...w, giver: 'Farmer Joe', steps: [w.steps[0], { ...w.steps[1], npc: 'Farmer Joe' }] }, 'Farmer Joe');
+// (The later quest's offer first: it only shows once the first is done, so
+// it hides nothing, and the first quest's offer mustn't hide it.)
 assert.deepEqual(joeBoth.stages.map((s) => `${s.when.kind} ${s.when.value}`.trim()), [
   'flag wolf_trouble_3', 'flag watch_2', 'flag wolf_trouble_on', 'flag watch_on',
-  'noflag wolf_trouble_done', 'noflag watch_done', 'noflag wolf_trouble_done', 'flag watch_done', 'flag wolf_trouble_done', 'always']);
+  'noflag watch_done', 'noflag wolf_trouble_done', 'noflag wolf_trouble_done', 'flag watch_done', 'flag wolf_trouble_done', 'always']);
 // Saving the first again keeps steps first and thank-yous last.
 const again2 = mergeQuest(joeBoth, q, 'Farmer Joe');
 assert.deepEqual(again2.stages.map((s) => s.when.value).slice(0, 2).sort(), ['watch_2', 'wolf_trouble_3']);
@@ -164,3 +166,30 @@ assert.deepEqual(thanks(mergeQuest(mar, chain[1], 'Mar')), ['c4_done', 'c2_done'
 // Saved before depths existed (no depth): still at least 1 for needing one.
 assert.equal(questStagesFor({ ...chain[3], depth: 0 }, 'Mar')[0].depth, 1);
 console.log('ok - quests');
+
+// An NPC's own conversation stays reachable through a quest's stages.
+{
+  const teller = { shouts: [], stages: [{ when: { kind: 'always', value: '' }, says: 'Ask me anything.', answers: [{ label: 'The war', reply: 'Long story.', effects: [] }, { label: 'Farewell', reply: 'Go well.', effects: [] }] }] };
+  const qq = { ...newQuest('tale_q'), title: 'T', giver: 'Gran', steps: [{ ...newStep('talk', 'Gran'), says: 'Well?', answer: 'Done', reply: 'Good.' }] };
+  qq.offer.says = 'Will you help?';
+  qq.after = 'Thank you.';
+  const m1 = mergeQuest(teller, qq, 'Gran');
+  const offer = m1.stages.find((st) => st.when.kind === 'noflag' && st.when.value === 'tale_q_done');
+  assert.deepEqual(offer.answers.map((a) => a.label), ['I will help', 'Not now', 'The war', 'Farewell']);
+  const after = m1.stages.find((st) => st.when.kind === 'flag' && st.when.value === 'tale_q_done');
+  assert.equal(after.says, 'Thank you. Ask me anything.');
+  assert.deepEqual(after.answers.map((a) => a.label), ['The war', 'Farewell']);
+  const reminder = m1.stages.find((st) => st.when.kind === 'flag' && st.when.value === 'tale_q_on');
+  assert.deepEqual(reminder.answers.map((a) => a.label), ['The war', 'Farewell']);
+  // The step itself is left alone.
+  const step = m1.stages.find((st) => st.when.value === 'tale_q_1');
+  assert.deepEqual(step.answers.map((a) => a.label), ['Done']);
+  // Again: nothing doubles.
+  const m2 = mergeQuest(m1, qq, 'Gran');
+  assert.deepEqual(m2.stages.map((st) => [st.says, st.answers.length]), m1.stages.map((st) => [st.says, st.answers.length]));
+  // And another quest merged after keeps the first quest's stages right.
+  const q2 = { ...newQuest('tale_r'), title: 'R', giver: 'Gran', requires: 'tale_q', steps: [{ ...newStep('talk', 'Gran') }] };
+  const m3 = mergeQuest(m2, q2, 'Gran');
+  assert.equal(m3.stages.find((st) => st.when.kind === 'flag' && st.when.value === 'tale_q_done').answers.length, 2);
+  console.log('ok - own conversation kept');
+}
