@@ -26,7 +26,8 @@ import { MailView, parseMail } from './mail.js';
 import { PartyView, parseParty, partyChatCommand } from './party.js';
 import { AchievementsView, parseAchv } from './achievements.js';
 import { SEX_ASK, parseSex, sexCommand, maleImage, femaleImage } from './sex.js';
-import { parseWorking, parseRecipe, SmithView } from './crafting.js';
+import { parseWorking, parseRecipe, SmithView, chopCommand } from './crafting.js';
+import { TREE_TILES } from './trees.js';
 import { CraftAdmin, parseCraftAdmin } from './craftadmin.js';
 import { LOOKS, paintFigureStrip, OUT as FIGURE_OUT } from './figure.js';
 import { bindWeather, setWeather } from './weather.js';
@@ -1495,7 +1496,14 @@ $('map').addEventListener('click', (e) => {
     return ex === vx && ey === vy;
   });
   if (here.length === 0) {
-    conn.send(`goto ${vx + world.locX - world.viewRange} ${vy + world.locY - world.viewRange}`);
+    const wx = vx + world.locX - world.viewRange, wy = vy + world.locY - world.viewRange;
+    // A tree beside you: chop it (js/crafting.js; the server says if you
+    // have no axe).
+    if (TREE_TILES[world.tileAt(wx, wy, Date.now())] && Math.abs(wx - world.locX) <= 1 && Math.abs(wy - world.locY) <= 1) {
+      conn.send(chopCommand(wx, wy));
+      return;
+    }
+    conn.send(`goto ${wx} ${wy}`);
     return;
   }
   // A barrel or chest in reach, with nothing else there but you, opens or

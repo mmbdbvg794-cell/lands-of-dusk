@@ -5,7 +5,7 @@
 #   62 worked-out vein (any ore, once mined out), 63 forge, 64 anvil,
 #   65 mushroom patch, 66 mandrake patch, 67 lavender patch, 68 wolfsbane
 #   patch, 69 azeala bush, 70 moonpetal patch, 71 picked patch (any herb,
-#   once picked bare), 72 alchemy table.
+#   once picked bare), 72 alchemy table, 73 workbench.
 # Always starts from the first 58 sprites, so running it again gives the
 # same sheet.
 import math
@@ -162,10 +162,25 @@ def alchemy_table():
     return im
 
 
+def workbench():
+    im = Image.new("RGBA", (64, 64)); d = ImageDraw.Draw(im)
+    d.rectangle((6, 32, 58, 38), fill=(150, 104, 58))  # top
+    d.line([(6, 32), (58, 32)], fill=(190, 140, 86))
+    for x in (9, 52):
+        d.rectangle((x, 38, x + 3, 60), fill=(110, 74, 40))  # legs
+    d.line([(9, 52), (55, 52)], fill=(110, 74, 40), width=2)  # stretcher
+    d.line([(14, 28), (44, 22)], fill=(130, 90, 50), width=3)  # a stave on top
+    d.arc((40, 14, 60, 34), 200, 340, fill=(120, 80, 44), width=2)  # a bow
+    for x, y in ((20, 44), (30, 46), (40, 43), (48, 47)):
+        d.point((x, y), fill=(220, 190, 130))  # shavings
+        d.point((x + 1, y), fill=(220, 190, 130))
+    return im
+
+
 frames = [vein((184, 110, 52), (240, 190, 120))(), vein((168, 58, 44), (210, 210, 215))(),
           vein((10, 10, 10), (120, 120, 128))(), vein((150, 200, 240), (240, 250, 255))(), worked_out(), forge(), anvil(),
           herb("mushroom")(), herb("mandrake")(), herb("lavender")(), herb("wolfsbane")(), herb("azeala")(), herb("moonpetal")(),
-          picked(), alchemy_table()]
+          picked(), alchemy_table(), workbench()]
 out = Image.new("P", ((KEEP + len(frames)) * 64, 64), 0)
 out.putpalette(pal)
 out.paste(sheet.crop((0, 0, KEEP * 64, 64)), (0, 0))

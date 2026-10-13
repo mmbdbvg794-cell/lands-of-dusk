@@ -149,6 +149,18 @@ function ore(ctx, n) {
   for (const [x, y, r] of [[-10, 76, 4], [6, 70, 3], [12, 84, 4.5], [-2, 86, 3]]) fill(ctx, ell(ctx, CX + x, y, r, r * 0.8), c, [CX + x - r, y - r, CX + x + r, y + r], 1);
 }
 
+// A log: bark round the side, rings on the cut end, in its wood's colour.
+function log(ctx, n) {
+  const c = material(n);
+  shadow(ctx, 34, 8);
+  fill(ctx, rr(ctx, CX - 34, 66, 62, 26, 12), shade(c, 0.75), [CX - 34, 66, CX + 28, 92]);
+  fill(ctx, ell(ctx, CX + 28, 79, 9, 13), shade(c, 1.25), [CX + 19, 66, CX + 37, 92], 1.5);
+  ctx.strokeStyle = shade(c, 0.85); ctx.lineWidth = 1;
+  for (const r of [3, 6]) { ctx.beginPath(); ctx.ellipse(CX + 28, 79, r * 0.7, r, 0, 0, Math.PI * 2); ctx.stroke(); }
+  ctx.strokeStyle = shade(c, 0.5); ctx.lineWidth = 1.5;
+  for (const x of [-24, -10, 6]) { ctx.beginPath(); ctx.moveTo(CX + x, 70); ctx.lineTo(CX + x + 6, 88); ctx.stroke(); }
+}
+
 // A herb sickle: a curved blade on a short handle.
 function sickle(ctx) {
   shadow(ctx, 26, 6);
@@ -951,6 +963,22 @@ function alchemyTable(ctx) {
   flask(CX + 30, '#4060d8', () => { ctx.beginPath(); ctx.moveTo(CX + 18, 68); ctx.lineTo(CX + 42, 68); ctx.lineTo(CX + 33, 44); ctx.lineTo(CX + 33, 34); ctx.lineTo(CX + 27, 34); ctx.lineTo(CX + 27, 44); ctx.closePath(); });
 }
 
+// A fletcher's workbench: a stave and a bow on top, shavings below.
+function workbench(ctx) {
+  shadow(ctx, 52, 8, 116);
+  for (const x of [CX - 46, CX + 40]) fill(ctx, rr(ctx, x, 70, 7, 44, 2), '#6a4626', [x, 70, x + 7, 114]);
+  fill(ctx, rr(ctx, CX - 46, 98, 93, 5, 2), '#6a4626', [CX - 46, 98, CX + 47, 103], 1);
+  fill(ctx, rr(ctx, CX - 54, 62, 108, 10, 3), '#9a6a3c', [CX - 54, 62, CX + 54, 72]);
+  ctx.strokeStyle = '#7a5230'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(CX - 40, 58); ctx.lineTo(CX + 10, 48); ctx.stroke();
+  ctx.strokeStyle = '#6a4626'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(CX + 30, 70, 22, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
+  ctx.strokeStyle = 'rgba(240,230,210,0.8)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(CX + 12, 60); ctx.lineTo(CX + 48, 60); ctx.stroke();
+  ctx.fillStyle = '#e0c890';
+  for (const [x, y] of [[-30, 108], [-14, 111], [4, 107], [22, 110], [36, 106]]) { ctx.beginPath(); ctx.ellipse(CX + x, y, 4, 1.6, 0.4, 0, Math.PI * 2); ctx.fill(); }
+}
+
 function lampPost(ctx) {
   shadow(ctx, 16, 5, 116);
   fill(ctx, rr(ctx, CX - 12, 108, 24, 8, 2), '#2e2c2c', [CX - 12, 108, CX + 12, 116]);
@@ -1043,6 +1071,7 @@ const PROPS = [
   [/picked/, pickedPatch],
   [/ patch$| bush$/, herbPatch],
   [/alchemy table/, alchemyTable],
+  [/workbench/, workbench],
   [/lamp ?post|street ?lamp/, lampPost],
   [/campfire|camp fire/, campfire],
   [/slot machine/, slotMachine],
@@ -1146,6 +1175,8 @@ const BY_NAME = [
   [/crisps/, packet],
   [/^ale$|mead|beer|wine/, mug],
   [/sickle/, sickle],
+  [/ log$/, log],
+  [/woodcutter's axe|fletching knife/, (ctx, n) => weapon(ctx, n)],
   [/lavend|azeala|wolfsbane|mandrake|moonpetal|weed|rose\b|herb/, herb],
   [/tooth|fang/, fang],
   [/stinger/, stinger],

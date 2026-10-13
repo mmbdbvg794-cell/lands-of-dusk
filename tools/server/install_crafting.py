@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Puts mining, smithing, herbalism and alchemy (server/Crafting.java) into a
-Dusk game directory.
+"""Puts mining, smithing, herbalism, alchemy, woodcutting and fletching
+(server/Crafting.java) into a Dusk game directory.
 
-    python3 install_crafting.py <game dir> <veins.json> <herbs.json> [--apply]
+    python3 install_crafting.py <game dir> <veins.json> <herbs.json> [--drop=<old.json> ...] [--apply]
+
+--drop=<old.json>: veins or patches from an earlier list that the new
+lists don't have are taken out (moving them all, 2026-10-13).
 
 veins.json and herbs.json come from tools/world/veins.mjs and herbs.mjs
 (the lists used live are kept beside this file). Without --apply it only says
@@ -26,7 +29,9 @@ backups/crafting-<time>/. Running it again changes nothing that's in.
                  humans' tutorial: taken out if there)
   merchants      smiths sell picks and hammers, alchemists sickles, and the
                  stalls all three
-  rc/images/sprites.gif   sprites 58-72 (craftsprites.py, beside this file)
+  rc/images/sprites.gif   sprites 58-73 (craftsprites.py, beside this file)
+  (woodcutting needs nothing placed: trees are map squares; workbenches
+  are placed by the forges and in Caelum's bow shop)
 
 The server reads props, merchants and the sprites at start, and writes
 props and merchants back when a god saves: install, then restart, with no
@@ -57,6 +62,18 @@ ITEMS = {
     "mithril shield": "type\narmor\nkind\narms\ndescription\na mithril shield, smith-made\ncost\n9000\nmod\n450\nimage\n7\ndurability\n30000\n.\n",
     "herb sickle": "type\nitem\ndescription\na small curved sickle for cutting herbs\ncost\n150\nimage\n8\n.\n",
     "moonpetal": "type\nitem\ndescription\na moonpetal, pale and faintly glowing; it grows only far from any town\ncost\n150\nimage\n6\n.\n",
+    "woodcutter's axe": "type\nitem\ndescription\na woodcutter's axe: stand by a tree and chop\ncost\n200\nimage\n10\n.\n",
+    "fletching knife": "type\nitem\ndescription\na thin knife for shaping wood at a workbench\ncost\n120\nimage\n8\n.\n",
+    "oak log": "type\nitem\ndescription\nan oak log\ncost\n8\nimage\n6\n.\n",
+    "ash log": "type\nitem\ndescription\nan ash log, straight-grained\ncost\n20\nimage\n6\n.\n",
+    "yew log": "type\nitem\ndescription\na yew log, the bowyer's wood\ncost\n45\nimage\n6\n.\n",
+    "elderwood log": "type\nitem\ndescription\nan elderwood log, pale and almost humming; it grows only far from any town\ncost\n120\nimage\n6\n.\n",
+    "ash staff": "type\nweapon\ndescription\na staff of ash, fletcher-made\ncost\n1200\nmod\n220\nimage\n8\ndurability\n12000\n.\n",
+    "yew staff": "type\nweapon\ndescription\na staff of yew, fletcher-made\ncost\n3000\nmod\n380\nimage\n8\ndurability\n20000\n.\n",
+    "elderwood staff": "type\nweapon\ndescription\na staff of elderwood, fletcher-made; it hums when it strikes\ncost\n9000\nmod\n650\nimage\n8\ndurability\n30000\n.\n",
+    "ash longbow": "type\nranged\ndescription\nan ash longbow, fletcher-made\ncost\n2500\nmod\n330\nimage\n8\nrange\n20\ndurability\n100000\n.\n",
+    "yew longbow": "type\nranged\ndescription\na yew longbow, fletcher-made\ncost\n6000\nmod\n520\nimage\n8\nrange\n25\ndurability\n100000\n.\n",
+    "elderwood bow": "type\nranged\ndescription\nan elderwood bow, fletcher-made; the string sings\ncost\n12000\nmod\n800\nimage\n8\nrange\n25\ndurability\n100000\n.\n",
     "moonpetal elixir": "type\nitem\ndescription\na hand-brewed elixir of moonpetal: restores 1000 health and mana; worth nothing to merchants\ncost\n0\nimage\n6\nonuse\nmoonpetal elixir.use\nuses\n1\n.\n",
 }
 SCRIPTS = {
@@ -88,6 +105,7 @@ PROPS = {
     "moonpetal patch": ("moonpetals, glowing faintly", 70),
     "picked patch": ("a patch of earth, picked bare", 71),
     "alchemy table": ("a table of flasks and bottles for brewing", 72),
+    "workbench": ("a fletcher's workbench, shavings everywhere", 73),
 }
 RECIPES = """# What forges and anvils make (server/Crafting.java), one per line:
 #   station|Smithing needed|result|ingredients
@@ -127,6 +145,16 @@ alchemy|25|brewed red potion|1 mandrake, 1 wolfsbane
 alchemy|30|brewed green potion|1 lavendar, 1 wolfsbane
 alchemy|50|brewed blue potion|1 brewed red potion, 1 brewed green potion, 1 azeala
 alchemy|70|moonpetal elixir|2 moonpetal, 1 brewed blue potion
+anvil|0|woodcutter's axe|2 bronze bar
+fletching|0|quarter staff|2 oak log
+fletching|0|quiver|1 oak log
+fletching|5|cheap bow|3 oak log
+fletching|15|ash staff|3 ash log
+fletching|20|ash longbow|4 ash log
+fletching|35|yew staff|3 yew log
+fletching|40|yew longbow|4 yew log
+fletching|60|elderwood staff|3 elderwood log
+fletching|65|elderwood bow|4 elderwood log
 """
 # A forge, an anvil and (where there's no shop already) a stall, by town.
 STATIONS = [
@@ -149,9 +177,18 @@ TABLES = [
 DROP_PROPS = [("forge", 1292, 964), ("anvil", 1294, 964), ("alchemy table", 1296, 964),
               ("forge", 123, 376), ("anvil", 127, 376)]
 DROP_STALLS = [(1298, 964), (129, 379)]
-TOOLS = ["mining pick", "smithing hammer", "herb sickle"]
-SMITH_TOOLS = ["mining pick", "smithing hammer"]
+# Workbenches (fletching): by three of the forges, and in Caelum's bow
+# shop in Aelindor, whose counter sells the knife and axe.
+BENCHES = [
+    {"bench": (1416, 341)},  # Kingshaven: behind Brann's counter
+    {"bench": (439, 78)},  # Izaru's mine hall
+    {"bench": (1685, 939)},  # Ssarakh, by the forge
+    {"bench": (447, 1254), "sell_at": (449, 1252)},  # Aelindor: behind Caelum's counter
+]
+TOOLS = ["mining pick", "smithing hammer", "herb sickle", "woodcutter's axe", "fletching knife"]
+SMITH_TOOLS = ["mining pick", "smithing hammer", "woodcutter's axe"]
 ALCHEMY_TOOLS = ["herb sickle"]
+BOWYER_TOOLS = ["fletching knife", "woodcutter's axe"]
 
 
 def read(path):
@@ -164,6 +201,7 @@ def read(path):
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    drops = [a[len("--drop="):] for a in sys.argv[1:] if a.startswith("--drop=")]
 
     if len(args) != 3:
         sys.exit(__doc__)
@@ -174,6 +212,10 @@ def main():
         veins = json.load(f)
     with open(herbs_path) as f:
         veins += json.load(f)
+    old = set()
+    for d in drops:
+        with open(os.path.abspath(os.path.join(os.path.dirname(veins_path), d)) if not os.path.isabs(d) else d) as f:
+            old |= {(v["name"], str(v["x"]), str(v["y"])) for v in json.load(f)}
     os.chdir(game)
     backup = os.path.join("backups", "crafting-" + time.strftime("%Y%m%d-%H%M%S"))
     said = []
@@ -256,8 +298,12 @@ def main():
         want += [("forge",) + s["forge"], ("anvil",) + s["anvil"]]
     for t in TABLES:
         want.append(("alchemy table",) + t["table"])
+    for b in BENCHES:
+        want.append(("workbench",) + b["bench"])
     add = [w for w in want if (w[0], str(w[1]), str(w[2])) not in have]
     drop = {(n, str(x), str(y)) for n, x, y in DROP_PROPS}
+    # Old spots the new lists no longer have.
+    drop |= old - {(w[0], str(w[1]), str(w[2])) for w in want}
     gone = [t for t in have if t in drop]
     if add or gone:
         kept = []
@@ -281,6 +327,9 @@ def main():
     for t in TABLES:
         if "sell_at" in t:
             sells.setdefault(t["sell_at"], []).extend(ALCHEMY_TOOLS)
+    for b in BENCHES:
+        if "sell_at" in b:
+            sells.setdefault(b["sell_at"], []).extend(BOWYER_TOOLS)
     stalls = [tuple(s["stall"]) for s in STATIONS if "stall" in s]
     places = set()
     while i < len(lines):
@@ -322,13 +371,13 @@ def main():
     # The sprites.
     sheet = os.path.join("rc", "images", "sprites.gif")
     count = int(subprocess.check_output(["python3", "-c", "from PIL import Image; print(Image.open('%s').size[0] // 64)" % sheet]).decode())
-    if count in (58, 65):
+    if count in (58, 65, 73):
         if apply:
             keep(sheet)
             subprocess.check_call(["python3", os.path.join(here, "craftsprites.py"), os.path.join(backup, sheet), sheet, os.path.join(backup, "craft-preview.png")])
-        said.append("sprites: %d -> 73" % count)
+        said.append("sprites: %d -> 74" % count)
     else:
-        said.append("sprites: %d already (58-72 are gathering and making when there are 73)" % count)
+        said.append("sprites: %d already (58-73 are gathering and making when there are 74)" % count)
 
     print("\n".join(said))
     print("Backups in %s" % backup if apply else "Dry run; add --apply.")

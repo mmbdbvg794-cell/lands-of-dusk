@@ -94,7 +94,7 @@ after a few minutes. Mining rises as you dig.
 SMITHING
 --------
 Forges and anvils stand in Kingshaven (Brann's shop), Izaru's mine hall,
-the old town by The Armorer, and Ssarakh.
+and Ssarakh.
 
   smith             (by a forge or anvil) what you can make there, what it
                     needs, and how many you could make
@@ -127,6 +127,27 @@ Ssarakh, and by Herbalist Wenna:
 
 Brewed potions work like bought ones but merchants won't buy them. The
 moonpetal elixir (1000 health and mana) can only be brewed.
+
+
+WOODCUTTING AND FLETCHING
+-------------------------
+Buy a woodcutter's axe (smiths, bowyers and the stalls sell them). Every
+tree can be chopped. Stand next to one and type:
+
+  chop              start chopping; you keep going until the tree has no
+                    good wood left or you move
+  chop stop         stop
+
+Oak grows near the ferry landings; ash and yew further out; elderwood far
+away. Woodcutting rises as you chop.
+
+Workbenches stand in Kingshaven (Brann's shop), Izaru's mine hall,
+Ssarakh, and Caelum's bow shop in Aelindor. With a fletching knife:
+
+  fletch            (by a workbench) what you can make there
+  fletch cheap bow  make one   (add a number for more)
+
+Elderwood bows and staves can only be made.
 
 
 PLAYING WITH OTHERS

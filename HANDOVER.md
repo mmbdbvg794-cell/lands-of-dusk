@@ -1113,6 +1113,25 @@ commands that touch live.
   bulk_create_items.sh, dc.log; none sold, dropped or carried) moved to
   backups/defItems-junk-20261013-034202.
 
+## 2026-10-13: woodcutting and fletching; veins and patches re-placed from every home city
+
+- Crafting.java: TREES (oak 0 / ash 15 / yew 35 / elderwood 60, skill
+  Woodcutting, tool woodcutter's axe, command chop [x y]): trees are map
+  squares (tiles 64, 103, 25, 26, 102, 124, 171), worked like veins but
+  keyed by square (negative store keys), nothing on the map changes. The
+  workbench (prop, sprite 73) is a station: fletch, skill Fletching, tool
+  fletching knife. Recipes: oak -> quarter staff, quiver, cheap bow; ash,
+  yew, elderwood staves and bows (new items; elderwood only made); anvil
+  makes the woodcutter's axe.
+- Tiers now count from the nearest landing OR home city (HOMES in
+  Crafting.java = ARRIVALS in veins.mjs/herbs.mjs): Kingshaven had been
+  ringed by mithril and moonpetal. Each home also gets 3 easy clusters
+  within 300 first. Herbs also grow by willows now. Mithril is rarer (8).
+- install_crafting.py --drop=<old list>: the 2026-10-12/13 lists are kept as
+  veins-2026-10-12.json and herbs-2026-10-13.json.
+- Client: clicking a tree square beside you chops it; Fletch… on
+  workbenches; the Crafting window knows workbenches and fletching.
+
 ## Open / ideas
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.

@@ -10,9 +10,16 @@
  * god's save never writes it down changed) and fills again some minutes
  * later.
  *
+ * Trees are map squares, not props: "chop" (with a woodcutter's axe) works
+ * a tree square beside you the same way, its logs by how far out it grows
+ * (TREES: oak near the ferry landings, then ash, yew, and elderwood far
+ * out). A tree gives a few logs, then has none for some minutes; nothing
+ * on the map changes.
+ *
  * Making: by a forge ore is smelted into bars; by an anvil, with a
  * smithing hammer, bars are made into gear; by an alchemy table, herbs are
- * brewed into potions (STATIONS). What can be made is in the game's
+ * brewed into potions; by a workbench, with a fletching knife, logs are
+ * made into staves and bows (STATIONS). What can be made is in the game's
  * "recipes" file, one per line:
  *
  *   station|level|result|ingredient, ingredient...
@@ -28,9 +35,10 @@
  * get higher and much slower on work far below them.
  *
  *   mine [<id>] | gather [<id>]    start (the nearest, or that one)
- *   mine stop | gather stop        stop
- *   smith | brew                   what you can make here
- *   smith <result> [n] | brew <result> [n]   make it (n at once, up to 20)
+ *   chop [<x> <y>]                 start on a tree beside you (or that one)
+ *   mine stop | gather stop | chop stop
+ *   smith | brew | fletch          what you can make here
+ *   smith|brew|fletch <result> [n] make it (n at once, up to 20)
  *
  * Gods (the God tab's Crafting window, js/craftadmin.js):
  *   craft status             "CraftStatus: <source>|<placed>|<used up>" for
@@ -75,6 +83,7 @@ public class Crafting {
         }
 
         boolean mining() { return command.equals("mine"); }
+        boolean tree() { return command.equals("chop"); }
     }
 
     static final int WORKED_OUT = 62, PICKED = 71;
@@ -91,6 +100,54 @@ public class Crafting {
         new Source("azeala bush", "azeala", "Herbalism", 50, 69, PICKED, SICKLE, "gather"),
         new Source("moonpetal patch", "moonpetal", "Herbalism", 65, 70, PICKED, SICKLE, "gather"),
     };
+    // Trees, by tier (how far out they grow, as veins and herb patches are
+    // placed: tools/world/veins.mjs): one log each.
+    static final String AXE = "woodcutter's axe", KNIFE = "fletching knife";
+    static final Source[] TREES = {
+        new Source("oak tree", "oak log", "Woodcutting", 0, -1, -1, AXE, "chop"),
+        new Source("ash tree", "ash log", "Woodcutting", 15, -1, -1, AXE, "chop"),
+        new Source("yew tree", "yew log", "Woodcutting", 35, -1, -1, AXE, "chop"),
+        new Source("elderwood tree", "elderwood log", "Woodcutting", 60, -1, -1, AXE, "chop"),
+    };
+    // The map's tree squares (as js/trees.js: oak, autumn, gold, palm, willow).
+    static final int[] TREE_TILES = { 64, 103, 25, 26, 102, 124, 171 };
+
+    static boolean treeTile(DuskEngine engine, int x, int y) {
+        try {
+            int t = engine.shrMap[x][y];
+            for (int k : TREE_TILES) if (k == t) return true;
+        } catch (Exception e) {
+            // Off the map.
+        }
+        return false;
+    }
+
+    // The ferry landings and the four home cities (Kingshaven, Velkarath,
+    // Ssarakh, Aelindor): how far out a place is counts from the nearest.
+    static final int[][] HOMES = { { 444, 1184 }, { 1691, 1303 }, { 1440, 352 }, { 1345, 912 }, { 1695, 943 }, { 457, 1233 } };
+
+    // Which tree a square is: by how far it is from the nearest landing or
+    // home city (the old world from the human start, and never past yew there).
+    static Source treeAt(int x, int y) {
+        int tier;
+        if (x < 1000 && y < 1000) {
+            double d = Math.hypot(x - 125, y - 365);
+            tier = d < 250 ? 1 : d < 500 ? 2 : 3;
+        } else {
+            // From the nearest landing or home city (as tools/world/veins.mjs).
+            double d = Double.MAX_VALUE;
+            for (int[] h : HOMES) d = Math.min(d, Math.hypot(x - h[0], y - h[1]));
+            tier = d < 220 ? 1 : d < 450 ? 2 : d < 750 ? 3 : 4;
+        }
+        return TREES[tier - 1];
+    }
+
+    // A tree square's key among the stores (props use their IDs, which are
+    // never negative).
+    static int treeKey(int x, int y) {
+        return -(x * 4096 + y) - 1;
+    }
+
     // A place to make things: the recipe file's station, the word in the
     // prop's name, the skill, the tool needed (or null), and what making
     // there is called.
@@ -98,6 +155,7 @@ public class Crafting {
         { "forge", "forge", "Smithing", null, "smelt" },
         { "anvil", "anvil", "Smithing", HAMMER, "make" },
         { "alchemy", "alchemy table", "Alchemy", null, "brew" },
+        { "fletching", "workbench", "Fletching", KNIFE, "fletch" },
     };
     static final long TICK = 250;
     static final int STATION_REACH = 2, SOURCE_REACH = 1, MAX_MAKE = 20;
@@ -112,10 +170,13 @@ public class Crafting {
 
     static class Work {
         Player who;
-        Prop prop;
+        Prop prop;      // a vein or patch; null for a tree
+        int tx, ty;     // the tree's square
         Source source;
         int x, y;
         long goEnds;
+
+        int key() { return prop != null ? prop.ID : treeKey(tx, ty); }
     }
 
     static final Map<Integer, Store> stores = new HashMap<Integer, Store>();
@@ -162,11 +223,23 @@ public class Crafting {
 
     // What a go is called, for the browser's bar: "Mining the iron vein".
     static String doing(Source s) {
-        return s.mining() ? "Mining the " + s.name : "Gathering " + s.item;
+        return s.mining() ? "Mining the " + s.name : s.tree() ? "Chopping the " + s.name : "Gathering " + s.item;
     }
 
     static String usedUpWords(Source s) {
-        return s.mining() ? "is worked out" : "is picked bare";
+        return s.mining() ? "is worked out" : s.tree() ? "has no good wood left" : "is picked bare";
+    }
+
+    static String verbing(Source s) {
+        return s.mining() ? "mining" : s.tree() ? "chopping" : "gathering";
+    }
+
+    // A tree with no logs left for now.
+    static boolean treeBare(int key) {
+        synchronized (stores) {
+            Store st = stores.get(key);
+            return st != null && st.fullAgain > 0;
+        }
     }
 
     // A changed picture, sent to everyone who can see it.
@@ -208,18 +281,19 @@ public class Crafting {
 
     static String gather(Player who, DuskEngine engine, String command, String arg) {
         String key = who.strName.toLowerCase();
-        String verb = command.equals("mine") ? "mining" : "gathering";
+        String verb = command.equals("mine") ? "mining" : command.equals("chop") ? "chopping" : "gathering";
         if (arg.equals("stop")) {
             Work w;
             synchronized (working) { w = working.remove(key); }
             if (w == null) return "You aren't " + verb + ".";
             if (browser(who)) tell(who, "Working: done");
-            return "You stop " + (w.source.mining() ? "mining" : "gathering") + ".";
+            return "You stop " + verbing(w.source) + ".";
         }
         synchronized (working) {
             Work w = working.get(key);
-            if (w != null) return "You're already " + (w.source.mining() ? "mining" : "gathering") + ". (Move, or type: " + w.source.command + " stop.)";
+            if (w != null) return "You're already " + verbing(w.source) + ". (Move, or type: " + w.source.command + " stop.)";
         }
+        if (command.equals("chop")) return chop(who, engine, arg);
         Prop prop;
         if (Storage.isNumber(arg)) {
             DuskObject o;
@@ -240,7 +314,7 @@ public class Crafting {
         Source s = sourceOf(prop);
         if (who.batBattle != null) return "Not while you're fighting.";
         if (!has(who, s.tool)) return s.mining() ? "You need a mining pick to mine. Smiths and the Izaru Mine Shop sell them."
-            : "You need a herb sickle to gather herbs. The stalls by the forges sell them.";
+            : "You need a herb sickle to gather herbs. Alchemists and the stalls by the forges sell them.";
         if (who.getSkill(s.skill) < s.level) return "You need " + s.skill + " " + s.level + " to work " + a(s.name) + ". (You have " + who.getSkill(s.skill) + ".)";
         if (usedUp(prop, s)) return "This " + s.name + " " + usedUpWords(s) + " for now. It will " + (s.mining() ? "fill" : "grow") + " again in a few minutes.";
         Work w = new Work();
@@ -256,6 +330,44 @@ public class Crafting {
         return "You start " + verb + (s.mining() ? " the " + s.name : " at the " + s.name) + ". (Move away, or type " + command + " stop, to stop.)";
     }
 
+    // "chop [x y]": the tree square given, or one beside you.
+    static String chop(Player who, DuskEngine engine, String arg) {
+        int tx = -1, ty = -1;
+        String[] a = arg.split("\\s+");
+        if (a.length == 2 && Storage.isNumber(a[0]) && Storage.isNumber(a[1])) {
+            tx = Integer.parseInt(a[0]);
+            ty = Integer.parseInt(a[1]);
+            if (Math.abs(tx - who.intLocX) > SOURCE_REACH || Math.abs(ty - who.intLocY) > SOURCE_REACH) return "Stand next to the tree first.";
+            if (!treeTile(engine, tx, ty)) return "That isn't a tree.";
+        } else {
+            // A tree beside you with wood in it before a bare one.
+            for (int pass = 0; pass < 2 && tx < 0; pass++)
+                for (int dx = -1; dx <= 1 && tx < 0; dx++)
+                    for (int dy = -1; dy <= 1 && tx < 0; dy++) {
+                        int x = who.intLocX + dx, y = who.intLocY + dy;
+                        if ((dx != 0 || dy != 0) && treeTile(engine, x, y) && (pass == 1 || !treeBare(treeKey(x, y)))) { tx = x; ty = y; }
+                    }
+            if (tx < 0) return "There's no tree here. Stand next to one and type: chop";
+        }
+        Source s = treeAt(tx, ty);
+        if (who.batBattle != null) return "Not while you're fighting.";
+        if (!has(who, s.tool)) return "You need a woodcutter's axe to chop trees. Smiths, bowyers and the stalls by the forges sell them.";
+        if (who.getSkill(s.skill) < s.level) return "You need " + s.skill + " " + s.level + " to chop " + a(s.name) + ". (You have " + who.getSkill(s.skill) + ".)";
+        if (treeBare(treeKey(tx, ty))) return "This " + s.name + " has no good wood left for now. Try another, or come back in a few minutes.";
+        Work w = new Work();
+        w.who = who;
+        w.tx = tx;
+        w.ty = ty;
+        w.source = s;
+        w.x = who.intLocX;
+        w.y = who.intLocY;
+        long ms = goMs(who, s);
+        w.goEnds = System.currentTimeMillis() + ms;
+        synchronized (working) { working.put(who.strName.toLowerCase(), w); }
+        if (browser(who)) tell(who, "Working: " + ms + "|" + doing(s));
+        return "You start chopping the " + s.name + ". (Move away, or type chop stop, to stop.)";
+    }
+
     static long goMs(LivingThing who, Source s) {
         return Math.max(2500, 4500 - who.getSkill(s.skill) * 20L);
     }
@@ -265,11 +377,12 @@ public class Crafting {
         Player who = w.who;
         Source s = w.source;
         if (!who.blnWorking || !engine.vctSockets.contains(who)) return false;
-        if (who.intLocX != w.x || who.intLocY != w.y) { tell(who, "You stop " + (s.mining() ? "mining" : "gathering") + "."); return false; }
+        if (who.intLocX != w.x || who.intLocY != w.y) { tell(who, "You stop " + verbing(s) + "."); return false; }
         if (who.batBattle != null) { tell(who, "You stop to fight."); return false; }
         if (!has(who, s.tool)) { tell(who, "You've no " + s.tool + " any more."); return false; }
-        if (usedUp(w.prop, s) || !engine.vctProps.contains(w.prop)) { tell(who, "The " + s.name + " " + usedUpWords(s) + "."); return false; }
-        Store st = store(w.prop);
+        boolean gone = w.prop != null ? usedUp(w.prop, s) || !engine.vctProps.contains(w.prop) : treeBare(w.key());
+        if (gone) { tell(who, "The " + s.name + " " + usedUpWords(s) + "."); return false; }
+        Store st = store(w.key());
         int level = who.getSkill(s.skill);
         double chance = Math.max(0.35, Math.min(0.95, 0.5 + (level - s.level) / 100.0));
         if (random.nextDouble() < chance) {
@@ -282,13 +395,15 @@ public class Crafting {
             if (it == null) { Log.logError(new Exception("no item " + s.item), "Crafting", false); return false; }
             if (!who.items.add(it)) { tell(who, "Your pack is full."); return false; }
             who.updateItems();
-            tell(who, "You " + (s.mining() ? "mine" : "gather") + " some " + s.item + ".");
+            tell(who, s.tree() ? "You chop " + a(s.item) + "." : "You " + (s.mining() ? "mine" : "gather") + " some " + s.item + ".");
             gain(who, s.skill, s.level);
             st.left--;
             if (st.left <= 0) {
                 st.fullAgain = System.currentTimeMillis() + (4 + random.nextInt(5)) * 60000L;
-                w.prop.intImage = s.empty;
-                showImage(engine, w.prop);
+                if (w.prop != null) {
+                    w.prop.intImage = s.empty;
+                    showImage(engine, w.prop);
+                }
                 tell(who, "The " + s.name + " " + usedUpWords(s) + ".");
                 return false;
             }
@@ -296,10 +411,10 @@ public class Crafting {
         return true;
     }
 
-    static Store store(Prop p) {
+    static Store store(int key) {
         synchronized (stores) {
-            Store st = stores.get(p.ID);
-            if (st == null) { st = new Store(); stores.put(p.ID, st); }
+            Store st = stores.get(key);
+            if (st == null) { st = new Store(); stores.put(key, st); }
             if (st.left < 0) st.left = 4 + random.nextInt(4);
             return st;
         }
@@ -336,6 +451,7 @@ public class Crafting {
             for (Integer id : full) stores.remove(id);
         }
         for (Integer id : full) {
+            if (id < 0) continue; // a tree: nothing to show
             try {
                 DuskObject o = engine.getDuskObject(id);
                 Source s = sourceOf(o);
@@ -428,9 +544,12 @@ public class Crafting {
         return null;
     }
 
-    // The stations this command uses: smith -> forge, anvil; brew -> alchemy.
+    // The stations this command uses: smith -> forge, anvil; brew ->
+    // alchemy; fletch -> fletching.
     static boolean usedBy(String command, String kind) {
-        return command.equals("brew") ? kind.equals("alchemy") : !kind.equals("alchemy");
+        if (command.equals("brew")) return kind.equals("alchemy");
+        if (command.equals("fletch")) return kind.equals("fletching");
+        return kind.equals("forge") || kind.equals("anvil");
     }
 
     // The kinds of station within reach that this command uses.
@@ -448,10 +567,10 @@ public class Crafting {
 
     static String make(Player who, DuskEngine engine, String command, String arg) {
         List<String> here = stations(engine, who, command);
-        boolean brewing = command.equals("brew");
-        if (here.isEmpty()) return brewing ? "You need to stand by an alchemy table to brew."
+        if (here.isEmpty()) return command.equals("brew") ? "You need to stand by an alchemy table to brew."
+            : command.equals("fletch") ? "You need to stand by a workbench to fletch."
             : "You need to stand by a forge (to smelt ore into bars) or an anvil (to make bars into gear).";
-        String skill = brewing ? "Alchemy" : "Smithing";
+        String skill = command.equals("brew") ? "Alchemy" : command.equals("fletch") ? "Fletching" : "Smithing";
         if (arg.length() == 0) return list(who, here, skill, command);
         // "<command> <result> [n]"
         int n = 1;
@@ -476,7 +595,7 @@ public class Crafting {
         if (who.batBattle != null) return "Not while you're fighting.";
         int level = who.getSkill(skill);
         if (level < r.level) return "You need " + skill + " " + r.level + " to " + verb + " " + a(r.result) + ". (You have " + level + ".)";
-        if (st != null && st[3] != null && !has(who, st[3])) return "You need " + a(st[3]) + " to work at the " + st[1] + ". Smiths sell them.";
+        if (st != null && st[3] != null && !has(who, st[3])) return "You need " + a(st[3]) + " to work at the " + st[1] + ". " + (st[3].equals(KNIFE) ? "Bowyers and the stalls by the forges sell them." : "Smiths sell them.");
         int can = r.canMake(who);
         if (can == 0) return "To " + verb + " " + a(r.result) + " you need " + r.needs() + ".";
         n = Math.min(n, can);
@@ -637,11 +756,12 @@ public class Crafting {
     public static String command(LivingThing who, DuskEngine engine, String line) {
         String t = line.trim();
         String lower = t.toLowerCase();
-        String cmd = is(lower, "mine") ? "mine" : is(lower, "gather") ? "gather" : is(lower, "smith") ? "smith" : is(lower, "brew") ? "brew" : is(lower, "craft") ? "craft" : null;
+        String cmd = is(lower, "mine") ? "mine" : is(lower, "gather") ? "gather" : is(lower, "chop") ? "chop" : is(lower, "smith") ? "smith"
+            : is(lower, "brew") ? "brew" : is(lower, "fletch") ? "fletch" : is(lower, "craft") ? "craft" : null;
         if (cmd == null || !(who instanceof Player)) return null;
         try {
             if (cmd.equals("craft")) return god(who, engine, t.substring(5).trim());
-            if (cmd.equals("mine") || cmd.equals("gather")) return gather((Player) who, engine, cmd, lower.substring(cmd.length()).trim());
+            if (cmd.equals("mine") || cmd.equals("gather") || cmd.equals("chop")) return gather((Player) who, engine, cmd, lower.substring(cmd.length()).trim());
             return make((Player) who, engine, cmd, t.substring(cmd.length()).trim());
         } catch (Exception e) {
             Log.logError(e, "Crafting \"" + t + "\" by " + who.strName, false);

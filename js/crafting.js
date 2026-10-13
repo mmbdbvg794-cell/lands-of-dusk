@@ -27,7 +27,7 @@ export function parseRecipe(line) {
 // vein and a picked-bare patch (sprites.gif 62 and 71).
 export const VEIN = /^(bronze vein|iron vein|coal seam|mithril vein)$/;
 export const PATCH = /^(mushroom patch|mandrake patch|lavender patch|wolfsbane patch|azeala bush|moonpetal patch)$/;
-export const STATION = /\b(forge|anvil|alchemy table)\b/;
+export const STATION = /\b(forge|anvil|alchemy table|workbench)\b/;
 export const WORKED_OUT = 62, PICKED = 71;
 export const isVein = (name) => VEIN.test(String(name ?? '').toLowerCase());
 export const isPatch = (name) => PATCH.test(String(name ?? '').toLowerCase());
@@ -41,7 +41,9 @@ export function usedUpLook(name, image) {
 
 export const mineCommand = (id) => `mine ${id}`;
 export const gatherCommand = (id) => `gather ${id}`;
-export const SMITH = 'smith', BREW = 'brew';
+export const SMITH = 'smith', BREW = 'brew', FLETCH = 'fletch';
+// Chopping the tree square at x, y (trees are map squares, not things).
+export const chopCommand = (x, y) => `chop ${x} ${y}`;
 export const makeCommand = (command, result, n = 1) => `${command} ${result}${n > 1 ? ` ${n}` : ''}`;
 export const smithCommand = (result, n = 1) => makeCommand(SMITH, result, n);
 
@@ -59,8 +61,8 @@ export function craftActions(ent, name, me) {
     return dx <= 1 && dy <= 1 ? [{ label: 'Gather', cmd: gatherCommand(ent.id) }] : [{ label: `Go to the ${n}`, cmd: `goto ${ent.x} ${ent.y}` }];
   }
   if (isStation(n)) {
-    const kind = /forge/.test(n) ? 'forge' : /anvil/.test(n) ? 'anvil' : 'alchemy table';
-    const what = { forge: ['Smelt…', SMITH], anvil: ['Smith…', SMITH], 'alchemy table': ['Brew…', BREW] }[kind];
+    const kind = /forge/.test(n) ? 'forge' : /anvil/.test(n) ? 'anvil' : /workbench/.test(n) ? 'workbench' : 'alchemy table';
+    const what = { forge: ['Smelt…', SMITH], anvil: ['Smith…', SMITH], 'alchemy table': ['Brew…', BREW], workbench: ['Fletch…', FLETCH] }[kind];
     return dx <= 2 && dy <= 2 ? [{ label: what[0], cmd: what[1] }] : [{ label: `Go to the ${kind}`, cmd: `goto ${ent.x} ${ent.y}` }];
   }
   return null;
@@ -85,7 +87,7 @@ export class SmithView {
     this.pending = [];
     this.level = r.level;
     this.stations = r.stations;
-    this.command = r.stations.includes('alchemy') ? BREW : SMITH;
+    this.command = r.stations.includes('alchemy') ? BREW : r.stations.includes('fletching') ? FLETCH : SMITH;
     this.render();
     if (!this.el.open) this.el.show();
     return true;
@@ -94,8 +96,9 @@ export class SmithView {
   render() {
     const h = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
     const brewing = this.command === BREW;
-    this.title.textContent = brewing ? 'Alchemy' : 'Smithing';
-    this.head.textContent = `Your ${brewing ? 'Alchemy' : 'Smithing'}: ${this.level}`;
+    const skill = brewing ? 'Alchemy' : this.command === FLETCH ? 'Fletching' : 'Smithing';
+    this.title.textContent = skill;
+    this.head.textContent = `Your ${skill}: ${this.level}`;
     const make = (r, n) => {
       const word = brewing ? 'Brew' : 'Make';
       const b = h('button', { type: 'button', textContent: n > 1 ? `${word} ${n}` : word, className: n > 1 ? 'ghost' : 'primary' });
@@ -106,8 +109,8 @@ export class SmithView {
       });
       return b;
     };
-    const HEADS = { forge: 'Forge: smelt ore into bars', anvil: 'Anvil: make bars into gear (needs a smithing hammer)', alchemy: 'Alchemy table: brew herbs into potions' };
-    const groups = ['forge', 'anvil', 'alchemy'].filter((s) => this.recipes.some((r) => r.station === s));
+    const HEADS = { forge: 'Forge: smelt ore into bars', anvil: 'Anvil: make bars into gear (needs a smithing hammer)', alchemy: 'Alchemy table: brew herbs into potions', fletching: 'Workbench: make logs into staves and bows (needs a fletching knife)' };
+    const groups = ['forge', 'anvil', 'alchemy', 'fletching'].filter((s) => this.recipes.some((r) => r.station === s));
     this.list.replaceChildren(...groups.flatMap((s) => [
       h('h3', { textContent: HEADS[s] }),
       ...this.recipes.filter((r) => r.station === s).map((r) => {
@@ -115,7 +118,7 @@ export class SmithView {
         return h('div', { className: `smith-row${locked ? ' locked' : ''}${r.can ? '' : ' short'}` },
           h('span', { className: 'smith-name' }, h('b', { textContent: r.result }), h('small', { textContent: r.needs })),
           h('span', { className: 'smith-acts' },
-            locked ? h('small', { textContent: `${brewing ? 'Alchemy' : 'Smithing'} ${r.level}` })
+            locked ? h('small', { textContent: `${skill} ${r.level}` })
               : r.can ? h('span', {}, make(r, 1), r.can > 1 ? make(r, Math.min(r.can, 20)) : '')
                 : h('small', { textContent: 'not enough' })));
       }),

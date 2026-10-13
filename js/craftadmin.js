@@ -8,9 +8,9 @@ export const SOURCES = [
   ['mushroom patch', 'Herbalism 0'], ['mandrake patch', 'Herbalism 10'], ['lavender patch', 'Herbalism 20'],
   ['wolfsbane patch', 'Herbalism 35'], ['azeala bush', 'Herbalism 50'], ['moonpetal patch', 'Herbalism 65'],
 ];
-export const STATIONS = [['forge', 'smelt ore into bars'], ['anvil', 'bars into gear (needs a smithing hammer)'], ['alchemy table', 'brew potions']];
+export const STATIONS = [['forge', 'smelt ore into bars'], ['anvil', 'bars into gear (needs a smithing hammer)'], ['alchemy table', 'brew potions'], ['workbench', 'logs into staves and bows (needs a fletching knife)']];
 // The recipe file's stations, as the editor offers them.
-export const RECIPE_STATIONS = [['forge', 'Forge'], ['anvil', 'Anvil'], ['alchemy', 'Alchemy table']];
+export const RECIPE_STATIONS = [['forge', 'Forge'], ['anvil', 'Anvil'], ['alchemy', 'Alchemy table'], ['fletching', 'Workbench']];
 
 export const STATUS = 'craft status', REFILL = 'craft refill', RECIPES = 'craft recipes';
 
@@ -104,7 +104,7 @@ export class CraftAdmin {
     };
     const placing = h('section', { className: 'ca-sec' },
       h('h3', { textContent: 'Place where you stand' }),
-      h('p', { className: 'de-hint', textContent: 'Veins and patches go beside open ground; players stand next to them. Remove one by clicking it and choosing Remove (god). Then Save map in the God tab.' }),
+      h('p', { className: 'de-hint', textContent: 'Veins and patches go beside open ground; players stand next to them. Remove one by clicking it and choosing Remove (god). Then Save map in the God tab. (Trees need nothing: every tree on the map can be chopped.)' }),
       h('div', { className: 'ca-grid' }, ...SOURCES.map(placeButton)),
       h('div', { className: 'ca-grid' }, ...STATIONS.map(placeButton)));
 
@@ -137,14 +137,14 @@ export class CraftAdmin {
       station.addEventListener('change', () => { r.station = station.value; });
       return h('div', { className: 'ca-recipe' },
         station,
-        input(r.level, (v) => { r.level = v; }, { type: 'number', min: 0, max: 100, className: 'de-num', title: 'Skill needed (Smithing, or Alchemy at the table)' }),
+        input(r.level, (v) => { r.level = v; }, { type: 'number', min: 0, max: 100, className: 'de-num', title: 'Skill needed (Smithing at the forge and anvil, Alchemy at the table, Fletching at the workbench)' }),
         input(r.result, (v) => { r.result = v; }, { placeholder: 'makes (item)', list: 'ca-items' }),
         input(r.needs, (v) => { r.needs = v; }, { placeholder: 'needs, e.g. 2 iron ore, 1 coal', className: 'ca-needs' }),
         button('✕', () => { rows.splice(i, 1); again(); }, 'ghost de-x'));
     };
     const recipes = h('section', { className: 'ca-sec' },
       h('h3', { textContent: 'Recipes' }),
-      h('p', { className: 'de-hint', textContent: 'Station, the skill needed (Smithing at the forge and anvil, Alchemy at the table), what it makes, and what it takes: "2 iron ore, 1 coal". Items must exist. Saving checks every line first.' }),
+      h('p', { className: 'de-hint', textContent: 'Station, the skill needed (Smithing at the forge and anvil, Alchemy at the table, Fletching at the workbench), what it makes, and what it takes: "2 iron ore, 1 coal". Items must exist. Saving checks every line first.' }),
       this.rows === null ? h('p', { className: 'empty', textContent: 'Asking the server…' }) : null,
       ...rows.map(recipeRow), list,
       this.rows === null ? null : h('div', { className: 'ca-row' },
