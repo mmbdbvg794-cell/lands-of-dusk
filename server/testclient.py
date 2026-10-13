@@ -3,19 +3,21 @@ scratch copy of the game (never the live one):
 
   python3 testclient.py PORT NAME PASSWORD COMMAND...
 
-Logs in (creating the character, as a human, if it's new), sends each
+Logs in (creating the character, as a human or $RACE, if it's new), sends each
 command, and prints the server's text replies as they come, one per line,
 prefixed with "> " for what was sent. Inventory updates (opcode 6) print as
 "inventory: ...". A command "wait N" just listens for N seconds; "useitem
 <name>" sends "use <ID>" for that item in the latest inventory.
 """
-import socket, sys, time
+import os, socket, sys, time
 
 port, name, password, *commands = sys.argv[1:]
 s = socket.create_connection(('127.0.0.1', int(port)))
 s.settimeout(0.2)
 buf = b''
 inventory = {}  # item name -> an ID, from the latest inventory
+seen = {}  # creature/person name -> [(id, x, y)], from entities in view
+me = [0, 0]  # where we are (our own entity)
 
 
 def pump(seconds):
@@ -69,6 +71,15 @@ def pump(seconds):
             parts = body.split('\n')
             if len(parts) > 3:
                 lines.append('entity: %s type %s' % (parts[0], parts[4] if len(parts) > 4 else '?'))
+                if len(parts) > 4 and parts[2].strip().isdigit():
+                    try:
+                        x, y = int(parts[3]), int(parts[4])
+                    except ValueError:
+                        x = y = 0
+                    if parts[0].lower() == name.lower():
+                        me[:] = [x, y]
+                    else:
+                        seen.setdefault(parts[0].lower(), []).append((parts[2].strip(), x, y))
     return lines
 
 
@@ -87,7 +98,7 @@ for _ in range(20):
     elif 'Enter a new password' in joined or 'Confirm that password' in joined or 'Enter your password' in joined:
         send(password)
     elif 'Choose one of the following races' in joined:
-        send('human')
+        send(os.environ.get('RACE', 'human'))
     elif 'Login Accepted' in joined and 'races' not in joined:
         pass
     if any('has entered the world' in l for l in lines):
@@ -100,9 +111,16 @@ for c in commands:
         for l in pump(float(c[5:])):
             print(l)
         continue
-    # "useitem <name>": "use <its ID>", as clients do.
+    # "useitem <name>": "use <its ID>"; and "use/wear/eat/drink <name>"
+    # become "<verb> <its ID>", as the Java client does.
     if c.startswith('useitem ') and c[8:].lower() in inventory:
         c = 'use ' + inventory[c[8:].lower()]
+    verb, _, rest = c.partition(' ')
+    if verb in ('use', 'wear', 'eat', 'drink') and rest.lower() in inventory:
+        c = verb + ' ' + inventory[rest.lower()]
+    if verb in ('a', 'attack') and rest.lower() in seen:
+        # The nearest of that name, as you'd pick it.
+        c = 'a ' + min(seen[rest.lower()], key=lambda e: max(abs(e[1] - me[0]), abs(e[2] - me[1])))[0]
     print('> ' + c)
     send(c)
     for l in pump(1.5):

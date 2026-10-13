@@ -44,6 +44,11 @@ def patch(name, edits):
 
 
 patch('Commands.java', [
+    # "buy water" buys one (the Java client's Merchant window always sends
+    # a number; players typing it often don't).
+    ('''                catch (Exception exception9) {
+                    return "How many of what do you want to buy?";''', '''                catch (Exception exception9) {
+                    n = 1;''', 1),
     # Compile fixes for CFR's typing slips.
     ('''                        n12 = ((String)object).indexOf(" ");
                     }

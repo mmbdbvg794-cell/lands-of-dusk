@@ -64,13 +64,13 @@ const PROVISIONER = {
   shouts: ['Water and apples!'],
   stages: [
     ifFlag('elfTut6', 'You have what you need. The Moonstone is through the trees to the east.'),
+    // Both the water and the apple checked in one answer (a follow-up
+    // question lost anyone who typed something else).
+    { ...ifFlag('elfTut5', 'Nobody leaves the grove hungry. Buy a water and an apple from me: stand in front of my counter, open the Shop tab and press Buy. Then talk to me again.', [
+      { label: 'I have them', reply: 'Good. Eat and drink from your Backpack when you need to. Now through the trees to the east, and step on the Moonstone.', needs: { kind: 'item', value: 'water' }, effects: [unflag('elfTut5'), jflag('elfTut6', 'Supplies in hand. The Moonstone, through the trees to the east, leads to Aelindor.')] },
+    ]), also: { kind: 'item', value: 'apple' } },
     ifFlag('elfTut5', 'Nobody leaves the grove hungry. Buy a water and an apple from me: stand in front of my counter, open the Shop tab and press Buy. Then talk to me again.', [
-      {
-        label: 'I have them', reply: 'Let me see...', needs: { kind: 'item', value: 'water' }, effects: [],
-        next: says('And the apple?', [
-          { label: 'Right here', reply: 'Good. Eat and drink from your Backpack when you need to. Now through the trees to the east, and step on the Moonstone.', needs: { kind: 'item', value: 'apple' }, effects: [unflag('elfTut5'), jflag('elfTut6', 'Supplies in hand. The Moonstone, through the trees to the east, leads to Aelindor.')] },
-        ]),
-      },
+      { label: 'I have them', reply: '', needs: { kind: 'item', value: 'apple' }, effects: [] },
     ]),
     always('Water and apples, for the road.'),
   ],

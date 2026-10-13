@@ -15,6 +15,11 @@
  * female character gets her image before anyone sees her
  * (server/Sex.java). Again no branches added.
  *
+ * And chatMessage(String) starts with text = Talk.forClient(this, text):
+ * what NPCs say in the browser's words, put in the old Java client's for
+ * its players (server/Talk.java); null sends nothing. Its one branch jumps
+ * to a frame the same as on entry.
+ *
  *   java --add-exports ... PlayerPatch <Player.class in> <Player.class out>
  *
  * Part of the browser client project (dusk-browser-client/server).
@@ -61,9 +66,27 @@ public class PlayerPatch {
         }
         if (hooked == 0) throw new Exception("loadRace() has no return");
         race.maxStack = Math.max(race.maxStack, 1);
+        MethodNode chat = null;
+        for (MethodNode m : cls.methods) if (m.name.equals("chatMessage") && m.desc.equals("(Ljava/lang/String;)V")) chat = m;
+        if (chat == null) throw new Exception("no chatMessage(String) in " + args[0]);
+        InsnList words = new InsnList();
+        words.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        words.add(new VarInsnNode(Opcodes.ALOAD, 1));
+        words.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "Talk", "forClient", "(LPlayer;Ljava/lang/String;)Ljava/lang/String;", false));
+        words.add(new VarInsnNode(Opcodes.ASTORE, 1));
+        // null: send nothing. (A branch, so its target gets a frame: the
+        // same locals as on entry, nothing on the stack.)
+        jdk.internal.org.objectweb.asm.tree.LabelNode go = new jdk.internal.org.objectweb.asm.tree.LabelNode();
+        words.add(new VarInsnNode(Opcodes.ALOAD, 1));
+        words.add(new jdk.internal.org.objectweb.asm.tree.JumpInsnNode(Opcodes.IFNONNULL, go));
+        words.add(new jdk.internal.org.objectweb.asm.tree.InsnNode(Opcodes.RETURN));
+        words.add(go);
+        words.add(new jdk.internal.org.objectweb.asm.tree.FrameNode(Opcodes.F_SAME, 0, null, 0, null));
+        chat.instructions.insert(words);
+        chat.maxStack = Math.max(chat.maxStack, 2);
         ClassWriter w = new ClassWriter(0);
         cls.accept(w);
         Files.write(Paths.get(args[1]), w.toByteArray());
-        System.out.println("Patched logout saving and the login look (" + hooked + " returns) in " + args[1]);
+        System.out.println("Patched logout saving, the login look (" + hooked + " returns) and classic words in " + args[1]);
     }
 }

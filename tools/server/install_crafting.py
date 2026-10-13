@@ -21,9 +21,9 @@ backups/crafting-<time>/. Running it again changes nothing that's in.
   recipes        what forges, anvils and alchemy tables make: written if
                  missing, else only the recipes it lacks are added (a god's
                  changes are kept)
-  props          veins, patches, and a forge and an anvil in four towns,
-                 an alchemy table in four (none in the dark elves'
-                 tutorial: taken out if there)
+  props          veins, patches, and a forge and an anvil in three towns,
+                 an alchemy table in four (none in the dark elves' or the
+                 humans' tutorial: taken out if there)
   merchants      smiths sell picks and hammers, alchemists sickles, and the
                  stalls all three
   rc/images/sprites.gif   sprites 58-72 (craftsprites.py, beside this file)
@@ -132,8 +132,6 @@ alchemy|70|moonpetal elixir|2 moonpetal, 1 brewed blue potion
 STATIONS = [
     # Kingshaven: behind Brann the Smith's counter; his shop sells the tools.
     {"forge": (1419, 341), "anvil": (1415, 341), "sell_at": (1417, 343)},
-    # The old human town, by The Armorer.
-    {"forge": (123, 376), "anvil": (127, 376), "stall": (129, 379)},
     # Izaru's mine hall; the Mine Shop sells the tools.
     {"forge": (435, 78), "anvil": (437, 78), "sell_at": (440, 71)},
     # Ssarakh, in the open by the village.
@@ -147,9 +145,10 @@ TABLES = [
     {"table": (1680, 941)},  # Ssarakh: by the forge
 ]
 # Taken out again (2026-10-13): Armsmaster Quave's hall is the dark elves'
-# tutorial, no place for a smithy.
-DROP_PROPS = [("forge", 1292, 964), ("anvil", 1294, 964), ("alchemy table", 1296, 964)]
-DROP_STALLS = [(1298, 964)]
+# tutorial, and the square by The Armorer the humans', no place for a smithy.
+DROP_PROPS = [("forge", 1292, 964), ("anvil", 1294, 964), ("alchemy table", 1296, 964),
+              ("forge", 123, 376), ("anvil", 127, 376)]
+DROP_STALLS = [(1298, 964), (129, 379)]
 TOOLS = ["mining pick", "smithing hammer", "herb sickle"]
 SMITH_TOOLS = ["mining pick", "smithing hammer"]
 ALCHEMY_TOOLS = ["herb sickle"]

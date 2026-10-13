@@ -1061,6 +1061,32 @@ commands that touch live.
   with both lists --apply, restart at once, deploy (Painted art), copy
   javaclient/javahelp.txt to DuskRPG/rc/.
 
+## 2026-10-13: the tutorials for the classic Java client (NOT live: needs build+install+restart)
+
+- All four race tutorials played start to finish on scratch by typing only
+  (server/testclient.py: RACE=..., "wait N", use/wear/a <name> turned into
+  IDs as the Java client does, the nearest of a name). Helper functions
+  for that (pos/run/flags) were in a scratchpad tut.sh.
+- Talk.forClient (PlayerPatch puts it at the start of Player.chatMessage):
+  for non-browser players, browser words in NPC lines become the classic
+  client's (CLASSIC table: Shop tab -> Merchant button, click it and choose
+  Attack -> pick it in the Attack list, Backpack -> type wear/use ...), and
+  hidden pushes become words (Achievement, PartyChat, MailNew, Trade) or
+  are dropped (DuelInvite/PartyInvite have words of their own; Ship,
+  Cooldown). Returning null sends nothing (a branch + F_SAME frame).
+- Talk.classicTip at login (from Sex.afterRace): one line, for classic
+  players only. "talk" a step too far: "Get closer to <name>".
+- patch.py: "buy water" buys one (was "How many of what...").
+- The four provisioners (Nym, Mossa, Merrin, Quartermaster) take water and
+  food in one answer (tools/server/fix_provisioners.mjs; sources in
+  velkarath/hatchery/grove.mjs; the Quartermaster has no source file).
+- Answers match without punctuation (dialogue.js looseLabel: "or strequals
+  a b"); 23 live scripts rewritten by tools/server/regen_talk.mjs, which
+  only touches scripts exactly as the old writer made them (all 138 were).
+- The forge/anvil/stall by The Armorer (123-129,376-379) were in the human
+  tutorial: taken out like Velkarath's (live after the next restart).
+- mushroom is food now (fix_mushroom.py).
+
 ## Open / ideas
 
 - Lore next: a Firetown expedition (find Elowen / the shard, close the rift); Morvane's journal pages as boss drops.

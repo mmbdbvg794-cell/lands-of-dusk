@@ -24,6 +24,14 @@
  *                 client, which knows no IDs (its players type the
  *                 answers in brackets, which works as it is)
  *   talk names    which NPCs have something to say (for the client's menu)
+ * What NPCs say is written for the browser client ("open the Shop tab",
+ * "click it and choose Attack"). Players of the old Java client get the
+ * same lines in its words (CLASSIC: the Merchant button, the Attack list,
+ * typing wear/use), and the hidden lines the browser reads (an achievement,
+ * an invitation) in words, or not at all when words come with them:
+ * PlayerPatch calls forClient at the start of Player.chatMessage, which
+ * sends nothing when it gives null.
+ *
  *   give <npc> ...   NPCs take things in conversation, not by "give"
  *                 (which is for players): next to one with something to
  *                 say, this says so instead of the engine's "give to who?"
@@ -81,8 +89,13 @@ public class Talk {
         DuskObject npc;
         if (!Storage.isNumber(arg)) {
             npc = nearest(engine, who, arg);
-            if (npc == null) return arg.length() == 0 ? "There's no one to talk to here. Stand next to someone and type: talk"
-                : "There's no one called " + arg + " to talk to here.";
+            if (npc == null) {
+                // Someone a little further off: say who, and how near to go.
+                DuskObject far = nearest(engine, who, arg, NEAR);
+                if (far != null) return "Get closer to " + bare(far.strName) + " (stand right beside them), then type talk.";
+                return arg.length() == 0 ? "There's no one to talk to here. Stand next to someone and type: talk"
+                    : "There's no one called " + arg + " to talk to here.";
+            }
         } else {
             try {
                 npc = engine.getDuskObject(Integer.parseInt(arg));
@@ -125,6 +138,64 @@ public class Talk {
             return name + " seems lost for words.";
         }
         return "";
+    }
+
+    // ---- the old Java client's words ----
+
+    // Browser words -> the Java client's, in this order (longest first).
+    static final String[][] CLASSIC = {
+        { "open the Shop tab and press Buy", "press the Merchant button and buy them" },
+        { "open the Shop tab", "press the Merchant button" },
+        { "see the Shop tab", "press the Merchant button" },
+        { "look in the Shop tab", "press the Merchant button" },
+        { "Shop tab", "Merchant button" },
+        { "click it and choose Attack", "pick it in the Attack list" },
+        { "click mob and click attack", "pick it in the Attack list" },
+        { "(in your Backpack, press Wear beside each)", "(type wear and the name of each, e.g. wear leather vest; the Equipment button shows what you wear)" },
+        { "( In Backpack Click wear next to Item)", "(type wear and the name of each, e.g. wear leather vest; the Equipment button shows what you wear)" },
+        { "Eat and drink from your Backpack when you need to", "Eat and drink when you need to (type use and the name, e.g. use water)" },
+        { "use them from your Backpack", "type use and the name, e.g. use water" },
+        { "press Enter or tap the box at the bottom, then start with", "type in the box at the bottom, starting with" },
+    };
+
+    // Lines the browser client reads and hides that go to everyone: for the
+    // Java client, in words, or null (not sent) when words come with them.
+    static String classicNotice(String t) {
+        String s = t.trim();
+        int bar = s.indexOf('|');
+        if (s.startsWith("Achievement: ") && bar > 0) return "Achievement earned: " + s.substring(13, bar) + " (" + s.substring(bar + 1) + ")";
+        if (s.startsWith("DuelInvite: ") || s.startsWith("PartyInvite: ") || s.startsWith("Ship: ") || s.startsWith("Cooldown: ")) return null;
+        if (s.startsWith("PartyChat: ") && bar > 0) return "[party] " + s.substring(11, bar) + ": " + s.substring(bar + 1);
+        if (s.startsWith("MailNew: ") && bar > 0) return "A letter from " + s.substring(9, bar) + " is waiting for you (letters are read in the browser client).";
+        if (s.startsWith("Trade: request ")) return s.substring(15) + " would like to trade (trading is done in the browser client; give works here).";
+        if (s.startsWith("Trade: closed ")) return "The trade is off: " + s.substring(14);
+        if (s.startsWith("Trade: done ")) return s.substring(12);
+        return t;
+    }
+
+    // At login (Sex.afterRace), for the Java client's players only.
+    public static void classicTip(Player p) {
+        try {
+            if (BridgedSocket.browser(p.sckConnection)) return;
+            p.chatMessage("Tip for the classic client: to speak with someone, stand beside them and type talk. The Help button (under Equipment) lists every command to type.\n");
+        } catch (Exception e) {
+            // No tip.
+        }
+    }
+
+    public static String forClient(Player p, String text) {
+        try {
+            if (text == null || p == null || BridgedSocket.browser(p.sckConnection)) return text;
+            if (text.indexOf(": ") > 0 && Character.isUpperCase(text.charAt(0))) {
+                text = classicNotice(text);
+                if (text == null) return null;
+            }
+            if (text.indexOf("Shop tab") < 0 && text.indexOf("lick") < 0 && text.indexOf("Backpack") < 0 && text.indexOf("press Enter") < 0) return text;
+            for (String[] r : CLASSIC) text = text.replace(r[0], r[1]);
+        } catch (Exception e) {
+            // As it was.
+        }
+        return text;
     }
 
     // ---- the dialogue editor ----
@@ -192,14 +263,21 @@ public class Talk {
     // The talk/ script for an NPC's name, or null.
     // The nearest NPC within reach with a conversation, whose name has
     // `words` in it (any, when empty).
+    static final int NEAR = 6; // how far "get closer" looks
+
     static DuskObject nearest(DuskEngine engine, LivingThing who, String words) {
+        return nearest(engine, who, words, 0);
+    }
+
+    // Within talking reach, or (far > 0) within far squares.
+    static DuskObject nearest(DuskEngine engine, LivingThing who, String words, int far) {
         DuskObject best = null;
         int bestD = Integer.MAX_VALUE;
         for (Vector v : new Vector[] { engine.vctProps, engine.vctMobs, engine.vctMerchants }) {
             for (Object o : v.toArray()) {
                 DuskObject npc = (DuskObject) o;
                 if (npc == null || npc instanceof Player) continue;
-                int reach = Props.isTeller(npc) ? Props.TELLER_REACH : REACH;
+                int reach = far > 0 ? far : Props.isTeller(npc) ? Props.TELLER_REACH : REACH;
                 int dx = Math.abs(npc.intLocX - who.intLocX), dy = Math.abs(npc.intLocY - who.intLocY);
                 if (dx > reach || dy > reach) continue;
                 if (words.length() > 0 && bare(npc.strName).toLowerCase().indexOf(words) < 0) continue;

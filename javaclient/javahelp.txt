@@ -23,9 +23,11 @@ TALKING TO PEOPLE IN THE WORLD
 talk              talk to the person next to you (stand beside them)
 talk elder        talk to the one with "elder" in their name, if several
                   are near
+(If they're a step too far, you'll be told who to get closer to.)
 
 When they ask you something, the answers are at the end of what they say,
-in brackets, split by /. Type one of them exactly:
+in brackets, split by /. Type one of them (capitals and punctuation don't
+matter):
 
   Taskmistress Vhal says: ... Will you be trained? (train me/i am ready)
   > train me
@@ -63,7 +65,8 @@ use <item>        eat, drink, read...
 give Tom gp 100   give gold (or an item) to another player
 
 Stand on a shopkeeper's square and press the Merchant button to buy and
-sell. Shops buy things back for half what they cost.
+sell, or type it:  buy water   buy 5 arrows   sell apple
+Shops buy things back for half what they cost.
 
 Storage: barrels and chests in town are for everyone, bank tellers keep a
 deposit box just for you. Stand next to one:

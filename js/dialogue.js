@@ -65,6 +65,14 @@ const text = (s) => plain(s).replace(/"/g, "'").replace(/[\r\n]+/g, ' ').replace
 // Answers are compared exactly, so they're kept lower case (the buttons
 // show them capitalised).
 export const cleanLabel = (s) => text(s).toLowerCase().replace(/[()/]/g, ' ').replace(/\s+/g, ' ').trim();
+// The same without punctuation: typed answers often leave it out ("here sir"
+// for "here, sir"), so a script takes either (the case never matters).
+export const looseLabel = (s) => cleanLabel(s).replace(/[?.,!;:'"-]/g, ' ').replace(/\s+/g, ' ').trim();
+// The script's test for an answer: the label, or it without punctuation.
+const answerIs = (v, label) => {
+  const clean = cleanLabel(label), loose = looseLabel(label);
+  return loose && loose !== clean ? `or strequals ${v} "${clean}" strequals ${v} "${loose}"` : `strequals ${v} "${clean}"`;
+};
 
 // The races, for conditions and walking rules: [id, name].
 export const RACES = [['human', 'Human'], ['elf', 'Elf'], ['darkelf', 'Dark elf'], ['lizardman', 'Lizardman']];
@@ -190,7 +198,7 @@ function ask(out, who, node, line, pad, depth) {
   const v = depth ? `answer${depth + 1}` : 'answer';
   out.push(`${pad}input trigger ${v}`);
   for (const a of answers) {
-    out.push(`${pad}if strequals ${v} "${cleanLabel(a.label)}"`);
+    out.push(`${pad}if ${answerIs(v, a.label)}`);
     const once = onceFlag(a);
     if (once) {
       out.push(`${pad}\tif hasCondition trigger ${once}`);

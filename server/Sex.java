@@ -48,6 +48,8 @@ public class Sex {
         } catch (Exception e) {
             Log.logError(e, "Sex.afterRace for " + p.strName, false);
         }
+        // (The one hook at login: the old Java client's players also get a tip.)
+        Talk.classicTip(p);
     }
 
     public static String command(LivingThing who, DuskEngine engine, String line) {

@@ -344,3 +344,15 @@ endscript
 }
 
 console.log('ok - sex words');
+
+// Answers with punctuation also match without it.
+{
+  const { looseLabel } = await import('../js/dialogue.js');
+  assert.equal(looseLabel('Who me? Yes sir.'), 'who me yes sir');
+  assert.equal(looseLabel('Here, sir'), 'here sir');
+  assert.equal(looseLabel('farewell'), 'farewell');
+  const s2 = toScript('Rec', { stages: [{ when: { kind: 'always' }, says: 'Hey', answers: [{ label: 'Here, sir', reply: 'Good.', effects: [] }, { label: 'No', reply: 'Fine.', effects: [] }] }] });
+  assert.match(s2, /^if or strequals answer "here, sir" strequals answer "here sir"$/m);
+  assert.match(s2, /^if strequals answer "no"$/m);
+  console.log('ok - loose answers');
+}
