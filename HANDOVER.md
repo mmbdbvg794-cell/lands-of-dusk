@@ -1113,7 +1113,7 @@ commands that touch live.
   bulk_create_items.sh, dc.log; none sold, dropped or carried) moved to
   backups/defItems-junk-20261013-034202.
 
-## 2026-10-13: woodcutting and fletching; veins and patches re-placed from every home city
+## 2026-10-13: woodcutting and fletching; veins and patches re-placed from every home city (LIVE: 09:56 restart, deployed)
 
 - Crafting.java: TREES (oak 0 / ash 15 / yew 35 / elderwood 60, skill
   Woodcutting, tool woodcutter's axe, command chop [x y]): trees are map
