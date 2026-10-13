@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-12 21:30 (duskserver time).
+State as of 2026-10-13 18:30 (duskserver time).
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -1170,23 +1170,6 @@ commands that touch live.
   19 tiles have see rules (DuskEngine.canSee answers no for a square with
   no defCanSeeScripts file of its own). The hour is kept in memory.
 
-## Open / ideas
-
-- Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in the dunes; Morvane's journal pages as boss drops.
-
-- Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
-  tab's Monsters… or the defMobs files), bounty rewards, quest chains.
-- Game ideas the user liked, not started: owned ships (on hold). Crafting
-  next steps: woodcutting, a God-tab recipe editor, placing veins/patches.
-- Website: Forum link added to the site nav (~/DuskRPG/web/*.html, after Updates; backups/web-20261007).
-
-## More notes
-
-My memory directory (`~/.claude/projects/-root-dusk-browser-client/memory/`)
-has session-state, server-source, tile-walkability, duskserver-access and
-future-ideas notes. `CHANGELOG.md` is the player-facing log (not updated
-for today's spell/quest/spawn work yet).
-
 ## 2026-10-13 17:00: classes (LIVE: installed + restarted 16:57, deployed)
 
 - server/Classes.java; config DuskRPG/classes (written with defaults on
@@ -1205,3 +1188,56 @@ for today's spell/quest/spawn work yet).
 - Client: js/classes.js, #class-dialog (after the sex picker), tags in the
   Skills tab, Spellbook and shop. Docs: docs/class-plan.md, class-inventory.csv.
 - Backup before live: ~/DuskRPG/backups/classes-before-20261013-164220.
+- 17:20 (LIVE, restart): the picker has a picture per class (js/icons.js
+  CLASS_ICONS: axe, staff, sun, spider, bow, shield); browser players no
+  longer get the text prompt (Classes.atLogin skips bridged sockets).
+  Gods get "Class: none|..." so the picker stays shut for them.
+- Character tabs are icons (js/icons.js TAB_ICONS, iconTabs(); words are
+  the tooltip and screen-reader text; counts ride on the icon).
+- 17:40 (LIVE, deployed): new fighter/ranger icons; short in-world class
+  blurbs (DEFAULTS and the live classes file; backup in
+  backups/classes-file-*); Eyes moved beside Skull on the equipment doll.
+- tools/golive_classes.sh: deploy + build + door scripts + web pages +
+  java help + install + restart, in one go (the user runs it).
+- Testing the browser client: playwright-core from an older scratchpad
+  (node_modules symlinked into this session's scratchpad/e2e), chromium in
+  ~/.cache/ms-playwright; the client served locally on :8124
+  (python3 -m http.server) and the scratch bridge on 127.0.0.1:8767.
+
+## 2026-10-13 18:30: spell and mana audit (read-only; nothing changed)
+
+- docs/spell-audit.md (+ .docx, made by tools/md2docx.py), CSVs
+  spell-audit-spells / -mp-by-level / -mend, built by tools/spell_audit.py.
+  A copy of the .docx is in ~/spell-audit.docx on duskserver.
+- Key facts: MP cost = (110 - (group skill - unlock %)) / 2 for every
+  spell (55 at unlock, 5 at best); unlock % = 100*i/(n-1) (the last spell
+  of a group needs 100). Max MP = start pool + MP bought (no levels, WIS
+  doesn't count); regen 1+WIS/2 awake, 3+WIS asleep, every ~18 s, out of
+  battle only. Condition ticks are 1 s.
+- Result: no class can cast its first spell at the start (54 MP vs pools
+  10-30), including the free starting spells. Mend ("cure") is 54 for a
+  new Paladin with 18 MP.
+- Flags: telepath copies every message to flan; corrupt nets MP; summon
+  wurm/leviathan may deal no damage (one-line bug, untested); drain,
+  create food/drink unreachable; tools/spellinfo.py's "needs" uses
+  100*i/n, not the engine's 100*i/(n-1), so the Spellbook shows wrong %.
+- Waiting for the user's decisions on the spell/mana rework.
+
+## Open / ideas
+
+- Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in the dunes; Morvane's journal pages as boss drops.
+
+- Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
+  tab's Monsters… or the defMobs files), bounty rewards, quest chains.
+- Game ideas the user liked, not started: owned ships (on hold). Crafting
+  next steps: woodcutting, a God-tab recipe editor, placing veins/patches.
+- Spell/mana rework: see the audit (docs/spell-audit.md); the user decides next.
+- Classes: Rogue later; Paladin and Priest/Priestess own spell lists later.
+- Website: Forum link added to the site nav (~/DuskRPG/web/*.html, after Updates; backups/web-20261007).
+
+## More notes
+
+My memory directory (`~/.claude/projects/-root-dusk-browser-client/memory/`)
+has session-state, server-source, tile-walkability, duskserver-access and
+future-ideas notes. `CHANGELOG.md` is the player-facing log (not updated
+for today's spell/quest/spawn work yet).
