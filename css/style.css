@@ -143,19 +143,21 @@ button.small { padding: 2px 8px; font-size: 12px; }
   .settings-art { display: flex !important; }
 }
 
-/* ---- play area: map, side column (cards and tabs) and chat ----
+/* ---- play area: map, character column, tabs and chat ----
  *
- * A grid, so the chat can sit under the side column or run the whole
- * width along the bottom like the Java client (body.chat-bottom, a switch
- * in Settings). On a phone everything stacks: map, cards, chat. */
+ * A grid, so the chat can sit under the tabs or run the whole width along
+ * the bottom like the Java client (body.chat-bottom, a switch in
+ * Settings). Wide screens: your character on the left, the map in the
+ * middle, the tabs on the right at full height. Narrower: the character
+ * card sits above the tabs. On a phone everything stacks. */
 
 #play-area {
   flex: 1;
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "map" "side" "log";
-  grid-template-rows: auto minmax(0, max-content) minmax(140px, 1fr);
+  grid-template-areas: "map" "char" "side" "log";
+  grid-template-rows: auto max-content minmax(0, max-content) minmax(140px, 1fr);
 }
 
 /* The renderer fills the largest square that fits in #map-wrap. */
@@ -177,8 +179,7 @@ body.playing #map-wrap { display: flex; }
   image-rendering: pixelated;
 }
 
-#side {
-  grid-area: side;
+#char-side, #side {
   min-height: 0;
   min-width: 0;
   display: flex;
@@ -187,22 +188,45 @@ body.playing #map-wrap { display: flex; }
   padding: 8px 8px 0;
   overflow-y: auto;
 }
+#char-side { grid-area: char; }
+#side { grid-area: side; }
 
 @media (min-width: 900px) and (min-aspect-ratio: 1/1) {
   #play-area {
     grid-template-columns: minmax(0, 1fr) clamp(360px, 30vw, 440px);
-    grid-template-areas: "map side" "map log";
-    grid-template-rows: minmax(0, max-content) minmax(200px, 1fr);
+    grid-template-areas: "map char" "map side" "map log";
+    grid-template-rows: max-content minmax(0, max-content) minmax(200px, 1fr);
   }
   #map-wrap { height: auto; border-right: 1px solid var(--border); }
-  /* Chat across the bottom: the side column gets the full height. */
+  /* Chat across the bottom: the tabs get the rest of the height. */
   body.chat-bottom #play-area {
-    grid-template-areas: "map side" "log log";
-    grid-template-rows: minmax(0, 1fr) clamp(150px, 28vh, 320px);
+    grid-template-areas: "map char" "map side" "log log";
+    grid-template-rows: max-content minmax(0, 1fr) clamp(150px, 28vh, 320px);
   }
   body.chat-bottom #map-wrap { border-bottom: 1px solid var(--border); }
   body.chat-bottom #side { padding-bottom: 8px; }
   body.chat-bottom #panel { flex: 1 1 auto; max-height: none; }
+}
+
+/* Wide screens: the character card gets a column left of the map, so the
+   map sits nearer the middle and the tabs (spellbook, skills, ...) run the
+   full height on the right. */
+@media (min-width: 1200px) and (min-aspect-ratio: 1/1) {
+  #play-area {
+    --side-w: clamp(340px, 25vw, 440px);
+    /* Both side columns the same width, so the map is in the middle. */
+    grid-template-columns: var(--side-w) minmax(0, 1fr) var(--side-w);
+    grid-template-areas: "char map side" "char map log";
+    grid-template-rows: minmax(0, 1fr) minmax(200px, 38%);
+  }
+  body.chat-bottom #play-area {
+    grid-template-areas: "char map side" "log log log";
+    grid-template-rows: minmax(0, 1fr) clamp(150px, 28vh, 320px);
+  }
+  #map-wrap { border-left: 1px solid var(--border); }
+  #char-side { padding-bottom: 8px; }
+  #side { padding-bottom: 8px; }
+  #side > #panel { flex: 1 1 auto; max-height: none; }
 }
 
 .card {
@@ -645,7 +669,8 @@ body.playing #map-wrap { display: flex; }
 /* ---- phones: keep the command box on screen ---- */
 
 @media (max-width: 899px), (max-aspect-ratio: 1/1) {
-  #side { gap: 6px; padding: 6px; }
+  #char-side, #side { gap: 6px; padding: 6px; }
+  #side { padding-top: 0; }
   #char-card { padding: 8px 10px; gap: 6px; }
   /* HP / MP / SP side by side, number over the track. */
   .bars { flex-direction: row; gap: 10px; }
@@ -1364,10 +1389,11 @@ dialog::backdrop { background: #000a; }
   .brand { font-size: 15px; }
   body.playing #play-area {
     flex: none;
-    grid-template-areas: "map" "log" "side";
-    grid-template-rows: auto clamp(220px, 38vh, 340px) auto;
+    grid-template-areas: "map" "log" "char" "side";
+    grid-template-rows: auto clamp(220px, 38vh, 340px) auto auto;
   }
   body.playing #map-wrap { height: min(100vw, 56vh); }
+  body.playing #char-side { overflow: visible; }
   body.playing #side { overflow: visible; padding-bottom: 12px; }
   body.playing #panel { max-height: none; }
   #chat-tabs button { padding: 6px 10px; }
