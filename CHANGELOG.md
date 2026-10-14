@@ -480,6 +480,98 @@ backups; see `server/`.
   letter").
 - Fixed: Serpetion's Water Gem drop (the item file's name).
 
+## Woodcutting, fletching and the classic client (13 October 2026)
+
+- **Woodcutting.** With a woodcutter's axe, click a tree beside you to chop
+  it (or type `chop`). Oak first, then ash and yew, and rare elderwood.
+  Woodcutting is a skill that rises as you chop. The axe is made at an anvil.
+- **Fletching.** At a workbench, with a fletching knife, choose Fletch…:
+  quarterstaffs, quivers and simple bows from oak; staves and bows from ash,
+  yew and elderwood (elderwood ones can only be made). Fletching is a skill.
+- **Veins and herb patches were moved.** The easy ones now start near every
+  home city as well as the landings, with a few close clusters by each:
+  Kingshaven is no longer ringed by mithril and moonpetal. Herbs also grow
+  by willows. Mithril is rarer.
+- **Every race's tutorial works in the classic Java client.** NPCs name the
+  classic client's buttons and commands instead of the browser's tabs, and a
+  tip at login explains `talk`. "Get closer" when you `talk` from too far.
+- Answers to NPCs ignore punctuation. The provisioners take water and food in
+  one answer, and "buy water" buys one.
+- Mushrooms are food. Cyrii's wonder elixir (800 health and mana) works.
+- **For gods: God tab → Crafting…** places any vein, patch, forge, anvil,
+  alchemy table or workbench where you stand, shows how many are worked out
+  (with Refill all), and edits the recipes.
+
+## Classes (13 October 2026)
+
+- **Choose a class** right after choosing male or female, from a picture per
+  class: Fighter, Ranger, Paladin, or Cleric (Priest or Priestess for dark
+  elves). Existing characters choose at their next login. Until you choose,
+  you can't move, fight, buy or cast. The classic client asks in text.
+- Each class has its own skills. Skills outside your class cost twice as
+  much and stop at 50, and some are closed to it; choosing a class refunds
+  10 experience per point in skills it can't keep. Each class starts with
+  its own bonuses, health and mana, and some gear is for certain classes.
+  The Skills tab, Spellbook and shops mark what's for yours.
+- **Guild halls**: the Mage Guild's door opens for mages, the Thieves' for
+  rangers, the Healers' for clerics, priests and paladins.
+- The character tabs are icons now (hover for the name), and Eyes sit beside
+  Skull on the equipment outline.
+- Gods: `setclass <name> <class>`.
+
+## Spells, schools and guilds (13–14 October 2026)
+
+- **Spells cost less and open sooner.** Every spell has its own mana cost
+  and the points it needs. Before, a new character couldn't afford even its
+  starting spells (54 MP against 10–30).
+- **Schools.** Spells belong to schools, opened in tiers at 0, 10, 25, 50
+  and 75 points:
+  - Divine: clerics, and paladins up to 49.
+  - Drow: priests and priestesses (they start with 1).
+  - Nature: rangers of **The Circle**.
+  - Arcane: members of the **Mage Guild**.
+  - Forbidden: for the very few who find the Hidden Order.
+  - Open spells anyone can learn.
+
+  Trainers only show what you can learn. Type `guilds` to see yours.
+- **Mana.** Each class starts with a bigger pool (fighter 28 up to cleric
+  and priest 46) and a full bar when it's chosen. Out of battle you get 4% of
+  your mana back every 18 seconds as well as the old trickle. Heals grow
+  stronger the more points you have past the spell.
+- Battle-only spells are refused out of battle, without costing mana.
+- Create food and create drink conjure a sandwich and an ale. Telepath,
+  herbology and translate are gone.
+- **New places:**
+  - The **Mage Guild tower** on its isle off Eastreach: five floors whose
+    stairs open with arcane points, the Mage Guild Trainer on the first and
+    the Hidden Order's at the top (no boat there yet).
+  - **The Circle's grove**: a clearing in a dense wood with standing stones,
+    a campfire, the Circle Trainer and rare herbs.
+  - The Drow Priesthood Trainer beside Priestess Ilvra.
+- Old Mage characters are Mage Guild members. Mage can no longer be chosen
+  as a class.
+- Gods: `guildflag <name> <flag> on|off` and `guildflags <name>`.
+
+## Monsters and NPCs (13–14 October 2026)
+
+- **Twice the monsters** across the world (bosses, champions, quest monsters
+  and the tutorials not included).
+- **At most two creatures per player in a fight** (six against a party of
+  three). The rest wait beside it and join as places free up.
+- **NPCs shout less**: each one calls out to you at most once an hour, and
+  only when you could walk up to them.
+
+## Screen layout (14 October 2026)
+
+- **Wide screens**: your character card has its own column left of the map,
+  the tabs run full height on the right, and the map sits centred between.
+  Medium screens keep the card above the tabs; phones are unchanged.
+- **Minimap under the name card** on wide screens, as big as the column
+  allows (Settings → Screen layout → "Minimap on wide screens" puts it back on
+  the map). On the map it's a little smaller.
+- **Settings in sections**: Display, Screen layout, Sound, Music, Account and
+  help, and a closed Advanced (the bridge address and protocol trace).
+
 ## Closed beta
 
 - **Beta keys.** Playing in the browser needs a beta key. Type it once in the

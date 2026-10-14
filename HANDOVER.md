@@ -1352,12 +1352,10 @@ Lessons:
   now the doubled monster numbers.
 - Game ideas the user liked, not started: owned ships (on hold).
 - Classes: Rogue later.
-- CHANGELOG.md (player-facing) is behind: spells, schools, guilds, the
-  tower and the doubled monsters aren't in it.
+- CHANGELOG.md is up to date to 2026-10-14 03:51 (creature cap, layout).
 
 ## More notes
 
 My memory directory (`~/.claude/projects/-root-dusk-browser-client/memory/`)
 has session-state, server-source, tile-walkability, duskserver-access and
-future-ideas notes. `CHANGELOG.md` is the player-facing log (not updated
-for today's spell/quest/spawn work yet).
+future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not served).
