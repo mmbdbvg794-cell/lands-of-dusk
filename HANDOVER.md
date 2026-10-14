@@ -1353,7 +1353,7 @@ Lessons:
   1440 px in both looks: no word split, nothing outside a card, no
   sideways scroll. Backups: /root/backups/dusk-equip-panel-20261014-151459.
 
-## 2026-10-14 afternoon: equipment panel, rows (client only; NOT deployed yet)
+## 2026-10-14 afternoon: equipment panel, rows (client only, deployed; commit 5360b0e)
 
 - css/style.css: the doll is 3x4 now: ". skull eyes / arms torso neck /
   wield waist hands / . legs ." (Neck moved to the right column). Gaps are
