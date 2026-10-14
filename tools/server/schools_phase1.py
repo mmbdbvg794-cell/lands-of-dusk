@@ -138,7 +138,8 @@ def schools(game):
     if old_lists["clerical group"] is None:
         # Already done: the old groups are gone. Only check it's all in place.
         for g, spells in SCHOOLS.items():
-            if listed(game, g) != [s for s, _, _ in spells]:
+            # (phase 4 adds spells after these)
+            if listed(game, g)[:len(spells)] != [s for s, _, _ in spells]:
                 raise SystemExit(f"{g}: not as expected; nothing done")
         return
     where = {}  # spell -> its script's text now
@@ -267,8 +268,22 @@ def classes(game):
     plan(game, "classes", "\n".join(out))
 
 
+def online(game):
+    """Who's in the game (who.json): their files are skipped, since the
+    server writes its own copy back when they log out or it restarts."""
+    import json
+    try:
+        return {p["name"].lower() for p in json.load(open(os.path.join(game, "who.json")))["players"]}
+    except Exception:
+        return set()
+
+
 def players(game):
+    here = online(game)
     for u in sorted(os.listdir(os.path.join(game, "users"))):
+        if u.split(".")[0].lower() in here:
+            print(f"skip  users/{u} (online: run again once they're out)")
+            continue
         rel = f"users/{u}"
         ls = read(game, rel).split("\n")
         points, out, i, changed = {}, [], 0, False

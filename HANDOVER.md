@@ -1297,6 +1297,12 @@ commands that touch live.
   ~741,1231; reads the shortmap/mobs/props it's built against),
   drowtemple.mjs (trainer 1372,899). No ferry to the isle yet.
 - Live backup before go-live: backups/schools-golive-20261014-012406/before.tar.gz.
+- LESSON (02:47): the go-live migrated users/flan while flan was online;
+  the restart wrote flan's old groups back (414 'spell group not found'
+  errors for flan only). Re-run with flan offline fixed it. schools_phase1
+  --players now skips anyone in who.json. Never edit an online player's file.
+- 02:46 LIVE: tools/golive_furnish.sh (tower furnishing, Circle grove,
+  named trainers); backup backups/furnish-20261014-024643/before.tar.gz.
 - The user's decisions: no ferry to the isle for now; haste, turn undead,
   shadow step, spider swarm not built.
 - Scratch-only test changes (not for live): train:forbidden group on the

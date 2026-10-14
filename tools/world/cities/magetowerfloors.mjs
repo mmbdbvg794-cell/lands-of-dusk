@@ -47,7 +47,9 @@ export default {
   size: [W, GAP * (FLOORS.length - 1) + H],
   seed: 32,
   oldWorld: true,          // the sea west of the old world
-  mayBuild: (was) => was === 0, // only empty sea
+  // Only empty sea, or the tower's own tiles (to rebuild it): stone wall,
+  // torch, door, stairs and the floors it lays.
+  mayBuild: (was) => was === 0 || [59, 24, 23, 106, 107, 41, 42, 43, 105, 96, 128, 101].includes(was),
   build(p) {
     FLOORS.forEach((f, k) => {
       const y = k * GAP;
