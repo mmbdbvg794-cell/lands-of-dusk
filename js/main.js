@@ -728,7 +728,7 @@ $('minimap').hidden = !minimapBox.checked;
 minimapBox.addEventListener('change', () => {
   storage('set', 'dusk.minimap', minimapBox.checked ? '1' : '0');
   $('minimap').hidden = !minimapBox.checked;
-  minimap.invalidate();
+  placeMinimap();
 });
 // Drag the minimap anywhere over the map; it remembers where. Settings
 // has a button to put it back in the bottom-right corner.
@@ -738,6 +738,29 @@ const minimapDrag = makeDraggable($('minimap'), $('map-stage'), {
   onMove: (pos) => storage('set', 'dusk.minimap.pos', pos.map((v) => v.toFixed(3)).join(',')),
 });
 $('minimap-reset').addEventListener('click', () => minimapDrag.reset());
+// Wide screens (the three-column layout): the minimap can sit under the
+// name card instead of over the map.
+const minimapPlace = $('minimap-place');
+const wideLayout = window.matchMedia('(min-width: 1200px) and (min-aspect-ratio: 1/1)');
+minimapPlace.value = storage('get', 'dusk.minimap.place') === 'map' ? 'map' : 'card';
+function placeMinimap() {
+  const el = $('minimap');
+  const inCard = wideLayout.matches && minimapPlace.value === 'card';
+  const home = inCard ? $('minimap-slot') : $('map-stage');
+  if (el.parentElement !== home) {
+    home.append(el);
+    if (inCard) el.style.left = el.style.top = el.style.right = el.style.bottom = '';
+    else minimapDrag.place();
+  }
+  $('minimap-slot').hidden = !inCard || el.hidden;
+  minimap.invalidate();
+}
+minimapPlace.addEventListener('change', () => {
+  storage('set', 'dusk.minimap.place', minimapPlace.value);
+  placeMinimap();
+});
+wideLayout.addEventListener('change', placeMinimap);
+placeMinimap();
 $('minimap').addEventListener('click', () => minimap.cycleZoom());
 setInterval(saveExplored, SAVE_EXPLORED_MS);
 

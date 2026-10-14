@@ -15,7 +15,9 @@ export function makeDraggable(el, container, { pos = [1, 1], onMove } = {}) {
     Math.max(0, container.clientWidth - el.offsetWidth - 2 * MARGIN),
     Math.max(0, container.clientHeight - el.offsetHeight - 2 * MARGIN),
   ];
+  const here = () => el.parentElement === container;
   const place = () => {
+    if (!here()) return;
     const [w, h] = room();
     el.style.left = `${MARGIN + fx * w}px`;
     el.style.top = `${MARGIN + fy * h}px`;
@@ -24,7 +26,7 @@ export function makeDraggable(el, container, { pos = [1, 1], onMove } = {}) {
 
   el.style.touchAction = 'none';
   el.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || !here()) return;
     press = { id: e.pointerId, x: e.clientX, y: e.clientY, left: el.offsetLeft, top: el.offsetTop, dragging: false };
     try {
       el.setPointerCapture(e.pointerId);
@@ -64,6 +66,7 @@ export function makeDraggable(el, container, { pos = [1, 1], onMove } = {}) {
   place();
 
   return {
+    place,
     reset() {
       [fx, fy] = [1, 1];
       place();

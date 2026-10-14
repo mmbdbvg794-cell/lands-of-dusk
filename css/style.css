@@ -630,14 +630,35 @@ body.playing #map-wrap { display: flex; }
   position: absolute;
   bottom: 8px;
   right: 8px;
-  width: 180px;
-  height: 180px;
+  width: 150px;
+  height: 150px;
   border: 1px solid var(--border);
   border-radius: 6px;
   box-shadow: 0 2px 8px #000a;
   cursor: grab;
 }
 #minimap.dragging { cursor: grabbing; box-shadow: 0 6px 18px #000d; }
+/* Under the name card: as big a square as the column has room for. */
+#minimap-slot {
+  flex: 1 1 0;
+  min-height: 140px;
+  max-height: 420px;
+  container-type: size;
+  display: flex;
+  justify-content: center;
+}
+#minimap-slot[hidden] { display: none; }
+#minimap-slot #minimap {
+  position: static;
+  width: min(100cqw, 100cqh);
+  height: min(100cqw, 100cqh);
+  cursor: pointer;
+}
+/* Only the three-column layout has a place for it. */
+.settings-wide { display: none !important; }
+@media (min-width: 1200px) and (min-aspect-ratio: 1/1) {
+  .settings-wide { display: flex !important; }
+}
 @media (max-width: 600px) {
   #minimap { width: 104px; height: 104px; bottom: 6px; right: 6px; }
 }

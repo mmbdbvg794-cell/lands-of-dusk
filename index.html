@@ -84,6 +84,13 @@
             <label class="toggle"><input id="minimap-toggle" type="checkbox" checked> Minimap</label>
             <button type="button" id="minimap-reset" class="ghost small">Move to corner</button>
           </div>
+          <div class="toggle-row settings-wide">
+            <label class="toggle" for="minimap-place">Minimap on wide screens</label>
+            <select id="minimap-place">
+              <option value="card">Under your name card</option>
+              <option value="map">On the map</option>
+            </select>
+          </div>
           <div class="toggle-row">
             <label class="toggle" for="dpad-mode">On-screen arrows</label>
             <select id="dpad-mode">
@@ -265,6 +272,8 @@
           </div>
         </div>
       </section>
+      <!-- The minimap moves here on wide screens (Settings, js/main.js). -->
+      <div id="minimap-slot"></div>
     </aside>
 
     <aside id="side">
