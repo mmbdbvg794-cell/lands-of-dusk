@@ -92,6 +92,8 @@ public class Props {
             if (admin != null) return admin;
             String boss = WorldBoss.command(who, engine, trimmed);
             if (boss != null) return boss;
+            String clan = Clans.command(who, engine, trimmed);
+            if (clan != null) return clan;
             String party = Party.command(who, engine, trimmed);
             if (party != null) return party;
             String duel = Duel.command(who, engine, trimmed);

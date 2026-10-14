@@ -22,6 +22,7 @@ assert.deepEqual(parseParty('Party: flan|flan:90:100:441:82,hgate:20:3000:450:85
 assert.deepEqual(parseParty('Party: none'), { none: true });
 assert.deepEqual(parseParty('PartyInvite: flan'), { invite: 'flan' });
 assert.deepEqual(parseParty('DuelInvite: flan'), { duel: 'flan' });
+assert.deepEqual(parseParty('ClanInvite: flan|The Grey Hand'), { clan: { from: 'flan', name: 'The Grey Hand' } });
 assert.deepEqual(parseParty('PartyChat: flan|over here | quick'), { chat: { from: 'flan', text: 'over here | quick' } });
 assert.equal(parseParty('Party time!'), null);
 assert.equal(partyChatCommand('%  follow me'), 'party say follow me');

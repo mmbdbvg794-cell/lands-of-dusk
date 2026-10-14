@@ -1,10 +1,11 @@
 // Parties (server/Party.java): the party frame over the map (who's in it,
 // their health), the invitation with Accept and Decline (duel challenges,
-// server/Duel.java, use the same box), and party chat
+// server/Duel.java, and clan invitations, server/Clans.java, use the same box), and party chat
 // ("%" at the start of a line; shown in the chat as "[Party] name: text").
 
 // A server line -> { party: { leader, members: [{ name, hp, maxhp, x, y }] } }
-// | { none } | { invite: from } | { duel: from } | { chat: { from, text } } | null.
+// | { none } | { invite: from } | { duel: from } | { clan: { from, name } }
+// | { chat: { from, text } } | null.
 export function parseParty(line) {
   const s = line.trim();
   if (s === 'Party: none') return { none: true };
@@ -21,6 +22,9 @@ export function parseParty(line) {
   // A duel challenge (server/Duel.java), answered from the same box.
   m = /^DuelInvite: (.+)$/.exec(s);
   if (m) return { duel: m[1] };
+  // A clan invitation (server/Clans.java).
+  m = /^ClanInvite: ([^|]+)\|(.+)$/.exec(s);
+  if (m) return { clan: { from: m[1], name: m[2] } };
   m = /^PartyChat: ([^|]+)\|(.*)$/.exec(s);
   if (m) return { chat: { from: m[1], text: m[2] } };
   return null;
@@ -53,6 +57,7 @@ export class PartyView {
     if (r.party) { this.party = r.party; this.names = new Set(r.party.members.map((m) => m.name.toLowerCase())); this.render(); return true; }
     if (r.invite) { this.showInvite(`${r.invite} asks you to join their party.`, 'party', 'Join'); return true; }
     if (r.duel) { this.showInvite(`${r.duel} challenges you to a duel. Nobody loses anything.`, 'duel', 'Fight'); return true; }
+    if (r.clan) { this.showInvite(`${r.clan.from} asks you to join the clan ${r.clan.name}.`, 'clan', 'Join'); return true; }
     if (r.chat) { this.line(`[Party] ${r.chat.from}: ${r.chat.text}`); return true; }
     return false;
   }

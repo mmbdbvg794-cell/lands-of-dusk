@@ -1382,6 +1382,40 @@ Lessons:
 - js/atmosphere.js UNDERGROUND has the box (deployed).
 - Backups: ~/DuskRPG/backups/city-greystone-mine-20261014-170942.
 
+## 2026-10-14 evening: clan halls emptied, clans fixed (LIVE since the 19:10 restart)
+
+- tools/server/clear_clan_halls.py <game> [--apply] (applied 19:02, backup
+  backups/clan-halls-20261014-190211): finds each old hall by flood fill
+  from inside its door (HAOD-AC 97,86; MTH north 413,29; MTH den 138,891;
+  Aop 173,131; DD 945,55; of the Dead 110,193; TFAWC's door is a tree now)
+  and removes every prop, sign, shop, monster, walk-on script and walk rule
+  in it (79 props, 18 signs, 4 shops, 71 scripts: room locks for Kenny,
+  Shifty01, Biohazard, Brian, Gatotic, Kamikaze, Goku, Reans, Jerle; the
+  casino, healing beds, free ale, the "hero" tile). Doors say the hall
+  "stands empty... can be claimed by a new clan: ask a god". The user's
+  choices: strip to bare; the MTH back-alley thieves stay and now rob
+  everyone (13 squares); DD (teleport-only) now takes anyone in from
+  100,28, out again from 944,58 (sign "Way out") to 101,28. "of the Dead"
+  keeps its closet teleport to 29,484. Originals of the Aug 12 rewrites are
+  in ~/defMoveActions.zip.
+- Clan rules squares 10_24/11_24 rewritten (old gold-cost table was never
+  real); backup backups/clan-rules-20261014.
+- server/Clans.java (via Props.command, before the engine): clan, clan
+  members, clan invite/accept/decline (ClanInvite: line -> js/party.js
+  Join box), clan leave [yes], clan kick (online or offline: edits users/
+  <name> and .backup); engine aliases addmember/unclan/kick go here too.
+  Fixes: members (privs 0) could never leave (engine gates clan commands at
+  privs > 0); engine's addmember/unclan blocked on readLine of the other
+  socket; kicked leaders kept privs 1; invites stole players from other
+  clans; gods' clanleader/changeclan lower-cased the clan name (now kept,
+  and an existing clan's spelling reused). Tested on scratch (egate, hgate,
+  cgate). install.sh needed Clans added to its class lists (a 30 s window
+  at 19:10 had Props without Clans).
+- Engine facts: clan leader = privs 1 (who shows {Clan Leader}); PvP needs
+  both in a clan; clan chat ":" matches clan names case-sensitively.
+- Not done: clan in who.json / the who page; owning a hall (gods hand one
+  over by hand: walk rules or tile scripts with isclan).
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
