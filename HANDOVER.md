@@ -1328,6 +1328,14 @@ Lessons:
   card | map). On the map it's 150px now (was 180). js/drag.js only drags
   and places while the element is inside its container.
 
+## 2026-10-14 03:51: creature cap in fights (LIVE: installed + restarted 03:51)
+
+- server/Creatures.java `full()`: a creature won't join (or start) a fight
+  once the other side has MAX_PER_PLAYER (2) creatures per player on it
+  (a party of 3: 6). The rest wait beside it and join as places free up.
+  Fights with no players aren't capped. Change the number in
+  MAX_PER_PLAYER, build, install, restart.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
