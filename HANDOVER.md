@@ -1308,6 +1308,18 @@ commands that touch live.
 - Scratch-only test changes (not for live): train:forbidden group on the
   27,42 trainer, training_dummy maxhp 3000 (backups in ~/dusktest/backups).
 
+## 2026-10-14 03:16: twice the monsters (LIVE)
+
+- tools/server/double_mobs.py (run ONCE: it doubles whatever the mobs file
+  holds): 2,060 -> 3,847 (old world +924, south +243, isles +241, east
+  +196, north +147, Underdark +36). Not doubled: kinds with 1-2 placed
+  (bosses, champions, quest targets, DraN/Freyrbrand/Harpy/Invader),
+  KeyMaster, stationary dummies, race tutorials, gods' island; 207 had no
+  room (mostly rubble in mine tunnels). Backup backups/double-mobs-
+  20261014-031624/mobs. Server ~174 MB after.
+- Also live: battle spells refused out of battle before costing MP
+  (Skills.battleOnly), 03:05 restart.
+
 ## Open / ideas
 
 - Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in the dunes; Morvane's journal pages as boss drops.
