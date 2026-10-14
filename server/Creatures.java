@@ -11,6 +11,9 @@
  *   - one much stronger: it backs away; in between it stands its ground;
  *   - nobody: now and then (1 turn in 25) a step in a random direction.
  *
+ * A fight takes at most MAX_PER_PLAYER creatures per player; others wait
+ * beside it and join as places free up.
+ *
  * Who's an enemy is its faction's grudge (factions/<name>, saved by the
  * game): killing a faction's creatures makes it dislike you, and some
  * factions dislike other creatures. Creatures with no faction (training
@@ -33,6 +36,9 @@ import java.util.WeakHashMap;
 public class Creatures {
     static final long THINK_MS = 600;
     static final int LEASH = 8;
+    // At most this many creatures fighting each player in a fight; the rest
+    // wait beside it and join when one falls (a party of 3: 6).
+    static final int MAX_PER_PLAYER = 2;
     // A creature this brave (its file's "bravery") never runs: once it has
     // a grudge it comes at you, however strong you are (slimes, the dead,
     // the quest chains' monsters, world bosses).
@@ -162,11 +168,13 @@ public class Creatures {
     // fight with a player outside a clan (meant for player against player),
     // which is nearly everyone, so a creature could never start one. Kept:
     // the canAttack script (conf/canAttack: no one "safe"), no pets, no one
-    // at a shop, next to them.
+    // at a shop, next to them. Added: no more than MAX_PER_PLAYER creatures
+    // per player (full).
     static void attack(DuskEngine engine, Mob m, LivingThing enemy) {
         if (enemy.isPet() || m.batBattle != null) return;
         if (Math.abs(m.intLocX - enemy.intLocX) + Math.abs(m.intLocY - enemy.intLocY) > 1) return;
         if (enemy instanceof Player && engine.overMerchant(enemy.intLocX, enemy.intLocY) != null) return;
+        if (full(enemy)) return;
         Script ca = engine.scrCanAttack;
         if (ca != null) synchronized (ca) {
             ca.varVariables.clearVariables();
@@ -176,6 +184,7 @@ public class Creatures {
         }
         if (debugOn) Log.logEvent("Creatures debug: " + m.strName + " " + m.ID + " attacks " + enemy.strName);
         synchronized (engine.vctBattles) {
+            if (full(enemy)) return;
             if (enemy.batBattle == null) {
                 engine.vctBattles.addElement(new Battle(m, enemy, engine));
             } else {
@@ -183,6 +192,20 @@ public class Creatures {
                 enemy.batBattle.chatMessage("\t" + m.strName + " has joined the battle.\n");
             }
         }
+    }
+
+    // Whether the fight `enemy` is in already has MAX_PER_PLAYER creatures
+    // for each player on its side. Fights without players aren't capped.
+    static boolean full(LivingThing enemy) {
+        Battle b = enemy.batBattle;
+        if (b == null) return false;
+        // Copies (Vector.toArray is atomic), as the fight goes on meanwhile.
+        Object[] mine = (enemy.bytSide == 1 ? b.vctSide1 : b.vctSide2).toArray();
+        Object[] theirs = (enemy.bytSide == 1 ? b.vctSide2 : b.vctSide1).toArray();
+        int players = 0, creatures = 0;
+        for (Object o : mine) if (o instanceof Player) players++;
+        for (Object o : theirs) if (o instanceof Mob && !((Mob) o).isPet()) creatures++;
+        return players > 0 && creatures >= MAX_PER_PLAYER * players;
     }
 
     // The game's "can this one see that one" script (conf/canSeeLivingThing:
