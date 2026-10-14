@@ -134,11 +134,24 @@ def main():
 
     text = read("merchants") or ""
     lines = text.replace("\r", "").split("\n")
-    places = {(lines[i + 1].strip(), lines[i + 2].strip()) for i in range(len(lines) - 2) if lines[i] == "Merchant"}
+    # Each shop: its name (any word, "Merchant" by default), x, y, wares, end.
+    places = {}
+    for i in range(len(lines) - 2):
+        if lines[i][:1].isalpha() and lines[i] != "end" and lines[i + 1].strip().isdigit() and lines[i + 2].strip().isdigit():
+            places[(lines[i + 1].strip(), lines[i + 2].strip())] = i
     add = [m for m in b["merchants"] if (str(m["x"]), str(m["y"])) not in places]
+    renamed = 0
+    for m in b["merchants"]:
+        i = places.get((str(m["x"]), str(m["y"])))
+        if i is not None and m.get("name") and lines[i] != m["name"]:
+            lines[i] = m["name"]
+            renamed += 1
+    if renamed:
+        text = "\n".join(lines)
+        write("merchants", text)
     if add:
-        write("merchants", entries_text(text, "".join("Merchant\n%d\n%d\n%send\n" % (m["x"], m["y"], "".join(w + "\n" for w in m["wares"])) for m in add)))
-    said.append("shops: %d added, %d already there" % (len(add), len(b["merchants"]) - len(add)))
+        write("merchants", entries_text(text, "".join("%s\n%d\n%d\n%send\n" % (m.get("name") or "Merchant", m["x"], m["y"], "".join(w + "\n" for w in m["wares"])) for m in add)))
+    said.append("shops: %d added, %d already there, %d renamed" % (len(add), len(b["merchants"]) - len(add), renamed))
 
     text = read("signs")
     have = {(x, y) for _, x, y in triples(text)}

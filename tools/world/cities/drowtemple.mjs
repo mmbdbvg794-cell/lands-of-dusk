@@ -8,6 +8,6 @@ export default {
   size: [1, 1],
   seed: 51,
   build(p) {
-    p.merchant(0, 0, ['train:drow group', 'train:Spell Power']);
+    p.merchant(0, 0, ['train:drow group', 'train:Spell Power'], 'Drow Priesthood Trainer');
   },
 };

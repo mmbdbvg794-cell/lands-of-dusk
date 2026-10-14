@@ -140,7 +140,9 @@ class Plan {
   // A monster already in the game to take away (map coordinates, as the
   // mobs file has it), e.g. one that no longer fits where it stands.
   dropMob(name, level, x, y) { this.dropMobs.push({ name, level, x, y }); }
-  merchant(x, y, wares) { this.merchants.push({ x, y, wares }); }
+  // A shop or trainer; its name is what players see over it ("Merchant"
+  // if none).
+  merchant(x, y, wares, name) { this.merchants.push(name ? { x, y, wares, name } : { x, y, wares }); }
   sign(name, text, x, y) { this.signs.push({ name, text, x, y }); }
   mob(name, level, x, y) { this.mobs.push({ name, level, x, y }); }
   file(path, text) { this.files[path] = text; }

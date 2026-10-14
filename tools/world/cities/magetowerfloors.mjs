@@ -7,9 +7,9 @@
 // Archmage's quest flag. Gods go anywhere.
 //
 //   floor 1  the Initiates' Hall       arcane trainer; the door back out
-//   floor 2  the Apprentices' Library  arcane 10 (Apprentice)
-//   floor 3  the Adepts' Study         arcane 25 (Adept)
-//   floor 4  the Masters' Sanctum      arcane 50 (Master)
+//   floor 2  the Apprentices' Library  arcane 10 (Apprentice): shelves, bunks
+//   floor 3  the Adepts' Study         arcane 25 (Adept): two alchemy tables
+//   floor 4  the Masters' Sanctum      arcane 50 (Master): a crystal circle
 //   floor 5  the Archmage's Spire      arcane 75 and archmage_quest (Archmage);
 //                                      the Hidden Order's trainer (forbidden
 //                                      group: only those it's open to see it)
@@ -96,6 +96,26 @@ export default {
         ]));
       }
     });
+    // Furnishing (props block their square: rows 1-3, the arrival rows,
+    // stay clear, so every floor's stairs can be reached).
+    const props = (k, list) => { for (const [name, x, yy] of list) p.prop(name, x, k * GAP + yy); };
+    // 1, the Initiates' Hall: a runner to the trainer, couches, braziers.
+    p.fill(7, 5, 1, 5, 'm');
+    props(0, [['couch', 3, 6], ['couch', 11, 6], ['brazier', 2, 4], ['brazier', 12, 4]]);
+    // 2, the Apprentices' Library: shelves (dark wood), chairs, bunks.
+    for (const yy of [5, 7]) { p.fill(3, GAP + yy, 3, 1, 'W'); p.fill(9, GAP + yy, 3, 1, 'W'); }
+    props(1, [['chair', 6, 8], ['chair', 8, 8], ['bunk', 2, 8], ['bunk', 12, 8]]);
+    // 3, the Adepts' Study: two alchemy tables (Alchemy works at them).
+    p.fill(6, 2 * GAP + 4, 3, 3, 'm');
+    props(2, [['alchemy table', 4, 5], ['alchemy table', 10, 5], ['chair', 4, 7], ['chair', 10, 7], ['brazier', 2, 7], ['brazier', 12, 7]]);
+    // 4, the Masters' Sanctum: a crystal circle round a statue.
+    p.oval(4, 3 * GAP + 4, 7, 5, 'c');
+    props(3, [['statue', 7, 6], ['brazier', 3, 4], ['brazier', 11, 4], ['brazier', 3, 8], ['brazier', 11, 8]]);
+    // 5, the Archmage's Spire: a crystal ring round the Hidden Order's
+    // trainer, and a throne.
+    p.oval(5, 4 * GAP + 3, 5, 5, 'C');
+    props(4, [['Throne', 7, 3], ['brazier', 3, 5], ['brazier', 11, 5], ['statue', 2, 8], ['statue', 12, 8]]);
+
     // Floor 1: the door out, and the Guild's trainer.
     p.set(7, 10, 'D');
     p.file(`defMoveActions/${DOOR_OUT[0]}_${DOOR_OUT[1]}`, script([
@@ -103,9 +123,9 @@ export default {
       `set trigger locxy ${TOWER_OUT[0]} ${TOWER_OUT[1]}`,
       'endscript',
     ]));
-    p.merchant(7, 4, ['train:arcane group', 'train:Spell Power', 'train:Mana Regen']);
+    p.merchant(7, 4, ['train:arcane group', 'train:Spell Power', 'train:Mana Regen'], 'Mage Guild Trainer');
     // Floor 5: the Hidden Order's trainer (Classes.wares shows it only to
     // those the forbidden school is open to).
-    p.merchant(7, 4 * GAP + 5, ['train:forbidden group']);
+    p.merchant(7, 4 * GAP + 5, ['train:forbidden group'], 'Hidden Order Trainer');
   },
 };
