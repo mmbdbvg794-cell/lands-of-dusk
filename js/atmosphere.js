@@ -138,11 +138,13 @@ export function findSnowTiles(sheet) {
 // tools/world/cities/velkarath.mjs): no weather, and always dim, a
 // lantern's light around you, day or night.
 // Also the old world's dug-out places: the crypt of King Zilen's guard
-// (tools/world/cities/zilen.mjs) and the Izaru mine (izaru.mjs).
+// (tools/world/cities/zilen.mjs) and the Izaru mine (izaru.mjs), and
+// Greystone Mine north of Kingshaven (greystone.mjs).
 export const UNDERGROUND = [
   { x0: 1260, y0: 850, x1: 1429, y1: 989 },
   { x0: 12, y0: 236, x1: 55, y1: 279 },
   { x0: 340, y0: 280, x1: 403, y1: 333 },
+  { x0: 840, y0: 195, x1: 949, y1: 284 },
 ];
 export const isUnderground = (x, y) => UNDERGROUND.some((u) => x >= u.x0 && x <= u.x1 && y >= u.y0 && y <= u.y1);
 const UNDERGROUND_LIGHT = 0; // as dark as the depth of night
