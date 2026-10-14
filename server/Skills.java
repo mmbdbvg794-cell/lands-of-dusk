@@ -475,6 +475,12 @@ public class Skills {
                 return;
             }
         }
+        // A battle spell out of battle: refused before the engine charges
+        // its MP (and before its wait starts).
+        if (name != null && who.batBattle == null && battleOnly(name)) {
+            who.chatMessage("You must be in battle to use this spell.\n");
+            return;
+        }
         int before = who.attributes.getStat("mp");
         who.castSpell(spell);
         int cost = before - who.attributes.getStat("mp");
@@ -540,6 +546,36 @@ public class Skills {
     public static int spellUnlock(int formula, Object spell) {
         long[] l = spellLines(spell);
         return l != null && l[2] >= 0 ? (int) l[2] : formula;
+    }
+
+    // A spell whose script asks "isinbattle caster" (the damage spells) is
+    // for battle only. Read from its group's script, again if that changes.
+    static final java.util.Map<String, long[]> battleSpells = new java.util.concurrent.ConcurrentHashMap<String, long[]>();
+
+    static boolean battleOnly(String spell) {
+        try {
+            java.io.File def = new java.io.File("defSpells", spell);
+            if (!def.exists()) return false;
+            String group = java.nio.file.Files.readAllLines(def.toPath(), java.nio.charset.StandardCharsets.ISO_8859_1).get(0).trim();
+            java.io.File list = new java.io.File("defSpellGroups", group);
+            int i = 0, at = -1;
+            for (String l : java.nio.file.Files.readAllLines(list.toPath(), java.nio.charset.StandardCharsets.ISO_8859_1)) {
+                if (l.trim().isEmpty()) continue;
+                if (l.trim().equalsIgnoreCase(spell)) { at = i; break; }
+                i++;
+            }
+            if (at < 0) return false;
+            java.io.File script = new java.io.File("defSpellGroups", at + " " + group);
+            long when = script.lastModified() ^ list.lastModified();
+            long[] known = battleSpells.get(spell);
+            if (known != null && known[0] == when) return known[1] == 1;
+            String text = new String(java.nio.file.Files.readAllBytes(script.toPath()), "ISO-8859-1").toLowerCase();
+            boolean only = text.contains("isinbattle caster");
+            battleSpells.put(spell, new long[] { when, only ? 1 : 0 });
+            return only;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // "<who> skill <name>" in a script: a skill, or else the spell group of
