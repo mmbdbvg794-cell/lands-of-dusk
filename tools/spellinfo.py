@@ -7,8 +7,10 @@ How the server casts (LivingThing.castSpell):
   defSpells/<spell>          first line: the spell's group
   defSpellGroups/<group>     the group's spells, in order
   defSpellGroups/<n> <group> the script for the group's n-th spell (from 0)
-You need a group skill of at least n * 100 / (spells in the group), and a
-cast costs (110 - (your skill - that)) / 2 MP.
+You need the group skill in the spell's "unlock <n>" line in
+defSpells/<spell> (server/SpellGroup.java), or without one n * 100 /
+(spells in the group - 1). A cast costs its "mp <n>" line, or without one
+(110 - (your skill - that)) / 2 MP.
 
 For each spell this records its group, position, the skill it needs, the
 description from the script's first "#Name: text" line, and the chat
@@ -50,6 +52,7 @@ def main(root):
         if not lines:
             continue
         group = lines[0].strip()
+        unlock = next((int(l.split()[1]) for l in lines[1:] if re.match(r"\s*unlock\s+\d+\s*$", l)), None)
         members = [l.strip() for l in (read(os.path.join(groups_dir, group)) or []) if l.strip()]
         if spell not in members:
             continue
@@ -71,7 +74,7 @@ def main(root):
         info[spell] = {
             "group": group,
             "order": n,
-            "needs": n * 100 // len(members),
+            "needs": unlock if unlock is not None else (n * 100 // (len(members) - 1) if n else 0),
             "description": desc,
             "caster": sorted(set(caster)),
             "target": sorted(set(target)),

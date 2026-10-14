@@ -16,6 +16,9 @@
  *   Regeneration   extra HP healing: at 100, double the natural rate (out
  *                  of battle), and half that in battle
  *   Mana Regen     the same for MP (by WIS)
+ *   (any class)    out of battle, a share of max MP on top ("mpregen" in
+ *                  the classes file), so a bigger bar refills in about
+ *                  the same time
  *   Spell Power    spells cost less MP: at 100, half (cast() refunds it)
  *   Lock Picking   a chance to open a locked chest without its key (see
  *                  Storage.pick)
@@ -338,6 +341,13 @@ public class Skills {
             int max = p.attributes.getStat("maxhp") + p.attributes.getStat(2, "hpbon");
             if (extra > 0 && hp < max) p.attributes.setStat("hp", Math.min(max, hp + extra));
         }
+        int pct = fighting ? 0 : Classes.mpRegen(p);
+        if (pct > 0) {
+            int mp = p.attributes.getStat("mp");
+            int max = p.attributes.getStat("maxmp") + p.attributes.getStat(2, "mpbon");
+            int extra = max * pct / 100;
+            if (extra > 0 && mp < max) p.attributes.setStat("mp", Math.min(max, mp + extra));
+        }
         int m = p.getSkill("Mana Regen");
         if (m > 0) {
             int wisd = p.attributes.getStat("wisd") + p.attributes.getStat(2, "wisdbon");
@@ -347,7 +357,7 @@ public class Skills {
             int max = p.attributes.getStat("maxmp") + p.attributes.getStat(2, "mpbon");
             if (extra > 0 && mp < max) p.attributes.setStat("mp", Math.min(max, mp + extra));
         }
-        if (r > 0 || m > 0) {
+        if (r > 0 || m > 0 || pct > 0) {
             try {
                 p.updateInfo();
             } catch (Exception e) {
@@ -447,7 +457,6 @@ public class Skills {
     // A spell cast (the "cast" command): Spell Power gives back part of
     // the MP it cost.
     public static void cast(LivingThing who, String spell) {
-        spell = telepathMessage(spell);
         // Cooldowns (gods don't wait): the wait after any spell, and the
         // spell's own.
         String name = spellName(spell);
@@ -490,15 +499,55 @@ public class Skills {
         }
     }
 
-    // "telepath <name> a message of several words": the server splits a
-    // spell's words into params, so only the first word arrived. Quoted,
-    // the whole message is one param.
-    static String telepathMessage(String spell) {
-        String t = spell.trim();
-        if (!t.toLowerCase().startsWith("telepath ")) return spell;
-        String[] p = t.split("\\s+", 3);
-        if (p.length < 3 || p[2].startsWith("\"")) return spell;
-        return p[0] + " " + p[1] + " \"" + p[2].replace("\"", "'") + "\"";
+    // ---- spell costs and unlocks (SpellPatch.java and SpellGroup.java call these) ----
+    // A spell's MP cost is its "mp <n>" line in defSpells/<spell>, and the
+    // group points it needs its "unlock <n>" line (the engine reads only the
+    // first line there, the group). Without them, the engine's own sums
+    // stand: unlock 100 * place / (spells - 1), cost (110 - (group points -
+    // unlock)) / 2. Read again whenever the file changes.
+    static final java.util.Map<String, long[]> spellLines = new java.util.concurrent.ConcurrentHashMap<String, long[]>();
+
+    // { file time, mp or -1, unlock or -1 }, or null if there's no such spell.
+    static long[] spellLines(Object spell) {
+        if (spell == null) return null;
+        String name = spell.toString();
+        java.io.File f = new java.io.File("defSpells", name);
+        long when = f.lastModified();
+        if (when == 0) return null;
+        long[] known = spellLines.get(name);
+        if (known != null && known[0] == when) return known;
+        long mp = -1, unlock = -1;
+        try {
+            for (String line : java.nio.file.Files.readAllLines(f.toPath(), java.nio.charset.StandardCharsets.ISO_8859_1)) {
+                String[] w = line.trim().split("\\s+");
+                if (w.length != 2 || !w[1].matches("\\d{1,5}")) continue;
+                if (w[0].equalsIgnoreCase("mp")) mp = Long.parseLong(w[1]);
+                else if (w[0].equalsIgnoreCase("unlock")) unlock = Math.min(100, Long.parseLong(w[1]));
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        known = new long[] { when, mp, unlock };
+        spellLines.put(name, known);
+        return known;
+    }
+
+    public static int spellCost(int formula, Object spell) {
+        long[] l = spellLines(spell);
+        return l != null && l[1] >= 0 ? (int) l[1] : formula;
+    }
+
+    public static int spellUnlock(int formula, Object spell) {
+        long[] l = spellLines(spell);
+        return l != null && l[2] >= 0 ? (int) l[2] : formula;
+    }
+
+    // "<who> skill <name>" in a script: a skill, or else the spell group of
+    // that name (so a heal can read caster skill "clerical group").
+    public static byte scriptSkill(LivingThing who, String name) {
+        byte v = who.getSkill(name);
+        if (v != 0 || name == null) return v;
+        return (byte) Classes.spellPoints(who, name);
     }
 
     // ---- spell cooldowns ----

@@ -1,4 +1,4 @@
-#The Mage Guild's door: only mage may go in (server/Classes.java).
+#The Mage Guild's door: only Mages and those the Guild has invited (guild_mage) may go in (server/Classes.java).
 if > trigger privs 2
 endscript
 end
@@ -8,6 +8,9 @@ end
 if hasCondition trigger "class_mage"
 endscript
 end
-chat trigger "Only mages may enter the Mage Guild."
+if hasCondition trigger "guild_mage"
+endscript
+end
+chat trigger "Only mages and those the Mage Guild has invited may enter."
 inc trigger locy 1
 endscript

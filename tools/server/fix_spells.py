@@ -29,8 +29,8 @@ Spells (defSpellGroups/<n> <group>):
 
 Then, as asked after the audit:
   food and drink    keep hunger and thirst away for 45 minutes (2700 s)
-  telepath          the copy of each message goes to Flan (if online), not
-                    to Shifty02 and Cyril
+  telepath          (removed since: see fix_spell_mana.py; tire is now the
+                    telepathy group's only spell, "0 telepathy group")
   herbology         its recipes printed money (a 20 gp mandrake made a
                     potion that sells for 250, a mushroom a blue potion that
                     sells for 3000) and its blue recipe was missing an "end";
@@ -144,7 +144,7 @@ SPELLS = {
     "2 enchantment group": buff("Regenerate", "hpregen", "* caster inte 3", "heal", "You begin to regenerate your health.",
                                 "You start regenerating the health of ", " makes your health begin to regenerate.",
                                 "Heals a target a little every few seconds for a while"),
-    "1 telepathy group": (
+    "0 telepathy group": (  # tire; telepath was removed (fix_spell_mana.py)
         "#Tire: makes a foe drowsy, so that they may fall asleep, for a while.\n#\n#\n"
         "if variableisstring param0 #If a target is specified\n"
         "\tlivingthing target local caster param0\n"
@@ -191,32 +191,6 @@ SCAN_GUARD = ("#Scan: shows someone's stats.\n"
               "\tchat caster \"Scan whom? Cast it at someone.\"\n"
               "\tendscript\n"
               "end\n")
-
-SPY = "flan"  # who gets a copy of telepathic messages
-
-SPELLS["0 telepathy group"] = (
-    "#Telepath: sends a telepathic message to someone.\n#\n#\n"
-    "if not variableisstring param0\n"
-    "\tchat caster \" You already know your thoughts.\"\n"
-    "\tendscript\n"
-    "end\n"
-    "livingthing target player param0\n"
-    "if not variableislivingthing target\n"
-    "\tchat caster \" They are not in this world.\"\n"
-    "\tendscript\n"
-    "end\n"
-    "if not variableisstring param1\n"
-    "\tchat caster \" What do you wish them to know?\"\n"
-    "\tendscript\n"
-    "end\n"
-    "chat target \"A voice echoes in your head:\"\n"
-    "chat target param1\n"
-    "chat caster concat name target \" knows your thoughts.\"\n"
-    f"livingthing spy player \"{SPY}\"\n"
-    "if variableislivingthing spy\n"
-    "\tchat spy concat concat concat name caster \" spoke to \" concat name target \" saying: '\" concat param1 \"'.\"\n"
-    "end\n"
-    "endscript\n")
 
 # Herbology: brewed potions (cost 0, so merchants won't buy them).
 BREWED = {

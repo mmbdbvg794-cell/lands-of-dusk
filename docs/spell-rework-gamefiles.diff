@@ -1,0 +1,569 @@
+--- a/defSpells/mend
++++ b/defSpells/mend
+@@ -1 +1,2 @@
+-clerical group
++clerical group
++mp 5
+--- a/defSpells/counter poison
++++ b/defSpells/counter poison
+@@ -1 +1,2 @@
+-clerical group
++clerical group
++mp 0
+--- a/defSpells/armor
++++ b/defSpells/armor
+@@ -1 +1,2 @@
+-clerical group
++clerical group
++mp 12
+--- a/defSpells/bless
++++ b/defSpells/bless
+@@ -1 +1,2 @@
+-clerical group
++clerical group
++mp 15
+--- a/defSpells/focus
++++ b/defSpells/focus
+@@ -1 +1,2 @@
+ white magic group
++mp 12
+--- a/defSpells/angel strike
++++ b/defSpells/angel strike
+@@ -1 +1,2 @@
+ white magic group
++mp 10
+--- a/defSpells/prayer
++++ b/defSpells/prayer
+@@ -1 +1,2 @@
+ white magic group
++mp 12
+--- a/defSpells/meditation
++++ b/defSpells/meditation
+@@ -1 +1,2 @@
+ white magic group
++mp 30
+--- a/defSpells/scan
++++ b/defSpells/scan
+@@ -1,2 +1,2 @@
+ white magic group
+-
++mp 6
+--- a/defSpells/holy
++++ b/defSpells/holy
+@@ -1 +1,2 @@
+ white magic group
++mp 60
+--- a/defSpells/bone shards
++++ b/defSpells/bone shards
+@@ -1 +1,2 @@
+ black magic group
++mp 5
+--- a/defSpells/curse
++++ b/defSpells/curse
+@@ -1 +1,2 @@
+ black magic group
++mp 12
+--- a/defSpells/quake
++++ b/defSpells/quake
+@@ -1 +1,2 @@
+ black magic group
++mp 18
+--- a/defSpells/corrupt
++++ b/defSpells/corrupt
+@@ -1,2 +1,2 @@
+ black magic group
+-
++mp 35
+--- a/defSpells/quarter staff
++++ b/defSpells/quarter staff
+@@ -1 +1,2 @@
+-druidic group
++druidic group
++mp 4
+--- a/defSpells/healing staff
++++ b/defSpells/healing staff
+@@ -1 +1,2 @@
+-druidic group
++druidic group
++mp 6
+--- a/defSpells/thorns
++++ b/defSpells/thorns
+@@ -1 +1,2 @@
+-druidic group
++druidic group
++mp 10
+--- a/defSpells/camoflauge
++++ b/defSpells/camoflauge
+@@ -1 +1,2 @@
+-druidic group
++druidic group
++mp 20
+--- a/defSpells/detect invis
++++ b/defSpells/detect invis
+@@ -1 +1,2 @@
+ enchantment group
++mp 6
+--- a/defSpells/invis
++++ b/defSpells/invis
+@@ -1 +1,2 @@
+-enchantment group
++enchantment group
++mp 20
+--- a/defSpells/regenerate
++++ b/defSpells/regenerate
+@@ -1 +1,2 @@
+-enchantment group
++enchantment group
++mp 15
+--- a/defSpells/tire
++++ b/defSpells/tire
+@@ -1 +1,2 @@
+-telepathy group
++telepathy group
++mp 15
+--- a/defSpells/warp
++++ b/defSpells/warp
+@@ -1 +1,2 @@
+ alchemy group
++mp 10
+--- a/defSpells/translate
++++ b/defSpells/translate
+@@ -1 +1,2 @@
+ alchemy group
++mp 0
+--- a/defSpells/herbology
++++ b/defSpells/herbology
+@@ -1 +1,2 @@
+ alchemy group
++mp 10
+--- a/defSpells/summon snakes
++++ b/defSpells/summon snakes
+@@ -1 +1,2 @@
+ summons group
++mp 10
+--- a/defSpells/summon bahamut
++++ b/defSpells/summon bahamut
+@@ -1 +1,2 @@
+ summons group
++mp 20
+--- a/defSpells/summon wurm
++++ b/defSpells/summon wurm
+@@ -1 +1,2 @@
+ summons group
++mp 35
+--- a/defSpells/summon leviathan
++++ b/defSpells/summon leviathan
+@@ -1 +1,2 @@
+ summons group
++mp 45
+--- a/defSpells/summon ultima bahamut
++++ b/defSpells/summon ultima bahamut
+@@ -1 +1,2 @@
+ summons group
++mp 80
+--- a/defSpells/hell fire
++++ b/defSpells/hell fire
+@@ -1 +1,2 @@
+ hells fire
++mp 15
+--- a/defSpells/apocalypse
++++ b/defSpells/apocalypse
+@@ -1 +1,2 @@
+ hells fire
++mp 30
+--- a/defSpells/reflect
++++ b/defSpells/reflect
+@@ -1 +1,2 @@
+ m group
++mp 20
+--- a/defSpells/ifrit
++++ b/defSpells/ifrit
+@@ -1 +1,2 @@
+ Guardian Force Group
++mp 60
+--- a/defSpells/shiva
++++ b/defSpells/shiva
+@@ -1 +1,2 @@
+ Guardian Force Group
++mp 65
+--- a/defSpells/leviathan
++++ b/defSpells/leviathan
+@@ -1 +1,2 @@
+ Guardian Force Group
++mp 70
+--- a/defSpells/cactuar
++++ b/defSpells/cactuar
+@@ -1 +1,2 @@
+ Guardian Force Group
++mp 75
+--- a/defSpells/diablos
++++ b/defSpells/diablos
+@@ -1 +1,2 @@
+ Guardian Force Group
++mp 80
+--- a/classes
++++ b/classes
+@@ -39,12 +39,12 @@
+ 
+ # start <id> <what> <n>, ... : on choosing. Stats stre inte dext cons wisd, maxhp, maxmp;
+ # a skill or spell group and its points; item <name>.
+-start fighter stre 3, cons 1, maxhp 10, maxmp -10, Dodge 5
+-start mage inte 3, wisd 1, maxhp -5, maxmp 10, black magic group 1, item quarter staff
+-start cleric wisd 3, inte 1, maxhp 2, maxmp 5, clerical group 1
+-start priest wisd 3, inte 1, maxhp 2, maxmp 5, clerical group 1
+-start ranger dext 3, stre 1, maxhp 5, maxmp -5, druidic group 1
+-start paladin stre 2, wisd 2, maxhp 7, maxmp -2, clerical group 1
++start fighter stre 3, cons 1, maxhp 10, maxmp 8, Dodge 5
++start mage inte 3, wisd 1, maxhp -5, maxmp 30, black magic group 1, item quarter staff
++start cleric wisd 3, inte 1, maxhp 2, maxmp 26, clerical group 1
++start priest wisd 3, inte 1, maxhp 2, maxmp 26, clerical group 1
++start ranger dext 3, stre 1, maxhp 5, maxmp 16, druidic group 1
++start paladin stre 2, wisd 2, maxhp 7, maxmp 20, clerical group 1
+ 
+ # growth <id> <max HP per point> <max MP per point>, bought at a trainer (else 10 and 10)
+ growth fighter 12 8
+@@ -53,6 +53,15 @@
+ growth priest 10 11
+ growth ranger 11 9
+ growth paladin 11 10
++
++# mpregen <id> <percent>: out of battle, every 18 s, this much of max MP comes back on top
++# of the server's own 1 + WIS/2 (else 4)
++mpregen fighter 4
++mpregen mage 4
++mpregen cleric 4
++mpregen priest 4
++mpregen ranger 4
++mpregen paladin 4
+ 
+ # Gear. kind <kind> <words>: a weapon, bow or armour whose name has one of the words
+ # (the first kind that matches, in this order). Otherwise a weapon is a blade, a ranged
+--- a/defSpellGroups/0 clerical group
++++ b/defSpellGroups/0 clerical group
+@@ -1,4 +1,4 @@
+-#Mend: Heals someone by caster's intelligence.
++#Mend: Heals someone by the caster's intelligence, more with clerical skill.
+ #
+ #
+ if variableisstring param0 #If a target is specified
+@@ -6,7 +6,7 @@
+ if variableislivingthing target
+ chat caster concat concat "You focus on mending " name target "'s wounds."
+ chat target "You feel slightly less wounded."
+-inc target hp * caster inte + 0.5 * rand 0.5
++inc target hp * * caster inte + 0.5 * rand 0.5 + 1 / caster skill "clerical group" 50
+ #Web client spell effect (heal) for everyone nearby: see js/spells.js
+ playsound + 110000000 + * target locx 3000 target locy target locx target locy
+ endscript
+@@ -16,7 +16,7 @@
+ #
+ #Else no target is specified
+ chat caster "You focus energy into mending your wounds."
+-inc caster hp * caster inte + 0.5 * rand 0.5
++inc caster hp * * caster inte + 0.5 * rand 0.5 + 1 / caster skill "clerical group" 50
+ #Web client spell effect (heal) for everyone nearby: see js/spells.js
+ playsound + 110000000 + * caster locx 3000 caster locy caster locx caster locy
+ endscript
+--- a/defSpellGroups/1 druidic group
++++ b/defSpellGroups/1 druidic group
+@@ -8,7 +8,7 @@
+             			removeitem caster "quarter staff"
+            			chat caster "Your quarter staff flares with healing power, then vanishes."
+              			chat target "You feel slightly less wounded."
+-            			inc target hp * caster inte + 0.5 rand
++            			inc target hp * * caster inte + 0.5 rand + 1 / - caster skill "druidic group" 33 50
+             			#Web client spell effect (heal) for everyone nearby: see js/spells.js
+             			playsound + 110000000 + * target locx 3000 target locy target locx target locy
+ 		endscript
+@@ -20,7 +20,7 @@
+ if hasitem caster "quarter staff"
+ 		removeitem caster "quarter staff"
+             		chat caster "Your quarter staff flares with healing power, then vanishes."
+-             		inc caster hp * caster inte + 0.5 rand
++             		inc caster hp * * caster inte + 0.5 rand + 1 / - caster skill "druidic group" 33 50
+              		#Web client spell effect (heal) for everyone nearby: see js/spells.js
+              		playsound + 110000000 + * caster locx 3000 caster locy caster locx caster locy
+ 	endscript
+--- a/defSpellGroups/3 white magic group
++++ b/defSpellGroups/3 white magic group
+@@ -3,7 +3,7 @@
+ 	if variableislivingthing target
+ 		chat caster concat concat "You force " name target " to meditate."
+ 		chat target "You meditate to heal your wounds."
+-		inc target hp * caster inte + 3.5 * rand 2.5
++		inc target hp * * caster inte + 3.5 * rand 2.5 + 1 / - caster skill "white magic group" 60 50
+ 		#Web client spell effect (heal) for everyone nearby: see js/spells.js
+ 		playsound + 110000000 + * target locx 3000 target locy target locx target locy
+ 		endscript
+@@ -13,7 +13,7 @@
+ #
+ #Else no target is specified
+ chat caster "You meditate to heal your wounds."
+-inc caster hp * caster inte + 3.5 * rand 2.5
++inc caster hp * * caster inte + 3.5 * rand 2.5 + 1 / - caster skill "white magic group" 60 50
+ #Web client spell effect (heal) for everyone nearby: see js/spells.js
+ playsound + 110000000 + * caster locx 3000 caster locy caster locx caster locy
+ endscript
+--- a/defSpellGroups/telepathy group
++++ b/defSpellGroups/telepathy group
+@@ -1,2 +1 @@
+-telepath
+-tire
++tire
+--- a/defSpellGroups/0 telepathy group
++++ b/defSpellGroups/0 telepathy group
+@@ -1,24 +1,19 @@
+-#Telepath: sends a telepathic message to someone.
++#Tire: makes a foe drowsy, so that they may fall asleep, for a while.
+ #
+ #
+-if not variableisstring param0
+-	chat caster " You already know your thoughts."
++if variableisstring param0 #If a target is specified
++	livingthing target local caster param0
++	if variableislivingthing target
++		chat caster concat name target "   is enchanted and feels the urge to sleep."
++		chat target " You become tired."
++		removecondition target "tired"
++		addconditionwithduration target "tired" * caster inte 2
++		#Web client spell effect (arcane) for everyone nearby: see js/spells.js
++		playsound + 160000000 + * target locx 3000 target locy target locx target locy
++		endscript
++	end
++	chat caster "That person is not here."
+ 	endscript
+ end
+-livingthing target player param0
+-if not variableislivingthing target
+-	chat caster " They are not in this world."
+-	endscript
+-end
+-if not variableisstring param1
+-	chat caster " What do you wish them to know?"
+-	endscript
+-end
+-chat target "A voice echoes in your head:"
+-chat target param1
+-chat caster concat name target " knows your thoughts."
+-livingthing spy player "flan"
+-if variableislivingthing spy
+-	chat spy concat concat concat name caster " spoke to " concat name target " saying: '" concat param1 "'."
+-end
++chat caster "If you wish to sleep you may do so on your own will."
+ endscript
+--- a/defSpellGroups/1 telepathy group
+(taken out: moved to the backup)
+--- a/defSpells/telepath
+(taken out: moved to the backup)
+--- a/defSpellGroups/3 black magic group
++++ b/defSpellGroups/3 black magic group
+@@ -1,125 +1,23 @@
++#Corrupt: drains the foe you fight: hurts it, heals you by half, and burns its mana.
++#
++#
+ if hasCondition caster "ruins"
+-		chat caster "Your magic 'drain' has been sealed off."
+-		endscript
+-	end
+-if variableisstring param0 #If a target is specified
+-	livingthing target local caster param0
+-	if variableislivingthing target
+-if < target HP 0
+-chat caster " You have drained all theyre life"
+-endscript
+-end
+-		if hascondition caster drainend
+-			chat caster " In the process of draining others you have drained yourself and need to recharge."
+-		endscript
+-		end
+-			inc target hp * - 0 3 + caster inte caster stre
+-			#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-			playsound + 150000000 + * target locx 3000 target locy target locx target locy
+-			inc caster hp * + caster inte caster stre 3
+-			#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-			playsound + 150000000 + * caster locx 3000 caster locy caster locx caster locy
+-			inc target mp * - 0 3 + caster inte caster stre
+-			#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-			playsound + 150000000 + * target locx 3000 target locy target locx target locy
+-			inc caster mp * + caster inte caster stre 10
+-			#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-			playsound + 150000000 + * caster locx 3000 caster locy caster locx caster locy
+-			chat target concat name caster " has drained some of your HP and MP."
+-			chat caster concat concat " You drain some of " name target " 's HP and MP."
+-			if < target hp 0
+-				set target locxy 394 394
+-				#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-				playsound + 150000000 + * target locx 3000 target locy target locx target locy
+-				set target hp 5
+-				addcondition target safe
+-				removecondition target invis
+-				removecondition target detect invis
+-				removecondition target armor
+-				removecondition target bless
+-				removecondition target hpregen
+-				removecondition target hero
+-				chat target " You end up in hell...The domain of Cyril....the god of Chaos!"	
+-			endscript
+-			end
+-			if hascondition caster drain1
+-				removecondition caster drain1
+-				#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-				playsound + 150000000 + * caster locx 3000 caster locy caster locx caster locy
+-				addconditionwithduration caster drainend 20
+-			endscript
+-			end
+-				addconditionwithduration caster drain1 10
+-				#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-				playsound + 150000000 + * caster locx 3000 caster locy caster locx caster locy
+-		endscript
+-	
+-	end
+-if isinbattle caster
+-if < target HP 0
+-chat trigger " You have drained all theyre life"
+-endscript
+-end
+-if isinbattle caster
+-	if hascondition caster drainend
+-			chat caster " In the process of draining others you have drained yourself and need to recharge."
+-		endscript
+-		end
+-		inc target hp * - 0 3 + caster inte caster stre
+-		#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-		playsound + 150000000 + * target locx 3000 target locy target locx target locy
+-		inc caster hp * + caster inte caster stre 3
+-		#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-		playsound + 150000000 + * caster locx 3000 caster locy caster locx caster locy
+-		inc target mp * - 0 3 + caster inte caster stre
+-		#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-		playsound + 150000000 + * target locx 3000 target locy target locx target locy
+-		inc caster mp * + caster inte caster stre 3
+-		#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-		playsound + 150000000 + * caster locx 3000 caster locy caster locx caster locy
+-		chat target concat name caster " has drained some of your HP and MP."
+-		chat caster concat concat " You drain some of " name target " 's HP and MP."
+-		if hascondition caster drain1
+-				removecondition caster drain1
+-				#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-				playsound + 150000000 + * caster locx 3000 caster locy caster locx caster locy
+-				addconditionwithduration caster drainend 20
+-			endscript
+-			end
+-				addconditionwithduration caster drain1 10
+-				#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-				playsound + 150000000 + * caster locx 3000 caster locy caster locx caster locy
+-		endscript
+-	end
+-	if < target hp 0
+-		set target locxy 394 394
+-		#Web client spell effect (dark) for everyone nearby: see js/spells.js
+-		playsound + 150000000 + * target locx 3000 target locy target locx target locy
+-		set target hp 5
+-		addcondition target safe
+-		removecondition target invis
+-		removecondition target detect invis
+-		removecondition target armor
+-		removecondition target bless
+-		removecondition target hpregen
+-		removecondition target hero
+-		chat target " You end up in hell...The domain of Cyril....the god of Chaos!"	
+-	endscript
+-	end
+-	end
++	chat caster "Your magic 'drain' has been sealed off."
+ 	endscript
+ end
+-chat caster concat concat " '" target " ' is not a living creature."
++if not isinbattle caster
++	chat caster "You can only corrupt a foe you are fighting."
++	endscript
+ end
+-chat caster " Drain who?"
++number damage * + 0.8 * rand 0.6 + caster stre caster inte
++inc enemy caster hp * -1 damage
++inc caster hp / damage 2
++inc caster damdone damage
++if > enemy caster mp damage
++	inc enemy caster mp * -1 damage
++end
++chat caster concat concat concat concat "You corrupt " name enemy caster " for " damage " damage."
++chat enemy caster concat concat concat name caster " corrupts you for " damage " damage."
++#Web client spell effect (dark) for everyone nearby: see js/spells.js
++playsound + 150000000 + * enemy caster locx 3000 enemy caster locy enemy caster locx enemy caster locy
+ endscript
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+47 files to change
+
+take out defSpells/counter_poison
+take out defSpells/create drink
+take out defSpells/create food
+take out defSpells/create_drink
+take out defSpells/create_food
+take out defSpells/detect_invis
+take out defSpells/drain
+take out defSpells/groups
+take out defSpells/healing_staff
+take out defSpells/quarter_staff
+take out defSpells/translation
+take out defSpellGroups/0 bahamut
+take out defSpellGroups/0 death
+take out defSpellGroups/0 meteo
+take out defSpellGroups/0 shifty group
+take out defSpellGroups/0 special group
+take out defSpellGroups/0 test group
+take out defSpellGroups/0_clerical_group
+take out defSpellGroups/0_druidic_group
+take out defSpellGroups/0_enchantment_group
+take out defSpellGroups/0_telepathy_group
+take out defSpellGroups/1 bahamut
+take out defSpellGroups/1 meteo
+take out defSpellGroups/1 shifty group
+take out defSpellGroups/1 test group
+take out defSpellGroups/1_clerical_group
+take out defSpellGroups/1_druidic_group
+take out defSpellGroups/1_enchantment_group
+take out defSpellGroups/1_telepathy_group
+take out defSpellGroups/2 meteo
+take out defSpellGroups/2 shifty group
+take out defSpellGroups/2_clerical_group
+take out defSpellGroups/2_druidic_group
+take out defSpellGroups/2_enchantment_group
+take out defSpellGroups/3 druidic gruop
+take out defSpellGroups/3 meteo
+take out defSpellGroups/3 shifty group
+take out defSpellGroups/3_clerical_group
+take out defSpellGroups/3_druidic_group
+take out defSpellGroups/3_druidic_gruop
+take out defSpellGroups/4 black magic group
+take out defSpellGroups/4 clerical group
+take out defSpellGroups/4 druidic group
+take out defSpellGroups/4 shifty group
+take out defSpellGroups/4_clerical_group
+take out defSpellGroups/4_druidic_group
+take out defSpellGroups/5 clerical group
+take out defSpellGroups/5_clerical_group
+take out defSpellGroups/MTH spells
+take out defSpellGroups/bahamut
+take out defSpellGroups/clerical_group
+take out defSpellGroups/death
+take out defSpellGroups/druidic_group
+take out defSpellGroups/enchantment_group
+take out defSpellGroups/god group
+take out defSpellGroups/meteo
+take out defSpellGroups/shifty group
+take out defSpellGroups/special group
+take out defSpellGroups/summon group
+take out defSpellGroups/telepathy_group
+take out defSpellGroups/teleport_group
+take out defSpellGroups/test group
+take out defSpellGroups/white magics group
+63 files

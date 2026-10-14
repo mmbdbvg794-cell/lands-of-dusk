@@ -24,8 +24,8 @@ if [ -f "$GAME/storage-originals/Commands.class" ]; then
 fi
 java -jar "$SRC/cfr.jar" classes/Commands.class classes/DuskServer.class --outputdir src --silent true >/dev/null
 python3 "$SRC/patch.py" src
-cp "$SRC/Storage.java" "$SRC/CaseFix.java" "$SRC/FixedEngine.java" "$SRC/Talk.java" "$SRC/Props.java" "$SRC/BridgedSocket.java" "$SRC/Bans.java" "$SRC/MapStore.java" "$SRC/Social.java" "$SRC/Trade.java" "$SRC/Skills.java" "$SRC/Library.java" "$SRC/Ferry.java" "$SRC/Who.java" "$SRC/Quests.java" "$SRC/Conditions.java" "$SRC/Admin.java" "$SRC/Housing.java" "$SRC/Creatures.java" "$SRC/Mail.java" "$SRC/WorldBoss.java" "$SRC/Party.java" "$SRC/Duel.java" "$SRC/Sex.java" "$SRC/Classes.java" "$SRC/Crafting.java" "$SRC/Achievements.java" src/
-javac -nowarn -encoding UTF-8 -d out -cp classes src/Storage.java src/CaseFix.java src/FixedEngine.java src/Talk.java src/Props.java src/BridgedSocket.java src/Bans.java src/MapStore.java src/Social.java src/Trade.java src/Skills.java src/Library.java src/Ferry.java src/Who.java src/Quests.java src/Conditions.java src/Admin.java src/Housing.java src/Creatures.java src/Mail.java src/WorldBoss.java src/Party.java src/Duel.java src/Sex.java src/Classes.java src/Crafting.java src/Achievements.java src/Commands.java src/DuskServer.java
+cp "$SRC/Storage.java" "$SRC/CaseFix.java" "$SRC/FixedEngine.java" "$SRC/Talk.java" "$SRC/Props.java" "$SRC/BridgedSocket.java" "$SRC/Bans.java" "$SRC/MapStore.java" "$SRC/Social.java" "$SRC/Trade.java" "$SRC/Skills.java" "$SRC/Library.java" "$SRC/Ferry.java" "$SRC/Who.java" "$SRC/Quests.java" "$SRC/Conditions.java" "$SRC/Admin.java" "$SRC/Housing.java" "$SRC/Creatures.java" "$SRC/Mail.java" "$SRC/WorldBoss.java" "$SRC/Party.java" "$SRC/Duel.java" "$SRC/Sex.java" "$SRC/Classes.java" "$SRC/Crafting.java" "$SRC/Achievements.java" "$SRC/SpellGroup.java" src/
+javac -nowarn -encoding UTF-8 -d out -cp classes src/Storage.java src/CaseFix.java src/FixedEngine.java src/Talk.java src/Props.java src/BridgedSocket.java src/Bans.java src/MapStore.java src/Social.java src/Trade.java src/Skills.java src/Library.java src/Ferry.java src/Who.java src/Quests.java src/Conditions.java src/Admin.java src/Housing.java src/Creatures.java src/Mail.java src/WorldBoss.java src/Party.java src/Duel.java src/Sex.java src/Classes.java src/Crafting.java src/Achievements.java src/SpellGroup.java src/Commands.java src/DuskServer.java
 # The game loop's MP healing, fixed in the compiled engine (EnginePatch.java),
 # always from the original class.
 ENGINE="$GAME/DuskEngine.class"
@@ -59,4 +59,14 @@ EQUIP="$GAME/Equipment.class"
 [ -f "$GAME/storage-originals/Equipment.class" ] && EQUIP="$GAME/storage-originals/Equipment.class"
 javac -nowarn $ASM -d tools "$SRC/EquipmentPatch.java"
 java $ASM -cp tools EquipmentPatch "$EQUIP" out/Equipment.class
+# Per-spell MP costs and unlocks, and spell groups readable by scripts
+# (SpellPatch.java): on top of the patched LivingThing, and in the compiled
+# Script. SpellGroup is compiled from server/SpellGroup.java above.
+javac -nowarn $ASM -d tools "$SRC/SpellPatch.java"
+java $ASM -cp tools SpellPatch living out/LivingThing.class out/LivingThing.class
+# Trainers' lists without the spell schools closed to the one looking.
+java $ASM -cp tools SpellPatch engine out/DuskEngine.class out/DuskEngine.class
+SCRIPT="$GAME/Script.class"
+[ -f "$GAME/storage-originals/Script.class" ] && SCRIPT="$GAME/storage-originals/Script.class"
+java $ASM -cp tools SpellPatch script "$SCRIPT" out/Script.class
 ls out

@@ -9,6 +9,8 @@ prefixed with "> " for what was sent. Inventory updates (opcode 6) print as
 "inventory: ...". A command "wait N" just listens for N seconds; "useitem
 <name>" sends "use <ID>" for that item in the latest inventory; "a <name>"
 attacks the nearest of that name, and "approach <name>" walks up to it.
+STATS=1 also prints HP/MP ("info: hp maxhp mp maxmp"), the stats list and a
+shop's or trainer's list ("wares: ...").
 """
 import os, socket, sys, time
 
@@ -19,6 +21,7 @@ buf = b''
 inventory = {}  # item name -> an ID, from the latest inventory
 seen = {}  # creature/person name -> [(id, x, y)], from entities in view
 me = [0, 0]  # where we are (our own entity)
+STATS = os.environ.get('STATS') == '1'  # also print HP/MP info and the stats list
 
 
 def pump(seconds):
@@ -68,6 +71,14 @@ def pump(seconds):
                 if parts[i].strip().isdigit():
                     inventory[parts[i + 1].lower()] = parts[i + 2].strip()
             lines.append('inventory: ' + ', '.join(names))
+        elif STATS and op == 17:  # a merchant's or trainer's list
+            lines.append('wares: ' + ' | '.join(l for l in body.split('\n') if l.strip() and l != '.'))
+        elif STATS and op == 5:  # hp, max hp, mp, max mp, ...
+            lines.append('info: ' + ' '.join(body.split('\n')[:4]))
+        elif STATS and op == 8:  # the stats list
+            lines.append('stats: ' + ' | '.join(l for l in body.split('\n') if l.strip()))
+        elif STATS and op == 32:  # a stats line starting with spaces ("  5 mp) mend")
+            lines.append('stats:  ' + m.strip().replace('\n', ' | '))
         elif op in (4,):
             parts = body.split('\n')
             if len(parts) > 3:
@@ -82,6 +93,15 @@ def pump(seconds):
                     else:
                         seen.setdefault(parts[0].lower(), []).append((parts[2].strip(), x, y))
     return lines
+
+
+last = []  # [name, id] of the latest attacked by name
+
+
+def forget(line):
+    """Once the one attacked by name is killed, "a <name>" picks another."""
+    if last and line.strip().lower() == last[0] + ' is killed.':
+        seen[last[0]] = [e for e in seen.get(last[0], []) if e[0] != last[1]]
 
 
 def send(line):
@@ -111,6 +131,7 @@ for c in commands:
     if c.startswith('wait ') and c[5:].isdigit():
         for l in pump(float(c[5:])):
             print(l)
+            forget(l)
         continue
     # "useitem <name>": "use <its ID>"; and "use/wear/eat/drink <name>"
     # become "<verb> <its ID>", as the Java client does.
@@ -123,13 +144,15 @@ for c in commands:
     if verb == 'approach' and rest.lower() in seen:
         e = min(seen[rest.lower()], key=lambda e: max(abs(e[1] - me[0]), abs(e[2] - me[1])))
         c = 'goto %d %d' % (e[1], e[2])
-    if verb in ('a', 'attack') and rest.lower() in seen:
+    if verb in ('a', 'attack') and seen.get(rest.lower()):
         # The nearest of that name, as you'd pick it.
-        c = 'a ' + min(seen[rest.lower()], key=lambda e: max(abs(e[1] - me[0]), abs(e[2] - me[1])))[0]
+        last[:] = [rest.lower(), min(seen[rest.lower()], key=lambda e: max(abs(e[1] - me[0]), abs(e[2] - me[1])))[0]]
+        c = 'a ' + last[1]
     print('> ' + c)
     send(c)
     for l in pump(1.5):
         print(l)
+        forget(l)
 # Log out properly, so the character is saved.
 send('quit')
 pump(1.5)

@@ -6,7 +6,7 @@
   ],
   "description": "",
   "group": "white magic group",
-  "needs": 16,
+  "needs": 20,
   "order": 1,
   "target": []
  },
@@ -17,7 +17,7 @@
   ],
   "description": "",
   "group": "hells fire",
-  "needs": 50,
+  "needs": 100,
   "order": 1,
   "target": []
  },
@@ -29,7 +29,7 @@
   ],
   "description": "Increases a target's armor class for a while",
   "group": "clerical group",
-  "needs": 50,
+  "needs": 66,
   "order": 2,
   "target": [
    "{name}'s magical shield surrounds you."
@@ -43,7 +43,7 @@
   ],
   "description": "Increases a target's strength and damage for a while",
   "group": "clerical group",
-  "needs": 75,
+  "needs": 100,
   "order": 3,
   "target": [
    "{name} calls upon the gods to bless you."
@@ -67,7 +67,7 @@
   ],
   "description": "causes Major damage to enemy.",
   "group": "Guardian Force Group",
-  "needs": 60,
+  "needs": 75,
   "order": 3,
   "target": []
  },
@@ -79,7 +79,7 @@
   ],
   "description": "hides the caster/target from view",
   "group": "druidic group",
-  "needs": 75,
+  "needs": 100,
   "order": 3,
   "target": [
    "You fade slowly from vision."
@@ -87,21 +87,15 @@
  },
  "corrupt": {
   "caster": [
-   "' ' is not a living creature.",
-   "Drain who?",
-   "In the process of draining others you have drained yourself and need to recharge.",
-   "You drain some of {name} 's HP and MP.",
-   "You have drained all theyre life",
+   "You can only corrupt a foe you are fighting.",
+   "You corrupt {name} for  damage.",
    "Your magic 'drain' has been sealed off."
   ],
-  "description": "",
+  "description": "drains the foe you fight: hurts it, heals you by half, and burns its mana.",
   "group": "black magic group",
-  "needs": 75,
+  "needs": 100,
   "order": 3,
-  "target": [
-   "You end up in hell...The domain of Cyril....the god of Chaos!",
-   "{name} has drained some of your HP and MP."
-  ]
+  "target": []
  },
  "counter poison": {
   "caster": [
@@ -109,7 +103,7 @@
   ],
   "description": "(disabled for now)",
   "group": "clerical group",
-  "needs": 25,
+  "needs": 33,
   "order": 1,
   "target": []
  },
@@ -123,7 +117,7 @@
   ],
   "description": "weakens someone (less strength and dexterity) for a while.",
   "group": "black magic group",
-  "needs": 25,
+  "needs": 33,
   "order": 1,
   "target": [
    "You become cursed."
@@ -150,7 +144,7 @@
   ],
   "description": "causes Major damage to enemy.",
   "group": "Guardian Force Group",
-  "needs": 80,
+  "needs": 100,
   "order": 4,
   "target": []
  },
@@ -176,7 +170,7 @@
   ],
   "description": "Converts a quarterstaff into healing energies",
   "group": "druidic group",
-  "needs": 25,
+  "needs": 33,
   "order": 1,
   "target": [
    "You feel slightly less wounded."
@@ -204,7 +198,7 @@
   ],
   "description": "brews herbs into potions (merchants won't buy brewed ones).",
   "group": "alchemy group",
-  "needs": 66,
+  "needs": 100,
   "order": 2,
   "target": []
  },
@@ -216,7 +210,7 @@
   ],
   "description": "",
   "group": "white magic group",
-  "needs": 83,
+  "needs": 100,
   "order": 5,
   "target": []
  },
@@ -239,7 +233,7 @@
   ],
   "description": "hides the caster/target from view",
   "group": "enchantment group",
-  "needs": 33,
+  "needs": 50,
   "order": 1,
   "target": [
    "You fade slowly from vision."
@@ -252,7 +246,7 @@
   ],
   "description": "causes Minor damage to enemy.",
   "group": "Guardian Force Group",
-  "needs": 40,
+  "needs": 50,
   "order": 2,
   "target": []
  },
@@ -264,7 +258,7 @@
   ],
   "description": "",
   "group": "white magic group",
-  "needs": 50,
+  "needs": 60,
   "order": 3,
   "target": [
    "You meditate to heal your wounds."
@@ -276,7 +270,7 @@
    "You focus energy into mending your wounds.",
    "You focus on mending {name}'s wounds."
   ],
-  "description": "Heals someone by caster's intelligence.",
+  "description": "Heals someone by the caster's intelligence, more with clerical skill.",
   "group": "clerical group",
   "needs": 0,
   "order": 0,
@@ -290,7 +284,7 @@
   ],
   "description": "lifts curses, tiredness, poison, hunger and thirst.",
   "group": "white magic group",
-  "needs": 33,
+  "needs": 40,
   "order": 2,
   "target": []
  },
@@ -301,7 +295,7 @@
   ],
   "description": "",
   "group": "black magic group",
-  "needs": 50,
+  "needs": 66,
   "order": 2,
   "target": []
  },
@@ -333,7 +327,7 @@
   ],
   "description": "Heals a target a little every few seconds for a while",
   "group": "enchantment group",
-  "needs": 66,
+  "needs": 100,
   "order": 2,
   "target": [
    "{name} makes your health begin to regenerate."
@@ -370,7 +364,7 @@
   ],
   "description": "shows someone's stats.",
   "group": "white magic group",
-  "needs": 66,
+  "needs": 80,
   "order": 4,
   "target": [
    "{name} has scanned your stats."
@@ -383,7 +377,7 @@
   ],
   "description": "causes Minor damage to enemy.",
   "group": "Guardian Force Group",
-  "needs": 20,
+  "needs": 25,
   "order": 1,
   "target": []
  },
@@ -395,7 +389,7 @@
   ],
   "description": "",
   "group": "summons group",
-  "needs": 20,
+  "needs": 25,
   "order": 1,
   "target": []
  },
@@ -407,7 +401,7 @@
   ],
   "description": "",
   "group": "summons group",
-  "needs": 60,
+  "needs": 75,
   "order": 3,
   "target": []
  },
@@ -432,7 +426,7 @@
   ],
   "description": "",
   "group": "summons group",
-  "needs": 80,
+  "needs": 100,
   "order": 4,
   "target": []
  },
@@ -444,24 +438,9 @@
   ],
   "description": "",
   "group": "summons group",
-  "needs": 40,
+  "needs": 50,
   "order": 2,
   "target": []
- },
- "telepath": {
-  "caster": [
-   "They are not in this world.",
-   "What do you wish them to know?",
-   "You already know your thoughts.",
-   "{name} knows your thoughts."
-  ],
-  "description": "sends a telepathic message to someone.",
-  "group": "telepathy group",
-  "needs": 0,
-  "order": 0,
-  "target": [
-   "A voice echoes in your head:"
-  ]
  },
  "thorns": {
   "caster": [
@@ -471,7 +450,7 @@
   ],
   "description": "causes slight damage to the target",
   "group": "druidic group",
-  "needs": 50,
+  "needs": 66,
   "order": 2,
   "target": []
  },
@@ -483,8 +462,8 @@
   ],
   "description": "makes a foe drowsy, so that they may fall asleep, for a while.",
   "group": "telepathy group",
-  "needs": 50,
-  "order": 1,
+  "needs": 0,
+  "order": 0,
   "target": [
    "You become tired."
   ]
@@ -495,7 +474,7 @@
   ],
   "description": "(disabled for now)",
   "group": "alchemy group",
-  "needs": 33,
+  "needs": 50,
   "order": 1,
   "target": []
  },

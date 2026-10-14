@@ -12,7 +12,13 @@
  *     stops at "crosscap" points; anything not listed counts as open,
  *   - what a class starts with (stats, max HP/MP, skills, items),
  *   - HP and MP per point bought at a trainer,
- *   - what gear each class may wear, by the words in an item's name.
+ *   - how fast MP comes back (a share of max MP, see Skills.regen),
+ *   - what gear each class may wear, by the words in an item's name,
+ *   - spell schools ("school", "tier5", "refuse"): open or closed to each
+ *     class, behind guild and lore flags; no cross-class price for them.
+ *     A closed school is refused at trainers and left out of their lists
+ *     (wares(), called from the engine: SpellPatch.java "engine"),
+ *   - classes nobody can choose any more ("hidden"), kept for those who are.
  *
  * A character without a class can't move, fight, train, buy or cast until
  * they choose (gods excepted). Choosing, once: the class's start goes on,
@@ -24,6 +30,9 @@
  *   class tiers                 "ClassTiers: name=tier;..." (core|open|cross|barred)
  *   class <id or name>          choose, once
  *   setclass <player> <id>      gods: change a player's class (flag only)
+ *   guilds                      your guilds and ranks ("guild <group>: name | 5 ranks")
+ *   guildflag <player> <flag> on|off   gods: set or clear a guild flag (FLAGS)
+ *   guildflags <player>         gods: a player's guild flags and ranks
  *
  * Part of the browser client project (dusk-browser-client/server).
  */
@@ -69,23 +78,23 @@ public class Classes {
         "# core <id> <names>: normal price. open <names>: normal price for everyone.",
         "# barred <id> <names>: this class can't train them at all.",
         "core fighter Dodge, Double Attack, Triple Attack, Quadruple Attack",
-        "core mage Spell Power, black magic group, enchantment group, summons group, hells fire",
-        "core cleric Spell Power, clerical group, white magic group",
-        "core priest Spell Power, clerical group, white magic group",
-        "core ranger Dodge, Double Attack, Triple Attack, Lock Picking, druidic group",
-        "core paladin Dodge, Double Attack, Spell Power, clerical group",
-        "barred mage Dodge, Double Attack, Triple Attack, Quadruple Attack, clerical group, white magic group",
-        "open Regeneration, Mana Regen, Armor Identification, Mana Tap, Life Tap, telepathy group, alchemy group, m group",
+        "core mage Spell Power",
+        "core cleric Spell Power",
+        "core priest Spell Power",
+        "core ranger Dodge, Double Attack, Triple Attack, Lock Picking",
+        "core paladin Dodge, Double Attack, Spell Power",
+        "barred mage Dodge, Double Attack, Triple Attack, Quadruple Attack",
+        "open Regeneration, Mana Regen, Armor Identification, Mana Tap, Life Tap",
         "open Mining, Herbalism, Woodcutting, Smithing, Alchemy, Fletching",
         "",
         "# start <id> <what> <n>, ... : on choosing. Stats stre inte dext cons wisd, maxhp, maxmp;",
         "# a skill or spell group and its points; item <name>.",
-        "start fighter stre 3, cons 1, maxhp 10, maxmp -10, Dodge 5",
-        "start mage inte 3, wisd 1, maxhp -5, maxmp 10, black magic group 1, item quarter staff",
-        "start cleric wisd 3, inte 1, maxhp 2, maxmp 5, clerical group 1",
-        "start priest wisd 3, inte 1, maxhp 2, maxmp 5, clerical group 1",
-        "start ranger dext 3, stre 1, maxhp 5, maxmp -5, druidic group 1",
-        "start paladin stre 2, wisd 2, maxhp 7, maxmp -2, clerical group 1",
+        "start fighter stre 3, cons 1, maxhp 10, maxmp 8, Dodge 5",
+        "start mage inte 3, wisd 1, maxhp -5, maxmp 30, arcane group 1, item quarter staff",
+        "start cleric wisd 3, inte 1, maxhp 2, maxmp 26, divine group 1",
+        "start priest wisd 3, inte 1, maxhp 2, maxmp 26",
+        "start ranger dext 3, stre 1, maxhp 5, maxmp 16",
+        "start paladin stre 2, wisd 2, maxhp 7, maxmp 20, divine group 1",
         "",
         "# growth <id> <max HP per point> <max MP per point>, bought at a trainer (else 10 and 10)",
         "growth fighter 12 8",
@@ -94,6 +103,15 @@ public class Classes {
         "growth priest 10 11",
         "growth ranger 11 9",
         "growth paladin 11 10",
+        "",
+        "# mpregen <id> <percent>: out of battle, every 18 s, this much of max MP comes back on top",
+        "# of the server's own 1 + WIS/2 (else 4)",
+        "mpregen fighter 4",
+        "mpregen mage 4",
+        "mpregen cleric 4",
+        "mpregen priest 4",
+        "mpregen ranger 4",
+        "mpregen paladin 4",
         "",
         "# Gear. kind <kind> <words>: a weapon, bow or armour whose name has one of the words",
         "# (the first kind that matches, in this order). Otherwise a weapon is a blade, a ranged",
@@ -117,6 +135,27 @@ public class Classes {
         "wears cleric tool, staff, blunt, magic, any, light, heavy",
         "wears priest tool, staff, blunt, magic, any, light, heavy",
         "wears ranger tool, staff, dagger, blade, bow, spear, axe, blunt, magic, any, light",
+        "",
+        "# school <group>: <class>[:<most points>][+<flag>][+<group> >= <points>], ...",
+        "# Who may learn a spell school; anyone it doesn't name can't, and trainers don't show",
+        "# it to them. \"all\" is every class. Flags are hidden conditions (guild_mage, ...).",
+        "school arcane group: fighter+guild_mage, ranger+guild_mage, mage+guild_mage",
+        "school forbidden group: fighter+guild_mage+forbidden_lore+archmage_quest+arcane group>=75, ranger+guild_mage+forbidden_lore+archmage_quest+arcane group>=75, mage+guild_mage+forbidden_lore+archmage_quest+arcane group>=75",
+        "school divine group: cleric, paladin:49",
+        "school drow group: priest",
+        "school nature group: ranger+guild_circle",
+        "school open group: all",
+        "# tier5 <group>: <flag>: points past 74 need that flag too (the tier 5 quest).",
+        "tier5 arcane group: archmage_quest",
+        "tier5 nature group: archdruid_quest",
+        "# refuse <group>: <text>: what a trainer says to someone the school is closed to.",
+        "refuse arcane group: The Mage Guild teaches its arts only to its own members.",
+        "refuse forbidden group: That is not taught here.",
+        "refuse divine group: The Temple teaches its prayers only to Clerics and Paladins.",
+        "refuse drow group: Only the priesthood of the Spider Queen learns these rites.",
+        "refuse nature group: Only those The Circle has taken in may learn its ways.",
+        "# hidden <class>: nobody can choose it any more; those who have it keep it.",
+        "hidden mage",
         "");
 
     static class Def {
@@ -124,8 +163,27 @@ public class Classes {
         List<String> races = new ArrayList<String>(), notRaces = new ArrayList<String>();
         List<String> core = new ArrayList<String>(), barred = new ArrayList<String>(), wears = null;
         List<String[]> start = new ArrayList<String[]>();
-        int hpPer = 10, mpPer = 10;
+        int hpPer = 10, mpPer = 10, mpRegen = 4;
+        boolean hidden;
     }
+
+    // One "who" of a school line: a class (or "all"), the flags it needs,
+    // the points it needs in other schools, and the most points it may have.
+    static class Entry {
+        String cls;
+        int max = 100;
+        List<String> flags = new ArrayList<String>();
+        List<Object[]> needs = new ArrayList<Object[]>(); // { group, points }
+    }
+
+    static Map<String, List<Entry>> schools = new LinkedHashMap<String, List<Entry>>();
+    static Map<String, String> tier5 = new LinkedHashMap<String, String>(), refuse = new LinkedHashMap<String, String>();
+    // school -> { guild name, rank 1 .. rank 5 } ("guild <group>: ..." lines)
+    static Map<String, String[]> guilds = new LinkedHashMap<String, String[]>();
+    // The flags gods may set with guildflag (each a hidden condition).
+    static final String[] FLAGS = { "guild_mage", "guild_circle", "forbidden_lore", "archmage_quest", "archdruid_quest", "guild_tester" };
+    // Group points where each tier starts.
+    static final int[] TIERS = { 0, 10, 25, 50, 75 };
 
     static Map<String, Def> defs = new LinkedHashMap<String, Def>();
     static List<String> open = new ArrayList<String>();
@@ -154,6 +212,9 @@ public class Classes {
         List<String[]> k = new ArrayList<String[]>();
         Map<String, String> ik = new LinkedHashMap<String, String>();
         int mult = 2, cap = 50;
+        Map<String, List<Entry>> sch = new LinkedHashMap<String, List<Entry>>();
+        Map<String, String> t5 = new LinkedHashMap<String, String>(), ref = new LinkedHashMap<String, String>();
+        Map<String, String[]> gl = new LinkedHashMap<String, String[]>();
         try {
             List<String> lines = m > 0 ? Files.readAllLines(f.toPath()) : java.util.Arrays.asList(DEFAULTS.split("\n"));
             for (String line : lines) {
@@ -162,7 +223,18 @@ public class Classes {
                 String[] w = line.split("\\s+", 3);
                 String key = w[0].toLowerCase();
                 try {
-                    if (key.equals("multiplier")) mult = Math.max(1, Integer.parseInt(w[1]));
+                    if ((key.equals("school") || key.equals("tier5") || key.equals("refuse") || key.equals("guild")) && line.indexOf(':') > 0) {
+                        // "<key> <group>: <rest>" (a group's name has spaces)
+                        String group = line.substring(key.length(), line.indexOf(':')).trim().toLowerCase();
+                        String rest = line.substring(line.indexOf(':') + 1).trim();
+                        if (key.equals("tier5")) t5.put(group, rest.toLowerCase());
+                        else if (key.equals("refuse")) ref.put(group, rest);
+                        else if (key.equals("guild")) {
+                            String[] g = rest.split("\\|");
+                            if (g.length == 6) { for (int i = 0; i < 6; i++) g[i] = g[i].trim(); gl.put(group, g); }
+                        }
+                        else sch.put(group, entries(rest));
+                    } else if (key.equals("multiplier")) mult = Math.max(1, Integer.parseInt(w[1]));
                     else if (key.equals("crosscap")) cap = Math.max(0, Math.min(100, Integer.parseInt(w[1])));
                     else if (key.equals("open")) o.addAll(list(line.substring(4)));
                     else if (key.equals("kind")) { for (String word : list(w[2])) k.add(new String[] { w[1].toLowerCase(), word }); }
@@ -184,6 +256,8 @@ public class Classes {
                         else if (key.equals("barred")) c.barred.addAll(list(rest));
                         else if (key.equals("wears")) { if (c.wears == null) c.wears = new ArrayList<String>(); c.wears.addAll(list(rest)); }
                         else if (key.equals("growth")) { String[] g = rest.trim().split("\\s+"); c.hpPer = Integer.parseInt(g[0]); c.mpPer = Integer.parseInt(g[1]); }
+                        else if (key.equals("mpregen")) c.mpRegen = Integer.parseInt(rest.trim());
+                        else if (key.equals("hidden")) c.hidden = true;
                         else if (key.equals("start")) {
                             for (String part : rest.split(",")) {
                                 String p = part.trim();
@@ -202,6 +276,13 @@ public class Classes {
         }
         defs = d;
         open = o;
+        schools = sch;
+        tier5 = t5;
+        refuse = ref;
+        guilds = gl;
+        for (String fl : FLAGS) hiddenFlag(fl);
+        for (List<Entry> es : sch.values()) for (Entry e : es) for (String fl : e.flags) hiddenFlag(fl);
+        for (String fl : t5.values()) hiddenFlag(fl);
         kinds = k;
         itemKinds = ik;
         multiplier = mult;
@@ -255,6 +336,140 @@ public class Classes {
         return "open";
     }
 
+    // ---- spell schools ----------------------------------------------------------
+
+    // "fighter+guild_mage, paladin:49, mage+guild_mage+arcane group>=75, all"
+    static List<Entry> entries(String rest) {
+        List<Entry> out = new ArrayList<Entry>();
+        for (String part : rest.split(",")) {
+            String p = part.trim().toLowerCase();
+            if (p.isEmpty()) continue;
+            Entry e = new Entry();
+            String[] bits = p.split("\\+");
+            String head = bits[0].trim();
+            int colon = head.indexOf(':');
+            if (colon > 0) {
+                e.max = Math.max(0, Math.min(100, Integer.parseInt(head.substring(colon + 1).trim())));
+                head = head.substring(0, colon).trim();
+            }
+            e.cls = head;
+            for (int i = 1; i < bits.length; i++) {
+                String b = bits[i].trim();
+                int ge = b.indexOf(">=");
+                if (ge > 0) e.needs.add(new Object[] { b.substring(0, ge).trim(), Integer.parseInt(b.substring(ge + 2).trim()) });
+                else if (b.length() > 0) e.flags.add(b);
+            }
+            out.add(e);
+        }
+        return out;
+    }
+
+    // The most points who may have in a school: -1 when it's closed to them,
+    // null when it's no school (then the core/cross/barred lists count).
+    public static Integer schoolMax(LivingThing who, String group) {
+        load();
+        if (group == null) return null;
+        String g = group.trim().toLowerCase();
+        List<Entry> rules = schools.get(g);
+        if (rules == null) return null;
+        if (exempt(who)) return 100;
+        Def c = of(who);
+        int best = -1;
+        for (Entry e : rules) {
+            if (!e.cls.equals("all") && (c == null || !e.cls.equals(c.id))) continue;
+            boolean ok = true;
+            for (String f : e.flags) if (!who.hasCondition(f)) ok = false;
+            for (Object[] n : e.needs) if (spellPoints(who, (String) n[0]) < (Integer) n[1]) ok = false;
+            if (ok) best = Math.max(best, e.max);
+        }
+        String flag = tier5.get(g);
+        if (best > 74 && flag != null && !who.hasCondition(flag)) best = 74;
+        return best;
+    }
+
+    // Who's rank in a school's guild: "<guild>|<rank>|<tier>|<points>", or
+    // null when the school is closed to them. A member is anyone the school
+    // is open to; the rank is the highest tier their points reach (tier 5
+    // also needs the school's tier5 flag, if it has one).
+    public static String rank(LivingThing who, String group) {
+        load();
+        String g = group.trim().toLowerCase();
+        String[] guild = guilds.get(g);
+        Integer max = schoolMax(who, g);
+        if (guild == null || max == null || max < 0) return null;
+        int points = spellPoints(who, g), tier = 1;
+        for (int t = 1; t < TIERS.length; t++) if (points >= TIERS[t]) tier = t + 1;
+        String flag = tier5.get(g);
+        if (tier == 5 && flag != null && !who.hasCondition(flag) && !exempt(who)) tier = 4;
+        return guild[0] + "|" + guild[tier] + "|" + tier + "|" + points;
+    }
+
+    static String ranks(LivingThing who) {
+        StringBuilder b = new StringBuilder();
+        for (String g : guilds.keySet()) {
+            String r = rank(who, g);
+            if (r == null) continue;
+            String[] p = r.split("\\|");
+            if (b.length() > 0) b.append("; ");
+            b.append(p[0]).append(": ").append(p[1]).append(" (tier ").append(p[2]).append(", ").append(g).append(" ").append(p[3]).append(")");
+        }
+        return b.length() > 0 ? b.toString() : "none";
+    }
+
+    static String refusal(String group) {
+        String r = refuse.get(group.trim().toLowerCase());
+        return r != null ? r : "That isn't taught to you.";
+    }
+
+    // Training a school: refused when closed, up to the class's most, at the
+    // normal price.
+    static boolean trainSchool(Merchant m, String what, int n, LivingThing who, int max) {
+        String g = what.trim().toLowerCase();
+        if (max < 0) {
+            who.chatMessage(refusal(g) + "\n");
+            return true;
+        }
+        int have = spellPoints(who, what);
+        if (n > 100) n = 100;
+        if (have >= max) {
+            if (max == 74 && tier5.containsKey(g)) who.chatMessage("To go further in " + g.replaceAll("\\s*group$", "") + " magic you must first prove yourself (the tier 5 quest).\n");
+            else who.chatMessage("You have learnt all of " + g.replaceAll("\\s*group$", "") + " magic that is taught to a " + nameFor(of(who), who) + ".\n");
+            return true;
+        }
+        if (n > max - have) n = max - have;
+        long cost = (long) m.engGame.traincost * n;
+        if (who.exp < cost) {
+            who.chatMessage("Sorry, you don't have enough experience points\n");
+            return true;
+        }
+        who.learnSkill(what, n, (int) cost);
+        return true;
+    }
+
+    // A trainer's list as the engine sends it ("10exp)train:divine group"
+    // lines, from DuskEngine.refreshEntities): schools closed to who are
+    // left out, so nobody sees what they can't learn.
+    public static String wares(LivingThing who, String list) {
+        try {
+            if (list == null || exempt(who) || list.indexOf("train:") < 0) return list;
+            // The opcode (\u0011) shares a line with the first ware: keep it.
+            String op = list.length() > 0 && list.charAt(0) < ' ' ? list.substring(0, 1) : "";
+            List<String> kept = new ArrayList<String>();
+            for (String line : list.substring(op.length()).split("\n", -1)) {
+                int i = line.indexOf("train:");
+                if (i >= 0) {
+                    Integer max = schoolMax(who, line.substring(i + 6));
+                    if (max != null && max < 0) continue;
+                }
+                kept.add(line);
+            }
+            return op + String.join("\n", kept);
+        } catch (Exception e) {
+            Log.logError(e, "Classes.wares", false);
+            return list;
+        }
+    }
+
     // ---- training (from Skills.train) -----------------------------------------
 
     // True when it's been dealt with here (refused, or trained at the
@@ -266,6 +481,8 @@ public class Classes {
             who.chatMessage("Choose your class first: type class.\n");
             return true;
         }
+        Integer school = schoolMax(who, what);
+        if (school != null) return trainSchool(m, what, n, who, school);
         String t = tier(c, what);
         if (t.equals("barred")) {
             who.chatMessage("A " + nameFor(c, who) + " can't learn " + what + ".\n");
@@ -296,6 +513,13 @@ public class Classes {
         Def c = exempt(who) ? null : of(who);
         if (c == null) return 10;
         return "mp".equals(what) ? c.mpPer : c.hpPer;
+    }
+
+    // Percent of max MP that comes back each regen tick (0 for gods and the
+    // classless, who keep only the server's own regen).
+    public static int mpRegen(LivingThing who) {
+        Def c = exempt(who) ? null : of(who);
+        return c == null ? 0 : Math.max(0, c.mpRegen);
     }
 
     static int skillPoints(LivingThing who, String name) {
@@ -363,6 +587,17 @@ public class Classes {
 
     public static void atLogin(Player p) {
         try {
+            // Mages from before the schools: members of the Mage Guild, their
+            // spells kept (the rank follows their arcane points).
+            Def was = exempt(p) ? null : of(p);
+            if (was != null && was.id.equals("mage") && !p.hasCondition("guild_mage")) {
+                hiddenFlag("guild_mage");
+                Condition cond = p.engGame.getCondition("guild_mage");
+                if (cond != null) {
+                    p.addCondition(cond);
+                    Log.logEvent("Classes: " + p.strName + " (a Mage) joins the Mage Guild");
+                }
+            }
             if (exempt(p) || of(p) != null) return;
             // The browser client opens its picker instead.
             if (BridgedSocket.browser(p.sckConnection)) return;
@@ -375,7 +610,7 @@ public class Classes {
     static String choices(LivingThing who) {
         StringBuilder b = new StringBuilder();
         for (Def c : defs.values()) {
-            if (!allowed(c, who)) continue;
+            if (!allowed(c, who) || c.hidden) continue;
             if (b.length() > 0) b.append(", ");
             b.append(nameFor(c, who));
         }
@@ -402,6 +637,35 @@ public class Classes {
             Log.logEvent(who.strName + " made " + p.strName + " a " + c.id);
             return p.strName + " is now a " + nameFor(c, p) + ". (Their skills are as they were.)";
         }
+        // ("guild" is taken: the game has an empty commands/guild script.)
+        if (lower.equals("guilds")) {
+            if (!(who instanceof Player)) return null;
+            return "Guilds: " + ranks(who);
+        }
+        if (lower.startsWith("guildflags ") || lower.startsWith("guildflag ")) {
+            if (who.privs < GOD_PRIVS) return "Only gods can do that.";
+            load();
+            String[] a = t.split("\\s+");
+            Player p = a.length > 1 ? Bans.online(engine, a[1]) : null;
+            if (p == null) return a.length > 1 ? a[1] + " isn't online." : "Usage: guildflag <name> <flag> on|off, or guildflags <name>";
+            if (a[0].equalsIgnoreCase("guildflag")) {
+                if (a.length != 4 || !(a[3].equalsIgnoreCase("on") || a[3].equalsIgnoreCase("off"))) return "Usage: guildflag <name> <flag> on|off (flags: " + String.join(", ", FLAGS) + ")";
+                String flag = a[2].toLowerCase();
+                if (!java.util.Arrays.asList(FLAGS).contains(flag)) return "No guild flag " + flag + ". Flags: " + String.join(", ", FLAGS) + ".";
+                hiddenFlag(flag);
+                if (a[3].equalsIgnoreCase("on")) {
+                    Condition cond = engine.getCondition(flag);
+                    if (cond != null && !p.hasCondition(flag)) p.addCondition(cond);
+                } else {
+                    p.removeCondition(flag);
+                }
+                p.savePlayer();
+                Log.logEvent(who.strName + " set " + flag + " " + a[3].toLowerCase() + " for " + p.strName);
+            }
+            StringBuilder f = new StringBuilder();
+            for (String fl : FLAGS) if (p.hasCondition(fl)) f.append(f.length() > 0 ? ", " : "").append(fl);
+            return p.strName + ": flags " + (f.length() > 0 ? f : "none") + "; guilds " + ranks(p) + ".";
+        }
         if (!(lower.equals("class") || lower.startsWith("class "))) return null;
         if (!(who instanceof Player)) return null;
         load();
@@ -417,7 +681,7 @@ public class Classes {
             StringBuilder b = new StringBuilder("ClassChoices: ");
             boolean first = true;
             for (Def c : defs.values()) {
-                if (!allowed(c, who)) continue;
+                if (!allowed(c, who) || c.hidden) continue;
                 if (!first) b.append(';');
                 first = false;
                 b.append(c.id).append('|').append(nameFor(c, who)).append('|').append(c.blurb.replace(';', ',').replace('|', '/'));
@@ -431,11 +695,13 @@ public class Classes {
             for (Def c : defs.values()) for (String s : c.core) if (!names.contains(s)) names.add(s);
             for (Def c : defs.values()) for (String s : c.barred) if (!names.contains(s)) names.add(s);
             for (String s : open) if (!names.contains(s)) names.add(s);
+            for (String s : schools.keySet()) if (!names.contains(s)) names.add(s);
             boolean first = true;
             for (String s : names) {
                 if (!first) b.append(';');
                 first = false;
-                b.append(s).append('=').append(exempt(who) ? "core" : tier(now, s));
+                Integer sm = schoolMax(who, s);
+                b.append(s).append('=').append(exempt(who) ? "core" : sm != null ? (sm < 0 ? "barred" : "core") : tier(now, s));
             }
             return b.toString();
         }
@@ -443,6 +709,7 @@ public class Classes {
         Def c = find(arg, who);
         if (c == null) return "Choose one of: " + choices(who) + ".";
         if (!allowed(c, who)) return "A " + raceWords(who.strRace) + " can't be a " + nameFor(c, who) + ". Choose one of: " + choices(who) + ".";
+        if (c.hidden) return "Nobody starts out as a " + nameFor(c, who) + " any more. Choose one of: " + choices(who) + ".";
         return choose((Player) who, engine, c);
     }
 
@@ -485,6 +752,7 @@ public class Classes {
         gone.clear();
         for (Enumeration e = p.spellTable.keys(); e.hasMoreElements();) {
             Object k = e.nextElement();
+            if (schools.containsKey(String.valueOf(k).toLowerCase())) continue; // kept; see schools
             String tr = tier(c, String.valueOf(k));
             if (tr.equals("cross") || tr.equals("barred")) gone.add(k);
         }
@@ -509,9 +777,9 @@ public class Classes {
                     int max = p.attributes.getStat(stat);
                     if (max + n < 1) n = 1 - max;
                     p.attributes.raiseStat(stat, n);
+                    // A new class starts with a full bar of its own size.
                     String cur = stat.substring(3);
-                    int over = p.attributes.getStat(cur) - p.attributes.getStat(stat);
-                    if (over > 0) p.attributes.raiseStat(cur, -over);
+                    p.attributes.setStat(cur, p.attributes.getStat(stat));
                 } else if (n > 0) {
                     p.learnSkill(s[0], n, 0);
                 }
@@ -531,11 +799,17 @@ public class Classes {
 
     // The flag's condition file: hidden, as Sex makes them.
     static void hiddenFlag(Def c) {
+        hiddenFlag("class_" + c.id);
+    }
+
+    // A hidden flag's condition file, made if missing: a player file naming
+    // a condition with no file stops the whole server at their login.
+    static void hiddenFlag(String name) {
         try {
-            File f = new File("defConditions", "class_" + c.id);
+            File f = new File("defConditions", name);
             if (!f.exists()) Talk.write(f, "nodisplay\n.\n".getBytes("UTF-8"));
         } catch (Exception e) {
-            Log.logError(e, "Classes: making the class_" + c.id + " flag", false);
+            Log.logError(e, "Classes: making the " + name + " flag", false);
         }
     }
 }
