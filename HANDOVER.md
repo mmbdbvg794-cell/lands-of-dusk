@@ -1364,6 +1364,24 @@ Lessons:
   taller than a phone screen. Touch X 28px seen / 44px hit.
 - Backups: /root/backups/dusk-equip-panel-20261014-153254.
 
+## 2026-10-14: Greystone Mine (installed 17:09; needs a restart, deployed)
+
+- tools/world/cities/greystone.mjs, from flan's map notes "New mine here"
+  (1481,192) and "New Mine inside" (871,226). Door: tile '<' in the grey
+  cliff at 1482,192 (walk-on teleport to 871,226; out again at 1480,192,
+  ~200 steps north of Kingshaven). The mine is dug in empty void (tile 0)
+  840-949 x 195-284, so the plan is oldWorld with mayBuild t === 0.
+- Inside: entry hall (stairs up 871,224, Overseer Garrick), Pickwright's
+  Tools (Hessa Pickwright, shop square 855,225: mining pick, smithing
+  hammer, water, apple), east gallery (bronze/iron), lower workings with
+  the miners' camp (Old Bryn, Tess the Hauler, forge 876,243, anvil
+  878,243), the deep seam (mithril/coal, dark floor). 21 veins. NPCs have
+  talk only, no quests yet (hooks: Garrick's "Any work?", Bryn's knocking
+  below the deep seam, the caved-in Old Drift east at 914-922,221-222).
+  Solid rock left round it to expand into. No monsters.
+- js/atmosphere.js UNDERGROUND has the box (deployed).
+- Backups: ~/DuskRPG/backups/city-greystone-mine-20261014-170942.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
