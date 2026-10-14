@@ -1,6 +1,7 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-13 19:05 (duskserver time).
+State as of 2026-10-14 03:30 (duskserver time). Everything below is live
+unless it says otherwise; the repo is committed (last: see git log).
 (The newest work is at the end, before "Open / ideas".)
 
 ## What this is
@@ -1221,92 +1222,75 @@ commands that touch live.
   wurm/leviathan may deal no damage (one-line bug, untested); drain,
   create food/drink unreachable; tools/spellinfo.py's "needs" uses
   100*i/n, not the engine's 100*i/(n-1), so the Spellbook shows wrong %.
-- Waiting for the user's decisions on the spell/mana rework.
+- Done since: see "spells, schools, guilds" below.
 
-## 2026-10-13 19:00: spell and mana rework (LIVE: installed 20:41, restart 20:42 from the Proxmox host, deployed)
+## 2026-10-13/14: spells, schools, guilds (ALL LIVE; commits fa05111..e60e937)
 
-- 19:30: telepath removed entirely (tire is slot 0 now), corrupt replaced,
-  cleanup tool tools/server/spell_cleanup.py (63 files to a backup), joe/
-  bluntman top-up in the go-live script. Rehearsed on a scratch reset from
-  live. Live backup: backups/spellmana-live-20261013-192305.tar.gz.
-- ENGINE TRAP: LivingThing.parseUserFile System.exit(0)s the whole server on
-  any error reading a user file (e.g. a condition whose defConditions file
-  is missing). Never delete defConditions files.
+How magic works now (docs/spell-rework.md has the first round's tables):
+- Each defSpells/<spell> has "mp <n>" (cost) and "unlock <n>" (group points
+  needed) after its group line; without them the engine's old sums stand.
+  Engine: server/SpellPatch.java (ASM: castSpell cost + unlock hooks;
+  DuskEngine.refreshEntities trainer lists through Classes.wares; Script's
+  "skill" read falls back to spell groups) and server/SpellGroup.java
+  (source replaces the class). build.sh/install.sh handle both; originals
+  of SpellGroup/Script in storage-originals.
+- Schools: arcane, divine, nature, drow, forbidden, open (+ Guardian Force,
+  gods only; its leviathan is "great leviathan"). Tiers start at 0/10/25/
+  50/75 points; tier 5 also needs a quest flag in arcane/nature.
+- Who learns what is in the classes file: "school <group>: class+flag[:max]",
+  "tier5", "refuse", "hidden mage", "guild <group>: name | 5 ranks".
+  Divine: cleric, paladin up to 49. Drow: priest (starts drow 1). Nature:
+  ranger + guild_circle. Arcane: fighter/ranger/mage + guild_mage.
+  Forbidden: those + forbidden_lore + archmage_quest + arcane 75. Open: all.
+  No cross-class for schools. Trainers hide closed schools (both clients).
+  Old Mages get guild_mage at login. Mage can't be chosen.
+- Commands: guilds (players), guildflag <name> <flag> on|off, guildflags
+  <name> (gods). Plain "guild" is swallowed by an empty commands/guild.
+- MP: class start pools (fighter 28, cleric/priest 46, paladin 40, ranger
+  36), a full bar on choosing, 4% of max MP back every 18 s out of battle
+  ("mpregen"), on top of 1 + WIS/2. Heals x (1 + (points - unlock)/50).
+- Battle-only spells (scripts asking "isinbattle caster") are refused out of
+  battle before costing MP (Skills.battleOnly).
+- Removed: telepath (its copy to flan with it), herbology, translate, the
+  alchemy/telepathy/m groups, 63 dead spell files (backups/spell-cleanup-*).
+  Conjured sandwich/ale (cost 0) from create food/drink.
+- Tools (all idempotent, backups under ~/DuskRPG/backups/): tools/server/
+  fix_spell_mana.py, spell_cleanup.py, schools_phase1.py (skips online
+  players), schools_phase2.py, schools_phase4.py; go-live drivers
+  tools/golive_spellmana.sh, golive_schools.sh, golive_furnish.sh.
 
-- docs/spell-rework.md: the proposal, tables, scratch test results, cleanup
-  list; docs/spell-rework-gamefiles.diff = the tool's dry run on live.
-- Code (not committed, not deployed): server/SpellPatch.java (ASM: castSpell
-  and SpellGroup.spellList pass the cost through Skills.spellCost; Script's
-  one getSkill call -> Skills.scriptSkill, which falls back to spell groups);
-  Skills.regen adds Classes.mpRegen % of max MP out of battle; Classes:
-  "mpregen" key, new start maxmp, choosing a class fills HP/MP; build.sh /
-  install.sh patch and keep SpellGroup.class and Script.class (originals in
-  storage-originals on first install); tools/spellinfo.py needs = 100*i/(n-1),
-  js/spellinfo.json rebuilt; testclient.py STATS=1 and forgets killed targets.
-- Game files: tools/server/fix_spell_mana.py <game> [--apply] [--only parts]
-  ("mp <n>" line 2 in defSpells, classes, heals x(1+(skill-unlock)/50),
-  telepath copy removed, corrupt: no MP gain, no 394,394, battle only).
-  Heals must go live together with the classes + restart (until Script is
-  patched, skill <group> reads 0 and meditation would take HP).
-- Waiting on: approval of costs/pools/heals; telepath (and corrupt) alone
-  can go first with --only (no restart); corrupt replacement script (in the
-  doc, untested); joe/bluntman max MP top-up; the cleanup list.
-- Scratch test chars: spmage (groups 100, 600 MP), spcler, sppriest, sppal,
-  sprang, spfight, flan (scratch only); password testpw1. Scratch helper
-  /tmp/spellmana/uedit.py (key=value, spell:<group>=n, skill:<name>=n).
-- Found, not fixed: reflect's "chat trigger" NPE; telepath's quoted param
-  logs a caught StringIndexOutOfBounds (engine parser); battle spells cast
-  out of battle still cost MP.
+Places (tools/world/cities/):
+- magetower.mjs: the Mage Guild tower on the isle off Eastreach (door
+  1918,1292; Mages and guild_mage only). magetowerfloors.mjs: its five
+  floors in the sea at 40-54 x 540-614 (stairs gated by arcane points;
+  Mage Guild Trainer on floor 1, Hidden Order Trainer at the top, alchemy
+  tables on floor 3). No ferry to the isle (the user's choice, for now).
+- circlewood.mjs + circlegrove.mjs: The Circle's dense wood round 703,1216,
+  a clearing at 705,1218 (standing stones, campfire, Circle Trainer,
+  moonpetal/wolfsbane/mandrake), one trail out to ~741,1231.
+- drowtemple.mjs: Drow Priesthood Trainer beside Priestess Ilvra (1372,899).
+- guildstubs.mjs: test envoys in Kingshaven (1433,353, 1436,353): they
+  invite only characters a god flags guild_tester.
+- Trainers can have names: city.mjs merchant(x, y, wares, name);
+  install_city.py renames one already in place.
 
-## 2026-10-13/14: schools pass 1 (LIVE: tools/golive_schools.sh 01:24, restart 01:24:39 from the Proxmox host, deployed)
+Not done, by the user's choice: the Hidden Order / tier-5 quests (flags are
+god-set only for now), haste, turn undead, shadow step, spider swarm.
+Old Forbidden trainer at 64,48 stands in the sea (unreachable; the tower's
+replaces it).
 
-- Brief: schools/guilds/tiers (in the 2026-10-13 night session). Backup
-  of live before anything: ~/DuskRPG/backups/schools-20261013-230937/before.tar.gz.
-- Engine: server/SpellGroup.java (source replaces the class: per-spell
-  unlock), SpellPatch living also hooks the unlock check in castSpell
-  (Skills.spellUnlock reads "unlock <n>" in defSpells). build.sh compiles
-  SpellGroup.java; the old SpellPatch group mode is gone.
-- tools/server/schools_phase1.py <game> [--apply] [--players]: arcane,
-  divine, nature, forbidden, open groups; tiers 0/10/25/50/75; costs per
-  the brief; trainers and classes file renamed; herbology alone in alchemy
-  group pending the user; translate out; create food/drink restored from
-  backups/spell-cleanup-20261013-204130 (scratch needs that folder copied).
-- Live players holding groups: only bluntman (clerical 1) and flan (god).
-- Scratch test chars: scfight scmage sccler scpriest scrang scpal (testpw1).
-- Phase 2 (scratch): Classes.java school/tier5/refuse/hidden/guild lines
-  (tools/server/schools_phase2.py writes them + the Mage Guild door
-  984_975: class_mage or guild_mage), Classes.wares filters trainers' lists
-  (SpellPatch "engine" in DuskEngine.refreshEntities). Mage hidden; old
-  Mages get guild_mage at login. Help texts updated.
-- Phase 3 (scratch): commands guilds / guildflag <name> <flag> on|off /
-  guildflags <name> ("guild" is swallowed by an empty commands/guild
-  script). Stubs: tools/world/cities/guildstubs.mjs (Mage Guild Envoy
-  1433,353, Circle Envoy 1436,353; only guild_tester characters).
-  The only forbidden trainer (64,48) stands in the sea (Ferry.rescue
-  lands anyone there at Westsea); scratch's 27,42 trainer got
-  train:forbidden group for the test (scratch only).
-- Test chars: pbfight pbcler pbpriest pbrang pbpal (testpw1); egate god.
-- Phase 4 (scratch): tools/server/schools_phase4.py (21 new spells, drow
-  group, conditions ward/barkskin/glimmerfire/venom/webbed/entangled/
-  grovespirit, fixes, "great leviathan", cooldowns, priests start drow 1).
-  Not built: haste, turn undead, shadow step, spider swarm.
-- Locations (scratch): tools/world/cities/magetower.mjs (isle 1912-1924 x
-  1280-1292, door 1918,1292) + magetowerfloors.mjs (5 floors at x 40-54,
-  y 540/555/570/585/600; --old-world; stairs gated by arcane points),
-  circlewood.mjs (dense wood round 705,1218, clearing r5, trail east to
-  ~741,1231; reads the shortmap/mobs/props it's built against),
-  drowtemple.mjs (trainer 1372,899). No ferry to the isle yet.
-- Live backup before go-live: backups/schools-golive-20261014-012406/before.tar.gz.
-- LESSON (02:47): the go-live migrated users/flan while flan was online;
-  the restart wrote flan's old groups back (414 'spell group not found'
-  errors for flan only). Re-run with flan offline fixed it. schools_phase1
-  --players now skips anyone in who.json. Never edit an online player's file.
-- 02:46 LIVE: tools/golive_furnish.sh (tower furnishing, Circle grove,
-  named trainers); backup backups/furnish-20261014-024643/before.tar.gz.
-- The user's decisions: no ferry to the isle for now; haste, turn undead,
-  shadow step, spider swarm not built.
-- Scratch-only test changes (not for live): train:forbidden group on the
-  27,42 trainer, training_dummy maxhp 3000 (backups in ~/dusktest/backups).
+Lessons:
+- Never edit an online player's file (the server writes its copy back at
+  logout/restart): check ~/DuskRPG/who.json first.
+- LivingThing.parseUserFile System.exit(0)s the server on any error reading
+  a user file (e.g. a condition with no defConditions file). Never delete
+  defConditions files; Classes makes its flags' files at startup.
+- A spell script's .dsko is run instead of the script: the tools move it.
+- Testing: scratch test chars spmage/spcler/sppriest/sppal/sprang/spfight,
+  scfight/scmage/sccler/scpriest/scrang/scpal, pbfight/pbcler/pbpriest/
+  pbrang/pbpal (testpw1); egate god (gatepw1). testclient.py STATS=1 prints
+  HP/MP, stats and trainer lists. Scratch-only leftovers: 3000 HP dummies,
+  a forbidden ware on the 27,42 trainer, a "flan" test character.
 
 ## 2026-10-14 03:16: twice the monsters (LIVE)
 
@@ -1315,22 +1299,28 @@ commands that touch live.
   +196, north +147, Underdark +36). Not doubled: kinds with 1-2 placed
   (bosses, champions, quest targets, DraN/Freyrbrand/Harpy/Invader),
   KeyMaster, stationary dummies, race tutorials, gods' island; 207 had no
-  room (mostly rubble in mine tunnels). Backup backups/double-mobs-
-  20261014-031624/mobs. Server ~174 MB after.
-- Also live: battle spells refused out of battle before costing MP
-  (Skills.battleOnly), 03:05 restart.
+  room (mostly rubble in mine tunnels). Backup: backups/double-mobs-
+  20261014-031624/mobs (restore + restart to undo). Server ~174 MB after.
+- Watch play-testing: if an area is too crowded, thin just that area.
 
 ## Open / ideas
 
-- Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in the dunes; Morvane's journal pages as boss drops.
-
+- Guilds: the real invitation quests (Mage Guild, The Circle) and the
+  Hidden Order / tier-5 quests that set forbidden_lore, archmage_quest,
+  archdruid_quest (skipped for now; god-set flags only). A ferry to the
+  Mage Guild isle when the user wants players to reach it. The four
+  unbuilt spells if wanted (haste needs a Battle patch; turn undead an
+  undead flag on monsters; spider swarm an all-foes hit; shadow step a
+  "nearby room").
+- Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in
+  the dunes; Morvane's journal pages as boss drops.
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
-  tab's Monsters… or the defMobs files), bounty rewards, quest chains.
-- Game ideas the user liked, not started: owned ships (on hold). Crafting
-  next steps: woodcutting, a God-tab recipe editor, placing veins/patches.
-- Spell/mana rework LIVE 20:42. Left: reflect's chat trigger NPE, wurm/leviathan "does40" spacing, battle spells cost MP out of battle (refund?).
-- Classes: Rogue later; Paladin and Priest/Priestess own spell lists later.
-- Website: Forum link added to the site nav (~/DuskRPG/web/*.html, after Updates; backups/web-20261007).
+  tab's Monsters… or the defMobs files), bounty rewards, quest chains, and
+  now the doubled monster numbers.
+- Game ideas the user liked, not started: owned ships (on hold).
+- Classes: Rogue later.
+- CHANGELOG.md (player-facing) is behind: spells, schools, guilds, the
+  tower and the doubled monsters aren't in it.
 
 ## More notes
 
