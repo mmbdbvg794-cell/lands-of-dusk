@@ -5,9 +5,9 @@
    "You must be in battle to use this spell."
   ],
   "description": "",
-  "group": "white magic group",
-  "needs": 20,
-  "order": 1,
+  "group": "divine group",
+  "needs": 10,
+  "order": 4,
   "target": []
  },
  "apocalypse": {
@@ -16,9 +16,20 @@
    "You must be in battle to use this spell."
   ],
   "description": "",
-  "group": "hells fire",
-  "needs": 100,
-  "order": 1,
+  "group": "forbidden group",
+  "needs": 75,
+  "order": 0,
+  "target": []
+ },
+ "arc bolt": {
+  "caster": [
+   "A bolt of arcane force strikes {name} for  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "a bolt of raw arcane force at your foe; steady, and stronger with intelligence.",
+  "group": "arcane group",
+  "needs": 0,
+  "order": 14,
   "target": []
  },
  "armor": {
@@ -28,11 +39,25 @@
    "You surround yourself in a magical shield"
   ],
   "description": "Increases a target's armor class for a while",
-  "group": "clerical group",
-  "needs": 66,
-  "order": 2,
+  "group": "divine group",
+  "needs": 10,
+  "order": 5,
   "target": [
    "{name}'s magical shield surrounds you."
+  ]
+ },
+ "barkskin": {
+  "caster": [
+   "You do not see them here.",
+   "You harden the skin of {name}.",
+   "Your skin hardens like bark."
+  ],
+  "description": "skin as hard as bark: armour class +8 for a while.",
+  "group": "nature group",
+  "needs": 10,
+  "order": 4,
+  "target": [
+   "Your skin hardens like bark."
   ]
  },
  "bless": {
@@ -42,9 +67,9 @@
    "You do not see them here."
   ],
   "description": "Increases a target's strength and damage for a while",
-  "group": "clerical group",
-  "needs": 100,
-  "order": 3,
+  "group": "divine group",
+  "needs": 10,
+  "order": 6,
   "target": [
    "{name} calls upon the gods to bless you."
   ]
@@ -55,7 +80,7 @@
    "You must be in battle to use this spell."
   ],
   "description": "bones of the dead burst into shards at your foe.",
-  "group": "black magic group",
+  "group": "arcane group",
   "needs": 0,
   "order": 0,
   "target": []
@@ -71,6 +96,28 @@
   "order": 3,
   "target": []
  },
+ "call bear": {
+  "caster": [
+   "A great bear answers your call and mauls {name} for  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "a great bear answers your call and attacks your foe.",
+  "group": "nature group",
+  "needs": 50,
+  "order": 7,
+  "target": []
+ },
+ "call wolf": {
+  "caster": [
+   "A wolf answers your call and savages {name} for  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "a wolf answers your call and attacks your foe.",
+  "group": "nature group",
+  "needs": 25,
+  "order": 6,
+  "target": []
+ },
  "camoflauge": {
   "caster": [
    "You blend in with your surroundings.",
@@ -78,8 +125,8 @@
    "{name} blends in with their surroundings."
   ],
   "description": "hides the caster/target from view",
-  "group": "druidic group",
-  "needs": 100,
+  "group": "nature group",
+  "needs": 50,
   "order": 3,
   "target": [
    "You fade slowly from vision."
@@ -92,36 +139,72 @@
    "Your magic 'drain' has been sealed off."
   ],
   "description": "drains the foe you fight: hurts it, heals you by half, and burns its mana.",
-  "group": "black magic group",
-  "needs": 100,
-  "order": 3,
-  "target": []
- },
- "counter poison": {
-  "caster": [
-   "Counter Poison has been disabled for now."
-  ],
-  "description": "(disabled for now)",
-  "group": "clerical group",
-  "needs": 33,
+  "group": "forbidden group",
+  "needs": 75,
   "order": 1,
   "target": []
+ },
+ "create drink": {
+  "caster": [
+   "Some ale appears in your hand.",
+   "You search your mind for the words to conjure drink, but fail to find them."
+  ],
+  "description": "Creates drink in your hand for eating",
+  "group": "divine group",
+  "needs": 0,
+  "order": 0,
+  "target": []
+ },
+ "create food": {
+  "caster": [
+   "A sandwich appears in your hand.",
+   "You search your mind for the words to conjure food, but fail to find them."
+  ],
+  "description": "Creates food in your hand for eating",
+  "group": "divine group",
+  "needs": 0,
+  "order": 1,
+  "target": []
+ },
+ "cure poison": {
+  "caster": [
+   "You do not see them here.",
+   "You draw the poison out of your body.",
+   "You draw the poison out of {name}."
+  ],
+  "description": "lifts poison and venom from someone.",
+  "group": "divine group",
+  "needs": 10,
+  "order": 7,
+  "target": [
+   "The poison leaves your body."
+  ]
  },
  "curse": {
   "caster": [
    "Whom do you want to curse? Cast it at someone.",
-   "You become cursed.",
    "You do not see them here.",
-   "{name}  has reflect.",
-   "{name}  is now cursed."
+   "{name}  is now cursed.",
+   "{name}'s reflection turns the curse aside."
   ],
   "description": "weakens someone (less strength and dexterity) for a while.",
-  "group": "black magic group",
-  "needs": 33,
-  "order": 1,
+  "group": "arcane group",
+  "needs": 10,
+  "order": 3,
   "target": [
    "You become cursed."
   ]
+ },
+ "dark tide": {
+  "caster": [
+   "A tide of darkness engulfs {name} for  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "a tide of darkness: heavy damage, and it burns your foe's mana.",
+  "group": "drow group",
+  "needs": 75,
+  "order": 7,
+  "target": []
  },
  "detect invis": {
   "caster": [
@@ -130,9 +213,9 @@
    "{name}'s eyes become sensitive to invisibility."
   ],
   "description": "allows the caster to see invisible things",
-  "group": "enchantment group",
+  "group": "arcane group",
   "needs": 0,
-  "order": 0,
+  "order": 1,
   "target": [
    "Your eyes become sensitive to invisibility."
   ]
@@ -148,6 +231,21 @@
   "order": 4,
   "target": []
  },
+ "entangle": {
+  "caster": [
+   "Whom do you want to entangle? Cast it at someone.",
+   "You do not see them here.",
+   "{name} is held fast by roots.",
+   "{name}'s reflection turns the spell aside."
+  ],
+  "description": "roots hold someone fast for a few seconds.",
+  "group": "nature group",
+  "needs": 10,
+  "order": 5,
+  "target": [
+   "Roots burst from the ground and hold you fast."
+  ]
+ },
  "focus": {
   "caster": [
    "You do not see them here.",
@@ -155,12 +253,52 @@
    "You make {name}."
   ],
   "description": "Sharpens a target's mind (intelligence and wisdom) for a while",
-  "group": "white magic group",
+  "group": "divine group",
   "needs": 0,
-  "order": 0,
+  "order": 2,
   "target": [
    "{name} makes you focus your energy."
   ]
+ },
+ "glimmerfire": {
+  "caster": [
+   "Whom do you want to outline? Cast it at someone.",
+   "You do not see them here.",
+   "{name} is outlined in pale fire.",
+   "{name}'s reflection turns the spell aside."
+  ],
+  "description": "outlines someone in pale fire: armour class -3 for a while.",
+  "group": "drow group",
+  "needs": 0,
+  "order": 0,
+  "target": [
+   "Pale fire outlines you."
+  ]
+ },
+ "gloom mend": {
+  "caster": [
+   "Shadows knit your wounds.",
+   "You do not see them here.",
+   "You knit the wounds of {name}."
+  ],
+  "description": "the Spider Queen's mend: heals someone by the caster's intelligence, more with drow skill.",
+  "group": "drow group",
+  "needs": 0,
+  "order": 1,
+  "target": [
+   "Shadows knit your wounds."
+  ]
+ },
+ "great leviathan": {
+  "caster": [
+   "You call upon a Guardian Force-Leviathan-to attack {name}, Leviathan explodes and forms a tidal wave doing   damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "causes Minor damage to enemy.",
+  "group": "Guardian Force Group",
+  "needs": 50,
+  "order": 2,
+  "target": []
  },
  "healing staff": {
   "caster": [
@@ -169,8 +307,8 @@
    "you do not see them here."
   ],
   "description": "Converts a quarterstaff into healing energies",
-  "group": "druidic group",
-  "needs": 33,
+  "group": "nature group",
+  "needs": 10,
   "order": 1,
   "target": [
    "You feel slightly less wounded."
@@ -182,36 +320,20 @@
    "You must be in battle to use this spell."
   ],
   "description": "",
-  "group": "hells fire",
-  "needs": 0,
-  "order": 0,
-  "target": []
- },
- "herbology": {
-  "caster": [
-   "You don't have the right herbs. Mandrake: an anti-curse potion. Mandrake and wolfsbane: a red potion. Lavendar and wolfsbane: a green potion. Brewed red and green potions with azeala: a blue potion. A mushroom and water: a minor potion.",
-   "You extract juices from a mandrake to make an anti-curse potion.",
-   "You mix a wolfsbane and a mandrake to make a red potion.",
-   "You mix the lavendar and wolfsbane together and make a green potion.",
-   "You mix the mushroom with some water and make a minor potion.",
-   "You mix the red and green potions with azeala and make a rare blue potion."
-  ],
-  "description": "brews herbs into potions (merchants won't buy brewed ones).",
-  "group": "alchemy group",
-  "needs": 100,
+  "group": "forbidden group",
+  "needs": 75,
   "order": 2,
   "target": []
  },
  "holy": {
   "caster": [
-   "Holy damage is inflicted upon {name} . He gets  damage.",
-   "The spell deflects!",
+   "Holy fire burns {name} for  damage.",
    "You must be in battle to use this spell."
   ],
-  "description": "",
-  "group": "white magic group",
-  "needs": 100,
-  "order": 5,
+  "description": "holy fire on your foe.",
+  "group": "divine group",
+  "needs": 75,
+  "order": 10,
   "target": []
  },
  "ifrit": {
@@ -232,22 +354,57 @@
    "{name}  fades slowly from vision."
   ],
   "description": "hides the caster/target from view",
-  "group": "enchantment group",
-  "needs": 50,
-  "order": 1,
+  "group": "arcane group",
+  "needs": 10,
+  "order": 4,
   "target": [
    "You fade slowly from vision."
   ]
  },
- "leviathan": {
+ "knit flesh": {
   "caster": [
-   "You call upon a Guardian Force-Leviathan-to attack {name}, Leviathan explodes and forms a tidal wave doing   damage.",
+   "Arcane threads knit your wounds closed."
+  ],
+  "description": "the Mage Guild's small heal, on yourself only.",
+  "group": "arcane group",
+  "needs": 10,
+  "order": 15,
+  "target": []
+ },
+ "lay on hands": {
+  "caster": [
+   "Whom do you want to heal? Cast it at someone.",
+   "You do not see them here.",
+   "You lay your hands on {name}."
+  ],
+  "description": "a large heal laid on someone else; more with divine skill.",
+  "group": "divine group",
+  "needs": 25,
+  "order": 12,
+  "target": [
+   "Warm light pours into your wounds."
+  ]
+ },
+ "life drain": {
+  "caster": [
+   "You drain the life of {name} for  damage.",
    "You must be in battle to use this spell."
   ],
-  "description": "causes Minor damage to enemy.",
-  "group": "Guardian Force Group",
-  "needs": 50,
-  "order": 2,
+  "description": "drains your foe's life; you heal half the damage.",
+  "group": "drow group",
+  "needs": 25,
+  "order": 5,
+  "target": []
+ },
+ "lightning": {
+  "caster": [
+   "Lightning cracks down on {name} for  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "a bolt of lightning at your foe.",
+  "group": "arcane group",
+  "needs": 25,
+  "order": 17,
   "target": []
  },
  "meditation": {
@@ -257,9 +414,9 @@
    "You meditate to heal your wounds."
   ],
   "description": "",
-  "group": "white magic group",
-  "needs": 60,
-  "order": 3,
+  "group": "divine group",
+  "needs": 25,
+  "order": 9,
   "target": [
    "You meditate to heal your wounds."
   ]
@@ -270,10 +427,10 @@
    "You focus energy into mending your wounds.",
    "You focus on mending {name}'s wounds."
   ],
-  "description": "Heals someone by the caster's intelligence, more with clerical skill.",
-  "group": "clerical group",
+  "description": "Heals someone by the caster's intelligence, more with divine skill.",
+  "group": "divine group",
   "needs": 0,
-  "order": 0,
+  "order": 3,
   "target": [
    "You feel slightly less wounded."
   ]
@@ -283,9 +440,9 @@
    "You give prayer to the gods to remove all bad effects on your body"
   ],
   "description": "lifts curses, tiredness, poison, hunger and thirst.",
-  "group": "white magic group",
-  "needs": 40,
-  "order": 2,
+  "group": "divine group",
+  "needs": 10,
+  "order": 8,
   "target": []
  },
  "quake": {
@@ -294,9 +451,9 @@
    "You must be in battle to use this spell."
   ],
   "description": "",
-  "group": "black magic group",
-  "needs": 66,
-  "order": 2,
+  "group": "arcane group",
+  "needs": 25,
+  "order": 9,
   "target": []
  },
  "quarter staff": {
@@ -304,19 +461,19 @@
    "A druidic quarter staff appears in your inventory."
   ],
   "description": "summons a quarterstaff for druidic use",
-  "group": "druidic group",
+  "group": "nature group",
   "needs": 0,
   "order": 0,
   "target": []
  },
  "reflect": {
   "caster": [
-   "Reflect shield"
+   "A reflecting shield surrounds you."
   ],
   "description": "",
-  "group": "m group",
-  "needs": 0,
-  "order": 0,
+  "group": "arcane group",
+  "needs": 10,
+  "order": 5,
   "target": []
  },
  "regenerate": {
@@ -326,11 +483,25 @@
    "You start regenerating the health of {name}."
   ],
   "description": "Heals a target a little every few seconds for a while",
-  "group": "enchantment group",
-  "needs": 100,
-  "order": 2,
+  "group": "arcane group",
+  "needs": 25,
+  "order": 10,
   "target": [
    "{name} makes your health begin to regenerate."
+  ]
+ },
+ "restoration": {
+  "caster": [
+   "Light restores you, body and mind.",
+   "You do not see them here.",
+   "You restore {name}."
+  ],
+  "description": "a great heal that also lifts curses and tiredness; more with divine skill.",
+  "group": "divine group",
+  "needs": 50,
+  "order": 13,
+  "target": [
+   "Light restores you, body and mind."
   ]
  },
  "scan": {
@@ -348,27 +519,36 @@
    "Scan whom? Cast it at someone.",
    "Stats with all bonuses:",
    "Triple Attack:",
-   "alchemy group:",
-   "black magic group:",
-   "clerical group:",
+   "arcane group:",
    "con:  +",
    "dex:  +",
-   "druidic group:",
-   "enchantment group:",
+   "divine group:",
+   "drow group:",
+   "forbidden group:",
    "int:  +",
+   "nature group:",
+   "open group:",
    "str:  +",
-   "summons group:",
-   "telepathy group:",
-   "white magic group:",
    "wis:  +"
   ],
   "description": "shows someone's stats.",
-  "group": "white magic group",
-  "needs": 80,
-  "order": 4,
+  "group": "arcane group",
+  "needs": 10,
+  "order": 6,
   "target": [
    "{name} has scanned your stats."
   ]
+ },
+ "shadow cloak": {
+  "caster": [
+   "It is too bright here for shadows to hold you.",
+   "The shadows wrap around you."
+  ],
+  "description": "wraps you in shadow (invisible for a while), only in the dark of the Underdark.",
+  "group": "drow group",
+  "needs": 10,
+  "order": 2,
+  "target": []
  },
  "shiva": {
   "caster": [
@@ -381,6 +561,27 @@
   "order": 1,
   "target": []
  },
+ "smite": {
+  "caster": [
+   "You must be in battle to use this spell.",
+   "You smite {name} for  damage."
+  ],
+  "description": "holy force strikes your foe.",
+  "group": "divine group",
+  "needs": 10,
+  "order": 11,
+  "target": []
+ },
+ "spirit of the grove": {
+  "caster": [
+   "The spirit of the grove settles over you."
+  ],
+  "description": "the grove's spirit heals you a little every few seconds for a long while.",
+  "group": "nature group",
+  "needs": 75,
+  "order": 8,
+  "target": []
+ },
  "summon bahamut": {
   "caster": [
    "The Ruby you have increases Bahamuts power {name} . Bahamuts mega flare does  damage.",
@@ -388,21 +589,21 @@
    "You summon Bahamut to attack {name} . Bahamuts mega flare does  damage."
   ],
   "description": "",
-  "group": "summons group",
-  "needs": 25,
-  "order": 1,
+  "group": "arcane group",
+  "needs": 10,
+  "order": 7,
   "target": []
  },
  "summon leviathan": {
   "caster": [
-   "The Aquamarine increase Levaithans attack power. He attacks {name} and does damage.",
-   "You must be in battle to summon this creature",
-   "You summon the great sea serpent Leviathan.  He attacks {name} and does damage."
+   "The aquamarine you carry makes Leviathan fiercer. It attacks {name} for  damage.",
+   "You must be in battle to summon this creature.",
+   "You summon the great sea serpent Leviathan. It attacks {name} for  damage."
   ],
-  "description": "",
-  "group": "summons group",
-  "needs": 75,
-  "order": 3,
+  "description": "the great sea serpent attacks your foe (an aquamarine makes it fiercer).",
+  "group": "arcane group",
+  "needs": 50,
+  "order": 12,
   "target": []
  },
  "summon snakes": {
@@ -412,9 +613,20 @@
    "You must be in battle to use this spell."
   ],
   "description": "snakes rise from the ground to attack your foe (an emerald makes them fiercer).",
-  "group": "summons group",
+  "group": "arcane group",
   "needs": 0,
-  "order": 0,
+  "order": 2,
+  "target": []
+ },
+ "summon spider": {
+  "caster": [
+   "A giant spider rises from the dark and bites {name} for  damage.",
+   "You must be in battle to use this spell."
+  ],
+  "description": "a giant spider rises from the dark and attacks your foe.",
+  "group": "drow group",
+  "needs": 25,
+  "order": 6,
   "target": []
  },
  "summon ultima bahamut": {
@@ -425,32 +637,32 @@
    "You Need An amethyst To Summon This Creature"
   ],
   "description": "",
-  "group": "summons group",
-  "needs": 100,
-  "order": 4,
+  "group": "arcane group",
+  "needs": 75,
+  "order": 13,
   "target": []
  },
  "summon wurm": {
   "caster": [
-   "The Topaz you have increases the Wurms attack power. He attacks {name} and does damage.",
-   "You must be in battle to summon this creature",
-   "You summon a giant Wurm. He attacks {name} and does damage."
+   "The topaz you carry makes the Wurm fiercer. It attacks {name} for  damage.",
+   "You must be in battle to summon this creature.",
+   "You summon a giant Wurm. It attacks {name} for  damage."
   ],
-  "description": "",
-  "group": "summons group",
-  "needs": 50,
-  "order": 2,
+  "description": "a giant wurm attacks your foe (a topaz makes it fiercer).",
+  "group": "arcane group",
+  "needs": 25,
+  "order": 11,
   "target": []
  },
  "thorns": {
   "caster": [
-   "The spell bounces off of him due to Reflect and damages  you for  damage.",
    "You call upon the lands to sting {name} for  damage.",
-   "You must be in battle to use this spell."
+   "You must be in battle to use this spell.",
+   "{name}'s reflection withers your thorns."
   ],
   "description": "causes slight damage to the target",
-  "group": "druidic group",
-  "needs": 66,
+  "group": "nature group",
+  "needs": 25,
   "order": 2,
   "target": []
  },
@@ -461,31 +673,65 @@
    "{name}   is enchanted and feels the urge to sleep."
   ],
   "description": "makes a foe drowsy, so that they may fall asleep, for a while.",
-  "group": "telepathy group",
-  "needs": 0,
-  "order": 0,
+  "group": "arcane group",
+  "needs": 10,
+  "order": 8,
   "target": [
    "You become tired."
   ]
  },
- "translate": {
+ "venom touch": {
   "caster": [
-   "Translate has been disabled for now."
+   "Whom do you want to poison? Cast it at someone.",
+   "You do not see them here.",
+   "{name} is poisoned.",
+   "{name}'s reflection turns the spell aside."
   ],
-  "description": "(disabled for now)",
-  "group": "alchemy group",
-  "needs": 50,
-  "order": 1,
-  "target": []
+  "description": "spider venom: someone loses a little health every few seconds for a while.",
+  "group": "drow group",
+  "needs": 10,
+  "order": 3,
+  "target": [
+   "Venom burns in your veins."
+  ]
+ },
+ "ward": {
+  "caster": [
+   "An arcane ward shimmers around you.",
+   "You do not see them here.",
+   "You raise an arcane ward around {name}."
+  ],
+  "description": "an arcane ward: armour class +8 for a while.",
+  "group": "arcane group",
+  "needs": 10,
+  "order": 16,
+  "target": [
+   "An arcane ward shimmers around you."
+  ]
  },
  "warp": {
   "caster": [
    "You recall a place you know well... and as you open your eyes you find yourself there."
   ],
   "description": "takes you back to where you return after dying.",
-  "group": "alchemy group",
+  "group": "open group",
   "needs": 0,
   "order": 0,
   "target": []
+ },
+ "web": {
+  "caster": [
+   "Whom do you want to catch in a web? Cast it at someone.",
+   "You do not see them here.",
+   "{name} is caught in a web.",
+   "{name}'s reflection turns the spell aside."
+  ],
+  "description": "a web holds someone fast for a few seconds.",
+  "group": "drow group",
+  "needs": 10,
+  "order": 4,
+  "target": [
+   "A sticky web holds you fast."
+  ]
  }
 }
