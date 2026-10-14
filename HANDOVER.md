@@ -1303,6 +1303,16 @@ Lessons:
   20261014-031624/mobs (restore + restart to undo). Server ~174 MB after.
 - Watch play-testing: if an area is too crowded, thin just that area.
 
+## 2026-10-14: layout, character column (client only, deployed; commit 5a3cf0a)
+
+- index.html: #char-card moved out of #side into its own `<aside id="char-side">`.
+- css/style.css: at 1200px+ (and wider than tall) the grid is
+  char | map | tabs, both side columns `--side-w` (clamp 340-440px) so the
+  map is centred; #panel stretches to the full height. 900-1199px: card
+  above the tabs on the right (as before). Phones: map, chat, card, tabs.
+- The map stays square (the server's view is n x n); it fills the largest
+  square that fits the middle column.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
