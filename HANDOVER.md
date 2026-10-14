@@ -1336,7 +1336,7 @@ Lessons:
   Fights with no players aren't capped. Change the number in
   MAX_PER_PLAYER, build, install, restart.
 
-## 2026-10-14 afternoon: equipment panel redesign (client only; NOT deployed yet)
+## 2026-10-14 afternoon: equipment panel redesign (client only, deployed; commit ccde080)
 
 - js/panels.js renderEquipment: nine equal cards on a fixed 3x5 grid (css
   grid areas: centre Skull/Neck/Torso/Waist/Legs, left Arms/Wield, right
