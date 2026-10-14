@@ -1313,6 +1313,13 @@ Lessons:
 - The map stays square (the server's view is n x n); it fills the largest
   square that fits the middle column.
 
+## 2026-10-14: settings grouped (client only, deployed; commit c3745a4)
+
+- Settings menu in sections: Display, Screen layout, Sound, Music, Account
+  and help, and a collapsed Advanced (bridge address, protocol trace).
+  Login errors say "Settings → Advanced". `#settings > summary` styles only
+  the top button now.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
