@@ -407,41 +407,53 @@ body.playing #map-wrap { display: flex; }
 .rows .acts button { padding: 3px 10px; font-size: 13px; }
 .rows .acts button.armed { border-color: var(--bad); color: var(--bad); opacity: 1; }
 
-/* Equipment: a 3x3 grid, head at the top and feet-ish at the bottom. */
-.doll-wrap { position: relative; margin: 6px 10px 2px; }
+/* Equipment: nine cards of one size on a fixed grid, the body down the
+   middle (Skull to Legs), Arms and Wield on the left, Eyes and Hands on
+   the right. The outline is only a backdrop: it never moves a card.
+   Rows share the tallest card's height (1fr in an auto-height grid). */
+.doll-wrap { position: relative; margin: 6px 8px 2px; container-type: inline-size; }
 .doll-body {
   position: absolute;
   left: 50%;
-  top: 0;
-  height: 100%;
+  top: 1%;
+  width: 72%;
+  height: 98%;
   transform: translateX(-50%);
-  fill: color-mix(in srgb, var(--accent) 14%, var(--panel-2));
-  stroke: color-mix(in srgb, var(--accent) 45%, var(--border));
-  stroke-width: 1.5;
+  fill: color-mix(in srgb, var(--accent) 7%, transparent);
+  stroke: color-mix(in srgb, var(--accent) 22%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
 .doll {
+  --gap-x: 14px;
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(5, minmax(96px, 1fr));
   grid-template-areas:
     ".     skull eyes "
-    "arms  neck  .    "
-    "arms  torso hands"
+    ".     neck  .    "
+    "arms  torso .    "
     "wield waist hands"
-    "wield legs  .    ";
-  gap: 5px 8px;
+    ".     legs  .    ";
+  gap: 8px var(--gap-x);
 }
 .doll-slot {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 38px;
-  padding: 3px 22px 3px 6px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--panel) 82%, transparent);
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 6px 7px;
+  text-align: center;
   border: 1px solid var(--border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--panel-2) 92%, var(--accent) 8%);
+  box-shadow: 0 1px 3px #0004;
+  transition: border-color 0.12s, box-shadow 0.12s, background-color 0.12s;
 }
 .doll-slot[data-slot="skull"] { grid-area: skull; }
 .doll-slot[data-slot="eyes"] { grid-area: eyes; }
@@ -452,26 +464,94 @@ body.playing #map-wrap { display: flex; }
 .doll-slot[data-slot="arms"] { grid-area: arms; }
 .doll-slot[data-slot="wield"] { grid-area: wield; }
 .doll-slot[data-slot="hands"] { grid-area: hands; }
-.doll-slot.empty-slot { border-style: dashed; background: color-mix(in srgb, var(--panel) 35%, transparent); }
-.doll-slot .slot-icon { position: absolute; right: 4px; bottom: 3px; width: 26px; height: 26px; opacity: 0.95; pointer-events: none; }
-.doll-slot:has(.slot-icon) { padding-right: 32px; }
-.doll-slot .slot-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.doll-slot .slot-item { font-size: 12px; line-height: 1.2; overflow-wrap: anywhere; }
+/* A thin tick across the gap from each side card to the body. */
+.doll-slot:is([data-slot="arms"], [data-slot="wield"], [data-slot="eyes"], [data-slot="hands"])::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: calc(var(--gap-x) - 2px);
+  border-top: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  pointer-events: none;
+}
+.doll-slot:is([data-slot="arms"], [data-slot="wield"])::before { left: 100%; margin-left: 1px; }
+.doll-slot:is([data-slot="eyes"], [data-slot="hands"])::before { right: 100%; margin-right: 1px; }
+.doll-slot.filled { cursor: pointer; }
+.doll-slot.filled:hover { border-color: color-mix(in srgb, var(--accent) 70%, var(--border)); box-shadow: 0 2px 8px #0005; }
+.doll-slot.filled:focus-visible,
+.doll-slot.open { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 2px 8px #0005; }
+.doll-slot.empty-slot {
+  grid-template-rows: 1fr;
+  border-style: dashed;
+  background: color-mix(in srgb, var(--panel) 40%, transparent);
+  box-shadow: none;
+}
+.doll-slot .slot-label {
+  justify-self: start;
+  max-width: calc(100% - 28px);
+  font-size: 11px;
+  font-variant: all-small-caps;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.doll-slot.empty-slot .slot-label { justify-self: center; max-width: 100%; color: color-mix(in srgb, var(--muted) 65%, var(--faint)); }
+.doll-slot .slot-icon { width: 44px; height: 44px; pointer-events: none; }
+.doll-slot.filled:not(:has(.slot-icon)) { grid-template-rows: auto 1fr; }
+.doll-slot .slot-item {
+  max-width: 100%;
+  font-size: 13px;
+  line-height: 1.15;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
+}
+.doll-slot .slot-item.long { font-size: 12px; }
+.doll-slot .slot-item.xlong { font-size: 11px; }
 .doll-slot .remove {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 18px;
-  height: 18px;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
   padding: 0;
+  border-radius: 50%;
+  font-size: 15px;
   line-height: 1;
-  font-size: 13px;
-  background: none;
-  border-color: transparent;
   color: var(--muted);
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  border: 1px solid var(--border);
 }
-.doll-slot:has(.slot-icon) .remove { top: 1px; }
-.doll-slot .remove:hover { color: var(--bad); border-color: var(--bad); }
+/* A bigger invisible target than the circle. */
+.doll-slot .remove::after { content: ""; position: absolute; inset: -6px; }
+.doll-slot .remove:hover,
+.doll-slot .remove:focus-visible { outline: none; color: var(--bad); border-color: var(--bad); box-shadow: 0 0 0 2px color-mix(in srgb, var(--bad) 30%, transparent); }
+@media (pointer: coarse) {
+  .doll-slot .remove { width: 32px; height: 32px; top: 2px; right: 2px; font-size: 18px; }
+  .doll-slot .slot-label { max-width: calc(100% - 34px); }
+  /* The label row as tall as the X, so a wide picture starts below it. */
+  .doll-slot.filled .slot-label { min-height: 30px; align-content: center; display: grid; }
+}
+#equip-details { margin: 8px 8px 4px; }
+#equip-details .ed-name { flex-basis: 100%; font-weight: 600; }
+/* Narrow panels: smaller cards; very narrow: two columns, no body. */
+@container (max-width: 300px) {
+  .doll { --gap-x: 10px; grid-template-rows: repeat(5, minmax(80px, 1fr)); gap: 6px var(--gap-x); }
+  .doll-slot { gap: 1px; padding: 3px 4px 5px; }
+  .doll-slot .slot-label { font-size: 10.5px; }
+  .doll-slot .slot-icon { width: 30px; height: 30px; }
+  .doll-slot .slot-item { font-size: 11.5px; line-height: 1.08; }
+  .doll-slot .slot-item.long { font-size: 11px; }
+  .doll-slot .slot-item.xlong { font-size: 10px; }
+  .doll-slot .slot-item.word { font-size: 9.5px; }
+}
+@container (max-width: 230px) {
+  .doll-body, .doll-slot::before { display: none; }
+  .doll { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: minmax(84px, 1fr); grid-template-areas: none; }
+  .doll-slot[data-slot] { grid-area: auto; }
+}
 
 /* Stats */
 #stats-body { padding: 0 12px; }

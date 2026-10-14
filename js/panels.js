@@ -14,7 +14,9 @@ const SLOT_LABELS = {
   wield: 'Wield', arms: 'Arms', legs: 'Legs', torso: 'Torso', waist: 'Waist',
   neck: 'Neck', skull: 'Skull', eyes: 'Eyes', hands: 'Hands',
 };
-// The equipment grid, roughly head to toe.
+// The equipment grid, head to toe (css/style.css places each one: the
+// body down the middle, arms and weapon on the left, eyes and hands on
+// the right).
 const SLOT_GRID = ['skull', 'eyes', 'neck', 'arms', 'torso', 'hands', 'wield', 'waist', 'legs'];
 // Drop is the one command that can lose an item (anything worthless
 // vanishes), so it takes a second press within this long.
@@ -81,6 +83,24 @@ export class Panels {
         if (btn) this.run(btn);
       });
     }
+    // Tapping (or Enter on) a worn item shows its full name and details
+    // under the body; again hides them.
+    this.openSlot = null;
+    const pickSlot = (e) => {
+      if (e.target.closest('button')) return;
+      const cell = e.target.closest('.doll-slot.filled');
+      if (!cell) return;
+      e.preventDefault();
+      this.openSlot = this.openSlot === cell.dataset.slot ? null : cell.dataset.slot;
+      this.renderEquipment();
+      this.$(`#equip-list .doll-slot[data-slot="${cell.dataset.slot}"]`)?.focus();
+    };
+    this.$('#equip-list').addEventListener('click', pickSlot);
+    this.$('#equip-list').addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (!e.target.closest('button')) e.stopPropagation(); // not a game key
+      pickSlot(e);
+    });
     // Tapping an item (not its buttons) shows what it is; again hides it.
     for (const list of [this.$('#inv-list'), this.$('#store-in'), this.$('#store-mine'), this.$('#shop-buy'), this.$('#shop-sell')]) {
       list.addEventListener('click', (e) => {
@@ -202,37 +222,51 @@ export class Panels {
     this.$('#tab-inv-count').textContent = this.player.items.length ? String(this.player.items.length) : '';
   }
 
-  // The worn gear on the body outline (see index.html). Each slot sits
-  // where it's worn; the Painted style's item art shows when there is some.
+  // The worn gear on the body outline (see index.html): nine cards of one
+  // size, each with its slot name, the item's picture when there is one
+  // (either art style), and its name, which wraps only between words.
   renderEquipment() {
     const eq = this.player.equipment;
-    const art = this.itemArt?.();
+    if (this.openSlot && !eq[this.openSlot]) this.openSlot = null;
     this.$('#equip-list').replaceChildren(
       ...SLOT_GRID.map((slot) => {
         const item = eq[slot];
+        const label = SLOT_LABELS[slot];
         const cell = document.createElement('div');
-        cell.className = `doll-slot${item ? '' : ' empty-slot'}`;
+        cell.className = `doll-slot ${item ? 'filled' : 'empty-slot'}`;
         cell.dataset.slot = slot;
         cell.role = 'listitem';
-        cell.title = item ? `${SLOT_LABELS[slot]}: ${item.name}` : `${SLOT_LABELS[slot]}: nothing`;
-        const frame = art?.index.get(item?.name.toLowerCase());
-        if (frame !== undefined) {
-          const c = document.createElement('canvas');
-          c.width = c.height = 64;
-          c.className = 'slot-icon';
-          art.sheet.draw(c.getContext('2d'), frame, 0, 0, 64);
-          cell.append(c);
+        cell.title = item ? `${label}: ${item.name}` : `${label}: nothing`;
+        cell.append(text('span', 'slot-label', label));
+        if (!item) return cell;
+        cell.tabIndex = 0;
+        cell.ariaLabel = `${label}: ${item.name}`;
+        cell.ariaExpanded = String(this.openSlot === slot);
+        cell.classList.toggle('open', this.openSlot === slot);
+        const src = this.wornIcon(item.name);
+        if (src) {
+          const img = document.createElement('img');
+          img.className = 'slot-icon';
+          img.src = src;
+          img.alt = '';
+          cell.append(img);
         }
-        cell.append(text('span', 'slot-label', SLOT_LABELS[slot]), text('span', 'slot-item', item ? item.name : ''));
-        if (item) {
-          const b = button('×', 'unwear', item.id);
-          b.className = 'remove';
-          b.title = b.ariaLabel = `Remove ${item.name}`;
-          cell.append(b);
-        }
+        // Hyphens don't break either (a no-break hyphen looks the same).
+        cell.append(text('span', `slot-item ${nameSize(item.name)}`, item.name.replace(/-/g, '\u2011')));
+        const b = button('×', 'unwear', item.id);
+        b.className = 'remove';
+        b.title = b.ariaLabel = `Remove ${item.name}`;
+        cell.append(b);
         return cell;
       }),
     );
+    const box = this.$('#equip-details');
+    const open = this.openSlot && eq[this.openSlot];
+    box.hidden = !open;
+    if (open) {
+      box.replaceChildren(text('span', 'ed-name', `${SLOT_LABELS[this.openSlot]}: ${open.name}`));
+      box.append(...this.itemDetails(open.name).childNodes);
+    }
   }
 
   // Gold and experience go at the top of the inventory, stamina joins the
@@ -507,12 +541,46 @@ export class Panels {
     return src;
   }
 
+  // The same picture cropped to what's drawn in it (the frames have wide
+  // empty margins), for the worn-gear cards; drawn once and kept.
+  wornIcon(name) {
+    const art = this.itemArt?.();
+    const frame = art?.index.get(name.toLowerCase());
+    if (frame === undefined) return null;
+    this.wornIcons ??= new Map();
+    let src = this.wornIcons.get(frame);
+    if (src) return src;
+    const n = art.sheet.size;
+    const full = document.createElement('canvas');
+    full.width = full.height = n;
+    const fc = full.getContext('2d', { willReadFrequently: true });
+    art.sheet.draw(fc, frame, 0, 0, n);
+    let box = null;
+    try { box = opaqueBox(fc.getImageData(0, 0, n, n)); } catch { /* unreadable: keep the margins */ }
+    const [x, y, w, h] = box ?? [0, 0, n, n];
+    const side = Math.max(w, h) * 1.08; // a little air round it
+    const out = document.createElement('canvas');
+    out.width = out.height = 96;
+    const oc = out.getContext('2d');
+    oc.imageSmoothingQuality = 'high';
+    const s = 96 / side;
+    oc.drawImage(full, x, y, w, h, (96 - w * s) / 2, (96 - h * s) / 2, w * s, h * s);
+    src = out.toDataURL();
+    this.wornIcons.set(frame, src);
+    return src;
+  }
+
   showItemInfo(li) {
     li.querySelector('.item-details')?.remove();
     const open = this.openItem === li.dataset.item;
     li.classList.toggle('open', open);
     if (!open) return;
-    const d = describeItem(this.itemInfo, li.dataset.item);
+    li.append(this.itemDetails(li.dataset.item));
+  }
+
+  // What's known about an item: its kind, numbers and description.
+  itemDetails(name) {
+    const d = describeItem(this.itemInfo, name);
     const box = document.createElement('div');
     box.className = 'item-details';
     if (!d) {
@@ -526,7 +594,7 @@ export class Panels {
       }
       if (d.desc) box.append(text('span', 'item-desc', d.desc));
     }
-    li.append(box);
+    return box;
   }
 
   renderShopSummary() {
@@ -598,6 +666,32 @@ function row(left, right) {
   acts.append(...right.filter(Boolean));
   li.append(info, acts);
   return li;
+}
+
+// The smallest box holding every pixel that isn't (nearly) see-through,
+// as [x, y, w, h], or null when there are none.
+function opaqueBox({ data, width, height }) {
+  let x0 = width, y0 = height, x1 = -1, y1 = -1;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * 4 + 3] < 24) continue;
+      if (x < x0) x0 = x;
+      if (x > x1) x1 = x;
+      if (y < y0) y0 = y;
+      if (y > y1) y1 = y;
+    }
+  }
+  return x1 < 0 ? null : [x0, y0, x1 - x0 + 1, y1 - y0 + 1];
+}
+
+// Smaller type for long item names, so they fit the card without
+// breaking a word: by the longest word and by the whole length.
+export function nameSize(name) {
+  const word = Math.max(...name.split(/\s+/).map((w) => w.length));
+  if (word > 13) return 'xlong word';
+  if (word > 11 || name.length > 24) return 'xlong';
+  if (word > 9 || name.length > 16) return 'long';
+  return '';
 }
 
 function text(tag, cls, content) {

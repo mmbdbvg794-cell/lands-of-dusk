@@ -305,7 +305,7 @@
           <!-- What you're wearing, laid out on a body: head at the top,
                weapon and gloves at the hands, and so on. -->
           <div class="doll-wrap">
-            <svg class="doll-body" viewBox="0 0 120 230" aria-hidden="true">
+            <svg class="doll-body" viewBox="0 0 120 230" preserveAspectRatio="none" aria-hidden="true">
               <circle cx="60" cy="24" r="17"/>
               <rect x="53" y="40" width="14" height="10" rx="3"/>
               <path d="M34 52 Q60 44 86 52 L90 118 Q60 124 30 118 Z"/>
@@ -315,6 +315,7 @@
             </svg>
             <div id="equip-list" class="doll" role="list" aria-label="Equipment"></div>
           </div>
+          <div id="equip-details" class="item-details equip-details" role="status" hidden></div>
         </div>
         <div id="tab-book" class="tab" role="tabpanel" hidden></div>
         <div id="tab-shop" class="tab" role="tabpanel" hidden>

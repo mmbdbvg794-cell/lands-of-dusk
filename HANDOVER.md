@@ -1336,6 +1336,23 @@ Lessons:
   Fights with no players aren't capped. Change the number in
   MAX_PER_PLAYER, build, install, restart.
 
+## 2026-10-14 afternoon: equipment panel redesign (client only; NOT deployed yet)
+
+- js/panels.js renderEquipment: nine equal cards on a fixed 3x5 grid (css
+  grid areas: centre Skull/Neck/Torso/Waist/Legs, left Arms/Wield, right
+  Eyes/Hands); rows share the tallest card's height (1fr in an auto-height
+  grid). Icon (wornIcon: the painted frame cropped to its opaque pixels,
+  cached) centred, name under it; nameSize() picks long/xlong/word classes
+  so names wrap only at spaces (hyphens become U+2011). Tap/Enter on a
+  filled card shows #equip-details (full name + itemDetails(), shared with
+  the backpack's showItemInfo). X: 24px, 32px on touch, + an invisible
+  6px margin. Body SVG is a stretched backdrop (preserveAspectRatio none).
+- Container queries on .doll-wrap: <=300px tighter cards (fits 1440x900
+  Classic); <=230px two columns, no body.
+- Checked with Playwright against all 293 wearable item names at 320/390/
+  1440 px in both looks: no word split, nothing outside a card, no
+  sideways scroll. Backups: /root/backups/dusk-equip-panel-20261014-151459.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

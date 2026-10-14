@@ -208,13 +208,31 @@ body.classic .tab:not(#tab-god) .chip { background: #f6ecd2; border-color: #b08a
 body.classic .tab:not(#tab-god) .stat-table td.num,
 body.classic .tab:not(#tab-god) .stat-table td.bonus { font-family: "EB Garamond", Georgia, serif; font-size: 14px; }
 
-/* Equipped: the body outline in brown ink on the page. */
-body.classic .doll-body { fill: #d6c08e; stroke: #8a6a3a; }
-body.classic .doll-slot { background: #f6ecd2d9; border-color: #a07a48; border-radius: 3px; }
-body.classic .doll-slot.empty-slot { background: #efe2c266; border-color: #b08a5a; }
-body.classic .doll-slot .slot-label { font-variant: small-caps; text-transform: none; font-size: 12px; letter-spacing: 0.06em; color: var(--ink-red); }
-body.classic .doll-slot .slot-item { font-size: 14px; }
-body.classic .doll-slot .remove { background: none; border: none; color: var(--ink-soft); }
+/* Equipped: a faint body in brown ink behind cards of parchment. The X
+   needs #equip-list to beat the pill buttons above. */
+body.classic .doll-body { fill: #b8955a1f; stroke: #8a6a3a59; }
+body.classic .doll-slot { background: #f8efd8; border-color: #a07a48; border-radius: 4px; box-shadow: 0 1px 2px #6b4a2040, inset 0 0 14px #c9a66b26; }
+body.classic .doll-slot::before { border-top-color: #8a6a3a80; }
+body.classic .doll-slot.filled:hover { border-color: var(--ink-red); box-shadow: 0 2px 6px #6b4a2050; }
+body.classic .doll-slot.filled:focus-visible,
+body.classic .doll-slot.open { border-color: var(--ink-red); box-shadow: 0 0 0 1px var(--ink-red), 0 2px 6px #6b4a2050; }
+body.classic .doll-slot.empty-slot { background: #efe2c247; border-color: #b08a5aaa; box-shadow: none; }
+body.classic .doll-slot .slot-label { font-variant: small-caps; font-size: 13px; letter-spacing: 0.05em; color: var(--ink-red); }
+body.classic .doll-slot.empty-slot .slot-label { color: #9a8260; }
+body.classic .doll-slot .slot-item { font-size: 14px; line-height: 1.1; }
+body.classic .doll-slot .slot-item.long { font-size: 13px; }
+body.classic .doll-slot .slot-item.xlong { font-size: 12px; }
+body.classic #equip-list .doll-slot button.remove { padding: 0; border-radius: 50%; font-size: 15px; color: var(--ink-soft); background: #f6ecd2; border: 1px solid #a07a48; }
+body.classic #equip-list .doll-slot button.remove:hover,
+body.classic #equip-list .doll-slot button.remove:focus-visible { color: #9a2a1a; border-color: #9a2a1a; background: #fff6de; box-shadow: 0 0 0 2px #9a2a1a33; }
+@media (pointer: coarse) { body.classic #equip-list .doll-slot button.remove { font-size: 18px; } }
+@container (max-width: 300px) {
+  body.classic .doll-slot .slot-label { font-size: 12px; line-height: 1; }
+  body.classic .doll-slot .slot-item { font-size: 12.5px; line-height: 1; }
+  body.classic .doll-slot .slot-item.long { font-size: 12px; }
+  body.classic .doll-slot .slot-item.xlong { font-size: 11px; }
+  body.classic .doll-slot .slot-item.word { font-size: 10px; }
+}
 
 /* ---- the chat: dark slate, parchment text ---- */
 
