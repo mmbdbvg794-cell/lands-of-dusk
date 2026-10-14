@@ -1353,6 +1353,17 @@ Lessons:
   1440 px in both looks: no word split, nothing outside a card, no
   sideways scroll. Backups: /root/backups/dusk-equip-panel-20261014-151459.
 
+## 2026-10-14 afternoon: equipment panel, rows (client only; NOT deployed yet)
+
+- css/style.css: the doll is 3x4 now: ". skull eyes / arms torso neck /
+  wield waist hands / . legs ." (Neck moved to the right column). Gaps are
+  --gap-y/--gap-x everywhere; Neck's tick (::before + ::after) runs up into
+  the Skull/Torso gap to the outline's neck (body backdrop top 6%, 94%).
+- One-column layout (max-width 899px or portrait): #tab-equip max-height
+  100svh - 64px, scrolls inside if needed; the 5-row doll had been ~730px,
+  taller than a phone screen. Touch X 28px seen / 44px hit.
+- Backups: /root/backups/dusk-equip-panel-20261014-153254.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

@@ -407,17 +407,19 @@ body.playing #map-wrap { display: flex; }
 .rows .acts button { padding: 3px 10px; font-size: 13px; }
 .rows .acts button.armed { border-color: var(--bad); color: var(--bad); opacity: 1; }
 
-/* Equipment: nine cards of one size on a fixed grid, the body down the
-   middle (Skull to Legs), Arms and Wield on the left, Eyes and Hands on
-   the right. The outline is only a backdrop: it never moves a card.
-   Rows share the tallest card's height (1fr in an auto-height grid). */
+/* Equipment: nine cards of one size on a fixed 3x4 grid in clean rows:
+   the body down the middle (Skull, Torso, Waist, Legs), Arms and Wield on
+   the left (level with Torso and Waist), Eyes, Neck and Hands on the right
+   (level with Skull, Torso and Waist). The outline is only a backdrop: it
+   never moves a card. Rows share the tallest card's height (1fr in an
+   auto-height grid), and every gap is the same. */
 .doll-wrap { position: relative; margin: 6px 8px 2px; container-type: inline-size; }
 .doll-body {
   position: absolute;
   left: 50%;
-  top: 1%;
+  top: 6%; /* puts the outline's neck in the gap under Skull, where Neck's tick ends */
   width: 72%;
-  height: 98%;
+  height: 94%;
   transform: translateX(-50%);
   fill: color-mix(in srgb, var(--accent) 7%, transparent);
   stroke: color-mix(in srgb, var(--accent) 22%, transparent);
@@ -427,17 +429,18 @@ body.playing #map-wrap { display: flex; }
 }
 .doll {
   --gap-x: 14px;
+  --gap-y: 10px;
+  --tick: color-mix(in srgb, var(--accent) 40%, transparent);
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(5, minmax(96px, 1fr));
+  grid-template-rows: repeat(4, minmax(90px, 1fr));
   grid-template-areas:
     ".     skull eyes "
-    ".     neck  .    "
-    "arms  torso .    "
+    "arms  torso neck "
     "wield waist hands"
     ".     legs  .    ";
-  gap: 8px var(--gap-x);
+  gap: var(--gap-y) var(--gap-x);
 }
 .doll-slot {
   position: relative;
@@ -470,11 +473,24 @@ body.playing #map-wrap { display: flex; }
   position: absolute;
   top: 50%;
   width: calc(var(--gap-x) - 2px);
-  border-top: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-top: 1px solid var(--tick);
   pointer-events: none;
 }
 .doll-slot:is([data-slot="arms"], [data-slot="wield"])::before { left: 100%; margin-left: 1px; }
 .doll-slot:is([data-slot="eyes"], [data-slot="hands"])::before { right: 100%; margin-right: 1px; }
+/* Neck's runs out of its top corner, up into the gap between Skull and
+   Torso, and along it to the middle, where the body's neck shows. */
+.doll-slot[data-slot="neck"]::before,
+.doll-slot[data-slot="neck"]::after { content: ""; position: absolute; pointer-events: none; border: 0 solid var(--tick); }
+.doll-slot[data-slot="neck"]::after { right: 100%; top: 12px; width: calc(var(--gap-x) / 2 + 1px); border-top-width: 1px; }
+.doll-slot[data-slot="neck"]::before {
+  right: calc(100% + var(--gap-x) / 2);
+  top: calc(var(--gap-y) / -2 - 1px);
+  width: calc(var(--gap-x) / 2 + 50%);
+  height: calc(var(--gap-y) / 2 + 14px);
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
 .doll-slot.filled { cursor: pointer; }
 .doll-slot.filled:hover { border-color: color-mix(in srgb, var(--accent) 70%, var(--border)); box-shadow: 0 2px 8px #0005; }
 .doll-slot.filled:focus-visible,
@@ -529,16 +545,25 @@ body.playing #map-wrap { display: flex; }
 .doll-slot .remove:hover,
 .doll-slot .remove:focus-visible { outline: none; color: var(--bad); border-color: var(--bad); box-shadow: 0 0 0 2px color-mix(in srgb, var(--bad) 30%, transparent); }
 @media (pointer: coarse) {
-  .doll-slot .remove { width: 32px; height: 32px; top: 2px; right: 2px; font-size: 18px; }
-  .doll-slot .slot-label { max-width: calc(100% - 34px); }
+  /* 28px to see, 44px to hit (the ::after margin). */
+  .doll-slot .remove { width: 28px; height: 28px; top: 2px; right: 2px; font-size: 17px; }
+  .doll-slot .remove::after { inset: -8px; }
+  .doll-slot .slot-label { max-width: calc(100% - 30px); }
   /* The label row as tall as the X, so a wide picture starts below it. */
-  .doll-slot.filled .slot-label { min-height: 30px; align-content: center; display: grid; }
+  .doll-slot.filled .slot-label { min-height: 28px; align-content: center; display: grid; }
+}
+/* The one-column layout (phones, portrait windows): the page scrolls, so
+   the doll keeps within a screen's height and scrolls inside its frame
+   if it can't. */
+@media (max-width: 899px), (max-aspect-ratio: 1/1) {
+  #tab-equip { max-height: calc(100svh - 64px); overflow-y: auto; overscroll-behavior: contain; }
+  .doll-slot .slot-icon { width: 40px; height: 40px; }
 }
 #equip-details { margin: 8px 8px 4px; }
 #equip-details .ed-name { flex-basis: 100%; font-weight: 600; }
 /* Narrow panels: smaller cards; very narrow: two columns, no body. */
 @container (max-width: 300px) {
-  .doll { --gap-x: 10px; grid-template-rows: repeat(5, minmax(80px, 1fr)); gap: 6px var(--gap-x); }
+  .doll { --gap-x: 10px; --gap-y: 8px; grid-template-rows: repeat(4, minmax(80px, 1fr)); }
   .doll-slot { gap: 1px; padding: 3px 4px 5px; }
   .doll-slot .slot-label { font-size: 10.5px; }
   .doll-slot .slot-icon { width: 30px; height: 30px; }
@@ -548,7 +573,7 @@ body.playing #map-wrap { display: flex; }
   .doll-slot .slot-item.word { font-size: 9.5px; }
 }
 @container (max-width: 230px) {
-  .doll-body, .doll-slot::before { display: none; }
+  .doll-body, .doll-slot::before, .doll-slot::after { display: none; }
   .doll { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: minmax(84px, 1fr); grid-template-areas: none; }
   .doll-slot[data-slot] { grid-area: auto; }
 }

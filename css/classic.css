@@ -212,7 +212,7 @@ body.classic .tab:not(#tab-god) .stat-table td.bonus { font-family: "EB Garamond
    needs #equip-list to beat the pill buttons above. */
 body.classic .doll-body { fill: #b8955a1f; stroke: #8a6a3a59; }
 body.classic .doll-slot { background: #f8efd8; border-color: #a07a48; border-radius: 4px; box-shadow: 0 1px 2px #6b4a2040, inset 0 0 14px #c9a66b26; }
-body.classic .doll-slot::before { border-top-color: #8a6a3a80; }
+body.classic .doll { --tick: #8a6a3a80; }
 body.classic .doll-slot.filled:hover { border-color: var(--ink-red); box-shadow: 0 2px 6px #6b4a2050; }
 body.classic .doll-slot.filled:focus-visible,
 body.classic .doll-slot.open { border-color: var(--ink-red); box-shadow: 0 0 0 1px var(--ink-red), 0 2px 6px #6b4a2050; }

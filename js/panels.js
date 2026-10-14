@@ -15,8 +15,8 @@ const SLOT_LABELS = {
   neck: 'Neck', skull: 'Skull', eyes: 'Eyes', hands: 'Hands',
 };
 // The equipment grid, head to toe (css/style.css places each one: the
-// body down the middle, arms and weapon on the left, eyes and hands on
-// the right).
+// body down the middle, arms and weapon on the left, eyes, neck and hands
+// on the right).
 const SLOT_GRID = ['skull', 'eyes', 'neck', 'arms', 'torso', 'hands', 'wield', 'waist', 'legs'];
 // Drop is the one command that can lose an item (anything worthless
 // vanishes), so it takes a second press within this long.
