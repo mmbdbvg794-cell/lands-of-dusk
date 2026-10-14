@@ -28,7 +28,7 @@ if [ "${1:-}" = uninstall ]; then
   [ -f storage-originals/Equipment.class ] && cp storage-originals/Equipment.class .
   [ -f storage-originals/SpellGroup.class ] && cp storage-originals/SpellGroup.class .
   [ -f storage-originals/Script.class ] && cp storage-originals/Script.class .
-  rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class Ferry.class Ferry\$*.class Who.class Who\$*.class Quests.class Quests\$*.class Conditions.class Conditions\$*.class Admin.class Admin\$*.class Housing.class Housing\$*.class Creatures.class Creatures\$*.class Mail.class Mail\$*.class WorldBoss.class WorldBoss\$*.class Party.class Party\$*.class Clans.class Duel.class Duel\$*.class Sex.class Classes.class Classes\$*.class Crafting.class Crafting\$*.class Achievements.class Achievements\$*.class
+  rm -f Storage.class CaseFix.class FixedEngine.class Talk.class Talk\$*.class Props.class BridgedSocket.class Bans.class MapStore.class Social.class Trade.class Trade\$*.class Skills.class Skills\$*.class Library.class Library\$*.class Ferry.class Ferry\$*.class Who.class Who\$*.class Quests.class Quests\$*.class Conditions.class Conditions\$*.class Admin.class Admin\$*.class Housing.class Housing\$*.class Creatures.class Creatures\$*.class Mail.class Mail\$*.class WorldBoss.class WorldBoss\$*.class Party.class Party\$*.class Clans.class ClanHalls.class Duel.class Duel\$*.class Sex.class Classes.class Classes\$*.class Crafting.class Crafting\$*.class Achievements.class Achievements\$*.class
   # Without BridgedSocket the bridge must stop sending addresses.
   rm -f conf/bridgesecret
   echo "Original classes restored; restart the server to take effect."
@@ -36,7 +36,7 @@ if [ "${1:-}" = uninstall ]; then
   exit 0
 fi
 
-for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Conditions Admin Housing Creatures Mail WorldBoss Party Clans Duel Sex Classes Crafting Achievements Commands DuskServer; do
+for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Conditions Admin Housing Creatures Mail WorldBoss Party Clans ClanHalls Duel Sex Classes Crafting Achievements Commands DuskServer; do
   [ -f "$OUT/$c.class" ] || { echo "No $OUT/$c.class: run server/build.sh first." >&2; exit 1; }
 done
 if [ ! -f storage-originals/Commands.class ]; then
@@ -78,7 +78,7 @@ done
 b="backups/classes-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$b"
 cp Commands.class DuskServer.class DuskEngine.class Player.class Battle.class AttributeManager.class LivingThing.class Equipment.class SpellGroup.class Script.class "$b/"
-for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Conditions Admin Housing Creatures Mail WorldBoss Party Clans Duel Sex Classes Crafting Achievements; do [ -f $c.class ] && cp $c.class "$b/"; done
+for c in Storage CaseFix FixedEngine Talk Props BridgedSocket Bans MapStore Social Trade Skills Library Ferry Who Quests Conditions Admin Housing Creatures Mail WorldBoss Party Clans ClanHalls Duel Sex Classes Crafting Achievements; do [ -f $c.class ] && cp $c.class "$b/"; done
 cp Talk\$*.class Trade\$*.class Skills\$*.class Library\$*.class Ferry\$*.class Who\$*.class Quests\$*.class Conditions\$*.class Admin\$*.class Housing\$*.class Creatures\$*.class Mail\$*.class WorldBoss\$*.class Party\$*.class Duel\$*.class Crafting\$*.class Achievements\$*.class Classes\$*.class "$b/" 2>/dev/null || true
 [ -f "$OUT/DuskEngine.class" ] && cp "$OUT/DuskEngine.class" .
 [ -f "$OUT/Player.class" ] && cp "$OUT/Player.class" .
@@ -88,7 +88,7 @@ cp Talk\$*.class Trade\$*.class Skills\$*.class Library\$*.class Ferry\$*.class 
 [ -f "$OUT/Equipment.class" ] && cp "$OUT/Equipment.class" .
 [ -f "$OUT/SpellGroup.class" ] && cp "$OUT/SpellGroup.class" .
 [ -f "$OUT/Script.class" ] && cp "$OUT/Script.class" .
-cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/FixedEngine.class" "$OUT/Talk.class" "$OUT"/Talk\$*.class "$OUT/Props.class" "$OUT/BridgedSocket.class" "$OUT/Bans.class" "$OUT/MapStore.class" "$OUT/Social.class" "$OUT/Trade.class" "$OUT"/Trade\$*.class "$OUT/Skills.class" "$OUT"/Skills\$*.class "$OUT/Library.class" "$OUT"/Library\$*.class "$OUT/Ferry.class" "$OUT"/Ferry\$*.class "$OUT/Who.class" "$OUT"/Who\$*.class "$OUT/Quests.class" "$OUT"/Quests\$*.class "$OUT/Conditions.class" "$OUT"/Conditions\$*.class "$OUT/Admin.class" "$OUT"/Admin\$*.class "$OUT/Housing.class" "$OUT"/Housing\$*.class "$OUT/Creatures.class" "$OUT"/Creatures\$*.class "$OUT/Mail.class" "$OUT"/Mail\$*.class "$OUT/WorldBoss.class" "$OUT"/WorldBoss\$*.class "$OUT/Clans.class" "$OUT/Party.class" "$OUT"/Party\$*.class "$OUT/Duel.class" "$OUT"/Duel\$*.class "$OUT/Sex.class" "$OUT/Classes.class" "$OUT"/Classes\$*.class "$OUT/Crafting.class" "$OUT"/Crafting\$*.class "$OUT/Achievements.class" "$OUT"/Achievements\$*.class "$OUT/Commands.class" "$OUT/DuskServer.class" .
+cp "$OUT/Storage.class" "$OUT/CaseFix.class" "$OUT/FixedEngine.class" "$OUT/Talk.class" "$OUT"/Talk\$*.class "$OUT/Props.class" "$OUT/BridgedSocket.class" "$OUT/Bans.class" "$OUT/MapStore.class" "$OUT/Social.class" "$OUT/Trade.class" "$OUT"/Trade\$*.class "$OUT/Skills.class" "$OUT"/Skills\$*.class "$OUT/Library.class" "$OUT"/Library\$*.class "$OUT/Ferry.class" "$OUT"/Ferry\$*.class "$OUT/Who.class" "$OUT"/Who\$*.class "$OUT/Quests.class" "$OUT"/Quests\$*.class "$OUT/Conditions.class" "$OUT"/Conditions\$*.class "$OUT/Admin.class" "$OUT"/Admin\$*.class "$OUT/Housing.class" "$OUT"/Housing\$*.class "$OUT/Creatures.class" "$OUT"/Creatures\$*.class "$OUT/Mail.class" "$OUT"/Mail\$*.class "$OUT/WorldBoss.class" "$OUT"/WorldBoss\$*.class "$OUT/Clans.class" "$OUT/ClanHalls.class" "$OUT/Party.class" "$OUT"/Party\$*.class "$OUT/Duel.class" "$OUT"/Duel\$*.class "$OUT/Sex.class" "$OUT/Classes.class" "$OUT"/Classes\$*.class "$OUT/Crafting.class" "$OUT"/Crafting\$*.class "$OUT/Achievements.class" "$OUT"/Achievements\$*.class "$OUT/Commands.class" "$OUT/DuskServer.class" .
 # Game content that goes with it (talk scripts, props), only where there
 # isn't a file of that name already: yours are never overwritten.
 if [ -d "$SRCDIR/content" ]; then

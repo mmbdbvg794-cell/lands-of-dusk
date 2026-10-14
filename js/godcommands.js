@@ -31,6 +31,7 @@ export const GOD_COMMANDS = [
   { group: 'Players', use: 'changerace <player> <race>', desc: 'Turn a player into another race.', level: 3 },
   { group: 'Players', use: 'changeclan <player> <clan>', desc: "Put a player (in the game) in a clan as a member ('none' to take them out). Clan names are case-sensitive for clan chat.", level: 3 },
   { group: 'Players', use: 'clanleader <player> <clan>', desc: "Found a clan, or add a leader to one: puts the player (in the game) in it as a leader ('none' takes them out). Leaders then use clan invite / clan kick.", level: 3 },
+  { group: 'Players', use: 'claimhall [<hall>] <clan>', desc: "Give a clan hall to a clan (the one you stand in, or by name); only its members get in. claimhall alone lists the halls; <hall> none frees one.", level: 3 },
   { group: 'Players', use: 'clearconditions <player>', desc: 'Remove every condition (and quest flag) from a player.', level: 4 },
   { group: 'Players', use: 'removeskill <player> <skill>', desc: 'Take a skill or spell away.', level: 4 },
   { group: 'Players', use: 'raisestat <player> <stat> <amount>', desc: 'Raise a stat (str, int, dex, con, wis, hp, mp...).', level: 4 },

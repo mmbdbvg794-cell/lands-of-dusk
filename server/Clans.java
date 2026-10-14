@@ -26,6 +26,8 @@
  * The browser gets "ClanInvite: <from>|<clan>" for its Join / No thanks
  * box (js/party.js), the classic client the plain line.
  *
+ * The gods' claimhall (a clan hall for a clan) is server/ClanHalls.java.
+ *
  * Part of the browser client project (dusk-browser-client/server).
  */
 import java.io.File;
@@ -69,6 +71,8 @@ public class Clans {
         } else if (lower.startsWith("kick ")) {
             verb = "kick";
             arg = t.substring(5).trim();
+        } else if (lower.equals("claimhall") || lower.startsWith("claimhall ")) {
+            return ClanHalls.command((Player) who, engine, t.substring(9).trim());
         } else if ((lower.startsWith("clanleader ") || lower.startsWith("changeclan ")) && who.privs >= GOD) {
             verb = lower.substring(0, 10);
             arg = t.substring(11).trim();
@@ -102,7 +106,8 @@ public class Clans {
         for (Player p : Mail.online(engine).values()) {
             if (me.strClan.equals(p.strClan)) on.add(p.strName + (p.privs == LEADER ? " (leader)" : ""));
         }
-        return "You're in the clan " + me.strClan + (me.privs == LEADER ? ", and you lead it" : "") + ". In the game: " + String.join(", ", on) + ". Talk to them with : at the start of a line.";
+        String hall = ClanHalls.hallOf(me.strClan);
+        return "You're in the clan " + me.strClan + (me.privs == LEADER ? ", and you lead it" : "") + ". In the game: " + String.join(", ", on) + "." + (hall != null ? " Your hall: " + hall + "." : "") + " Talk to them with : at the start of a line.";
     }
 
     static String members(Player me, DuskEngine engine) {

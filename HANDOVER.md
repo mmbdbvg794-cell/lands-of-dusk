@@ -1413,8 +1413,18 @@ Lessons:
   at 19:10 had Props without Clans).
 - Engine facts: clan leader = privs 1 (who shows {Clan Leader}); PvP needs
   both in a clan; clan chat ":" matches clan names case-sensitively.
-- Not done: clan in who.json / the who page; owning a hall (gods hand one
-  over by hand: walk rules or tile scripts with isclan).
+- claimhall (LIVE since the 19:26 restart): server/ClanHalls.java, data in
+  the game file clanhalls (server/content/clanhalls, copied only if
+  missing): name|box|doors x,y,dx,dy|portals x,y|inside|clan. Halls: haod,
+  mthnorth, mthden, aop, dd (portals 100,28 / 954,56), dead. Gods:
+  claimhall (list), claimhall <clan> (the hall you stand in), claimhall
+  <hall> <clan>, claimhall <hall> none. Rewrites the door/portal
+  defMoveActions at once (scripts are read per step; .dsko deleted): members
+  welcomed, others pushed back; one hall per clan; clan shows "Your hall".
+  Tested on scratch (aop: member in, non-member turned back, freed).
+  Re-running clear_clan_halls.py would reset doors to free but not the
+  clanhalls file: claimhall <hall> none / re-claim after it.
+- Not done: clan in who.json / the who page.
 
 ## Open / ideas
 
