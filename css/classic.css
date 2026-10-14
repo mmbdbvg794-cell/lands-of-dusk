@@ -49,6 +49,10 @@ body.classic .settings-menu {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
 }
 
+body.classic .settings-menu { width: min(360px, calc(100vw - 24px)); }
+body.classic .settings-group h3, body.classic .settings-advanced > summary { font-family: "Cinzel", serif; color: var(--gold); }
+body.classic .settings-group + .settings-group { border-top-color: rgba(203, 178, 106, 0.35); }
+
 /* ---- top bar ---- */
 
 body.classic #topbar {
@@ -71,7 +75,7 @@ body.classic h1, body.classic h2, body.classic #char-name {
 /* ---- buttons: the game's bevelled blue block ---- */
 
 body.classic button,
-body.classic #settings summary {
+body.classic #settings > summary {
   font-family: "Cinzel", serif;
   font-size: 13px;
   letter-spacing: 0.03em;
@@ -82,7 +86,7 @@ body.classic #settings summary {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 body.classic button:hover:not(:disabled),
-body.classic #settings summary:hover { filter: brightness(1.15); border-color: var(--gold); }
+body.classic #settings > summary:hover { filter: brightness(1.15); border-color: var(--gold); }
 body.classic button.ghost { background: rgba(0, 0, 0, 0.25); }
 body.classic button.danger { background: #5a1f18; background-image: linear-gradient(180deg, #8a3326, #4a1812); }
 body.classic .segmented { border-color: #0b1630; border-radius: 3px; }
@@ -358,7 +362,7 @@ body.classic .tab:not(#tab-god) .skill-value { font-family: "EB Garamond", Georg
 /* Phones: a smaller top bar. */
 @media (max-width: 600px) {
   body.classic .brand { font-size: 17px; }
-  body.classic #topbar button, body.classic #settings summary { font-size: 11px; padding: 5px 8px; }
+  body.classic #topbar button, body.classic #settings > summary { font-size: 11px; padding: 5px 8px; }
 }
 
 body.classic .store-locked { background: #efe2c2; border-color: #b08a5a; color: var(--ink); }

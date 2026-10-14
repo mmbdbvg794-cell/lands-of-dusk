@@ -91,7 +91,7 @@ button.ghost { background: none; }
 .dot.off { background: var(--bad); }
 
 #settings { position: relative; }
-#settings summary {
+#settings > summary {
   list-style: none;
   cursor: pointer;
   padding: 6px 10px;
@@ -100,8 +100,8 @@ button.ghost { background: none; }
   background: var(--panel-2);
   user-select: none;
 }
-#settings summary::-webkit-details-marker { display: none; }
-#settings[open] summary { border-color: var(--accent); }
+#settings > summary::-webkit-details-marker { display: none; }
+#settings[open] > summary { border-color: var(--accent); }
 .settings-menu {
   position: absolute;
   right: 0;
@@ -117,6 +117,20 @@ button.ghost { background: none; }
   border-radius: var(--radius);
   box-shadow: 0 8px 24px #000c;
 }
+/* Sections: Display, Screen layout, Sound, Music, Account, Advanced. */
+.settings-menu { max-height: calc(100vh - 70px); overflow-y: auto; gap: 0; padding-top: 4px; }
+.settings-group { display: flex; flex-direction: column; gap: 8px; padding: 10px 0; }
+.settings-group + .settings-group { border-top: 1px solid var(--border); }
+.settings-group h3, .settings-advanced > summary {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.settings-advanced > summary { cursor: pointer; }
+.settings-advanced:not([open]) { gap: 0; }
 #connect-form { display: flex; flex-direction: column; gap: 4px; }
 #connect-form label { color: var(--muted); font-size: 12px; }
 #server-url { font-family: var(--mono); width: 100%; }
@@ -129,7 +143,7 @@ button.small { padding: 2px 8px; font-size: 12px; }
 #sound-controls { display: flex; align-items: center; gap: 6px; }
 #mute-btn { padding: 4px 8px; line-height: 1; }
 #mute-btn[aria-pressed="true"] { opacity: 0.6; }
-.settings-volume { display: none; }
+.settings-volume { display: none !important; }
 /* Art style: a Pixel | Smooth switch in the top bar; in Settings on phones. */
 .segmented { display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .segmented button { border: none; border-radius: 0; padding: 5px 10px; font-size: 13px; background: var(--panel-2); color: var(--muted); }
@@ -138,7 +152,7 @@ button.small { padding: 2px 8px; font-size: 12px; }
 .settings-art { display: none !important; }
 @media (max-width: 600px) {
   .top-volume { display: none; }
-  .settings-volume { display: block; }
+  .settings-volume { display: flex !important; }
   #art-toggle { display: none; }
   .settings-art { display: flex !important; }
 }
@@ -1385,7 +1399,7 @@ dialog::backdrop { background: #000a; }
   html, body { height: auto; min-height: 100%; }
   #topbar { gap: 6px; padding: 4px 8px; flex-wrap: nowrap; }
   #status-text, #look-toggle { display: none; }
-  #topbar button, #settings summary { padding: 5px 8px; font-size: 12px; }
+  #topbar button, #settings > summary { padding: 5px 8px; font-size: 12px; }
   .brand { font-size: 15px; }
   body.playing #play-area {
     flex: none;

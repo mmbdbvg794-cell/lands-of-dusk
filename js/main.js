@@ -1267,7 +1267,7 @@ function startLogin(name, password, again = false) {
     return;
   }
   connect(serverUrl.value.trim(), beta);
-  if (!conn) return failLogin('The server address under Settings should start with ws:// or wss://');
+  if (!conn) return failLogin('The server address under Settings → Advanced should start with ws:// or wss://');
   loginFlow = new LoginFlow(name, password);
   useExploredFor(name);
   clearTimeout(loginTimer);
@@ -1613,7 +1613,7 @@ function connect(url, beta = null) {
     saveExplored();
     setState('off');
     sysLine(`Disconnected${e.detail.code && e.detail.code !== 1000 ? ` (code ${e.detail.code})` : ''}.`);
-    if (loginFlow) failLogin('Couldn\'t reach the game. Check the server address under Settings.');
+    if (loginFlow) failLogin('Couldn\'t reach the game. Check the server address under Settings → Advanced.');
     else connectionLost();
     inGame = false;
   });

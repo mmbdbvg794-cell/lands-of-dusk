@@ -50,70 +50,96 @@
     <details id="settings">
       <summary>Settings</summary>
       <div class="settings-menu">
-        <form id="connect-form">
-          <label for="server-url">Bridge address</label>
-          <input id="server-url" type="text" spellcheck="false" autocomplete="off">
-        </form>
-        <div class="toggle-row">
-          <button type="button" id="report-bug" class="small">Report a bug…</button>
-          <button type="button" id="forget-login" class="ghost small">Forget saved login</button>
-        </div>
-        <div class="toggle-row" id="install-row" hidden>
-          <button type="button" id="install-app" class="small">Install as an app</button>
-          <span id="install-hint" class="muted-note"></span>
-        </div>
-        <label class="toggle"><input id="names" type="checkbox" checked> Show names of people and creatures</label>
-        <label class="toggle"><input id="npc-names" type="checkbox" checked> Show names of NPCs (shopkeepers, tellers, quest givers, villagers)</label>
-        <label class="toggle"><input id="object-names" type="checkbox"> Show names of objects (furniture, items, signs)</label>
-        <div class="toggle-row">
-          <label class="toggle"><input id="minimap-toggle" type="checkbox" checked> Minimap</label>
-          <button type="button" id="minimap-reset" class="ghost small">Move to corner</button>
-        </div>
-        <label class="toggle"><input id="hotbar-toggle" type="checkbox" checked> Hotbar</label>
-        <div class="toggle-row">
-          <label class="toggle"><input id="night-toggle" type="checkbox" checked> Night</label>
-          <label class="toggle"><input id="weather-toggle" type="checkbox" checked> Weather</label>
-          <label class="toggle"><input id="lighting-toggle" type="checkbox" checked> Lighting</label>
-        </div>
-        <div class="toggle-row">
-          <label class="toggle"><input id="music-toggle" type="checkbox"> Music</label>
-          <input id="music-volume" class="music-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Music volume" title="Music volume">
-          <label class="toggle"><input id="now-playing-toggle" type="checkbox" checked> Track names</label>
-        </div>
-        <label class="toggle"><input id="chat-bottom" type="checkbox" checked> Chat across the bottom</label>
-        <div class="toggle-row">
-          <label class="toggle" for="dpad-mode">On-screen arrows</label>
-          <select id="dpad-mode">
-            <option value="auto">On touch screens</option>
-            <option value="on">Always</option>
-            <option value="off">Never</option>
-          </select>
-        </div>
-        <div class="toggle-row settings-art">
-          <label class="toggle" for="look-style">Look</label>
-          <select id="look-style">
-            <option value="classic">Classic</option>
-            <option value="modern">Modern</option>
-          </select>
-        </div>
-        <div class="toggle-row settings-art">
-          <label class="toggle" for="art-style">Art style</label>
-          <select id="art-style">
-            <option value="pixel">Pixel (original)</option>
-            <option value="painted">Painted</option>
-          </select>
-        </div>
-        <div class="toggle-row">
-          <label class="toggle"><input id="sound-toggle" type="checkbox" checked> Sound</label>
-          <label class="toggle"><input id="steps-toggle" type="checkbox" checked> Footsteps</label>
-          <label class="toggle"><input id="ambience-toggle" type="checkbox" checked> Area sounds</label>
-        </div>
-        <div class="toggle-row">
-          <label class="toggle" for="ambience-volume">Ambience (rain, wind, birds)</label>
-          <input id="ambience-volume" class="music-volume" type="range" min="0" max="100" step="5" value="50" aria-label="Ambience volume" title="Rain, thunder and area sounds">
-          <input class="volume settings-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Volume">
-        </div>
-        <label class="toggle"><input id="trace" type="checkbox"> Protocol trace in the log</label>
+        <section class="settings-group" aria-labelledby="set-display">
+          <h3 id="set-display">Display</h3>
+          <div class="toggle-row settings-art">
+            <label class="toggle" for="look-style">Look</label>
+            <select id="look-style">
+              <option value="classic">Classic</option>
+              <option value="modern">Modern</option>
+            </select>
+          </div>
+          <div class="toggle-row settings-art">
+            <label class="toggle" for="art-style">Art style</label>
+            <select id="art-style">
+              <option value="pixel">Pixel (original)</option>
+              <option value="painted">Painted</option>
+            </select>
+          </div>
+          <div class="toggle-row">
+            <label class="toggle"><input id="night-toggle" type="checkbox" checked> Night</label>
+            <label class="toggle"><input id="weather-toggle" type="checkbox" checked> Weather</label>
+            <label class="toggle"><input id="lighting-toggle" type="checkbox" checked> Lighting</label>
+          </div>
+          <label class="toggle"><input id="names" type="checkbox" checked> Show names of people and creatures</label>
+          <label class="toggle"><input id="npc-names" type="checkbox" checked> Show names of NPCs (shopkeepers, tellers, quest givers, villagers)</label>
+          <label class="toggle"><input id="object-names" type="checkbox"> Show names of objects (furniture, items, signs)</label>
+        </section>
+
+        <section class="settings-group" aria-labelledby="set-screen">
+          <h3 id="set-screen">Screen layout</h3>
+          <label class="toggle"><input id="chat-bottom" type="checkbox" checked> Chat across the bottom</label>
+          <label class="toggle"><input id="hotbar-toggle" type="checkbox" checked> Hotbar</label>
+          <div class="toggle-row">
+            <label class="toggle"><input id="minimap-toggle" type="checkbox" checked> Minimap</label>
+            <button type="button" id="minimap-reset" class="ghost small">Move to corner</button>
+          </div>
+          <div class="toggle-row">
+            <label class="toggle" for="dpad-mode">On-screen arrows</label>
+            <select id="dpad-mode">
+              <option value="auto">On touch screens</option>
+              <option value="on">Always</option>
+              <option value="off">Never</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="settings-group" aria-labelledby="set-sound">
+          <h3 id="set-sound">Sound</h3>
+          <div class="toggle-row">
+            <label class="toggle"><input id="sound-toggle" type="checkbox" checked> Sound</label>
+            <label class="toggle"><input id="steps-toggle" type="checkbox" checked> Footsteps</label>
+            <label class="toggle"><input id="ambience-toggle" type="checkbox" checked> Area sounds</label>
+          </div>
+          <div class="toggle-row settings-volume">
+            <span class="toggle">Effects volume</span>
+            <input class="volume" type="range" min="0" max="100" step="5" value="60" aria-label="Sound effects volume">
+          </div>
+          <div class="toggle-row">
+            <label class="toggle" for="ambience-volume">Ambience (rain, wind, birds)</label>
+            <input id="ambience-volume" class="music-volume" type="range" min="0" max="100" step="5" value="50" aria-label="Ambience volume" title="Rain, thunder and area sounds">
+          </div>
+        </section>
+
+        <section class="settings-group" aria-labelledby="set-music">
+          <h3 id="set-music">Music</h3>
+          <div class="toggle-row">
+            <label class="toggle"><input id="music-toggle" type="checkbox"> Music</label>
+            <input id="music-volume" class="music-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Music volume" title="Music volume">
+          </div>
+          <label class="toggle"><input id="now-playing-toggle" type="checkbox" checked> Show track names</label>
+        </section>
+
+        <section class="settings-group" aria-labelledby="set-account">
+          <h3 id="set-account">Account and help</h3>
+          <div class="toggle-row">
+            <button type="button" id="report-bug" class="small">Report a bug…</button>
+            <button type="button" id="forget-login" class="ghost small">Forget saved login</button>
+          </div>
+          <div class="toggle-row" id="install-row" hidden>
+            <button type="button" id="install-app" class="small">Install as an app</button>
+            <span id="install-hint" class="muted-note"></span>
+          </div>
+        </section>
+
+        <details class="settings-group settings-advanced">
+          <summary>Advanced</summary>
+          <form id="connect-form">
+            <label for="server-url">Bridge address</label>
+            <input id="server-url" type="text" spellcheck="false" autocomplete="off">
+          </form>
+          <label class="toggle"><input id="trace" type="checkbox"> Protocol trace in the log</label>
+        </details>
       </div>
     </details>
     <button id="connect-btn" type="button" hidden>Log out</button>
@@ -147,7 +173,7 @@
       </div>
       <p id="login-msg" role="status" aria-live="polite"></p>
       <p class="login-who"><a href="who.html" target="_blank" rel="noopener">Who's online</a> <span id="login-who-count"></span> · <a href="leaderboard.html" target="_blank" rel="noopener">Leaderboard</a><span id="login-discord" data-discord-item hidden> · <a data-discord href="#" target="_blank" rel="noopener">Join our Discord</a></span></p>
-      <p class="login-server">Server <code id="login-server"></code> · change it under Settings</p>
+      <p class="login-server">Server <code id="login-server"></code> · change it under Settings → Advanced</p>
     </form>
   </section>
 
