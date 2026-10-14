@@ -1320,6 +1320,14 @@ Lessons:
   Login errors say "Settings → Advanced". `#settings > summary` styles only
   the top button now.
 
+## 2026-10-14: minimap placement (client only, deployed)
+
+- Wide screens: the minimap canvas moves into `#minimap-slot` under the
+  name card (as big a square as the column allows, container query units).
+  Settings → Screen layout → "Minimap on wide screens" (dusk.minimap.place:
+  card | map). On the map it's 150px now (was 180). js/drag.js only drags
+  and places while the element is inside its container.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
