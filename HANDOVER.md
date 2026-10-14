@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-14 03:30 (duskserver time). Everything below is live
+State as of 2026-10-14 19:30 (duskserver time). Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
 (The newest work is at the end, before "Open / ideas".)
 
@@ -41,6 +41,15 @@ commands that touch live.
   `ssh root@192.168.7.28 'pct exec 303 -- systemctl restart dusk-web'`.
 - **Never** let a god "save"/"Save map" between installing content and the
   restart: the running server writes its old copy back.
+- A **new server class** must go into build.sh (cp and javac lines) and all
+  four class lists in install.sh; after install check
+  `ls ~/DuskRPG/<Class>.class` before restarting. Install and restart go
+  together (a half-new class set breaks logins). With nobody online (or the
+  user's go-ahead) I restart from the host:
+  `ssh root@192.168.7.28 'pct exec 303 -- systemctl restart duskserver'`
+  (no shutdown hook: it saves nothing); else flan types `restart 10`.
+  Check with `ps -o lstart= -C java` on duskserver (two lines while
+  scratch runs).
 - The auto-mode permission check often **blocks me** from writing live
   game files or running deploy; then I give the user the exact command.
   Allowed for me: `ssh duskserver 'python3 /tmp/install_city.py ...'`
@@ -1364,7 +1373,7 @@ Lessons:
   taller than a phone screen. Touch X 28px seen / 44px hit.
 - Backups: /root/backups/dusk-equip-panel-20261014-153254.
 
-## 2026-10-14: Greystone Mine (installed 17:09; needs a restart, deployed)
+## 2026-10-14: Greystone Mine (LIVE since the 18:28 restart, deployed)
 
 - tools/world/cities/greystone.mjs, from flan's map notes "New mine here"
   (1481,192) and "New Mine inside" (871,226). Door: tile '<' in the grey
@@ -1442,7 +1451,18 @@ Lessons:
   now the doubled monster numbers.
 - Game ideas the user liked, not started: owned ships (on hold).
 - Classes: Rogue later.
-- CHANGELOG.md is up to date to 2026-10-14 03:51 (creature cap, layout).
+- Greystone Mine quest chain (suggested, user hasn't said yes yet): hooks
+  are Garrick's "Any work?", Old Bryn's knocking below the deep seam, the
+  caved-in Old Drift (914-922,221); dig a new hall from the spare rock for
+  monsters and a boss. The mine has no monsters yet.
+- Old-world signposting: Midnight / the Izaru mine are reachable only by
+  ferry to Westsea, then the tree hole at 64,91 (to 494,105) and 450,104 up
+  into Midnight; no signs or posters point there. Offered a Kingshaven
+  poster, ferry line and a sign at the tree.
+- Clans: show the clan on the who page / who.json; maybe a "clan hall"
+  sign or name plaque when claimed.
+- CHANGELOG.md is up to date to 2026-10-14 03:51 (creature cap, layout);
+  not yet: Greystone Mine, emptied clan halls, clan commands, claimhall.
 
 ## More notes
 
