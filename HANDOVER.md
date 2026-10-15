@@ -1553,9 +1553,8 @@ review with every claim checked against the transcripts in
   talk files + 24 quests/bt_*.json; diffs checked = only this change;
   backups/city-bounty-boards-20261015-212348). Talk scripts recompile on
   use (.dsko removed), so no restart.
-- **Client deploy still needed** for js/quests.js (the God tab's quest
-  wizard), or a god re-saving a repeatable quest there regenerates it
-  without the wait stage: `sh tools/deploy.sh`.
+- Client deployed 2026-10-15 ~21:30 (js/quests.js for the God tab's quest
+  wizard), so re-saving a repeatable quest there keeps the wait stage.
 
 ## Open / ideas
 
