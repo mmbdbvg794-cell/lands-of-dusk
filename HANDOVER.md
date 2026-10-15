@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-15 15:00 (duskserver time). Everything below is live
+State as of 2026-10-15 19:20 (duskserver time). Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
 (The newest work is at the end, before "Open / ideas".)
 
@@ -1499,6 +1499,45 @@ Lessons:
 - **Stop scratch after the playtest** (memory): `ssh duskserver 'sh -s
   stop' < tools/scratch.sh`. Next: read notes/ + logs/ and turn findings
   into fixes.
+
+## 2026-10-15: play-test fixes (LIVE: installed 19:13, content 19:14, restart 19:15; commit 7a5b021)
+
+From the first AI play-test (Wrenna; notes in ~/dusk-playtest/notes/,
+review with every claim checked against the transcripts in
+~/dusk-playtest/playtest-review-2026-10-15.md).
+- Selling works: the engine's sell only took item IDs while every client
+  sends "sell <qty> <name>"; Props.sellByName turns the name form into the
+  ID form (the ID form still goes straight through).
+- NPC questions don't swallow commands: TalkPatch.java (new build tool, run
+  in build.sh after SpellPatch script; not a server class, so no install.sh
+  change) hooks Script's "input" read to Talk.answer. Talk.forClient records
+  each player's last NPC question's choices (says/asks lines ending "(a/b)");
+  an answer that's none of them runs as a command, and the NPC's "Hm? Talk
+  to me again..." after it is dropped. Free-text questions (no choices) are
+  untouched.
+- Idle timeout 10 -> 30 minutes (PlayerPatch changes the setSoTimeout
+  constant; checked with javap: int 1800000).
+- Heavy armour: Classes.gate warns on the first "buy" of gear the class
+  can't use; the same buy again within 2 minutes goes through.
+- look: Props.sentence ends item/prop/sign text with "." only once
+  (patch.py).
+- Content (tools/server/fix_playtest.py, idempotent, backups in
+  ~/DuskRPG/backups/playtest-20261015-191400): stray hounds stre 28 -> 26
+  (damage = stre/2 x 0.5-1.5 - armour; tutorial gear's armour ~15, so 20
+  did nothing), grouprelation 0 and NO faction (killing one used to turn the
+  faction on you and the rest piled in); kingswatch.mjs matches. Typos at
+  the docks, Armorer's wear hint, Drill Sergeant's "right beside, not
+  diagonally" and "*takes the straw stuffing*", one-line "sales list",
+  help rewritten for today's clients.
+- The user's calls: longer timeout yes; hounds a bit weaker and no ganging
+  up; warn (not block) on heavy armour; keep the Circle Envoy placeholder.
+- Not done (in the review): bounty-board wording/check-before-offer, a
+  reply for late answers ("huh?"), armoury prices and item names, race
+  descriptions, the browser showing opcode 20 windows (help) to non-gods.
+- dusk-bot (~/dusk-playtest) also fixed: plank walls vs floors in the
+  legend, op 18/20 windows shown, "You didn't move.", goto waits, "The X"
+  name matching, new `map` command. Scratch test chars: fixcheck/fixpw42
+  (ranger, at the hound meadow), botcheck, Wrenna (the tester's).
 
 ## Open / ideas
 
