@@ -96,11 +96,11 @@ const QUESTS = [
     },
     reminder: 'The robbers\' leader is in the ruined tower east of the south road. Bring me King Zilen\'s crown.',
     reward: { gold: 90, exp: 160, items: ['bronze sword'], says: 'A bronze sword from the graveyard\'s old armoury. The king would want you to have it.' },
-    after: 'The crown is back on the king\'s brow, where it belongs.',
+    after: 'The crown is back on the king\'s brow. Whoever paid for it will want it again.',
   }, [
     ['place', '', { x: TOWER[0], y: TOWER[1], radius: 5, what: 'the ruined tower', arrive: 'A broken stone tower in a clearing, its roof long gone. Fresh tracks lead in and out. Someone is living here.', journal: 'Find the ruined tower east of the road south of the City of Light.' }],
     ['kill', '', { mob: 'robber boss', count: 1, what: 'the robbers\' leader', journal: 'Beat the robbers\' leader in the ruined tower.' }],
-    ['bring', KEEPER, { item: 'zilen crown', take: true, says: 'Is that a glint of gold I see?', answer: 'King Zilen\'s crown', reply: 'It is. Dented, but it is his. Thank you, friend.', journal: 'Bring King Zilen\'s crown back to Tombkeeper Aldous. The robbers\' leader has it.' }],
+    ['bring', KEEPER, { item: 'zilen crown', take: true, says: 'Is that a glint of gold I see?', answer: 'King Zilen\'s crown', reply: 'It is. Dented, but his. Thieves melt gold; they don\'t keep crowns. Someone paid for this one.', journal: 'Bring King Zilen\'s crown back to Tombkeeper Aldous. The robbers\' leader has it.' }],
   ]),
 
   quest('zl_crypt', {

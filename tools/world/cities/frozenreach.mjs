@@ -4,11 +4,11 @@
 // quests are in the God tab's quest wizard's shape (js/quests.js), so they
 // open and can be changed there afterwards.
 //
-//   1 Wolves in the Field   Reeve Tamsin: white wolves in the field's south
-//   2 Through the Trees     Reeve Tamsin: the gap in the tree line at the
+//   1 Wolves in the Field   Reeve Osric: white wolves in the field's south
+//   2 Through the Trees     Reeve Osric: the gap in the tree line at the
 //                           field's south-east corner, the frozen land
 //                           beyond it, its frost bears and a pelt
-//   3 The Frost Dragon      Reeve Tamsin: the lair at the far end of the
+//   3 The Frost Dragon      Reeve Osric: the lair at the far end of the
 //                           frozen land, its ice skeletons and the dragon
 //
 // Each needs the one before. Places on the map (absolute):
@@ -28,7 +28,7 @@ import { newQuest, newStep, mergeQuest, questDepth } from '../../../js/quests.js
 const O = [510, 5];
 const at = (x, y) => [x - O[0], y - O[1]];
 
-const REEVE = 'Reeve Tamsin';
+const REEVE = 'Reeve Osric';
 const GAP = [697, 217];
 const LAIR = [795, 325];
 
@@ -69,10 +69,10 @@ const QUESTS = [
     },
     reminder: 'The white wolves are at the field\'s south end, by the tree line.',
     reward: { gold: 40, exp: 60, items: ['pelt'], says: 'Take this pelt. Winters out here are long.' },
-    after: 'The goats are out again. The children named one after you.',
+    after: 'The goats are out again. We\'ve few children left, but they named one after you.',
   }, [
     ['kill', '', { mob: 'frost wolf', count: 5, what: 'white wolves driven off', journal: 'Drive off 5 white wolves at the south end of the east field.' }],
-    ['talk', REEVE, { says: 'Back from the south end?', answer: 'The wolves are gone', reply: 'Then we can sleep. But where did white wolves come from?', journal: 'Tell Reeve Tamsin, in the village at the top of the east field, that the wolves are gone.' }],
+    ['talk', REEVE, { says: 'Back from the south end?', answer: 'The wolves are gone', reply: 'Then we can sleep. But where did white wolves come from?', journal: 'Tell Reeve Osric, in the village at the top of the east field, that the wolves are gone.' }],
   ]),
 
   quest('fr_pass', {
@@ -92,7 +92,7 @@ const QUESTS = [
   }, [
     ['place', '', { x: GAP[0], y: GAP[1], radius: 4, what: 'the gap in the trees', arrive: 'The storm has torn a gap in the old tree line. Beyond it, the ground turns white and the air bites. Paw prints lead in both ways.', journal: 'Find the gap in the tree line at the south-east corner of the east field.' }],
     ['kill', '', { mob: 'frost bear', count: 3, what: 'frost bears beaten', journal: 'Beat 3 frost bears in the frozen land beyond the trees.' }],
-    ['bring', REEVE, { item: 'frost pelt', take: true, says: 'What did you find?', answer: 'A frost bear\'s pelt', reply: 'White as snow and twice as cold. The old folk were right.', journal: 'Bring a frost bear\'s pelt back to Reeve Tamsin. The frost bears carry them.' }],
+    ['bring', REEVE, { item: 'frost pelt', take: true, says: 'What did you find?', answer: 'A frost bear\'s pelt', reply: 'White as snow and twice as cold. The old folk were right.', journal: 'Bring a frost bear\'s pelt back to Reeve Osric. The frost bears carry them.' }],
   ]),
 
   quest('fr_dragon', {
@@ -114,7 +114,7 @@ const QUESTS = [
     ['place', '', { x: LAIR[0], y: LAIR[1], radius: 6, what: 'the dragon\'s lair', arrive: 'Old ice walls, and bones frozen into them. The cold here is alive, and it breathes.', journal: 'Find the frost dragon\'s lair at the far south-east of the frozen land.' }],
     ['kill', '', { mob: 'ice skeleton', count: 5, what: 'ice skeletons put to rest', journal: 'Put 5 ice skeletons to rest round the lair.' }],
     ['kill', '', { mob: 'frost dragon', count: 1, what: 'the frost dragon', journal: 'Kill the frost dragon.' }],
-    ['talk', REEVE, { says: 'You came back! We saw the sky go strange.', answer: 'The dragon is dead', reply: 'Then we\'re safe. All of us, thanks to you.', journal: 'Tell Reeve Tamsin the frost dragon is dead.' }],
+    ['talk', REEVE, { says: 'You came back! We saw the sky go strange.', answer: 'The dragon is dead', reply: 'Then we\'re safe. All of us, thanks to you.', journal: 'Tell Reeve Osric the frost dragon is dead.' }],
   ]),
 ];
 
@@ -122,7 +122,9 @@ const depths = {};
 for (const q of QUESTS) depths[q.id] = q.depth = questDepth(q, (id) => depths[id]);
 
 const own = {
-  [REEVE]: { shouts: ['Travellers! The village could use a strong arm. See the Reeve!'], stages: [{ when: { kind: 'always', value: '' }, says: 'Goats, grass and quiet. We like it that way out here.', answers: [] }] },
+  [REEVE]: { shouts: ['Travellers! The village could use a strong arm. See the Reeve!'], stages: [{ when: { kind: 'always', value: '' }, says: 'Goats, grass and quiet. There were forty families in this field once. Nine stayed.', answers: [
+    { label: 'What\'s down the field?', reply: 'Some nights a cold light moves at the far end, and the dead walk with it. We bar the doors and don\'t look.', effects: [] },
+  ] }] },
 };
 const talk = (name) => QUESTS.reduce((dlg, q) => mergeQuest(dlg, q, name), own[name]);
 
@@ -139,7 +141,7 @@ export default {
     for (const [name, stats] of Object.entries(MOBS)) p.file(`defMobs/${name}`, mobFile(stats));
     p.file('defItems/frost pelt', itemFile('a frost bear\'s pelt, white and stiff with cold', 7));
 
-    p.npc({ name: REEVE, look: 'Villager Woman', desc: 'Reeve Tamsin, sun-browned and sharp-eyed, a shepherd\'s crook in hand.', x: 530 - O[0], y: 14 - O[1], dlg: talk(REEVE) });
+    p.npc({ name: REEVE, look: 'Villager Man', desc: 'Reeve Osric, sun-browned and sharp-eyed, a shepherd\'s crook in hand.', x: 530 - O[0], y: 14 - O[1], dlg: talk(REEVE) });
     p.sign('Southfield', 'Southfield village. Visitors welcome; wolves not.', ...P(527, 16));
 
     // White wolves at the field's south end.

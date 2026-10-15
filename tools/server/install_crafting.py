@@ -169,7 +169,7 @@ STATIONS = [
 TABLES = [
     {"table": (1440, 373), "sell_at": (1442, 371)},  # Kingshaven: behind Alchemist Pell's counter
     {"table": (485, 1254), "sell_at": (487, 1252)},  # Aelindor: Miriel's Herbs
-    {"table": (30, 127)},  # the old world, by Herbalist Wenna
+    {"table": (30, 127)},  # the old world, by Herbalist Linnet
     {"table": (1680, 941)},  # Ssarakh: by the forge
 ]
 # Taken out again (2026-10-13): Armsmaster Quave's hall is the dark elves'

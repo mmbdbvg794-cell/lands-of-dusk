@@ -68,7 +68,7 @@ const QUESTS = [
     },
     reminder: 'The slimes are in the upper workings, down the stairs on the south plaza.',
     reward: { gold: 40, exp: 60, items: ['leather pants'], says: 'Here, digger\'s leathers. Slime won\'t eat through these.' },
-    after: 'The picks are ringing again. That\'s the best sound in Midnight.',
+    after: 'The picks are ringing again. The only sound left in Midnight worth hearing.',
   }, [
     ['kill', '', { mob: 'rock slime', count: 6, what: 'rock slimes cleared', journal: 'Clear 6 rock slimes from the upper workings of the Izaru mine (the stairs are on Midnight\'s south plaza).' }],
     ['talk', FOREMAN, { says: 'Well? Are my workings clear?', answer: 'The slimes are gone', reply: 'Good. My diggers owe you a drink, and they\'ll grumble about it.', journal: 'Tell Foreman Dask, outside the Izaru Mine Shop, that the workings are clear.' }],
@@ -121,7 +121,7 @@ const depths = {};
 for (const q of QUESTS) depths[q.id] = q.depth = questDepth(q, (id) => depths[id]);
 
 const own = {
-  [FOREMAN]: { shouts: ['Hands wanted for the Izaru mine! See the foreman!'], stages: [{ when: { kind: 'always', value: '' }, says: 'Rock, sweat and silver. That\'s the Izaru mine.', answers: [] }] },
+  [FOREMAN]: { shouts: ['Hands wanted for the Izaru mine! See the foreman!'], stages: [{ when: { kind: 'always', value: '' }, says: 'Rock, sweat and silver. Half my diggers took ship east. The rest of us are too stubborn or too poor.', answers: [] }] },
 };
 const talk = (name) => QUESTS.reduce((dlg, q) => mergeQuest(dlg, q, name), own[name]);
 

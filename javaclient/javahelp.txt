@@ -138,7 +138,7 @@ and azeala further out; rare moonpetal far away. Herbalism rises as you
 pick and lets you gather the rarer herbs.
 
 Alchemy tables stand in Kingshaven (Alchemist Pell), Aelindor (Miriel),
-Ssarakh, and by Herbalist Wenna:
+Ssarakh, and by Herbalist Linnet:
 
   brew              (by an alchemy table) what you can brew there
   brew brewed red potion      brew one   (add a number for more)

@@ -6,7 +6,7 @@ log each time) and the fumes never did anything. This quotes it, so
 without a gas mask on the fumes hurt (10 HP a step, but never below 1: a
 script's damage can't kill, so it would leave someone at minus HP) and the
 gate at 3,105 turns you back; and says where a mask comes from. The mask is made by
-Herbalist Wenna from the swamp hermit's neon rose (the quest in
+Herbalist Linnet from the swamp hermit's neon rose (the quest in
 tools/world/cities/swamp.mjs, which also rewrites the hermit's own square).
 
     python3 fix_swamp.py [game dir]          dry run: counts what would change
@@ -25,7 +25,7 @@ apply = "--apply" in sys.argv
 folder = os.path.join(game, "defMoveActions")
 HERMIT = "5_122"  # the quest plan's
 
-HINT = " (A gas mask would keep them out: Herbalist Wenna, west of the walled city, knows how to make one.)"
+HINT = " (A gas mask would keep them out: Herbalist Linnet, west of the walled city, knows how to make one.)"
 
 changes = []
 for name in sorted(os.listdir(folder)):

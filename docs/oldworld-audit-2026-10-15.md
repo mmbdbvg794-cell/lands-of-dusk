@@ -1,0 +1,757 @@
+# Old-world audit: NPCs, shouts, signs and walk-on lines (2026-10-15)
+
+From live data with the canon cleanup applied. "talks" = an NPC with a conversation (talk/), "stands" = a named figure with no lines of its own (only a description), "walk-on" = a square's script (the original game's hand-written ones, mostly). Narration-only walk-ons are listed too, since some read as town life.
+
+
+## Flagged for flan (cheerful, busy or thriving; nothing here was changed)
+
+Tone (decision D: the old world is emptying, not thriving):
+
+| Where | What | Why it's flagged |
+|---|---|---|
+| City of Light, walk-on 96-98,112 | "We are looking forward to your visit." | cheerful welcome |
+| City of Light, walk-on 105,151 / 105,152 | "Look around a bit theres lots to be bought here." / "You are now entering the Market of Light." | busy, well-stocked market |
+| City of Light, walk-on 96-98,109 | "Be Welcome in the City of Light." | mild; reads fine for a city that "still holds" |
+| North-west village, sign 21,33 | "New blacksmith just south of church. Dont forget to visit the church too!" | a town that's growing |
+| North-west village, sign 33,35 | "Welcome to the petting zoo! ( Animals may nip at you, be careful. )" | cheerful |
+| North-west village, sign 35,24 | "Welcome to the Gladiators Arena, feel free to step inside to train!" | cheerful, busy |
+| North-west village, sign 15,40 | "Welcome to the town smitty!" | cheerful |
+| North-west village, walk-on 31,36 | "You get the new issue of 'Dark Star News'." | a paper still printing = busy town |
+| North-west village, walk-on 130,5 | "a town full of tweeking teleporters" | a full town |
+| Riverside, sign 212,80 | "want to fish? well here is the best fishing lake in dusk!.." | cheerful |
+| Riverside, sign 203,62 | "buy a boat from me, Mr. Merchant." | trade going on (mild) |
+| Riverside, walk-on 195,197 | "The ExitMan waves as you walk away, hopeing you come back again." | cheerful |
+| Midnight, Izaru (walk-on 440,76) | "Welcome to the best place to buy mining equipment! Hope you find everything ok." | thriving shop; clashes with Dask's half-empty mine |
+| Midnight, miner (walk-on 442,72) | "Izaru's is world famous for its mining equipment though." | thriving |
+| Midnight, Innkeeper (463,63 / 464-465,60-62) | "Sweet dreams!" / "Thank you for coming." | cheerful (mild) |
+| Midnight, Trank's thieves (479,37-38, 479,45) | "All the thieves clap for you. Hurray!", "Welcome to the thief training center..." | a busy, thriving guild |
+| Midnight, the thief props | 57 thieves stand in Midnight (441,54 and the back alleys) | a crowded town, not an emptied one |
+| East field, sign 527,16 | "Southfield village. Visitors welcome; wolves not." | jokey, cheerful (mild) |
+| East field, Reeve Osric | "Then we're safe. All of us, thanks to you." / "The frozen land is quiet. The village owes you everything." | upbeat, but fits a thank-you; your call |
+| Far-south enclave, the fire orb man (7,966) | "I'll pay you with amazing riches." / "Spend those riches wisely." (10,000 gp) | a rich village vault (mild) |
+
+Not tone, but seen on the way (also unchanged):
+
+- **East field: two village heads.** The old game's guard at 545,16 says you need "permission from Salharasha our towns elder", and the same village (Southfield) now has Reeve Osric.
+- **East field, sign 500,200:** "If I'm forced to move from here, I quit this whole goddamn game." and "BBarry." Old player graffiti.
+- **North-west village, sign 55,38:** "This land is property of supersayanaaron..." and **City of Light, sign 121,78:** "sorry can't have houses yet"; **Riverside, sign 167,66:** "Xyphoid is probally working on this right now...". Old builders' notes.
+- **North-west village, sign 83,6:** "The king's Spy village. SSSHHH!" (a king, jokingly).
+- **Westsea (the human tutorial):** walk-on 125,366 says you've just stepped off the boat "from your journey across the great sea", but the tutorial stands in the old world at Westsea, and its exit stones (117,373; 142-143,392) then send you to Kingshaven "across the sea". LORE.md calls the tutorial "the last of the crossing".
+- **Old Bram (Westsea):** "The king closed that road" — fine (Aldric's proclamation); listed because it names the king.
+
+## Swamp and the hermit
+
+- **Herbalist Linnet (32,126)** [talks] — _Herbalist Linnet, her apron stained green with a hundred remedies._
+  - (shout) Herbs and remedies!
+  - How's the mask? Ugly as sin, but no fume gets past it. The swamp's yours now.
+  - Is that... a neon rose? It only grows where the swamp fumes are thickest. I can weave its light into a mask that keeps them out.
+  - Please make me a mask
+  - Hold still... There. Wear it over your face and the fumes won't touch you.
+  - Keep it safe, then. It won't wilt.
+  - Herbs and remedies, dear. The swamp to the north-west? Don't go in without a mask: the fumes burn the lungs. An old hermit lives in the meadow past it, they say. If he's still alive.
+- **sign at 21,105** [sign]
+  - Omega Swamp
+- **sign at 3,62** [sign]
+  - Went to find neonrose in forest...found a hidden path in the forest yesterday....i think ill look there first,  have fun.... -hermit
+- **sign at 32,111** [sign]
+  - 'A stranger lies here. He came from the far east and died while defending the City.'
+- **sign at 4,63** [sign]
+  - Swamp Hermit's House
+- **246 swamp squares** [walk-on]
+  - You feel dizzy from all these toxic fumes. (A gas mask would keep them out: Herbalist Linnet, west of the walled city, knows how to make one.)
+- **walk-on 18,123** [walk-on]
+  - That's strange....this place isn't affected by the toxic sludge....hmm, maybe theres something here that can help me survive in the swamp.
+- **walk-on 3,105** [walk-on]
+  - These fumes are too strong! You are going to need some kind of gas mask in order to survive safely in the swamp. (A gas mask would keep them out: Herbalist Linnet, west of the walled city, knows how to make one.)
+- **walk-on 3,61** [walk-on]
+  - This door is almost too rusted to open.  This place looks abandoned
+- **walk-on 5,122** [walk-on]
+  - The hermit says: That mask! So someone could harness the flower after all. Mind the fumes, friend.
+  - The hermit says: At last, an item created to stop the effects of the swamp.
+  - The hermit says: Go! Find someone who can harness the powers of this flower. Herbalist Linnet, east of here by the walled city, knows her plants.
+  - The hermit says: *groan* I couldn't make it through the swamp... I managed to end up in this meadow... this flower is keeping the swamp fumes out... I'll be out of commission for a while, but I'll give you this neon flower. Herbalist Lin...
+
+## North-west village
+
+- **CrazyOldMan (89,53)** [stands]
+- **The Secluded Dealer (105,38)** [stands]
+- **Villager (40,25)** [stands]
+- **fairy (57,50)** [stands]
+- **fat fairy (70,57)** [stands]
+- **sleeping fairy (45,56, 45,57, 46,58, 54,57, 55,58, 73,42)** [stands]
+- **small fairy (49,40)** [stands]
+- **tiny fairy (59,44)** [stands]
+- **sign at 118,17** [sign]
+  - The drinking water is poisened. Something must have happened at the water temple.
+- **sign at 15,27** [sign]
+  - Information Office
+- **sign at 15,40** [sign]
+  - Welcome to the town smitty!
+- **sign at 19,41** [sign]
+  - Leather stuff
+- **sign at 20,27** [sign]
+  - Newbie shop
+- **sign at 21,33** [sign]
+  - New blacksmith just south of church.  Dont forget to visit the church too!
+- **sign at 23,39** [sign]
+  - "Troll's Head"
+- **sign at 26,29** [sign]
+  - The pond of wishing.
+- **sign at 27,35** [sign]
+  - "Troll's Head"
+- **sign at 33,35** [sign]
+  - Welcome to the petting zoo! ( Animals may nip at you, be careful. )
+- **sign at 34,19** [sign]
+  - You see a statue... there is something mysterious to it... could a statue know something?!?!? maybe its just jiberish.
+- **sign at 35,24** [sign]
+  - Welcome to the Gladiators Arena, feel free to step inside to train!
+- **sign at 36,21** [sign]
+  - Rest Area... 
+- **sign at 40,6** [sign]
+  - Do you have a deathwish?  Enter the man-eater badlands if you do!
+- **sign at 55,38** [sign]
+  - Attention whoever made this land available to the public - This land is property of supersayanaaron and will not be available until further notice! thank you - SSA
+- **sign at 70,24** [sign]
+  - The bridge is broken.
+- **sign at 80,17** [sign]
+  - CAUTION: Wild Cats
+- **sign at 83,6** [sign]
+  - The king's Spy village. SSSHHH!
+- **sign at 90,18** [sign]
+  - To the floating city
+- **sign at 92,24** [sign]
+  - Remains after a big battle.
+- **walk-on 0,4** [walk-on]
+  - You sense a faint, ancient power lingering here, long since spent.
+- **walk-on 10,24** [walk-on]
+  - CLANS: a god founds a clan and names its leader. Leaders invite with: clan invite <name>. Members talk to their clan with : at the start of a line, see who is in it with: clan members, and leave with: clan leave.
+- **walk-on 100,28, 10,12** [walk-on]
+  - This clan hall stands empty. It can be claimed by a new clan: ask a god.
+- **walk-on 106,36** [walk-on]
+  - The merchant says although this is my only thing, this is top of the line. Please buy it. " endscipt
+- **walk-on 11,13** [walk-on]
+  - you may enter
+- **walk-on 11,24** [walk-on]
+  - Old clan halls stand empty around the world. A new clan can claim one: ask a god.
+- **walk-on 112,1** [walk-on]
+  - A sword-shaped impression is pressed into the ground here. DraN's blade must have rested here once, but it's long gone now.
+- **walk-on 130,5** [walk-on]
+  - *You dematerialize for a moment and find yourself in a town full of tweeking teleporters*
+- **walk-on 15,10** [walk-on]
+  - Go east from this coordinate for some big game hunting or go south for town.
+- **walk-on 17,10** [walk-on]
+  - They're too strong!
+- **walk-on 18,10** [walk-on]
+  - Don't waste your time. The monsters are too skilled for you. Go train some more.
+- **walk-on 3,4** [walk-on]
+  - You walk into the tree and come out in a field.
+- **walk-on 3,58** [walk-on]
+  - You don't see anything very interesting...
+- **walk-on 31,24** [walk-on]
+  - You fall asleep, your body is relaxed.
+- **walk-on 31,36** [walk-on]
+  - You get the new issue of 'Dark Star News'.
+- **walk-on 32,25** [walk-on]
+  - This is not your house.
+- **walk-on 39,26** [walk-on]
+  - outText
+- **walk-on 5,51** [walk-on]
+  - There's nothing more to find here.
+  - You don't see anything very interesting.
+  - Hey! there's a ruby in this pile of junk! Score!
+- **walk-on 50,50** [walk-on]
+  - The Fairy King gives some fairy dust to help you.
+- **walk-on 58,19** [walk-on]
+  - The door is locked....The forest mage must be out.
+  - You used the forest key, but when you tried to take the key out of the door, it turned into dust...
+- **walk-on 6,34** [walk-on]
+  - The Gods powers hurt your very essence.
+  - You end up in hell...The domain of Cyril....the god of Chaos!
+  - The Gods powers clean your body and soul.
+- **walk-on 7,50** [walk-on]
+  - Just some more junk.
+- **walk-on 7,51** [walk-on]
+  - You feel refreshed. but kind of depressed because you slept in a hermit's bed, especially without permission.
+- **walk-on 89,53** [walk-on]
+  - No turning back now!
+- **walk-on 95,9** [walk-on]
+  - Entering the mysterious cave.....
+- **walk-on 97,23** [walk-on]
+  - Entering Bug Burrow....
+
+## City of Light (and King Zilen's graveyard)
+
+- **Bank Teller (88,147)** [talks]
+  - Bank Teller says: Welcome to the bank! What can I do for you? (balance/deposit/withdraw/box/nothing)
+  - Bank Teller says: Very well. Come again!
+  - Bank Teller says: Your deposit box? Right this way.
+  - Bank Teller says: I'm sorry, I didn't catch that. Talk to me again whenever you're ready.
+  - Bank Teller asks: How much would you like to withdraw? (10/100/1000/all)
+- **Tombkeeper Aldous (42,111)** [talks] — _Tombkeeper Aldous, stooped and grey, a ring of old iron keys at his belt._
+  - (shout) Respect the dead, traveller. And if you have a strong arm, see the Tombkeeper.
+  - Did you find what they took?
+  - The grave goods
+  - Her silver comb, her prayer beads. I will put them back where they belong, tonight. Take these gloves. A gravedigger's, but good leather.
+  - Is that a glint of gold I see?
+  - King Zilen's crown
+  - It is. Dented, but his. Thieves melt gold; they don't keep crowns. Someone paid for this one. A bronze sword from the graveyard's old armoury. The king would want you to have it.
+  - You came back up. Thank the gods.
+  - The crypt is quiet
+  - Then the king's guard sleep. I will have the stairs sealed. An iron breastplate, from the guard's own stores. They will not need it now.
+  - Another visitor for the old king? You have the look of someone asking after someone.
+  - I seek Princess Elowen
+  - Elowen. Twelve years ago a grey-haired woman knelt at this grave, with a green stone in her hand, and left a letter for whoever came asking. Here, read it. "To whoever comes asking. I am Elowen, Aldric's daughter. The sea did not take me...
+  - The grave thieves are camped west of the south road. Bring back the grave goods.
+  - Ask Shaman Ithrae, in Ssarakh, what Elowen asked her.
+  - The robbers' leader is in the ruined tower east of the south road. Bring me King Zilen's crown.
+  - The crypt is under the robbers' camp, west of the south road. Put the king's guard back to rest.
+  - You again, with the brood's mud still on your boots. Good. There was a second page to her letter. She said: give it only to one who has sat with the brood and come back. Will you read it?
+  - I will read it
+  - "If you are reading this, the mire trusted you, and so do I. A gate is shut with three things: warden stone, Brood Stone, and words in the old tongue. I have the Brood Stone. The rest Ithrae knows. Ask her what I asked. E." The ink runs ...
+  - It has waited twelve years in my coat. It can wait.
+  - Since the crown came home, the ground has been cold. The thieves dug deeper than they knew: their camp sits on the old crypt of the king's guard, and they broke it open. Zilen's guard have woken, and their warlord with them. This is no w...
+  - I will go down
+  - There are stairs in the robbers' camp, under the stones. Go down, put the guard back to rest, and their warlord too.
+  - Wise. Grow a little first, and come back.
+  - Something is still missing. King Zilen's crown, buried on his brow. The thieves you beat were only diggers. Their leader keeps the best pieces in an old ruined tower east of the south road. Will you bring the crown home?
+  - I will bring it home
+  - Take the south road again. A little nearer the city than the robbers' trail, another path cuts east into the forest. The tower is at its end. Mind his guards.
+  - The crown has waited this long. It will wait for you.
+  - Look at this. Spade marks, at the foot of good King Zilen's own grave. Grave thieves, from the forest south of the city. They took what was buried with his queen, too. Will you go after them?
+  - I will go after them
+  - Bless you. Take the south road out of the city. Partway down, a trail cuts west into the trees. Their camp is at the end of it. Bring back what they took.
+  - The dead are patient. I am less so. Come back if you change your mind.
+  - The old king sleeps. Let him.
+  - The crown first, friend. One thing at a time.
+  - Go carefully. The old king would want his granddaughter home.
+  - The crypt is quiet. King Zilen's guard sleep again, and the city never knew.
+  - The crown is back on the king's brow. Whoever paid for it will want it again.
+  - The queen's grave is whole again. The old king can rest easier.
+  - King Zilen lies here, and his queen beside him. I keep them company.
+- **King Zilen's Grave (40,107, 45,107)** [stands]
+- **Proclamation Stone (86,153)** [stands] — _A proclamation, cut in stone and half blackened by fire: BY ORDER OF ALDRIC, KING OF ZILEN. The road to Firetown is closed. My brother Morvane is named traitor to the crown, and outlaw. Whoever sees him shall... The rest is scorched away._
+- **Zorog (50,108)** [stands]
+- **cook (108,129)** [stands]
+- **Crypt Skeleton Bounty (110, 153)** [board]
+- **Grave Thief Bounty (101, 153)** [board]
+- **Robber Guard Bounty (104, 153)** [board]
+- **sign at 102,103** [sign]
+  - To the mishavens...beware one of the harder mobs in the lands.
+- **sign at 105,214** [sign]
+  - South through the forest to Westsea Harbour.
+- **sign at 107,153** [sign]
+  - the City of Light's bounty board. Three jobs, one a day per hunter: read a notice to take it, and come back to it to be paid.
+- **sign at 119,100** [sign]
+  - House of Lord Rean
+- **sign at 119,96** [sign]
+  - Rean's Bedroom
+- **sign at 121,100** [sign]
+  - House of Lord Rean
+- **sign at 121,78** [sign]
+  - sorry can't have houses yet
+- **sign at 121,96** [sign]
+  - Rean's Crash Room
+- **sign at 123,189** [sign]
+  - Gatotic's House
+- **sign at 126,191** [sign]
+  - Tylk's house
+- **sign at 138,88** [sign]
+  - This sign dedicated to Celestial Starlight river. The longest river in DarkStar
+- **sign at 41,126** [sign]
+  - The City of Light graveyard
+- **sign at 70,83** [sign]
+  - Beware of the DEAD
+- **sign at 76,133** [sign]
+  - 'Fighters guild'
+- **sign at 76,136** [sign]
+  - "Members' quarters"
+- **sign at 79,133** [sign]
+  - 'Fighters guild'
+- **sign at 79,136** [sign]
+  - 'Weapons & Amors'
+- **sign at 91,147** [sign]
+  - 'Step here to get help on bank commands.'
+- **sign at 98,120** [sign]
+  - 'The Travellers Joy' (tavern)
+- **sign at 99,134** [sign]
+  - 'Silver Crown' (jewelery store)
+- **walk-on 105,120, 106,125, 108,125** [walk-on]
+  - You don't have the key to this room.
+- **walk-on 105,151** [walk-on]
+  - Look around a bit theres lots to be bought here.
+- **walk-on 105,152** [walk-on]
+  - You are now entering the Market of Light.
+- **walk-on 105,82, 105,83, 109,193, 96,87, 97,87 and 1 more** [walk-on]
+  - This clan hall stands empty. It can be claimed by a new clan: ask a god.
+- **walk-on 106,127** [walk-on]
+  - The cook pushes out out of his kingdom. Get outta here you scum!!
+- **walk-on 122,79** [walk-on]
+  - This is Tylks house!
+- **walk-on 124,189, 125,191** [walk-on]
+  - The door is locked.
+- **walk-on 133,85** [walk-on]
+  - You feel refreshed. After takeing that nice nap in your room.
+- **walk-on 40,108, 40,109, 41,108, 41,109, 41,110 and 9 more** [walk-on]
+  - Mysterious voice says: I wouldn't step on Zilen's grave if I were you......
+- **walk-on 40,111, 40,117, 45,120, 46,114** [walk-on]
+  - Whoa! The floor fell through!
+- **walk-on 42,125, 43,125** [walk-on]
+  - This place looks scary!
+- **walk-on 50,108** [walk-on]
+  - Zorog says:  Thansh, sssshhhoooony!  *hiccup*
+  - Zorog says:  Thansh for the messh..., the messh...., the note.  Here's sshomething for all your trouble.
+  - If you want to talk to me, gimme some ale!!  *hiccup*
+- **walk-on 64,89** [walk-on]
+  - You see an old, rotting tree in the clearing.....seems like its the only tree in this forest that gets no light....only darkness...I wonder what would happen if i walked into it...
+- **walk-on 64,91** [walk-on]
+  - You crawl into the hole in the tree and everything becomes dark...
+  - You are in a long cavern. You see some light up ahead
+- **walk-on 84,96** [walk-on]
+  - You see a strange clearing.....You wonder why that tree looks the way it does...
+- **walk-on 86,154** [walk-on]
+  - A proclamation, cut in stone and half blackened by fire: BY ORDER OF ALDRIC, KING OF ZILEN. The road to Firetown is closed. My brother Morvane is named traitor to the crown, and outlaw. Whoever sees him shall... The rest is scorched away.
+- **walk-on 96,109, 97,109, 98,109** [walk-on]
+  - Be Welcome in the City of Light.
+- **walk-on 96,112, 97,112, 98,112** [walk-on]
+  - We are looking forward to your visit.
+
+## Riverside
+
+- **Bar Tender (176,127)** [stands]
+- **Sephiroth (180,190)** [stands]
+- **thief (176,134)** [stands]
+- **sign at 167,66** [sign]
+  - Xyphoid is probally working on this right now... that is if he's on
+- **sign at 169,151** [sign]
+  - East for the Sabin mines. ------>
+- **sign at 181,94** [sign]
+  - Riverside Inn
+- **sign at 184,94** [sign]
+  - Training Centre
+- **sign at 191,94** [sign]
+  - Weapons/Armor Shoppe
+- **sign at 195,56** [sign]
+  - Out is here
+- **sign at 197,154** [sign]
+  - Welcome to the Sabin mines
+- **sign at 199,56** [sign]
+  - out is here
+- **sign at 203,62** [sign]
+  - to go any further you might want to buy a boat from me, Mr. Merchant.
+- **sign at 212,80** [sign]
+  - want to fish? well here is the best fishing lake in dusk!..
+- **walk-on 172,131, 172,137** [walk-on]
+  - This clan hall stands empty. It can be claimed by a new clan: ask a god.
+- **walk-on 180,190** [walk-on]
+  - Sethiroth says:  Ahh let me have a drink of that ale, Please?!  *gulp gulp*
+  - Sephiroth says:  Ohh baby..., That sword...., Thats Clouds sword.  I must have It, and heres a little something for you.
+  - If you want to talk to me, gimme some ale!!  *puke*
+- **walk-on 184,205** [walk-on]
+  - You pull on Excalibur, stuck fast in the stone. It doesn't budge an inch. Perhaps it's still waiting for someone worthy.
+- **walk-on 187,204** [walk-on]
+  - You already have an excalibur sword
+  - You already have an exaclibur sword
+- **walk-on 192,245** [walk-on]
+  - You cannot pass without the Wizard Rod.
+  - Up in this room you'll find the Red wizard.
+- **walk-on 194,132, 194,133, 196,132** [walk-on]
+  - Sorry. Only Gatotic is allowed in this room.
+  - Ah my nice comfy room.
+- **walk-on 194,139** [walk-on]
+  - You get condition gatotic
+- **walk-on 194,186** [walk-on]
+  - Wow you lived but got kinda banged up
+- **walk-on 195,197** [walk-on]
+  - The ExitMan waves as you walk away, hopeing you come back again.
+- **walk-on 195,206** [walk-on]
+  - You do not have all the Stones
+  - Beware....there is haunted stuff up ahead
+- **walk-on 195,241** [walk-on]
+  - You see the head wizard...
+- **walk-on 198,211** [walk-on]
+  - Go up the stairs to get to the Red Wizard.
+- **walk-on 200,162** [walk-on]
+  - Feels a bit musky in here.....*phew*
+- **walk-on 200,61** [walk-on]
+  - It's been raining here.
+- **walk-on 212,151** [walk-on]
+  - You found some bronze ore!
+- **walk-on 218,181** [walk-on]
+  - concat concat " Up ahead is the Green Wizard which gives the Greenstone. " name trigger ", Kill him and save up for the other two stones.
+- **walk-on 227,178** [walk-on]
+  - The wind blows and knocks you off the building, and you wake up here.
+- **walk-on 231,196** [walk-on]
+  - concat concat " Up ahead is the Blue Wizard which gives the Bluestone. " name trigger ", Kill him and save up for the other two stones.
+
+## Midnight
+
+- **Foreman Dask (441,82)** [talks] — _Foreman Dask, broad and dusty, a pick over one shoulder._
+  - (shout) Hands wanted for the Izaru mine! See the foreman!
+  - Well? Are my workings clear?
+  - The slimes are gone
+  - Good. My diggers owe you a drink, and they'll grumble about it. Here, digger's leathers. Slime won't eat through these.
+  - Did you find them?
+  - A miner's lamp
+  - That's Holt's lamp, his initials on the handle. Thank you for bringing it back. Iron gloves. One of them would want you to have his.
+  - You're alive. I didn't dare hope.
+  - The deep is quiet
+  - Then the mine is ours again. Midnight won't forget it. A bastard sword. Izaru forged it years ago, for whoever finally did this.
+  - The slimes are in the upper workings, down the stairs on the south plaza.
+  - The miners' camp is past the upper workings and down the tunnel. Bring me something of theirs.
+  - The deep chamber is below the miners' camp. Put down the stone dragon.
+  - The stalkers came up from somewhere, and so did the slimes. Below the miners' camp the rock gets hot, and something down there breathes. The old diggers called it a stone dragon. This is no job for a fresh hand. Will you go?
+  - Past the camp, the tunnel goes down to the deep chamber. Clear out what's burning down there, and the thing that woke it.
+  - Wise. Grow a little first, and come back.
+  - Two of my best went deeper than they should, after a seam of silver. That was a week ago. Their camp is past the workings and down. Find out what happened to them.
+  - I will find them
+  - Go through the workings and take the tunnel down. Their camp is at the bottom of it. Bring back whatever you find of them.
+  - They've waited a week. Don't make it two.
+  - You look like you can hold a blade. My diggers won't go below. Slimes have come up through the rock into the upper workings, and they eat through boots. Clear them out and the Izaru mine works again.
+  - I will clear them out
+  - The stairs are on the plaza, just south of here. Go down and through the first hall. The workings open up beyond it. Six should do.
+  - The rock isn't going anywhere. Neither are the slimes.
+  - Find my miners first. Then we'll talk about the deep.
+  - The deep is cold again. The Izaru mine owes you its life.
+  - At least now we know. We'll raise a stone for them on the plaza.
+  - The picks are ringing again. The only sound left in Midnight worth hearing.
+  - Rock, sweat and silver. Half my diggers took ship east. The rest of us are too stubborn or too poor.
+- **Bronzes (476,92)** [stands]
+- **Izaru (440,76)** [stands]
+- **Izaru Mine Shop (442,79, 438,79)** [stands]
+- **Trank (479,37)** [stands]
+- **Watts (479,88)** [stands]
+- **bouncer (479,45)** [stands]
+- **demon (472,92, 475,93, 478,93)** [stands]
+- **innkeeper (463,63)** [stands]
+- **miner (437,74, 442,72)** [stands]
+- **old demon woman (471,55)** [stands]
+- **thief (441,54, 472,40, 472,39, 473,39, 473,40, 474,40 +51)** [stands]
+- **Cinder Slime Bounty (444, 83)** [board]
+- **Mine Stalker Bounty (441, 83)** [board]
+- **Rock Slime Bounty (438, 83)** [board]
+- **sign at 422,64** [sign]
+  - WANTED --- All thieves.....will be arrested immediately.....no exceptions...
+- **sign at 424,60** [sign]
+  - Warden's office
+- **sign at 437,85** [sign]
+  - Midnight Pub
+- **sign at 437,96** [sign]
+  - Midnight Pub
+- **sign at 447,83** [sign]
+  - Midnight's bounty board. Three jobs, one a day per hunter: read a notice to take it, and come back to it to be paid.
+- **sign at 459,65** [sign]
+  - The Adventure Inn
+- **sign at 459,77** [sign]
+  - Master Skills Training ground...Expert Players Only
+- **sign at 461,62** [sign]
+  - Inn pricing: 300gp per night
+- **sign at 467,92** [sign]
+  - Watts smithy ---->
+- **sign at 471,70** [sign]
+  - Water sanctuary ^
+- **sign at 471,87** [sign]
+  - Wussy's newbie shop (for the weak, or the poor)
+- **sign at 474,95** [sign]
+  - Generic Item Post
+- **sign at 475,92** [sign]
+  - Watts can currently only make these types of armor  <------>
+- **walk-on 414,29, 414,30** [walk-on]
+  - This clan hall stands empty. It can be claimed by a new clan: ask a god.
+- **walk-on 420,82** [walk-on]
+  - You wake up in some kind of jail cell. The guards apparently beat you within an inch of your life. Maybe there's a way out of here...
+- **walk-on 421,63** [walk-on]
+  - This door is locked. The warden must have the key.
+- **walk-on 423,66** [walk-on]
+  - You look under the Warden's bunk.
+  - You see a naughty magazine.....(Gargoyles in bondage) eeeewwwww.
+- **walk-on 424,25** [walk-on]
+  - Trank says: Im suprised to see you beat my henchmen, you deserve to be a thief as well, Heres a pass to go into my secret thief training room. Just give this to the bouncer.
+  - you got the Trankpass!
+  - Trank says: Go there only if you want to be a thief
+  - Hello there, whats the problem?
+  - You don't have a pick? Well thats easily fixed, here you go
+  - Trank says: How's everything going?
+- **walk-on 425,58** [walk-on]
+  - You need the Warden's key to open this door too.
+  - A guard says: if you want to be in jail so badly, we'd be happy to help you.
+- **walk-on 436,74, 438,74** [walk-on]
+  - miner says: Pickaxes aren't necessarily good weapons...but they're the only way you can get the ore found in mines.
+- **walk-on 440,76** [walk-on]
+  - Izaru says: Welcome to the best place to buy mining equipment! Hope you find everything ok.
+- **walk-on 440,79, 470,93** [walk-on]
+  - outText
+- **walk-on 441,54** [walk-on]
+  - Hello traveler. You wouldnt happen to have any spare change, would you?
+  - you give the thief 1 gp
+  - the thief hugs you
+  - your load seems a bit lighter...hmmm
+  - Thief says: hey fellow thief, if you're looking for your first pick, go ask the thief boss, over at his office
+- **walk-on 442,72** [walk-on]
+  - miner says: This place sells regular axes, but they aren't really effective.  Izaru's is world famous for its mining equipment though.
+- **walk-on 450,85** [walk-on]
+  - You go down the mine stairs, into the warm dark.
+- **walk-on 458,85** [walk-on]
+  - LOL! The door's locked! (Must be the only thing in this town that works!)
+- **walk-on 463,63** [walk-on]
+  - Innkeeper says: Sorry, but you don't have enough money to stay here.
+  - Innkeeper says: You wanna stay? That'll be 300 gp.
+  - You give the Innkeeper 300 gp.
+  - Innkeeper says: Sweet dreams!
+- **walk-on 464,60, 464,62, 465,61** [walk-on]
+  - You fall asleep, your body is relaxed.
+  - Innkeeper says: Thank you for coming.
+- **walk-on 467,54** [walk-on]
+  - There's nothing more to find here.
+  - The chest is locked, oh well
+  - The chest is locked, even though you're a thief, you still need a regular pick
+  - You stick your pick in the hole of the chest and move it around
+  - You find an opal!
+  - You already have an opal
+- **walk-on 469,56** [walk-on]
+  - please stay out of my bedroom, im remodeling.
+- **walk-on 471,55** [walk-on]
+  - Be careful, there are some nasty thieves out there.
+  - Your leaving? All right then
+  - Wait a second??? Isn't that my opal?
+  - AAAAHHHHH!! HELP! POLICE!
+- **walk-on 472,66** [walk-on]
+  - You step in the clear water and take a big gulp. Your thirst seems to have dissappeared.
+- **walk-on 472,92** [walk-on]
+  - Demon says: I wonder if Watts will forge my scythe...then i would be the strongest mob in the land.
+- **walk-on 475,93** [walk-on]
+  - Demon says: these armors are good, but I hear that there are blacksmiths in the world that can make steel, scale, or even diamond armor!
+  - Demon says: I wish I knew where those blacksmiths were located....it may just be a myth.
+- **walk-on 478,93** [walk-on]
+  - Watts is very particular about what he makes. when you go in, only bring with you what you want to be forged.
+  - he makes tunics before helmets, helmets before shields, & shields before swords
+  - also, watch your money, because he charges 3000gp for every item he makes. 	HEED THESE WARNINGS.....
+  - because the gods will not help you, because they gave you this warning through me.
+- **walk-on 479,35** [walk-on]
+  - And so you train in the ways and skills of a thief...forgetting some things while learning the ways of the criminal...
+  - You can now find things you wouldnt ordinarily find, and open many locks with just a pick...
+  - As with all trades, however, there are some downsides.... like you will not be welcome in some places, and you also risk being under arrest...
+  - Now that you're a full fledged thief, you must go to the temple of forgetfullness to remove the skills you have learned.
+  - Finally, you cannot learn any new trades unless you've forgotten this one...
+  - Good luck
+- **walk-on 479,37** [walk-on]
+  - Trank says: If you are sure about being a thief, go up on the steps and you shal be one...
+  - Trank says: Congratulations! I know you'll be one of our best!
+- **walk-on 479,38** [walk-on]
+  - All the thieves clap for you. Hurray!
+- **walk-on 479,45** [walk-on]
+  - bouncer says: You're not welcome here, get out!
+  - bouncer says: Welcome to the thief training center. If you see Trank, tell him I said hi.
+  - bouncer says: YOU DIDN'T GET THIS PASS FROM TRANK, DID YOU, YOU ARE GONNA HAVE TO GO AND TALK TO HIM LIKE ALL OF THE OTHER THIEVES DID. AND IM GONNA HAVE TO TAKE THAT USED PASS...
+- **walk-on 479,87** [walk-on]
+  - YEEEEOOOUUUUCHHHHH!!!!!!! That's hot!
+- **walk-on 479,88** [walk-on]
+  - Watts says: lemme see that ore you have and ill see what i can do.
+  - okay, no bronze ore, lets see what else you have
+  - okay, heres some bronze ore, lets make some bronze stuff.
+  - Here's a bronze suit!
+  - Here's a bronze helmet!
+  - Here's a bronze shield!
+  - Here's a bronze sword!
+- **walk-on 479,90** [walk-on]
+  - Watts says: Come back when you have enough money!
+- **walk-on 495,105** [walk-on]
+  - You get in the old tree trunk, and suddenly the darkness fades into day...
+  - You are back in front of the castle.
+
+## Izaru mine (under Midnight)
+
+- **sign at 352,287** [sign]
+  - Izaru Mine. Mind your head, mind your feet, mind the slimes.
+- **walk-on 348,285** [walk-on]
+  - You climb the stairs back up to Midnight.
+
+## East field and its village
+
+- **Reeve Osric (530,14)** [talks] — _Reeve Osric, sun-browned and sharp-eyed, a shepherd's crook in hand._
+  - (shout) Travellers! The village could use a strong arm. See the Reeve!
+  - Back from the south end?
+  - The wolves are gone
+  - Then we can sleep. But where did white wolves come from? Take this pelt. Winters out here are long.
+  - What did you find?
+  - A frost bear's pelt
+  - White as snow and twice as cold. The old folk were right. A bronze helmet, from my father's days in the Watch. Wear it in good health.
+  - You came back! We saw the sky go strange.
+  - The dragon is dead
+  - Then we're safe. All of us, thanks to you. A diamond belt. It's all the village had of worth, and you've earned it twice over.
+  - The white wolves are at the field's south end, by the tree line. Goats, grass and quiet. There were forty families in this field once. Nine stayed.
+  - What's down the field?
+  - Some nights a cold light moves at the far end, and the dead walk with it. We bar the doors and don't look.
+  - Find the gap in the trees at the field's south-east corner, and bring back proof of what lives beyond. Goats, grass and quiet. There were forty families in this field once. Nine stayed.
+  - The frost dragon's lair is at the far south-east of the frozen land. Goats, grass and quiet. There were forty families in this field once. Nine stayed.
+  - The old folk have one more story. A dragon of ice sleeps at the far end of the frozen land, and its waking drives the beasts out. With the trees down, nothing stands between it and us. This is no job for a fresh hand. Will you go?
+  - Cross the frozen land to its far south-east corner. Its lair is there, they say, guarded by the bones of those who tried before. Put it back to sleep. For good.
+  - Wise. Grow a little first, and come back.
+  - I've been thinking about those wolves. Old folk say there's a frozen land beyond the trees at the field's south-east corner, sealed off since before the village. The autumn storm brought trees down there. If there's a way through, the wo...
+  - Go to the south-east corner of the field, where the old trees stand. If there's a gap, go through. Bring back proof of what lives there.
+  - It's been sealed this long. A little longer won't hurt.
+  - You've come a long way to find us. Perhaps the gods sent you. White wolves have come into the field, down at its south end. We've never seen their like, and they've taken two of our goats. Will you drive them off?
+  - I will drive them off
+  - Thank you. Walk south through the field, past the stream. They den at the far end, by the tree line. Five should scare the rest away.
+  - We'll keep the goats in, then. Come back if you can.
+  - See what's beyond the trees first. Then we'll talk.
+  - The frozen land is quiet. The village owes you everything. Goats, grass and quiet. There were forty families in this field once. Nine stayed.
+  - A frozen land, right on our doorstep. Nobody will believe it. Goats, grass and quiet. There were forty families in this field once. Nine stayed.
+  - The goats are out again. We've few children left, but they named one after you. Goats, grass and quiet. There were forty families in this field once. Nine stayed.
+  - Goats, grass and quiet. There were forty families in this field once. Nine stayed.
+- **Child (530,21, 527,21)** [stands]
+- **Guard (545,15)** [stands]
+- **Potion Shop (524,10)** [stands]
+- **Villager (521,13, 523,16, 525,11, 533,13, 530,13)** [stands]
+- **Woman (528,23)** [stands]
+- **Frost Bear Bounty (532, 16)** [board]
+- **Frost Wolf Bounty (529, 16)** [board]
+- **Ice Skeleton Bounty (535, 16)** [board]
+- **sign at 500,200** [sign]
+  - If I'm forced to move from here, I quit this whole goddamn game.
+- **sign at 500,200** [sign]
+  - BBarry.
+- **sign at 527,16** [sign]
+  - Southfield village. Visitors welcome; wolves not.
+- **sign at 538,16** [sign]
+  - Southfield's bounty board. Three jobs, one a day per hunter: read a notice to take it, and come back to it to be paid.
+- **walk-on 504,13** [walk-on]
+  - HAHA!
+- **walk-on 534,23** [walk-on]
+  - You decide to take a rest.
+- **walk-on 545,16** [walk-on]
+  - Guard: Sorry. I cant let you pass until youve gotten permission from Salharasha our towns elder. He lives in a cave somewhere on the beach.
+  - Guard: Well Salharasha says you may leave so do so if you wish. Please be careful
+- **walk-on 619,153** [walk-on]
+  - Wow! A whole underground forest.
+
+## Frozen Reach
+
+- **sign at 775,312** [sign]
+  - Turn back.
+
+## Westsea Harbour
+
+- **Captain Hale (95,361)** [talks] — _Captain Hale, salt in his beard and a pipe in his teeth._
+  - (shout) Ships to the new lands! Aelindor Landing and Eastreach!
+  - Where are you bound? A ticket is 50 gold. Then wait here on the pier, and you'll be taken aboard when the ship is in.
+  - Aelindor Landing
+  - A ticket for Aelindor Landing. Wait here on the pier: the Seahawk will take you aboard when she's in.
+  - A ticket for Eastreach. Wait here on the pier: the next ship will take you aboard when she's in.
+  - A ticket for Kingshaven. Wait here on the pier: the Royal Swan will take you aboard when she's in.
+  - The sea will wait.
+- **Drill Sergeant (135,377)** [talks]
+  - What are you waiting for? The Quartermaster is through the east door. Get yourself some supplies.
+  - Well? Knock the stuffing out of that training dummy and bring me some! (Stand right beside a dummy, not diagonally, then click it and choose Attack.)
+  - Ha! Knocked the stuffing right out of it. You'll do, recruit. Through the east door is the Quartermaster: get yourself some supplies.
+  - Alright new recruit, get that gear equipped ( In Backpack Click wear next to Item). 
+  - Alright, now get over there to that training dummy and give it a good hit ( Stand next to mob you want to attack, click mob and click attack)
+- **Old Bram (96,358)** [talks] — _Old Bram the boatman, brown as an old rope._
+  - (shout) Boats! Boats for anywhere the ferries won't go!
+  - Back already? Well? Did you find her?
+  - Alive. Twelve years in that oven. Some folk are made of something else. She's alive? Then I'll row her home myself, when she's ready.
+  - Back so soon? The boat's ready, if you want Firetown.
+  - Row me across
+  - Firetown. The king closed the road, but not the sea. That stone in your pack is cold enough to keep the fire off a small boat, I reckon. I rowed a grey-haired woman across, twelve years back. Never rowed her home.
+  - Hold on, then. Tam waits at the far landing to bring folk back. If there's anyone left to bring.
+  - The fire'll keep.
+  - Firetown? The king closed that road, and the sea's worse. Come back when you've a reason I can't argue with.
+  - Thank you, for finding her. The boat's ready, if you want Firetown.
+  - The boat's ready, if you want Firetown.
+- **Recruiter (127,373)** [talks] — _a tired man behind a desk._
+  - (shout) 
+  - What are you doing back? go see the armorer now maggot!
+  - Hey you! You look new here, fresh off the boat huh? (To talk with other players, press Enter or tap the box at the bottom, then start with ' to speak to those nearby, or ; to be heard across the land.)
+  - Who me? Yes sir.
+  - Well if you aren't headed for the mines, then you are headed for the army. Go through the door to the south and talk to the armorer and he will get you setup.
+  - Fresh? No just show me the door. 
+  - Suit yourself. Just don't say I didn't warn you - the Lands of Dusk aren't gentle with the unprepared.
+- **The Armorer (124,378)** [talks]
+  - Only one set per person now move along.
+  - Training is down the hall
+  - You'll need these.
+- **Guard (124,369, 126,369)** [stands]
+- **Torn Notice (97,354)** [stands] — _A torn, salt-stained notice: LAST SAILINGS. All who can, go east across the sea. The Dawnward sails at first light with Her Highness the Princess Elowen. Gods keep the City of Light._
+- **sign at 93,354** [sign]
+  - Westsea Harbour. Ships sail from here to the lands across the sea.
+- **walk-on 117,373** [walk-on]
+  - ** You step onto the old teleport stone. The air hums, the room blurs... and you find yourself on the plaza of Kingshaven, the free city across the sea, far from the war you fled. **
+- **walk-on 125,366** [walk-on]
+  - ** You step of the boat, weary from your journey across the great sea.  You look at the docks and see guards guiding  refugees into the  building nearby.  You  figure that's where you need to go**
+- **walk-on 125,369** [walk-on]
+  - The Guard says: *looks you up and down*  Come on.. Come on.. move it. In the door like everyone else to get sorted...
+- **walk-on 125,375** [walk-on]
+  - The Guard says: 'Here for training huh? right in there, go the the armorer and get outfitted. '
+- **walk-on 142,392, 143,392** [walk-on]
+  - ** You step onto the old teleport stone. The air hums, the hall blurs... and you find yourself on the plaza of Kingshaven, the free city across the sea, far from the war you fled. **
+- **walk-on 96,354** [walk-on]
+  - A torn, salt-stained notice: LAST SAILINGS. All who can, go east across the sea. The Dawnward sails at first light with Her Highness the Princess Elowen. Gods keep the City of Light.
+
+## Far-south enclave
+
+- **sign at 36,965** [sign]
+  - The Champions' Gauntlet: ten champions, ten doors. Step east to enter.
+- **walk-on 12,946** [walk-on]
+  - Among the weeds you find a purple, drowsy-smelling herb: a sleeping weed.
+- **walk-on 18,938, 18,944, 29,944** [walk-on]
+  - You walk into the tree and come out in a field.
+- **walk-on 18,978** [walk-on]
+  - Reward Clerk: You've had your prize already, Champion.
+  - Reward Clerk: What are you doing in here?
+  - Reward Clerk: All ten champions beaten! The village names you its Champion. This blade is yours: there is no finer.
+- **walk-on 19,993** [walk-on]
+  - The door is sealed. The ninth champion holds its key.
+  - You enter the Champions' Hall. The last champion waits.
+- **walk-on 24,976, 26,976** [walk-on]
+  - Guard shouts: Get out of here!!
+  - Voices in your head tell you to visit the old lady in the west meadow.
+  - You slip the sleeping potion into the guard's cup. He yawns, slumps and starts to snore, and you take the vault key from his pocket.
+  - The guard is fast asleep.
+- **walk-on 24,993** [walk-on]
+  - The door is sealed. The eighth champion holds its key.
+- **walk-on 25,974** [walk-on]
+  - You find the fire orb, a swirl of flame behind glass, and pick it up. You lock the vault behind you and leave the keys in the door.
+  - The vault is empty.
+- **walk-on 25,975** [walk-on]
+  - You lock the vault behind you and leave the keys in the door.
+  - The vault is locked. Each guard has a key.
+  - You open the vault and step inside.
+- **walk-on 25,984** [walk-on]
+  - The vault door won't open. The last champion holds its key.
+  - Welcome to the village vault, where champions claim their prize.
+- **walk-on 29,993** [walk-on]
+  - The door is sealed. The seventh champion holds its key.
+- **walk-on 32,978** [walk-on]
+  - Bank Clerk: A reward note, and properly signed. Here is your reward: 10000 gp.
+  - Bank Clerk: My time is precious, now go away!
+- **walk-on 34,993** [walk-on]
+  - The door is sealed. The sixth champion holds its key.
+- **walk-on 37,966** [walk-on]
+  - You step into the Champions' Gauntlet. Ten champions guard ten doors, and each holds the key to the next. Beat them all, and the village vault's prize is yours.
+- **walk-on 38,950** [walk-on]
+  - You walk into the tree and come out in an oasis.
+- **walk-on 39,993** [walk-on]
+  - The door is sealed. The fifth champion holds its key.
+- **walk-on 42,969** [walk-on]
+  - The first champion waits beyond this door.
+- **walk-on 42,974** [walk-on]
+  - The door is sealed. The first champion holds its key.
+- **walk-on 42,979** [walk-on]
+  - The door is sealed. The second champion holds its key.
+- **walk-on 42,984** [walk-on]
+  - The door is sealed. The third champion holds its key.
+- **walk-on 42,989** [walk-on]
+  - The door is sealed. The fourth champion holds its key.
+- **walk-on 43,966** [walk-on]
+  - You leave the gauntlet.
+- **walk-on 7,966** [walk-on]
+  - Thank you again for my fire orb. Spend those riches wisely.
+  - Take that note to the bank clerk, in the east of the vault building. He'll pay you.
+  - My fire orb! Bless you. Here: take this note to the bank clerk, in the east of the vault building, and he'll pay you handsomely.
+  - Haven't you got my fire orb from the vault yet? Its guards won't let anyone near while they're awake... the old lady in the west meadow brews sleeping potions.
+  - They locked my fire orb in the vault! If you bring it back to me, I'll pay you with amazing riches.
+  - The guards won't let you near it while they're awake. The old lady in the west meadow may help.
+- **walk-on 9,948** [walk-on]
+  - Old Lady: Get out of my house!
+  - Old Lady: You have your potion. Off with you, and mind those guards.
+  - Old Lady: There. A drop in each guard's cup and they'll sleep like babies.
+  - Old Lady: The vault guards? I can brew you a sleeping potion. Bring me a minor potion and a sleeping weed. The weed grows in the north-west corner of this meadow.

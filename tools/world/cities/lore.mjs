@@ -24,7 +24,7 @@ export const TALES = {
     'Forty ships left Westsea Harbour, packed to the rails, and sailed east. Storms took nine of them. We ate tar-soaked biscuit and rainwater for a month, and when we sighted this coast my mother wept, because there was nothing on it. We built Kingshaven out of the ships themselves.',
     'Old Wenna told me of the crossing: forty ships out of Westsea, nine lost, and Kingshaven built from the hulls of the rest.'],
   throne: ['The Empty Throne',
-    'There is a throne in the keep that nobody sits on. King Aldric sent his daughter, the Princess Elowen, on the last ship, the Dawnward, to rule us here. The Dawnward never came. So we named the city Kingshaven, the king\'s harbour, and we keep it ready for her.',
+    'There is a throne in the keep that nobody sits on. King Aldric sent his daughter, the Princess Elowen, on the last ship, the Dawnward, to rule us here. The Dawnward never came. So we named the city Kingshaven, the king\'s haven, and we keep it ready for her.',
     'Kingshaven keeps an empty throne for Princess Elowen, King Aldric\'s daughter, whose ship, the Dawnward, never arrived.'],
   fall: ['The War',
     'Firetown burned first. We saw it from Westsea: a red glow on the sea, every night. Then the burning things came west, and behind them came our own dead, walking. My father said the dead wore the old king\'s colours. He said a prince led them.',
@@ -66,7 +66,7 @@ export const TALES = {
     'Some of the brood left the mire long ago for the sands, and dried out in more ways than one. Sand Kings, they call themselves. Now they bow to a horned, scaled warlord who came out of the fire across the sea: Kraghul. Brood should not bow to anything.',
     'The Sand Kings of the desert are lizardfolk who left the mire. They bow to Kraghul, the warlord of the Ashen Horde.'],
   wyrms: ['The Wyrms',
-    'The night the gate opened, the Brood Stone grew warm, and the old wyrms woke: fire, stone and frost. They wake when the world is torn. If you meet one, do not stand in front of it.',
+    'The night the gate opened, the Brood Stone grew warm, and the old wyrms woke: fire, stone and frost. They wake when the world is torn. If you meet one, do not stand in front of it. Old, you call them? To you. The brood remembers their mothers.',
     'The old wyrms, fire, stone and frost, woke when the gate opened. They wake when the world is torn.'],
 
   // The old world.

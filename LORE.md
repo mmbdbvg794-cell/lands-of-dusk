@@ -30,10 +30,12 @@ and add to it here first.
   "hell"). Then the Horde came west. Midnight's deep mines were overrun
   (the Izaru Deeps), King Zilen's grave was robbed of its crown and the
   crypt of his guard defiled (the Zilen Legacy). **The City of Light still
-  holds**, barely. The old world is a dying land; adventurers go back to
-  fight in it.
+  holds**, barely. The old world is a dying land, dying by emptying, not
+  burning: most of its people sailed east, and the ones left are stubborn,
+  poor or old. Adventurers go back to fight in it.
 - King Aldric proclaimed Morvane a traitor, closed the road to Firetown, and
-  sent his people away by sea.
+  sent his people away by sea. He did not come east himself, and he is gone
+  now: dead or missing, no one knows (see "Canon decisions").
 
 ## The crossing
 
@@ -42,7 +44,8 @@ and add to it here first.
   built **Kingshaven** out of their own ships.
 - Aldric sent his daughter, **Princess Elowen**, on the last ship, the
   **Dawnward**, to rule the refugees. The Dawnward never arrived. Kingshaven
-  ("the king's haven") keeps an empty throne for her.
+  ("the king's haven") keeps an empty throne for her. **Lord Steward
+  Halvard** governs the city in her name, standing beside the empty chair.
 - **What became of her** (the quest chain *The Dawnward*, dawnward.mjs): a
   storm wrecked the Dawnward on the lizardman isles' east shore (the wreck
   is still there, stripped by Dry One raiders). The brood pulled Elowen,
@@ -91,7 +94,9 @@ and add to it here first.
   who left the mire long ago. They bow to Kraghul, who raids the dunes
   above Eastreach: the Horde's foothold on this side of the sea.
 - **The wyrms** (ember, stone and frost dragons) wake when the world is
-  torn. They all woke when the gate opened.
+  torn. They all woke when the gate opened. They are old to humans but young
+  to dragonkind: elder dragons exist elsewhere (Ithrae: "Old, you call them?
+  To you. The brood remembers their mothers.").
 
 ## Where the pieces are (tools/world/cities/lore.mjs)
 
@@ -110,5 +115,42 @@ and counts toward the achievement **Keeper of Tales** (all of them).
 | The last sailings notice | Westsea Harbour quay | lore_lastships |
 
 Smaller touches (no flag): Chieftain Hesska warns of the Dry Ones; the
-tutorial's last message; Kraghul's and Morvane's descriptions; the
+tutorial's last message; Kraghul's and Morvane's descriptions; Lord Steward
+Halvard in Kingshaven's keep (no word of King Aldric; once a player has
+brought Elowen's letter home, he has read it too); Tombkeeper Aldous's hint
+that someone paid for King Zilen's crown (*The King's Crown*); the
 website's Lore page tells only the opening legend.
+
+Other named people in the stories, so names don't clash again: Old Wenna
+(Kingshaven's chronicler) and Old Tamsin (the herbalist by Eastreach) keep
+their names; the old world's herbalist by the swamp is **Herbalist Linnet**,
+the east-field village's reeve is **Reeve Osric** (a man), and Kingshaven's
+tailor is **Corra the Tailor**.
+
+## Canon decisions (2026-10-15)
+
+Decided by flan; live NPC dialogue follows them.
+
+- **A. King Aldric is gone.** He is not in Kingshaven and not in the old
+  world: dead or missing, and no one knows which. Lord Steward Halvard
+  governs Kingshaven in Elowen's name, beside the empty chair.
+- **B. The wyrms are young.** The ember, stone and frost wyrms are old to
+  humans but young to dragonkind. Elder dragons exist elsewhere (future
+  endgame content).
+- **C. The crown was bought. (SECRET: players only ever get a hint.)** The
+  robber boss in *The King's Crown* was paid to fetch King Zilen's crown by
+  an agent of Morvane. In the game Aldous only says "Thieves melt gold; they
+  don't keep crowns. Someone paid for this one." Never name Morvane (or his
+  agent) in the game.
+- **D. The old world is dying by emptying, not burning.** Most people sailed
+  east; the ones left are stubborn, poor or old. Its towns should read as
+  thinned out and hanging on, not busy or thriving.
+- **E. Renames to end name clashes.** Herbalist Wenna is now Herbalist
+  Linnet; Reeve Tamsin is now Reeve Osric (a man); Tamsin the Tailor is now
+  Corra the Tailor. Old Wenna and Old Tamsin keep their names. Quest ids
+  and flags did not change.
+
+**Open threads these create:**
+- What happened to King Aldric (dead, missing, taken?).
+- Why Morvane wanted his father's crown.
+- The elder dragons: where they are, and what they make of the young wyrms.

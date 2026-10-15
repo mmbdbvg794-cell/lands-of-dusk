@@ -572,6 +572,24 @@ backups; see `server/`.
 - **Settings in sections**: Display, Screen layout, Sound, Music, Account and
   help, and a closed Advanced (the bridge address and protocol trace).
 
+## The story tidied up (15 October 2026)
+
+- **Kingshaven's keep**: King Aldric never came east. Lord Steward Halvard
+  governs the city in Princess Elowen's name, standing beside her empty
+  chair, and has no word of the king. If you brought Elowen's letter home,
+  he has read it too.
+- Kingshaven's townsfolk no longer talk of a king in the keep or of the city
+  being old: it was built forty years ago from the refugee ships.
+- **New names** so no two people share one: Herbalist Wenna by the swamp is
+  now **Herbalist Linnet**, Reeve Tamsin of the east-field village is now
+  **Reeve Osric**, and Kingshaven's tailor is **Corra**. Quests and your
+  progress in them are unchanged.
+- The old world sounds emptier: Reeve Osric and Foreman Dask talk about the
+  people who sailed away, and Osric has something to say about what moves at
+  the far end of the field at night.
+- Tombkeeper Aldous has a thought about King Zilen's crown, and Shaman Ithrae
+  a word more about the wyrms.
+
 ## Closed beta
 
 - **Beta keys.** Playing in the browser needs a beta key. Type it once in the

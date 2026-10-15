@@ -1435,6 +1435,33 @@ Lessons:
   clanhalls file: claimhall <hall> none / re-claim after it.
 - Not done: clan in who.json / the who page.
 
+## 2026-10-15: canon cleanup (LIVE: installed 14:12, restart 14:12:57)
+
+- LORE.md has a "Canon decisions" section (A-E): King Aldric is gone (dead
+  or missing), Lord Steward Halvard governs Kingshaven; the wyrms are young
+  to dragonkind; the crown's buyer is Morvane's agent (SECRET, only Aldous's
+  hint in game); the old world is emptying, not burning; renames Herbalist
+  Wenna -> Herbalist Linnet, Reeve Tamsin -> Reeve Osric (a man), Tamsin the
+  Tailor -> Corra the Tailor.
+- Repo plans changed: capital.mjs (Halvard, exported as HALVARD_DLG; Royal
+  Guard, Prue/Flora lines, Corra), lore.mjs (king's haven, wyrms),
+  zilen.mjs, izaru.mjs, frozenreach.mjs, swamp.mjs, fix_swamp.py.
+- Live is patched in place, not reinstalled: tools/server/canon_cleanup.mjs
+  (run locally on a copy of ~/DuskRPG; refuses if a conversation was
+  hand-edited) -> merge_quests.mjs for Aldous, Osric, Dask ->
+  tools/server/canon_install.sh on duskserver (backs up to
+  backups/canon-<date>/; live backup canon-20261015-141214). Needed a
+  restart (props: Halvard and the renamed NPCs). Talk scripts take effect
+  at once, so install and restart together.
+- Found: a quest's "after" line is only heard after the LAST quest in that
+  giver's chain (the next quest's offer always comes first), so the new
+  zl_crown, fr_wolves and iz_slimes after-lines, and Dask's own greeting,
+  aren't reachable. Not fixed (reported to the user).
+- Step 2's other Kingshaven hits (keep sign "King Aldric holds court
+  within", Armsmaster Doyle "the king's own guard", Old Fisher Tam "Fifty
+  years", the King's Watch, etc.) and the old-world tone audit
+  (docs/oldworld-audit-2026-10-15.md) await flan's decisions.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

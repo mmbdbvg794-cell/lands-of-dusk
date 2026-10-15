@@ -42,17 +42,33 @@ const bye = ask('Farewell', 'Go well.');
 
 const DIRECTIONS = 'The keep is to the north-west, the cathedral to the north-east, and the grand plaza where the avenues cross. Shops and the bank are round the plaza, the market south-west of it, the inns and taverns all over, and the harbour through the south gate.';
 
+// Lord Steward Halvard governs in Princess Elowen's name, beside her empty
+// chair in the keep (LORE.md: King Aldric stayed behind and is gone). Once
+// the player has brought Elowen's letter home (ft_word_done), he has read
+// it too. Exported for tools/server/canon_cleanup.mjs.
+export const HALVARD = 'Lord Steward Halvard';
+export const HALVARD_DESC = 'Lord Steward Halvard, grey and tired, in a plain dark coat. He stands beside the throne, not on it.';
+const HALVARD_ANSWERS = [
+  ask('Whose chair is that?', 'Princess Elowen\'s. Her father sent her on the last ship. We have kept it for her forty years.'),
+  ask('And King Aldric?', 'Ships still come from Westsea, and none of them carry word of him. Dead, some say. I say I do not know, and I will not pretend to.'),
+  ask('What news?', 'The new lands are full of wonders and teeth. We need brave souls. Speak to Captain Merrow at the barracks if you would serve.'),
+  ask('Tell me of the city', DIRECTIONS),
+  bye];
+export const HALVARD_DLG = { shouts: [], stages: [
+  { when: { kind: 'flag', value: 'ft_word_done' }, says: 'Wenna showed me the letter. \'Keep the people warm.\' I suppose that is my work now.', answers: HALVARD_ANSWERS },
+  always(`Welcome to the keep. I am Halvard, steward of ${NAME}. I govern in the princess's name, until she comes.`, HALVARD_ANSWERS)] };
+
 const SHOP = (shout, text, extra = []) => talk(text, [...extra, bye], shout ? [shout] : []);
 
 const TOWNSFOLK_LINES = [
-  'They say the king hasn\'t slept since the ships stopped coming from the old world.',
+  'They say the steward hasn\'t slept since the ships stopped bringing word of the king.',
   'Mind your purse near the harbour. Not everyone at the docks is a sailor.',
   'The cathedral bells woke me again. Every morning, the same three notes.',
   'My brother went east past the mountains to find gold. He found a lizardman instead.',
   'Have you tried the stew at the Crown and Anchor? Don\'t. Have the bread.',
   'Lantern Row has houses to let, if you\'re staying. The landlord drives a hard bargain.',
   'The market\'s best before noon, when the fish is still fresh.',
-  'My grandmother says Kingshaven was a fishing village once. Now look at it.',
+  'My grandmother says there was nothing on this shore when the ships came. Now look at it.',
   'The guards are stricter since the trouble in the old world. Keep your sword sheathed.',
   'There\'s a man at the Rusty Tankard who swears he\'s seen the Underdark. Drink makes liars of us all.',
   'If you\'re after a fight, the barracks yard lets anyone strike the dummies.',
@@ -190,12 +206,8 @@ export default {
     F(1399, 329, 28, 1, 't'); // the red runner to the throne
     F(1399, 327, 2, 5, 'S'); F(1425, 327, 2, 5, 'S'); // pillars
     PR('Throne', 1413, 327);
-    NPC({ name: 'King Aldric', look: 'Villager Man', desc: `King Aldric of ${NAME}, grey-bearded, a plain gold circlet on his brow.`, x: 1413, y: 328,
-      dlg: talk(`Welcome to my hall, traveller. ${NAME} has stood on this shore for three hundred years, and it will stand three hundred more.`, [
-        ask('What news, my king?', 'Ships from the old world come seldom now, and the new lands are full of wonders and teeth. We need brave souls. Speak to Captain Merrow at the barracks if you would serve.'),
-        ask('Tell me of the city', DIRECTIONS),
-        bye]) });
-    NPC({ name: 'Royal Guard', look: 'Guard', desc: 'A royal guard in a blue tabard, halberd planted.', x: 1411, y: 328, dlg: talk('Bow before the king, or keep your distance.') });
+    NPC({ name: HALVARD, look: 'Villager Man', desc: HALVARD_DESC, x: 1413, y: 328, dlg: HALVARD_DLG });
+    NPC({ name: 'Royal Guard', look: 'Guard', desc: 'A royal guard in a blue tabard, halberd planted.', x: 1411, y: 328, dlg: talk('The chair is the princess\'s. Bow to it, or keep your distance.') });
     PR('Guard', 1415, 328);
     for (const x of [1400, 1405, 1420, 1425]) PR('candlestick stand', x, 333);
     PR('plants', 1397, 326); PR('plants', 1428, 326);
@@ -251,7 +263,7 @@ export default {
     shop({ x: 1424, y: 368, door: 'n', sign: 'Cobb\'s Provisions', text: 'Cobb\'s Provisions: food, bags and tools.', wares: WARES.general,
       who: { name: 'Cobb the Grocer', look: 'cook', desc: 'Cobb the grocer, apron dusted with flour.', dlg: SHOP('Provisions! Everything for the road!', 'Food, water, bags and tools. Stand at my counter and see the Shop tab.') } });
     shop({ x: 1413, y: 360, door: 'n', sign: 'Needle and Thread', text: 'Needle and Thread: clothes and leather.', wares: WARES.tailor,
-      who: { name: 'Tamsin the Tailor', look: 'Woman', desc: 'Tamsin the tailor, pins in her sleeve.', dlg: SHOP('', 'Shirts, vests and cloaks, made to last. Stand at my counter and open the Shop tab.') } });
+      who: { name: 'Corra the Tailor', look: 'Woman', desc: 'Corra the tailor, pins in her sleeve.', dlg: SHOP('', 'Shirts, vests and cloaks, made to last. Stand at my counter and open the Shop tab.') } });
 
     // ---- the bank (east of the plaza) ----
     // Brick: the painted stone wall looks like paving. A row clear of the
