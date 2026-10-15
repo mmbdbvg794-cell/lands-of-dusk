@@ -40,6 +40,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -550,7 +551,44 @@ public class Classes {
             return null;
         }
         if (verb.equals("wear") && lower.length() > 5) return wear(who, lower.substring(5).trim());
+        if (verb.equals("buy")) return buy(who, engine, line.trim());
         return null;
+    }
+
+    // Buying gear the class can't use: warned first, and the same buy again
+    // within two minutes goes through (the shop sells it all the same).
+    static final long WARNED_FOR = 2 * 60 * 1000L;
+    static final Hashtable<String, Long> warned = new Hashtable<String, Long>();
+
+    static String buy(LivingThing who, DuskEngine engine, String line) {
+        try {
+            Def c = of(who);
+            if (c == null || c.wears == null) return null;
+            // "buy <qty> <name>", as the engine reads it.
+            String rest = line.substring(3).trim();
+            int sp = rest.indexOf(' ');
+            if (sp < 0) return null;
+            String name = rest.substring(sp + 1);
+            if (name.startsWith("train:") || name.startsWith("pet") || name.indexOf(':') >= 0) return null;
+            Merchant shop = engine.overMerchant(who.intLocX, who.intLocY);
+            if (shop == null || !shop.contains(name)) return null;
+            Item item = engine.getItem(name);
+            if (item == null || (item.intType != 1 && item.intType != 2 && item.intType != 5)) return null;
+            String kind = kindOf(item);
+            if (c.wears.contains(kind)) return null;
+            String key = who.strName.toLowerCase() + "|" + name.toLowerCase();
+            Long at = warned.remove(key);
+            long now = System.currentTimeMillis();
+            if (at != null && now - at < WARNED_FOR) return null;
+            warned.put(key, now);
+            return "Careful: a " + nameFor(c, who) + " can't use " + kindWords(kind) + ", so you couldn't wear the " + item.strName + ". Buy it again to buy it anyway.";
+        } catch (Exception e) {
+            return null; // the engine's own buy
+        }
+    }
+
+    static String kindWords(String kind) {
+        return kind.equals("heavy") ? "heavy armour" : kind.equals("light") ? "light armour" : kind.equals("blade") ? "bladed weapons" : kind + "s";
     }
 
     // A weapon, bow or armour's kind, from its name.
@@ -579,8 +617,7 @@ public class Classes {
         if (item == null || (item.intType != 1 && item.intType != 2 && item.intType != 5)) return null;
         String kind = kindOf(item);
         if (c.wears.contains(kind)) return null;
-        String words = kind.equals("heavy") ? "heavy armour" : kind.equals("light") ? "light armour" : kind.equals("blade") ? "bladed weapons" : kind + "s";
-        return "A " + nameFor(c, who) + " can't use " + words + " (the " + item.strName + ").";
+        return "A " + nameFor(c, who) + " can't use " + kindWords(kind) + " (the " + item.strName + ").";
     }
 
     // ---- at login (from Sex.afterRace) ----------------------------------------

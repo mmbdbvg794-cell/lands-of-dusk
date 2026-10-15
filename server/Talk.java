@@ -183,9 +183,67 @@ public class Talk {
         }
     }
 
+    // ---- answers (TalkPatch: every script "input" goes through answer) ----
+
+    // A question ends in its choices: "... (i have them)", "(yes sir/no)".
+    static final java.util.regex.Pattern SPOKEN = java.util.regex.Pattern.compile("^.{1,40}? (says|asks): .*?\\(([^()]+)\\)\\s*$"); // shouts don't wait for answers
+    static final long ASKED_FOR = 30 * 60 * 1000L; // as long as a quiet connection lasts
+    static final long HM_WITHIN = 3000L;
+    static final String HM = "Talk to me again when you've made up your mind.";
+    // Per player (lower-case name): the last NPC line's choices, and when.
+    static final Hashtable<String, String[]> asked = new Hashtable<String, String[]>();
+    static final Hashtable<String, Long> askedAt = new Hashtable<String, Long>();
+    // When a line was taken as a command instead: the NPC's "Hm?" after it isn't said.
+    static final Hashtable<String, Long> passedOn = new Hashtable<String, Long>();
+
+    // Each NPC line a player gets: its choices are what a script reading the
+    // next answer is waiting for (a line without any clears them).
+    static void heard(Player p, String text) {
+        String key = p.strName.toLowerCase();
+        java.util.regex.Matcher m = SPOKEN.matcher(text.trim());
+        if (m.matches() && !text.startsWith("\t")) {
+            String[] choices = m.group(2).toLowerCase().split("/");
+            for (int i = 0; i < choices.length; i++) choices[i] = choices[i].trim();
+            asked.put(key, choices);
+            askedAt.put(key, System.currentTimeMillis());
+        } else if (text.indexOf(" says: ") > 0 || text.indexOf(" asks: ") > 0) {
+            asked.remove(key);
+        }
+    }
+
+    // The line a script's "input" read. A question with choices, answered
+    // with none of them, means the player was doing something else ("buy 1
+    // water" while the Quartermaster waits): run it as the command it is.
+    // The script still gets the line, and its "Hm? ..." isn't said.
+    public static String answer(Player p, String line) {
+        try {
+            if (p == null || line == null) return line;
+            String key = p.strName.toLowerCase();
+            String[] choices = asked.remove(key);
+            Long at = askedAt.remove(key);
+            if (choices == null || at == null || System.currentTimeMillis() - at > ASKED_FOR) return line;
+            String said = line.trim().toLowerCase();
+            if (said.length() == 0 || said.equals("notdead")) return line;
+            for (String c : choices) if (c.equals(said)) return line;
+            passedOn.put(key, System.currentTimeMillis());
+            String reply = Commands.parseCommand(p, p.engGame, line);
+            if (reply != null && reply.length() > 0) p.chatMessage(reply + "\n");
+        } catch (Exception e) {
+            Log.logError(e, "Talk.answer \"" + line + "\"", false);
+        }
+        return line;
+    }
+
     public static String forClient(Player p, String text) {
         try {
-            if (text == null || p == null || BridgedSocket.browser(p.sckConnection)) return text;
+            if (text == null || p == null) return text;
+            Long passed = passedOn.get(p.strName.toLowerCase());
+            if (passed != null && text.indexOf(HM) > 0) {
+                passedOn.remove(p.strName.toLowerCase());
+                if (System.currentTimeMillis() - passed < HM_WITHIN) return null;
+            }
+            heard(p, text);
+            if (BridgedSocket.browser(p.sckConnection)) return text;
             if (text.indexOf(": ") > 0 && Character.isUpperCase(text.charAt(0))) {
                 text = classicNotice(text);
                 if (text == null) return null;

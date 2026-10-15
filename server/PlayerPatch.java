@@ -20,6 +20,9 @@
  * its players (server/Talk.java); null sends nothing. Its one branch jumps
  * to a frame the same as on entry.
  *
+ * And the read timeout set on each player's connection goes from 10
+ * minutes to 30: a player who sends nothing that long is logged out.
+ *
  *   java --add-exports ... PlayerPatch <Player.class in> <Player.class out>
  *
  * Part of the browser client project (dusk-browser-client/server).
@@ -36,6 +39,8 @@ import jdk.internal.org.objectweb.asm.tree.MethodNode;
 import jdk.internal.org.objectweb.asm.tree.VarInsnNode;
 
 public class PlayerPatch {
+    static final int IDLE_MS = 30 * 60 * 1000;
+
     public static void main(String[] args) throws Exception {
         ClassNode cls = new ClassNode();
         new ClassReader(Files.readAllBytes(Paths.get(args[0]))).accept(cls, 0);
@@ -84,9 +89,25 @@ public class PlayerPatch {
         words.add(new jdk.internal.org.objectweb.asm.tree.FrameNode(Opcodes.F_SAME, 0, null, 0, null));
         chat.instructions.insert(words);
         chat.maxStack = Math.max(chat.maxStack, 2);
+        // A quiet connection is dropped after 30 minutes, not 10 (the read
+        // timeout set when a player connects): long enough to sleep off a
+        // fight, or step away, without "Goodbye.".
+        int timeouts = 0;
+        for (MethodNode m : cls.methods) {
+            for (jdk.internal.org.objectweb.asm.tree.AbstractInsnNode n : m.instructions.toArray()) {
+                if (!(n instanceof jdk.internal.org.objectweb.asm.tree.LdcInsnNode)) continue;
+                jdk.internal.org.objectweb.asm.tree.LdcInsnNode ldc = (jdk.internal.org.objectweb.asm.tree.LdcInsnNode) n;
+                if (!Integer.valueOf(600000).equals(ldc.cst)) continue;
+                jdk.internal.org.objectweb.asm.tree.AbstractInsnNode next = n.getNext();
+                if (!(next instanceof MethodInsnNode) || !((MethodInsnNode) next).name.equals("setSoTimeout")) continue;
+                ldc.cst = Integer.valueOf(IDLE_MS);
+                timeouts++;
+            }
+        }
+        if (timeouts != 1) throw new Exception("expected one 10-minute read timeout in " + args[0] + ", found " + timeouts);
         ClassWriter w = new ClassWriter(0);
         cls.accept(w);
         Files.write(Paths.get(args[1]), w.toByteArray());
-        System.out.println("Patched logout saving, the login look (" + hooked + " returns) and classic words in " + args[1]);
+        System.out.println("Patched logout saving, the login look (" + hooked + " returns), classic words and the 30-minute idle timeout in " + args[1]);
     }
 }

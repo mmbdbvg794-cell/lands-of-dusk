@@ -46,7 +46,9 @@ const itemFile = (desc, image) => `type\nitem\ndescription\n${desc}\nimage\n${im
 // creature AI's grudges); the barrow's knight has a faction of its own, so it only
 // fights the player who attacks it, not alongside its den.
 const MOBS = {
-  'stray hound': { maxhp: 25, maxsp: 0, stre: 28, inte: 1, dext: 3, wisd: 3, cons: 6, bravery: '3.0', grouprelation: '0.6', image: 22, faction: 'stray hound' },
+  // No faction and no group courage: they fight back one at a time, not as a
+  // pack (the 2026-10-15 play-test; tools/server/fix_playtest.py).
+  'stray hound': { maxhp: 25, maxsp: 0, stre: 26, inte: 1, dext: 3, wisd: 3, cons: 6, bravery: '3.0', grouprelation: '0', image: 22 },
   'highway thief': { maxhp: 70, maxsp: 10, stre: 40, inte: 8, dext: 14, wisd: 6, cons: 10, bravery: '3.0', grouprelation: '0.5', image: 2, giveitem: [['stolen purse', '0.4']], faction: 'highway thief' },
   'barrow skeleton': { maxhp: 120, maxsp: 0, stre: 55, inte: 1, dext: 15, wisd: 1, cons: 15, bravery: '3.0', grouprelation: '0.9', image: 32, faction: 'barrow' },
   'barrow skeleton knight': { maxhp: 320, maxsp: 10, stre: 70, inte: 10, dext: 30, wisd: 10, cons: 30, bravery: '3.0', grouprelation: '0.9', image: 32, faction: 'barrow knight' },

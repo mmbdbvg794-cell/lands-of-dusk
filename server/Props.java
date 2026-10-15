@@ -53,6 +53,12 @@
  * Bank tellers (a name, or the look of a named prop, with "teller" in it)
  * can be used from TELLER_REACH squares, since they stand behind counters.
  *
+ * Selling by name: every client sends "sell <qty> <name>" (the old Java
+ * client's Merchant window, the browser's Shop tab), but the engine's sell
+ * takes item IDs ("sell <id> <id> ..."), so it never sold anything ("You do
+ * not have any of those!"). The name form is turned into the ID form here
+ * and handed back to the engine; the ID form goes straight through.
+ *
  * Commands.parseCommand hands commands here after Storage and Talk.
  *
  * Part of the browser client project (dusk-browser-client/server).
@@ -72,6 +78,10 @@ public class Props {
         String trimmed = line.trim();
         String lower = trimmed.toLowerCase();
         try {
+            if (lower.startsWith("sell ")) {
+                String sold = sellByName(who, engine, trimmed.substring(5).trim());
+                if (sold != null) return sold;
+            }
             String bans = Bans.command(who, engine, trimmed);
             if (bans != null) return bans;
             String map = MapStore.command(who, engine, trimmed);
@@ -127,6 +137,43 @@ public class Props {
             return "Something went wrong placing that prop.";
         }
         return null;
+    }
+
+    // What "look" says, ended with a full stop unless it has one (or a "!",
+    // "?" or "..." of its own): descriptions and signs mostly end in ".",
+    // and the engine added another.
+    public static String sentence(String text) {
+        String t = text == null ? "" : text.trim();
+        if (t.endsWith(".") || t.endsWith("!") || t.endsWith("?")) return t;
+        return t + ".";
+    }
+
+    // "<qty> <name>" or "<name>" -> the engine's "sell <id> <id> ...";
+    // null for the ID form (all numbers), which the engine reads itself.
+    static String sellByName(LivingThing who, DuskEngine engine, String args) throws Exception {
+        String[] words = args.split("\\s+");
+        boolean ids = true;
+        for (String w : words) if (!w.matches("\\d+")) ids = false;
+        if (ids || words.length == 0) return null;
+        if (engine.overMerchant(who.intLocX, who.intLocY) == null) return "Sell that to whom?";
+        int qty = 1, from = 0;
+        if (words[0].matches("\\d+")) {
+            qty = Math.max(1, Math.min(100, Integer.parseInt(words[0])));
+            from = 1;
+        }
+        String name = String.join(" ", java.util.Arrays.copyOfRange(words, from, words.length));
+        String want = name.replace('_', ' ');
+        StringBuilder sell = new StringBuilder("sell");
+        int found = 0;
+        for (int i = 0; i < who.items.size() && found < qty; i++) {
+            Item item = (Item) who.items.get(i);
+            if (item == null || item.strName == null || !item.strName.replace('_', ' ').equalsIgnoreCase(want)) continue;
+            sell.append(' ').append(item.ID);
+            found++;
+        }
+        if (found == 0) return "You aren't carrying any " + name + ".";
+        String reply = Commands.parseCommand(who, engine, sell.toString());
+        return reply == null ? "" : reply;
     }
 
     static String nameProp(LivingThing who, DuskEngine engine, String args) throws Exception {

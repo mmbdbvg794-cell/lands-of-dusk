@@ -8,6 +8,7 @@ classes so they compile again, and hooks in Storage (server/Storage.java):
                           Props.command (server/Props.java), first
   DuskServer()            calls Storage.load and Talk.start before
                           accepting players
+  look                    ends with "." only once (Props.sentence)
   "<prop", "<mob"         find mob and prop files whatever their case
                           (server/CaseFix.java)
   accept()                wraps each connection in BridgedSocket (the
@@ -84,6 +85,11 @@ patch('Commands.java', [
                 return "You get the " + (String)object + " from the " + container.strName;''', '''                livingThing.items.add((Object)item);
                 livingThing.updateItems();
                 return "You get the " + (String)object + " from the " + container.strName;''', 1),
+    # Looking at an item, prop or sign ends the text with "." only when it
+    # doesn't end in one already (no more "..": Props.sentence).
+    ('''return "You see " + item.strDescription + ".";''', '''return Props.sentence("You see " + item.strDescription);''', 1),
+    ('''return "You see " + prop.strDescription + ".";''', '''return Props.sentence("You see " + prop.strDescription);''', 1),
+    ('''return "The sign says " + sign.strMessage + ".";''', '''return Props.sentence("The sign says " + sign.strMessage);''', 1),
     # The hook: storage commands before the built-in ones (after any
     # commands/ script of the same name, which runs first as before).
     ('''        catch (Exception exception) {

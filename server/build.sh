@@ -69,4 +69,8 @@ java $ASM -cp tools SpellPatch engine out/DuskEngine.class out/DuskEngine.class
 SCRIPT="$GAME/Script.class"
 [ -f "$GAME/storage-originals/Script.class" ] && SCRIPT="$GAME/storage-originals/Script.class"
 java $ASM -cp tools SpellPatch script "$SCRIPT" out/Script.class
+# An NPC's question doesn't swallow the next command (TalkPatch.java), on
+# the Script SpellPatch made.
+javac -nowarn $ASM -d tools "$SRC/TalkPatch.java"
+java $ASM -cp tools TalkPatch out/Script.class out/Script.class
 ls out
