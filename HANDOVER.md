@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-14 19:30 (duskserver time). Everything below is live
+State as of 2026-10-15 15:00 (duskserver time). Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
 (The newest work is at the end, before "Open / ideas".)
 
@@ -1461,6 +1461,44 @@ Lessons:
   within", Armsmaster Doyle "the king's own guard", Old Fisher Tam "Fifty
   years", the King's Watch, etc.) and the old-world tone audit
   (docs/oldworld-audit-2026-10-15.md) await flan's decisions.
+
+## 2026-10-15: dusk-bot, a headless client for AI play-testing (outside this repo)
+
+- `~/dusk-playtest/` on this machine (claude-code, 192.168.4.33), not in
+  the repo: `dusk_bot.py` (Python stdlib only) + `dusk-bot` wrapper. A daemon
+  per session (unix socket in `run/`) holds a direct TCP connection to the
+  game port (default live 192.168.4.61:10001; `DUSK_HOST`/`DUSK_PORT` or
+  `--host/--port`), not the bridge. CLI: connect (--create, --race, --sex,
+  --class), look, status, do, log [--since N], wait N, quit, stop.
+- `look`: 11x11 ASCII grid with a player-facing legend (all 174 map.gif
+  tiles named by eye in TILE_KINDS; no walkability), entities with display
+  names (browser's `1.Guard` rule), kind, HP, relative position; own x,y
+  only (the world map shows it). `do` resolves names to the IDs the
+  browser's buttons send (attack/look/talk/open/goto/wear/use/drop/unwear),
+  `say`/`gossip` -> `'`/`;` (Dusk's chat). IDs never reach the agent's
+  output. Rate limit 0.5 s per typed line. Machine lines the browser hides
+  are hidden (list in README). Full transcripts in `logs/` (password
+  masked; contain IDs: not for the playing agent).
+- The server sees direct TCP as the classic Java client (classic tips,
+  translated party/mail/trade lines).
+- Docs: `README.md` (full: parity decisions, opcode handled/ignored table,
+  verification) and `PLAYER.md` (player-only usage, no places/NPCs/test
+  details) for the playtesting agent.
+- Verified on scratch with test char **botcheck** / botpw42 (human fighter,
+  scratch only): bot look vs the browser's raw WS frames at the same spot,
+  117/117 terrain cells match; evidence in `~/dusk-playtest/verification/`.
+- Playtest launch (the user runs it in a separate terminal): scratch
+  started 14:5x and a tunnel `-L 10011` from this machine are UP; export
+  `DUSK_HOST=127.0.0.1 DUSK_PORT=10011`, `cd ~/dusk-playtest`, then
+  `claude --permission-mode default --allowedTools "Bash(./dusk-bot:*)"
+  "Read(./notes/**)" "Read(./PLAYER.md)" "Write(./notes/**)" "Edit(./notes/**)"
+  --disallowedTools "Bash(ssh:*)" "Read(./README.md)" "Read(./logs/**)"
+  "Read(./verification/**)" "Read(./run/**)" "Read(./dusk_bot.py)" Grep Glob
+  WebSearch WebFetch` (deny `Bash(ssh:*)` because settings.local.json allows
+  ssh). Agent notes go to `~/dusk-playtest/notes/`.
+- **Stop scratch after the playtest** (memory): `ssh duskserver 'sh -s
+  stop' < tools/scratch.sh`. Next: read notes/ + logs/ and turn findings
+  into fixes.
 
 ## Open / ideas
 
