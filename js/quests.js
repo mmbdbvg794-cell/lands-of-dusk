@@ -181,6 +181,10 @@ export function questStagesFor(q, npc) {
   });
   if (isGiver) {
     stages.push({ ...tag, when: { kind: 'flag', value: flagOn(q) }, says: t(q.reminder) || 'How goes it?', answers: [] });
+    // Still waiting (a repeatable one's "again" flag, which quests can
+    // share, like a bounty board's three notices): said straight away,
+    // rather than offered and then refused once it's accepted.
+    if (flagAgain(q)) stages.push({ ...tag, wait: true, when: { kind: 'flag', value: flagAgain(q) }, says: t(q.again.says) || 'Come back later; there\'s nothing new yet.', answers: [] });
     // (offer.effects: anything more that happens on taking it, as a
     // dialogue answer's effects: a boatman rowing you off, say.)
     const accept = { label: t(q.offer.accept) || 'I will help', reply: t(q.offer.acceptReply), effects: [{ kind: 'flag', flag: flagOn(q) }, { kind: 'flag', flag: flagStep(q, 0) }, ...(Array.isArray(q.offer.effects) ? q.offer.effects : [])] };
@@ -223,11 +227,14 @@ export function stripQuest(dlg, id) {
 
 // Where a quest stage goes among all the quests an NPC has, as the first
 // stage that fits is the one used: someone's step first (whatever quest it
-// is), then "still running", the offers, "not yet", and the thank-yous
+// is), then "still running", the offers (each after its wait, if it has
+// one), "not yet", and the thank-yous
 // last, so finishing one quest doesn't hide the next one's offer. Among
 // the thank-yous, a quest that needs another goes first: the latest quest
 // of a chain gets the last word.
 function stageRank(st) {
+  // A repeatable quest's wait goes with the offers, just before its own.
+  if (st.wait) return 2;
   const id = st.quest, w = st.when ?? {};
   const v = cleanFlag(w.value).toLowerCase();
   if (w.kind === 'flag') return v === `${id}_done` ? 4 : v === `${id}_on` ? 1 : 0;

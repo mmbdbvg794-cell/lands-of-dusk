@@ -1539,6 +1539,24 @@ review with every claim checked against the transcripts in
   name matching, new `map` command. Scratch test chars: fixcheck/fixpw42
   (ranger, at the hound meadow), botcheck, Wrenna (the tester's).
 
+## 2026-10-15 21:23: bounty boards say no up front (LIVE, no restart needed)
+
+- js/quests.js: a repeatable quest with a wait ("again" flag) gets a stage
+  `{ wait: true, when: flag <again flag> }` saying the wait text, ranked
+  with the offers (stageRank 2) so it sits after "still running" and just
+  before its own offer. The accept's own once-check stays. Test in
+  test/quests.test.mjs (merged order too).
+- bounties.mjs wording: "One bounty a day from <town>'s board, whichever
+  notice you pick." / "You've already taken today's bounty from <town>'s
+  board (one a day, whichever notice). New notices go up tomorrow."
+- Installed with install_city.py --force --old-world (72 files: 48 poster
+  talk files + 24 quests/bt_*.json; diffs checked = only this change;
+  backups/city-bounty-boards-20261015-212348). Talk scripts recompile on
+  use (.dsko removed), so no restart.
+- **Client deploy still needed** for js/quests.js (the God tab's quest
+  wizard), or a god re-saving a repeatable quest there regenerates it
+  without the wait stage: `sh tools/deploy.sh`.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

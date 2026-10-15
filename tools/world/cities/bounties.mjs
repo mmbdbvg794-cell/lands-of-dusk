@@ -84,10 +84,10 @@ function bountyQuest(board, [mob, count, poster, where, pay], tier) {
     title: `Bounty: ${title(many)}`,
     giver: poster,
     repeatable: true,
-    again: { minutes: AGAIN_MINUTES, flag: `bounty_${board.id}`, says: 'You\'ve had today\'s bounty from this board. New notices go up tomorrow.' },
+    again: { minutes: AGAIN_MINUTES, flag: `bounty_${board.id}`, says: `You've already taken today's bounty from ${board.town}'s board (one a day, whichever notice). New notices go up tomorrow.` },
     offer: {
       ...q.offer,
-      says: `WANTED: ${count} ${many}, ${where}. Reward: ${reward.gold} gold and ${reward.exp} experience, paid at this board. One bounty a day from this board.`,
+      says: `WANTED: ${count} ${many}, ${where}. Reward: ${reward.gold} gold and ${reward.exp} experience, paid at this board. One bounty a day from ${board.town}'s board, whichever notice you pick.`,
       accept: 'I will take it',
       acceptReply: `Your name is on the notice. Kill ${count} ${many} and come back to claim it.`,
       decline: 'Not today',

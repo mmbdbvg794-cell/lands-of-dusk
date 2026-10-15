@@ -68,6 +68,21 @@ const offerD = questStagesFor(daily, 'Farmer Joe').at(-1);
 assert.deepEqual(offerD.answers[0].once, { flag: 'bounty_kh', minutes: 1200, says: 'Come back tomorrow.' });
 assert.ok(questFlags(daily).includes('bounty_kh') && questFlags(daily).includes('timernow'));
 assert.match(toScript('Farmer Joe', mergeQuest({ stages: [] }, daily, 'Farmer Joe')), /flagtimer bounty_kh 1200/);
+// While the wait lasts it's said up front, not after accepting; someone on
+// the quest still gets the reminder first.
+const dailyJoe = questStagesFor(daily, 'Farmer Joe');
+const waitAt = dailyJoe.findIndex((s) => s.when.kind === 'flag' && s.when.value === 'bounty_kh');
+assert.ok(waitAt > dailyJoe.findIndex((s) => s.when.value === 'wolf_trouble_on' && s.when.kind === 'flag'), 'after the reminder');
+assert.equal(waitAt, dailyJoe.length - 2, 'just before the offer');
+assert.deepEqual(dailyJoe[waitAt].answers, []);
+assert.equal(dailyJoe[waitAt].says, 'Come back tomorrow.');
+assert.ok(!repJoe.some((s) => s.when.kind === 'flag' && /again|bounty/.test(s.when.value)), 'no wait stage without a wait');
+// Merged (sorted among all the NPC's stages), it still comes after the
+// reminder and just before the offer.
+const mergedD = mergeQuest({ stages: [] }, daily, 'Farmer Joe').stages;
+const at = (pred) => mergedD.findIndex(pred);
+const waitM = at((s) => s.when.value === 'bounty_kh'), onM = at((s) => s.when.kind === 'flag' && s.when.value === 'wolf_trouble_on'), offerM = at((s) => s.when.kind === 'noflag' && s.when.value === 'wolf_trouble_on');
+assert.ok(onM < waitM && waitM === offerM - 1, `reminder ${onM}, wait ${waitM}, offer ${offerM}`);
 const ownFlag = tidyQuest({ ...q, repeatable: true, again: { minutes: 60 } });
 assert.equal(questStagesFor(ownFlag, 'Farmer Joe').at(-1).answers[0].once.flag, 'wolf_trouble_again');
 assert.equal(questStagesFor(tidyQuest({ ...q, again: { minutes: 60 } }), 'Farmer Joe').at(-1).answers[0].once, undefined, 'only for repeatable quests');
