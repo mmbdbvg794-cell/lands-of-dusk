@@ -1556,7 +1556,7 @@ review with every claim checked against the transcripts in
 - Client deployed 2026-10-15 ~21:30 (js/quests.js for the God tab's quest
   wizard), so re-saving a repeatable quest there keeps the wait stage.
 
-## 2026-10-15 22:40: race bonuses in the classic race list (NOT LIVE until install + restart)
+## 2026-10-15 22:40: race bonuses in the classic race list (LIVE since the 22:43 restart)
 
 - Talk.forClient (classic clients only; the browser's race buttons already
   show bonuses from raceinfo.json): the "Choose one of the following
