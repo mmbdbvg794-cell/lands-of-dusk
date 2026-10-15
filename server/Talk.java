@@ -234,6 +234,34 @@ public class Talk {
         return line;
     }
 
+    // A new character's race list (Player.loadRace: the heading, then
+    // "\u0003<race>\n" per race): for the Java client, each race with what
+    // it adds to the stats ("human: +1 STR, +1 DEX, ..."), as the browser's
+    // race buttons show. The name is still what's typed.
+    static final String RACES = "Choose one of the following races:";
+    static final String[][] RACE_STATS = { { "stre", "STR" }, { "dext", "DEX" }, { "inte", "INT" }, { "cons", "CON" }, { "wisd", "WIS" }, { "hp", "HP" }, { "mp", "MP" } };
+
+    static String raceList(Player p, String text) {
+        String[] parts = text.split("\u0003");
+        StringBuilder out = new StringBuilder(parts[0]);
+        for (int i = 1; i < parts.length; i++) {
+            String name = parts[i].trim();
+            Race race = p.engGame.getRaceCollection().getRace(name);
+            StringBuilder plus = new StringBuilder();
+            for (String[] s : RACE_STATS) {
+                int n = 0;
+                try {
+                    if (race != null) n = race.getAttribute(s[0]);
+                } catch (Exception e) {
+                    // Not in this race's file.
+                }
+                if (n != 0) plus.append(plus.length() > 0 ? ", " : "").append(n > 0 ? "+" : "").append(n).append(' ').append(s[1]);
+            }
+            out.append('\u0003').append(name).append(": ").append(plus.length() > 0 ? plus : "no bonuses").append('\n');
+        }
+        return out.toString();
+    }
+
     public static String forClient(Player p, String text) {
         try {
             if (text == null || p == null) return text;
@@ -244,6 +272,7 @@ public class Talk {
             }
             heard(p, text);
             if (BridgedSocket.browser(p.sckConnection)) return text;
+            if (text.startsWith(RACES)) return raceList(p, text);
             if (text.indexOf(": ") > 0 && Character.isUpperCase(text.charAt(0))) {
                 text = classicNotice(text);
                 if (text == null) return null;

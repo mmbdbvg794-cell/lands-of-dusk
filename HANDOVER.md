@@ -1556,6 +1556,14 @@ review with every claim checked against the transcripts in
 - Client deployed 2026-10-15 ~21:30 (js/quests.js for the God tab's quest
   wizard), so re-saving a repeatable quest there keeps the wait stage.
 
+## 2026-10-15 22:40: race bonuses in the classic race list (NOT LIVE until install + restart)
+
+- Talk.forClient (classic clients only; the browser's race buttons already
+  show bonuses from raceinfo.json): the "Choose one of the following
+  races:" list gets each race's stat bonuses, "human: +1 STR, +1 DEX, +1
+  INT, +1 CON, +1 WIS". The name is still what's typed. dusk-bot reads the
+  "name: ..." lines. Tested on scratch (char racecheck).
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
