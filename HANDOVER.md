@@ -1564,7 +1564,7 @@ review with every claim checked against the transcripts in
   INT, +1 CON, +1 WIS". The name is still what's typed. dusk-bot reads the
   "name: ..." lines. Tested on scratch (char racecheck).
 
-## 2026-10-16: late answers and shield prices (NOT LIVE until install + fix_playtest + restart)
+## 2026-10-16: late answers and shield prices (LIVE since the 12:42 restart)
 
 - "huh?" -> Talk.unknown (patch.py, the engine's one "huh?"): a line that's
   one of the choices of the player's last NPC question (kept in
