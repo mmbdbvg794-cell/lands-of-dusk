@@ -1582,7 +1582,7 @@ review with every claim checked against the transcripts in
 
 ## 2026-10-16 16:30: help in the browser, real armour numbers, leather shield
 
-- Browser (needs `sh tools/deploy.sh`): opcode 20 windows that aren't a
+- Browser (deployed 2026-10-16 ~16:35): opcode 20 windows that aren't a
   god's name list (help, help commands) go in the chat (main.js).
   js/iteminfo.js shows armour as what it really adds (ARMOUR_WEIGHT, the
   server's getArmorMod: torso 0.4, skull 0.2, waist 0.15, the rest 0.05):
