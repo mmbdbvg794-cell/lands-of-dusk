@@ -9,6 +9,8 @@ classes so they compile again, and hooks in Storage (server/Storage.java):
   DuskServer()            calls Storage.load and Talk.start before
                           accepting players
   look                    ends with "." only once (Props.sentence)
+  "huh?"                  Talk.unknown: a late answer to an NPC's question
+                          says the conversation is over
   "<prop", "<mob"         find mob and prop files whatever their case
                           (server/CaseFix.java)
   accept()                wraps each connection in BridgedSocket (the
@@ -90,6 +92,13 @@ patch('Commands.java', [
     ('''return "You see " + item.strDescription + ".";''', '''return Props.sentence("You see " + item.strDescription);''', 1),
     ('''return "You see " + prop.strDescription + ".";''', '''return Props.sentence("You see " + prop.strDescription);''', 1),
     ('''return "The sign says " + sign.strMessage + ".";''', '''return Props.sentence("The sign says " + sign.strMessage);''', 1),
+    # A command no one knows: "huh?", unless it answers a question that's
+    # over (Talk.unknown: "That conversation is over: talk to X again.").
+    ('''            return "huh?";
+        }
+    }''', '''            return Talk.unknown(livingThing, (String)object);
+        }
+    }''', 1),
     # The hook: storage commands before the built-in ones (after any
     # commands/ script of the same name, which runs first as before).
     ('''        catch (Exception exception) {

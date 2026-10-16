@@ -1564,6 +1564,22 @@ review with every claim checked against the transcripts in
   INT, +1 CON, +1 WIS". The name is still what's typed. dusk-bot reads the
   "name: ..." lines. Tested on scratch (char racecheck).
 
+## 2026-10-16: late answers and shield prices (NOT LIVE until install + fix_playtest + restart)
+
+- "huh?" -> Talk.unknown (patch.py, the engine's one "huh?"): a line that's
+  one of the choices of the player's last NPC question (kept in
+  lastAsker/lastChoices after it's answered) says "That conversation is
+  over: talk to <npc> again." Anything else still gets "huh?". Tested on
+  scratch (huhcheck at the Recruiter).
+- Armoury prices: per real armour point (LivingThing.getArmorMod weights:
+  torso 0.4, skull 0.2, waist 0.15, arms/legs/hands/eyes/neck 0.05) the
+  Royal Armoury was already ~25-30 gp/point, except the shields (~100):
+  bronze shield 1008 -> 300, iron shield 1608 -> 480 (fix_playtest.py; it
+  now keeps CRLF line endings). Prices are read from defItems each time a
+  shop list is built or something is bought. Not changed: leather shield
+  (604, also ~100/pt) and mithril shield (9000); item names with "_"; the
+  browser's Backpack shows the raw mod ("Armour +200"), not the weighted one.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

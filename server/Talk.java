@@ -186,7 +186,7 @@ public class Talk {
     // ---- answers (TalkPatch: every script "input" goes through answer) ----
 
     // A question ends in its choices: "... (i have them)", "(yes sir/no)".
-    static final java.util.regex.Pattern SPOKEN = java.util.regex.Pattern.compile("^.{1,40}? (says|asks): .*?\\(([^()]+)\\)\\s*$"); // shouts don't wait for answers
+    static final java.util.regex.Pattern SPOKEN = java.util.regex.Pattern.compile("^(.{1,40}?) (says|asks): .*?\\(([^()]+)\\)\\s*$"); // shouts don't wait for answers
     static final long ASKED_FOR = 30 * 60 * 1000L; // as long as a quiet connection lasts
     static final long HM_WITHIN = 3000L;
     static final String HM = "Talk to me again when you've made up your mind.";
@@ -195,6 +195,29 @@ public class Talk {
     static final Hashtable<String, Long> askedAt = new Hashtable<String, Long>();
     // When a line was taken as a command instead: the NPC's "Hm?" after it isn't said.
     static final Hashtable<String, Long> passedOn = new Hashtable<String, Long>();
+    // The last question anyone asked the player, kept after it's answered or
+    // has gone (asked is cleared then): who asked, and its choices.
+    static final Hashtable<String, String> lastAsker = new Hashtable<String, String>();
+    static final Hashtable<String, String[]> lastChoices = new Hashtable<String, String[]>();
+
+    // Instead of the engine's "huh?" (patch.py): a line that's one of the
+    // choices of a question no one is waiting on any more (answered, or the
+    // conversation has moved on) says so.
+    public static String unknown(LivingThing who, String line) {
+        try {
+            String key = who.strName.toLowerCase();
+            String[] choices = lastChoices.get(key);
+            String said = line == null ? "" : line.trim().toLowerCase();
+            if (choices != null && said.length() > 0) {
+                for (String c : choices) {
+                    if (c.equals(said)) return "That conversation is over: talk to " + lastAsker.get(key) + " again.";
+                }
+            }
+        } catch (Exception e) {
+            // As the engine says it.
+        }
+        return "huh?";
+    }
 
     // Each NPC line a player gets: its choices are what a script reading the
     // next answer is waiting for (a line without any clears them).
@@ -202,10 +225,12 @@ public class Talk {
         String key = p.strName.toLowerCase();
         java.util.regex.Matcher m = SPOKEN.matcher(text.trim());
         if (m.matches() && !text.startsWith("\t")) {
-            String[] choices = m.group(2).toLowerCase().split("/");
+            String[] choices = m.group(3).toLowerCase().split("/");
             for (int i = 0; i < choices.length; i++) choices[i] = choices[i].trim();
             asked.put(key, choices);
             askedAt.put(key, System.currentTimeMillis());
+            lastAsker.put(key, m.group(1).replaceFirst("^The ", "the "));
+            lastChoices.put(key, choices);
         } else if (text.indexOf(" says: ") > 0 || text.indexOf(" asks: ") > 0) {
             asked.remove(key);
         }

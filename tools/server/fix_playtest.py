@@ -14,6 +14,8 @@
   - the "sales list" prop: one line (the engine shows only a description's
     first line, so it was just the table's header)
   - help: for today's clients, not the 2003 applet
+  - the Royal Armoury's shields priced like the rest of its armour (per
+    point of armour they really give): bronze 1008 -> 300, iron 1608 -> 480
 
     python3 fix_playtest.py <game dir> [--apply]
 
@@ -33,7 +35,7 @@ changed = []
 
 def edit(rel, fn):
     path = os.path.join(game, rel)
-    old = open(path, encoding='latin-1').read()
+    old = open(path, encoding='latin-1', newline='').read()  # line endings kept as they are
     new = fn(old)
     if new == old:
         print('  as it is:', rel)
@@ -45,7 +47,7 @@ def edit(rel, fn):
     dest = os.path.join(backup, rel)
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     shutil.copy2(path, dest)
-    open(path, 'w', encoding='latin-1').write(new)
+    open(path, 'w', encoding='latin-1', newline='').write(new)
     if os.path.exists(path + '.dsko'):
         os.remove(path + '.dsko')
 
@@ -58,6 +60,17 @@ def swap(*pairs):
                 s = s.replace(a, b)
         return s
     return fn
+
+
+def set_value(s, key, value):
+    # A "key / value" pair of lines, whatever the line endings.
+    lines = s.splitlines(keepends=True)
+    for i in range(len(lines) - 1):
+        if lines[i].rstrip('\r\n') == key:
+            end = lines[i + 1][len(lines[i + 1].rstrip('\r\n')):]
+            lines[i + 1] = f'{value}{end}'
+            break
+    return ''.join(lines)
 
 
 def hound(s):
@@ -117,5 +130,10 @@ for rel in ('talk/The Armorer', 'talk/The Armorer.dlg'):
 for rel in ('talk/Drill Sergeant', 'talk/Drill Sergeant.dlg'):
     edit(rel, swap((SARGE_HIT_OLD, SARGE_HIT_NEW), (SARGE_GIVE_OLD, SARGE_GIVE_NEW)))
 edit('defProps/sales list', lambda s: SALES)
+# Shields cost ~100 gp per point of armour they really give (the engine
+# counts an arms piece at 0.05 of its "mod", a suit at 0.4); everything
+# else at the Royal Armoury is ~25-30. Put on the same line.
+for name, cost in (('bronze shield', 300), ('iron shield', 480)):
+    edit(f'defItems/{name}', lambda s, cost=cost: set_value(s, 'cost', cost))
 edit('help', lambda s: HELP)
 print(f'{len(changed)} file(s) {"changed" if apply else "to change"}' + (f'; backups in {backup}' if apply and changed else ''))
