@@ -15,7 +15,8 @@
     first line, so it was just the table's header)
   - help: for today's clients, not the 2003 applet
   - the Royal Armoury's shields priced like the rest of its armour (per
-    point of armour they really give): bronze 1008 -> 300, iron 1608 -> 480
+    point of armour they really give): bronze 1008 -> 300, iron 1608 -> 480,
+    and the leather shield the same, 604 -> 180
 
     python3 fix_playtest.py <game dir> [--apply]
 
@@ -133,7 +134,7 @@ edit('defProps/sales list', lambda s: SALES)
 # Shields cost ~100 gp per point of armour they really give (the engine
 # counts an arms piece at 0.05 of its "mod", a suit at 0.4); everything
 # else at the Royal Armoury is ~25-30. Put on the same line.
-for name, cost in (('bronze shield', 300), ('iron shield', 480)):
+for name, cost in (('bronze shield', 300), ('iron shield', 480), ('leather shield', 180)):
     edit(f'defItems/{name}', lambda s, cost=cost: set_value(s, 'cost', cost))
 edit('help', lambda s: HELP)
 print(f'{len(changed)} file(s) {"changed" if apply else "to change"}' + (f'; backups in {backup}' if apply and changed else ''))

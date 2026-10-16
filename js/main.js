@@ -1792,7 +1792,11 @@ function handle(msg) {
       if (kind && isGod) {
         god.setList(kind, cleanList(kind, msg.lines));
         if (libraryEditor.open) libraryEditor.fillNames();
+        break;
       }
+      // Any other is a text window, as the Java client opens one ("help",
+      // "help commands"): its lines go in the chat.
+      for (const line of msg.lines) addText(line);
       break;
     }
     case OP.PLAY_MUSIC:
