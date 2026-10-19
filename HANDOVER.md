@@ -1724,6 +1724,19 @@ the Journal tab, flee announced, "Damage modifier".
   exactly as said; dummy name; normal kill still "won" + drop; inn seen
   from the doorway. Class backups classes-20261019-220250.
 
+## 2026-10-19 22:51: tutorial arrivals say where to go next (LIVE, restart 22:51)
+
+- tools/server/fix_arrivals.py (applied, backups arrivals-20261019-225105):
+  each tutorial's end stone (2 tiles per race: done and skipped; the
+  defMoveActions script and its tileactions json) adds one line from
+  someone standing there, and the "Training done" journal line says the
+  same: humans -> Sergeant Wexley outside Kingshaven's east gate + the
+  bounty board; elves -> Elder Faelar; dark elves -> Matron Xalyth; lizardfolk
+  -> Chieftain Hesska. grove/velkarath/hatchery.mjs match (velkarath build
+  checked byte-for-byte against live); the human tutorial has no plan file.
+- Tested on scratch with a new dark elf (arrivetest/arrive42, skipped the
+  tutorial): arrival line and journal shown.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

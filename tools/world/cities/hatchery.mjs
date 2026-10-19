@@ -79,8 +79,8 @@ const LARDER = {
 const warmStone = (flag) => [{
   when: { kind: 'flag', value: flag },
   speaker: '',
-  says: '** You step onto the Warm Stone. It hums under your feet like something alive... and you stand before the Brood Stone of Ssarakh. **',
-  effects: [...TUT_FLAGS.map(unflag), jflag('lizTutDone', 'Training done (or skipped). Welcome to Ssarakh.', true), { kind: 'bind', x: HEART[0], y: HEART[1] }, { kind: 'teleport', x: HEART[0], y: HEART[1] }],
+  says: '** You step onto the Warm Stone. It hums under your feet like something alive... and you stand before the Brood Stone of Ssarakh. ** A brood-guard flicks her tongue at you: \'New hatchling? Chieftain Hesska sees every one. The Hall of the Brood is just north of the Brood Stone.\'',
+  effects: [...TUT_FLAGS.map(unflag), jflag('lizTutDone', 'Training done (or skipped). Chieftain Hesska sees every new hatchling, in the Hall of the Brood north of the Brood Stone.', true), { kind: 'bind', x: HEART[0], y: HEART[1] }, { kind: 'teleport', x: HEART[0], y: HEART[1] }],
 }];
 // A gap in the willows that opens on a flag.
 const gap = (flag, speaker, words) => ({ kind: 'flag', flag, speaker, verb: 'says', says: words });

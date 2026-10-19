@@ -221,8 +221,8 @@ const PROVISIONER = {
 const spiderStone = (flag) => [{
   when: { kind: 'flag', value: flag },
   speaker: '',
-  says: '** You step onto the Spider Stone. Webs of light close around you... and you stand beside the Fire Well of Velkarath. **',
-  effects: [...TUT_FLAGS.map(unflag), jflag('drowTutDone', 'Training done (or skipped). Welcome to Velkarath.', true), { kind: 'bind', x: WELL[0], y: WELL[1] }, { kind: 'teleport', x: WELL[0], y: WELL[1] }],
+  says: '** You step onto the Spider Stone. Webs of light close around you... and you stand beside the Fire Well of Velkarath. ** A guard looks you over: \'Another hatchling. Matron Xalyth sees every new one, in her palace north of the Fire Well. Do not keep her waiting.\'',
+  effects: [...TUT_FLAGS.map(unflag), jflag('drowTutDone', 'Training done (or skipped). Matron Xalyth sees every new hatchling, in her palace north of the Fire Well.', true), { kind: 'bind', x: WELL[0], y: WELL[1] }, { kind: 'teleport', x: WELL[0], y: WELL[1] }],
 }];
 const door = (flag, speaker, words) => ({ kind: 'flag', flag, speaker, verb: 'says', says: words });
 
