@@ -1619,7 +1619,7 @@ Play-test 2 (Wrenlow, paladin; review ~/dusk-playtest/playtest-review-2026-10-19
 - dusk-bot: open explains map doors, goto X Y refuses beyond the view, the
   class list waits for male/female.
 
-## 2026-10-19 18:10: lizardman bonuses (data applied; LIVE after the next restart, then deploy)
+## 2026-10-19 18:10: lizardman bonuses (LIVE: restart 18:06, client deployed)
 
 - defRaces/lizardman: +2 STR, +2 CON, +1 DEX (was +1 DEX, +2 INT, +2 WIS,
   the elves' exactly); via fix_playtest2.py (backup in

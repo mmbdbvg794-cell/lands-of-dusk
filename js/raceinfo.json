@@ -38,9 +38,9 @@
  },
  "lizardman": {
   "bonuses": {
+   "CON": 2,
    "DEX": 1,
-   "INT": 2,
-   "WIS": 2
+   "STR": 2
   },
   "image": 6,
   "start": {
