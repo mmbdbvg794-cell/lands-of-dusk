@@ -1699,6 +1699,30 @@ the Journal tab, flee announced, "Damage modifier".
   reward. Ilsevel's directions changed to the north gate (105 steps vs 177
   by the west gate); that talk file reinstalled on live (no restart needed).
 
+## 2026-10-19 22:03: Velkarath welcome + play-test 3 leftovers (installed; LIVE after the restart)
+
+- Velkarath: only dark elves get in (the stairs), so Matron Xalyth's quest
+  is a homecoming rite, not a test: new wording for Xalyth and Ilvra
+  (velkarath.mjs; same flags, steps, reward). Talk files installed with a
+  trimmed bundle (live matched the old build); journal line patched in
+  ~/DuskRPG/journal (read at start-up).
+- server/BattleFix.java + BattlePatch (classes; BattleFix in build.sh and
+  install.sh lists): rewards only to those standing (a mutual kill pays
+  nothing; Quests.splitExp1/2 and world boss/quest kills too); "You have
+  won the battle." only after a kill, else "Your foe has fled. The battle
+  is over."; death/flee losses = what the message says (floor); a creature
+  of the attacking side (it started the fight) now drops its item to
+  thnFront2. Patch checks counts (8 gold splits, 12 losses, 2 drops, 1 line).
+- tools/server/fix_playtest3b.py (applied, backups playtest3b-20261019-220250):
+  cheap bow 600 -> 250; large bag 8 items / 30 weight / 120 gp; lavendar ->
+  lavender (item, recipe, shops, storage list, Crafting.java); training_dummy
+  -> "training dummy" (defMobs, mobs, city plans; achieved kill counts left);
+  Basking Rock counter 1679,948 and Gesh 1678,947 (were out of sight from
+  the door; ssarakh.mjs too).
+- Tested on scratch (hgate): mutual kill -> no reward, lost 222gp/6798exp
+  exactly as said; dummy name; normal kill still "won" + drop; inn seen
+  from the doorway. Class backups classes-20261019-220250.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
@@ -1710,12 +1734,6 @@ the Journal tab, flee announced, "Damage modifier".
   "nearby room").
 - Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in
   the dunes; Morvane's journal pages as boss drops.
-- Play-test 3 leftovers (not done): dying on the same tick as the
-  creature still gives its reward; "You have won the battle" after an
-  out-of-range swing; the Basking Rock inn is empty (placeholder); the
-  600 gp "cheap bow"; training_dummy shows its raw name. Earlier ones:
-  "lavendar" item name, death message gp rounding, large and small bags
-  cost the same.
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains, and
   now the doubled monster numbers.

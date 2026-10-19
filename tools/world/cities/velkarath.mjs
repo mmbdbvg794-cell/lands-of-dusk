@@ -79,10 +79,10 @@ const MATRON = {
     ifFlag('velkarath_marked', 'The Spider\'s mark is on your hand. Good.', [
       {
         label: 'It is done',
-        reply: 'Then you are of Velkarath now. Take these, and do not shame my House.',
+        reply: 'Then you are of Velkarath, and of House Xalyth. Take these, and do not shame us.',
         effects: [
           { kind: 'unflag', flag: 'velkarath_marked' },
-          { kind: 'flag', flag: 'velkarath_done', journal: { title: QUEST, text: 'Matron Xalyth accepted me into Velkarath.', done: true } },
+          { kind: 'flag', flag: 'velkarath_done', journal: { title: QUEST, text: 'Matron Xalyth welcomed me into House Xalyth.', done: true } },
           { kind: 'give', item: 'shadowsilk gloves' },
           { kind: 'exp', amount: 300 },
           { kind: 'gold', amount: 150 },
@@ -91,15 +91,15 @@ const MATRON = {
       },
     ]),
     ifFlag('velkarath_task', 'Why are you still here? Go to the temple, east of my palace. Priestess Ilvra is waiting.'),
-    always('Another wanderer from the tunnels. Velkarath does not feed the weak. Will you prove yourself?', [
+    always('So, another hatchling climbs up out of the training caves. Welcome home to Velkarath, child of the deep. Before you walk my streets as one of House Xalyth, the Spider Queen must know your face. Will you take her mark?', [
       {
         label: 'I will',
-        reply: 'Go to the Temple of the Spider Queen, east of my palace, and let Priestess Ilvra mark you. Then come back to me.',
+        reply: 'Go to the Temple of the Spider Queen, east of my palace. Priestess Ilvra will mark you. Then come back to me.',
         effects: [
           { kind: 'flag', flag: 'velkarath_task', journal: { title: QUEST, text: 'Matron Xalyth told me to receive the Spider\'s mark from Priestess Ilvra, in the temple east of her palace.', done: false } },
         ],
       },
-      { label: 'Not now', reply: 'Then crawl back to your tunnel.' },
+      { label: 'Not now', reply: 'The Spider Queen is patient. I am less so.' },
     ]),
   ],
 };
@@ -109,7 +109,7 @@ const PRIESTESS = {
   stages: [
     ifFlag('velkarath_done', 'The Spider Queen watches over you, child of Velkarath.'),
     ifFlag('velkarath_marked', 'Go. The Matron is waiting.'),
-    ifFlag('velkarath_task', 'The Matron sent you? Hold out your hand. This will sting.', [
+    ifFlag('velkarath_task', 'The Matron sent you? Welcome, child of the deep. Hold out your hand. This will sting.', [
       {
         label: 'I am ready',
         replyVerb: 'acts',
@@ -250,7 +250,7 @@ function tutorial(p) {
   p.set(40, 110, '>');
   p.fill(41, 104, 13, 13, 'e');
   p.npc({ name: 'Blademistress Zeerith', look: 'Dark Elf Guard', desc: 'Blademistress Zeerith, watching your footwork with contempt.', x: 47, y: 105, dlg: BLADEMISTRESS });
-  p.mob('training_dummy', 1, 44, 113); p.mob('training_dummy', 1, 50, 113);
+  p.mob('training dummy', 1, 44, 113); p.mob('training dummy', 1, 50, 113);
   // The provisioner, behind a counter.
   p.set(47, 117, 'D');
   p.walk(47, 117, door('drowTut5', 'Blademistress Zeerith', 'Not yet! Bring me the stuffing of a training dummy first.'));
@@ -402,7 +402,7 @@ export default {
     p.fill(108, 72, 13, 9, 'e');
     p.npc({ name: 'Weaponmaster Dral', look: 'Dark Elf Man', desc: 'Weaponmaster Dral, scarred and patient.', x: 114, y: 73, dlg: TRAINER });
     p.merchant(114, 75, WARES.train);
-    p.mob('training_dummy', 1, 110, 79); p.mob('training_dummy', 1, 118, 79);
+    p.mob('training dummy', 1, 110, 79); p.mob('training dummy', 1, 118, 79);
     p.sign('The Pit', 'The Pit. Talk to Weaponmaster Dral to train.', 115, 71);
 
     // Homes along the south street.

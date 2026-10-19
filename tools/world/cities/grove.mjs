@@ -126,7 +126,7 @@ export default {
     p.path([[40, 17], [42, 17]]);
     p.oval(42, 9, 14, 15, 'e');
     p.npc({ name: 'Ranger Thandril', look: 'Elf Guard', desc: 'Ranger Thandril, leaning on a longbow and watching your footwork.', x: 49, y: 11, dlg: RANGER });
-    p.mob('training_dummy', 1, 45, 19); p.mob('training_dummy', 1, 52, 19);
+    p.mob('training dummy', 1, 45, 19); p.mob('training dummy', 1, 52, 19);
 
     // The provisioner, behind a counter.
     p.path([[49, 23], [49, 25]]);

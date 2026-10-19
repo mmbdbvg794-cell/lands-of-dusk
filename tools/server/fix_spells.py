@@ -221,7 +221,7 @@ SPELLS["2 alchemy group"] = (
     "#Herbology: brews herbs into potions (merchants won't buy brewed ones).\n#\n#\n"
     + brew(["brewed red potion", "brewed green potion", "azeala"], "brewed blue potion", "You mix the red and green potions with azeala and make a rare blue potion.", "")
     + brew(["mandrake", "wolfsbane"], "brewed red potion", "You mix a wolfsbane and a mandrake to make a red potion.", "")
-    + brew(["lavendar", "wolfsbane"], "brewed green potion", "You mix the lavendar and wolfsbane together and make a green potion.", "")
+    + brew(["lavender", "wolfsbane"], "brewed green potion", "You mix the lavender and wolfsbane together and make a green potion.", "")
     + brew(["mandrake"], "brewed anti-curse potion", "You extract juices from a mandrake to make an anti-curse potion.", "")
     + brew(["mushroom", "water"], "brewed minor potion", "You mix the mushroom with some water and make a minor potion.", "")
     + "chat caster \"You don't have the right herbs. Mandrake: an anti-curse potion. Mandrake and wolfsbane: a red potion. Lavendar and wolfsbane: a green potion. Brewed red and green potions with azeala: a blue potion. A mushroom and water: a minor potion.\"\n"

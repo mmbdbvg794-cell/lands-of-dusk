@@ -163,7 +163,7 @@ const WARES = {
   inn: ['water', 'ale', 'sandwich', 'apple'],
   bows: ['cheap bow', 'arrow', 'quiver', 'redwood sword', 'quarter staff', 'elven chain mail'],
   cloth: ['cloth shirt', 'leather cap', 'leather jerkin', 'leather sleeves', 'leather gloves', 'leather leggings', 'leather belt', 'wizards cloak'],
-  herbs: ['minor potion', 'minor mana potion', 'red potion', 'lavendar', 'mandrake', 'wolfsbane', 'mushroom', 'apple'],
+  herbs: ['minor potion', 'minor mana potion', 'red potion', 'lavender', 'mandrake', 'wolfsbane', 'mushroom', 'apple'],
   train: ['train:Strength', 'train:Intelligence', 'train:Dexterity', 'train:Constitution', 'train:Wisdom', 'train:HP', 'train:MP', 'train:Dodge', 'train:Regeneration', 'train:Mana Regen', 'train:Spell Power'],
 };
 
@@ -270,7 +270,7 @@ export default {
     c.path([[56, 28], [56, 28]]);
     c.npc({ name: 'Master Aerendyl', look: 'Elf', desc: 'Master Aerendyl, who has taught the sword and the spell for three hundred years.', x: 56, y: 30, dlg: TRAINER });
     c.merchant(56, 32, WARES.train);
-    c.mob('training_dummy', 1, 54, 35); c.mob('training_dummy', 1, 59, 35);
+    c.mob('training dummy', 1, 54, 35); c.mob('training dummy', 1, 59, 35);
     c.sign('Training Glade', 'The Training Glade. Talk to Master Aerendyl to train.', 57, 28);
 
     // Only elves, and friends of Aelindor (the Elder's quest done), may

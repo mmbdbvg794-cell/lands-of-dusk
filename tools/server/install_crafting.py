@@ -85,7 +85,7 @@ CHANGES = {
     "iron ore": {"cost": "30"},
     "steel gloves": {"mod": "70", "cost": "800"},
     "steel leggings": {"mod": "70", "cost": "800"},
-    "lavendar": {"cost": "60"},
+    "lavender": {"cost": "60"},
     "wolfsbane": {"cost": "80"},
     "azeala": {"cost": "100"},
 }
@@ -142,7 +142,7 @@ anvil|80|mithril breastplate|5 mithril bar
 alchemy|0|brewed minor potion|1 mushroom, 1 water
 alchemy|10|brewed anti-curse potion|1 mandrake
 alchemy|25|brewed red potion|1 mandrake, 1 wolfsbane
-alchemy|30|brewed green potion|1 lavendar, 1 wolfsbane
+alchemy|30|brewed green potion|1 lavender, 1 wolfsbane
 alchemy|50|brewed blue potion|1 brewed red potion, 1 brewed green potion, 1 azeala
 alchemy|70|moonpetal elixir|2 moonpetal, 1 brewed blue potion
 anvil|0|woodcutter's axe|2 bronze bar

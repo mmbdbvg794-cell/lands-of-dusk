@@ -293,14 +293,15 @@ public class Quests {
 
     // ---- kills (called by the patched Battle) ----
 
+    // Only those still standing share it (server/BattleFix.java).
     public static void splitExp1(Battle battle, LivingThing killed) {
-        battle.splitExp1(killed);
-        killed(killed, battle.vctSide1);
+        BattleFix.splitExp(battle, killed, true);
+        killed(killed, BattleFix.standingOf(battle.vctSide1));
     }
 
     public static void splitExp2(Battle battle, LivingThing killed) {
-        battle.splitExp2(killed);
-        killed(killed, battle.vctSide2);
+        BattleFix.splitExp(battle, killed, false);
+        killed(killed, BattleFix.standingOf(battle.vctSide2));
     }
 
     static void killed(LivingThing killed, Vector side) {

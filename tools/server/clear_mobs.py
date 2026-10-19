@@ -21,7 +21,7 @@ opts = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--") and 
 game = args[0] if args else os.path.expanduser("~/DuskRPG")
 apply = "--apply" in sys.argv
 x1, y1, x2, y2 = (int(n) for n in opts.get("box", "1366,282,1526,454").split(","))
-keep = set(opts.get("keep", "training_dummy").split(","))
+keep = set(opts.get("keep", "training dummy").split(","))
 
 path = os.path.join(game, "mobs")
 with open(path, encoding="latin-1") as f:

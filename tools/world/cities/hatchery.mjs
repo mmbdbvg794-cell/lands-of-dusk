@@ -127,7 +127,7 @@ export default {
     p.path([[40, 17], [42, 17]], 'h');
     p.oval(42, 9, 14, 15, 'q');
     p.npc(lizard('Hunt-Master Kreeth', 'Hunt-Master Kreeth, scarred across the snout, watching how you move.', 49, 11, HUNTER));
-    p.mob('training_dummy', 1, 45, 19); p.mob('training_dummy', 1, 52, 19);
+    p.mob('training dummy', 1, 45, 19); p.mob('training dummy', 1, 52, 19);
 
     // The larder, behind a counter.
     p.path([[49, 23], [49, 25]], 'h');

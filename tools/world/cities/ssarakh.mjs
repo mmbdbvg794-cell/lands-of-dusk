@@ -93,8 +93,10 @@ export default {
     // The Basking Rock, a tavern.
     B(1672, 945, 11, 8, { wall: '#', floor: 'P', doors: [['e', 3]] });
     WALK([[1683, 942], [1683, 948]]);
-    MER(1676, 948, WARES.food);
-    NPC({ name: 'Innkeeper Gesh', look: 'lizardfolk', desc: 'Innkeeper Gesh, tail curled round a barrel, grinning with a great many teeth.', x: 1675, y: 950,
+    // Counter and keeper near the door: from the doorway you see only a
+    // few squares in (play-test 3 found the room empty).
+    MER(1679, 948, WARES.food);
+    NPC({ name: 'Innkeeper Gesh', look: 'lizardfolk', desc: 'Innkeeper Gesh, tail curled round a barrel, grinning with a great many teeth.', x: 1678, y: 947,
       dlg: say('Sit, sit. Warm stones by the fire, cold drink in the jar. The Basking Rock never closes; we sleep in shifts.') });
     SIGN('The Basking Rock', 'The Basking Rock. Food, drink and a warm stone.', 1684, 949);
 

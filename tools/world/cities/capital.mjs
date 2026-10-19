@@ -93,7 +93,7 @@ const WARES = {
   armour: ['leather cap', 'leather jerkin', 'leather sleeves', 'leather leggings', 'leather gloves', 'leather belt', 'bronze_helmet', 'bronze_suit', 'bronze_sleeves', 'bronze_leggings', 'bronze_gloves', 'bronze_belt', 'leather shield'],
   royal: ['silver_helmet', 'silver_suit', 'silver_sleeves', 'silver_leggings', 'silver_gloves', 'silver_belt', 'gold_helmet', 'gold_suit', 'gold_sleeves', 'gold_leggings', 'gold_gloves', 'gold_belt', 'platinum_suit', 'steel plate mail', 'bronze shield', 'iron shield'],
   bows: ['cheap bow', 'wooden crossbow', 'arrow', 'quiver', 'celestial arrow'],
-  potions: ['minor potion', 'minor mana potion', 'tiny potion', 'x-potion', 'anti-curse potion', 'red potion', 'green potion', 'blue potion', 'lavendar', 'mandrake', 'mushroom'],
+  potions: ['minor potion', 'minor mana potion', 'tiny potion', 'x-potion', 'anti-curse potion', 'red potion', 'green potion', 'blue potion', 'lavender', 'mandrake', 'mushroom'],
   jewels: ['opal', 'ruby', 'topaz', 'aquamarine', 'chaotic amulet', 'pyramid studded necklace', 'goggles', 'crystal lens'],
   magic: ['spell book', 'book', 'wizards cloak', 'wizards gauntlets', 'minor mana potion', 'crystal lens'],
   general: ['water', 'ale', 'apple', 'sandwich', 'crisps', 'small bag', 'large bag', 'lumberjack axe', 'quarter staff', 'leather pants'],
@@ -290,7 +290,7 @@ export default {
     stall(1415, 382, { name: 'Fruit Seller Mabel', look: 'Villager Woman', desc: 'Mabel, with a barrow of apples.', line: 'Apples, crisp and red! Stand in front of my stall and open the Shop tab.' }, WARES.food, 'Apples! Fresh apples!');
     stall(1422, 382, { name: 'Baker Hollis', look: 'cook', desc: 'Hollis the baker, warm bread in a basket.', line: 'Sandwiches and loaves, still warm. Stand in front of my stall and see the Shop tab.' }, WARES.food, 'Fresh bread! Hot sandwiches!');
     stall(1429, 382, { name: 'Pedlar Jory', look: 'Villager', desc: 'Jory the pedlar, a tray of oddments round his neck.', line: 'Bags, axes, odds and ends. Stand in front of my stall and open the Shop tab.' }, WARES.general, 'Bargains! Bargains!');
-    stall(1418, 389, { name: 'Herb Wife Agna', look: 'hermit', desc: 'Agna, bundles of herbs drying on her stall.', line: 'Herbs and simples. Stand in front of my stall and look in the Shop tab.' }, ['lavendar', 'mandrake', 'mushroom', 'minor potion', 'tiny potion'], 'Herbs! Simples!');
+    stall(1418, 389, { name: 'Herb Wife Agna', look: 'hermit', desc: 'Agna, bundles of herbs drying on her stall.', line: 'Herbs and simples. Stand in front of my stall and look in the Shop tab.' }, ['lavender', 'mandrake', 'mushroom', 'minor potion', 'tiny potion'], 'Herbs! Simples!');
     stall(1426, 389, { name: 'Cloth Seller Rhea', look: 'Woman', desc: 'Rhea, bolts of cloth piled high.', line: 'Cloth for every season. Stand in front of my stall and open the Shop tab.' }, ['cloth shirt', 'sash', 'leather cap', 'leather belt'], '');
     PR('well', 1433, 386);
     SIGN('Market Square', 'The Market Square: food, cloth, herbs and bargains.', 1413, 380);
@@ -347,7 +347,7 @@ export default {
     F(1463, 360, 18, 16, 'e');
     NPC({ name: 'Drillmaster Hask', look: 'Drill Sergeant', desc: 'Drillmaster Hask, voice like a gravel pit.', x: 1471, y: 362, dlg: SHOP('Lift those feet!', 'Strength, speed, toughness: I teach them all. Stand on the mark in front of me and open the Shop tab to train.') });
     MER(1471, 364, WARES.train);
-    for (const [x, y] of [[1465, 368], [1469, 371], [1473, 368], [1477, 371]]) p.mob('training_dummy', 1, ...A(x, y));
+    for (const [x, y] of [[1465, 368], [1469, 371], [1473, 368], [1477, 371]]) p.mob('training dummy', 1, ...A(x, y));
     SIGN('Barracks', 'The Barracks of the City Watch, and its training yard.', 1472, 360);
 
     // ---- the guild halls ----

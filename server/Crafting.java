@@ -95,7 +95,7 @@ public class Crafting {
         new Source("mithril vein", "mithril ore", "Mining", 60, 61, WORKED_OUT, PICK, "mine"),
         new Source("mushroom patch", "mushroom", "Herbalism", 0, 65, PICKED, SICKLE, "gather"),
         new Source("mandrake patch", "mandrake", "Herbalism", 10, 66, PICKED, SICKLE, "gather"),
-        new Source("lavender patch", "lavendar", "Herbalism", 20, 67, PICKED, SICKLE, "gather"),
+        new Source("lavender patch", "lavender", "Herbalism", 20, 67, PICKED, SICKLE, "gather"),
         new Source("wolfsbane patch", "wolfsbane", "Herbalism", 35, 68, PICKED, SICKLE, "gather"),
         new Source("azeala bush", "azeala", "Herbalism", 50, 69, PICKED, SICKLE, "gather"),
         new Source("moonpetal patch", "moonpetal", "Herbalism", 65, 70, PICKED, SICKLE, "gather"),
