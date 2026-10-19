@@ -208,3 +208,27 @@ console.log('ok - quests');
   assert.equal(m3.stages.find((st) => st.when.kind === 'flag' && st.when.value === 'tale_q_done').answers.length, 2);
   console.log('ok - own conversation kept');
 }
+
+{
+  // A chain's thank-yous: the next offer opens with the one before it
+  // (it was hidden behind that offer), and the last takes turns with the
+  // NPC's own greeting (hidden behind every quest stage).
+  const mk = (id, requires, after, offer) => ({ ...newQuest(id), title: id, giver: 'Dask', requires, after, offer: { ...newQuest(id).offer, says: offer }, steps: [{ ...newStep('talk', 'Dask') }] });
+  const a = mk('dk_a', '', 'Picks ringing again.', 'Slimes in the workings.');
+  const b = mk('dk_b', 'dk_a', 'We will raise a stone.', 'My miners never came back.');
+  const own = { shouts: [], stages: [{ when: { kind: 'always', value: '' }, says: 'Mind the shafts.', answers: [] }] };
+  const d = [a, b].reduce((x, q) => mergeQuest(x, q, 'Dask'), own);
+  const offer = (id) => d.stages.find((s) => s.quest === id && s.when.kind === 'noflag');
+  assert.equal(offer('dk_a').says, 'Slimes in the workings.');
+  assert.equal(offer('dk_b').says, 'Picks ringing again. My miners never came back.');
+  const done = (id) => d.stages.find((s) => s.when.kind === 'flag' && s.when.value === `${id}_done`);
+  assert.deepEqual(done('dk_b').lines, ['Mind the shafts.']);
+  assert.equal(done('dk_a').lines, undefined);
+  // A greeting that acts out a scene isn't mixed in.
+  const scene = { stages: [{ when: { kind: 'always', value: '' }, verb: 'acts', says: 'A woman in chains.', answers: [] }] };
+  assert.equal([a, b].reduce((x, q) => mergeQuest(x, q, 'Dask'), scene).stages.find((s) => s.when.value === 'dk_b_done').lines, undefined);
+  // Merging again changes nothing (says rebuilt from each stage's own words).
+  const again = mergeQuest(d, b, 'Dask');
+  assert.deepEqual(again.stages.map((s) => [s.says, s.lines]), d.stages.map((s) => [s.says, s.lines]));
+  console.log('ok - chain thank-yous heard');
+}

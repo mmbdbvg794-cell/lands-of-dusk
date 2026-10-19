@@ -275,6 +275,23 @@ export function mergeQuest(dlg, q, npc) {
     if (!st.answers.length) st.says = [t(st.base.says), t(home.says)].filter(Boolean).join(' ');
     st.answers.push(...structuredClone(home.answers.filter((a) => t(a.label) && !labels.has(t(a.label).toLowerCase()))));
   }
+  // A thank-you sits behind the offers, so in a chain it was never heard:
+  // the next quest's offer starts with it instead (it shows from the
+  // moment the quest before is done). And once the chain is over, the
+  // last thank-you takes turns with the NPC's own greeting, which every
+  // quest stage hid (an NPC whose own conversation has answers already
+  // gets them above). Only a greeting that's spoken: one that acts out a
+  // scene (Elowen in chains) may no longer be true by then.
+  const thanks = new Map(quests.filter((st) => stageRank(st) === 4).map((st) => [st.quest, st]));
+  const last = [...own].reverse().find((st) => st.when?.kind === 'always');
+  const greeting = home || !last || (last.verb && last.verb !== 'says') ? '' : t(last.says);
+  for (const st of quests) {
+    delete st.lines;
+    const rank = stageRank(st);
+    const before = thanks.get(st.requires);
+    if (rank === 2 && !st.wait && st.when?.kind === 'noflag' && before) st.says = [t(before.base.says), t(st.says)].filter(Boolean).join(' ');
+    if (rank === 4 && greeting && ![...thanks.values()].some((o) => o.requires === st.quest)) st.lines = [greeting];
+  }
   const stages = [...quests, ...own];
   if (!own.length) stages.push({ when: { kind: 'always', value: '' }, says: '', answers: [] });
   return { ...dlg, stages };

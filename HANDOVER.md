@@ -1453,10 +1453,14 @@ Lessons:
   backups/canon-<date>/; live backup canon-20261015-141214). Needed a
   restart (props: Halvard and the renamed NPCs). Talk scripts take effect
   at once, so install and restart together.
-- Found: a quest's "after" line is only heard after the LAST quest in that
-  giver's chain (the next quest's offer always comes first), so the new
-  zl_crown, fr_wolves and iz_slimes after-lines, and Dask's own greeting,
-  aren't reachable. Not fixed (reported to the user).
+- Found: a quest's "after" line was only heard after the LAST quest in that
+  giver's chain (the next offer always came first), and an NPC's own
+  greeting never. FIXED 2026-10-19 23:03 in js/quests.js mergeQuest: the
+  next offer opens with the thank-you before it; the chain's last thank-you
+  takes turns (lines) with the NPC's own spoken greeting (not an "acts"
+  scene, e.g. Elowen in chains). Live: tools/server/merge_quests.mjs over
+  talk/ + quests/ rewrote 11 NPCs (none hand-edited), backup
+  backups/after-lines-20261019-230317; no restart needed.
 - Step 2's other Kingshaven hits (keep sign "King Aldric holds court
   within", Armsmaster Doyle "the king's own guard", Old Fisher Tam "Fifty
   years", the King's Watch, etc.) and the old-world tone audit
