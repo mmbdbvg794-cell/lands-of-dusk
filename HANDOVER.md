@@ -1702,7 +1702,8 @@ the Journal tab, flee announced, "Damage modifier".
 ## 2026-10-19 22:03: Velkarath welcome + play-test 3 leftovers (installed; LIVE after the restart)
 
 - Velkarath: only dark elves get in (the stairs), so Matron Xalyth's quest
-  is a homecoming rite, not a test: new wording for Xalyth and Ilvra
+  is a coming-of-age rite (hatchling -> Drow of House Xalyth, the payoff of
+  the "From Hatchling to Drow" tutorial), not a test: Xalyth and Ilvra
   (velkarath.mjs; same flags, steps, reward). Talk files installed with a
   trimmed bundle (live matched the old build); journal line patched in
   ~/DuskRPG/journal (read at start-up).

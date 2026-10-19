@@ -79,10 +79,10 @@ const MATRON = {
     ifFlag('velkarath_marked', 'The Spider\'s mark is on your hand. Good.', [
       {
         label: 'It is done',
-        reply: 'Then you are of Velkarath, and of House Xalyth. Take these, and do not shame us.',
+        reply: 'Then you are a hatchling no longer, but Drow of House Xalyth. Take these, and do not shame us.',
         effects: [
           { kind: 'unflag', flag: 'velkarath_marked' },
-          { kind: 'flag', flag: 'velkarath_done', journal: { title: QUEST, text: 'Matron Xalyth welcomed me into House Xalyth.', done: true } },
+          { kind: 'flag', flag: 'velkarath_done', journal: { title: QUEST, text: 'Matron Xalyth named me Drow of House Xalyth.', done: true } },
           { kind: 'give', item: 'shadowsilk gloves' },
           { kind: 'exp', amount: 300 },
           { kind: 'gold', amount: 150 },
@@ -91,15 +91,15 @@ const MATRON = {
       },
     ]),
     ifFlag('velkarath_task', 'Why are you still here? Go to the temple, east of my palace. Priestess Ilvra is waiting.'),
-    always('So, another hatchling climbs up out of the training caves. Welcome home to Velkarath, child of the deep. Before you walk my streets as one of House Xalyth, the Spider Queen must know your face. Will you take her mark?', [
+    always('A hatchling, fresh from the cells below. My House fed you and trained you; now you will show it was worth the trouble. Until the Spider Queen marks you, you are nothing in Velkarath. Will you take her mark?', [
       {
         label: 'I will',
-        reply: 'Go to the Temple of the Spider Queen, east of my palace. Priestess Ilvra will mark you. Then come back to me.',
+        reply: 'Then go to the Temple of the Spider Queen, east of my palace. Priestess Ilvra will mark you. Come back to me when it is done.',
         effects: [
           { kind: 'flag', flag: 'velkarath_task', journal: { title: QUEST, text: 'Matron Xalyth told me to receive the Spider\'s mark from Priestess Ilvra, in the temple east of her palace.', done: false } },
         ],
       },
-      { label: 'Not now', reply: 'The Spider Queen is patient. I am less so.' },
+      { label: 'Not now', reply: 'Then stay a hatchling. The Spider Queen is patient. I am less so.' },
     ]),
   ],
 };
@@ -109,7 +109,7 @@ const PRIESTESS = {
   stages: [
     ifFlag('velkarath_done', 'The Spider Queen watches over you, child of Velkarath.'),
     ifFlag('velkarath_marked', 'Go. The Matron is waiting.'),
-    ifFlag('velkarath_task', 'The Matron sent you? Welcome, child of the deep. Hold out your hand. This will sting.', [
+    ifFlag('velkarath_task', 'The Matron sent you, hatchling? Hold out your hand. This will sting.', [
       {
         label: 'I am ready',
         replyVerb: 'acts',
