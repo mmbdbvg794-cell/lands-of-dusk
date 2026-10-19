@@ -1628,10 +1628,16 @@ Play-test 2 (Wrenlow, paladin; review ~/dusk-playtest/playtest-review-2026-10-19
   (restart), and the browser's race buttons read js/raceinfo.json, which
   tools/deploy.sh rebuilds from the server. Tested on scratch (lizcheck).
 
-## 2026-10-19 19:50: play-test 3 fixes (NOT LIVE yet: tested on scratch)
+## 2026-10-19 19:50: play-test 3 fixes (LIVE since the 19:59 restart)
 
 Play-test 3: a lizardman fighter (~/dusk-playtest, notes in
-archive/run3 once archived). Server code (build.sh + install.sh, restart):
+notes/playtest.md, not yet archived to archive/run3). Deployed 19:58
+(build.sh + install.sh, class backups in backups/classes-20261019-195843),
+content applied 19:59 (backups/playtest3-20261019-195900), restarted
+19:59:44 with no errors; live Equipment.wearItem checked (bipush 9) and
+both signposts in the signs file. Scratch stopped. The user chose to skip
+the next play-test for now (an idea for it: a tester who heads for the
+ferry to Eastreach, which none has reached). Server code (build.sh + install.sh, restart):
 - Gloves vanished at every login (engine bug, live too): Equipment.wearItem
   (String, Item) counted its slots down from 7 ("int i = 8; while (--i >=
   0)"), so the hands (8) were never put back on. EquipmentPatch makes it 9.
@@ -1684,6 +1690,12 @@ the Journal tab, flee announced, "Damage modifier".
   "nearby room").
 - Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in
   the dunes; Morvane's journal pages as boss drops.
+- Play-test 3 leftovers (not done): dying on the same tick as the
+  creature still gives its reward; "You have won the battle" after an
+  out-of-range swing; the Basking Rock inn is empty (placeholder); the
+  600 gp "cheap bow"; training_dummy shows its raw name. Earlier ones:
+  "lavendar" item name, death message gp rounding, large and small bags
+  cost the same.
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains, and
   now the doubled monster numbers.
