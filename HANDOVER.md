@@ -1631,7 +1631,7 @@ Play-test 2 (Wrenlow, paladin; review ~/dusk-playtest/playtest-review-2026-10-19
 ## 2026-10-19 19:50: play-test 3 fixes (LIVE since the 19:59 restart)
 
 Play-test 3: a lizardman fighter (~/dusk-playtest, notes in
-notes/playtest.md, not yet archived to archive/run3). Deployed 19:58
+archive/run3/playtest.md). Deployed 19:58
 (build.sh + install.sh, class backups in backups/classes-20261019-195843),
 content applied 19:59 (backups/playtest3-20261019-195900), restarted
 19:59:44 with no errors; live Equipment.wearItem checked (bipush 9) and
