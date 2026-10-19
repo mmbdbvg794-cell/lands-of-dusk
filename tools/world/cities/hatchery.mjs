@@ -111,14 +111,14 @@ export default {
     p.npc(lizard('Brood-Mother Ssethra', 'Brood-Mother Ssethra, vast and slow, who has watched every egg in these pools hatch.', 23, 12, MOTHER));
     // Skipping: the south path to the Warm Stone.
     p.path([[23, 24], [23, 29]], 'h');
-    p.walk(23, 24, gap('lizSkip', 'Brood-Mother Ssethra', 'Not that way yet, hatchling. Come and speak with me first.'));
+    p.walk(23, 24, gap('lizSkip', 'Brood-Mother Ssethra', 'Not that way yet, hatchling. Come and speak with me first: I am by the pools, to the north.'));
     p.oval(21, 29, 5, 5, 'Q');
     p.set(23, 31, 'c');
     p.action(23, 31, warmStone('lizSkip'));
 
     // The Scale-Tender's hut.
     p.path([[30, 17], [32, 17]], 'h');
-    p.walk(30, 17, gap('lizTut2', 'Brood-Mother Ssethra', 'Not that way yet, hatchling. Come and speak with me first.'));
+    p.walk(30, 17, gap('lizTut2', 'Brood-Mother Ssethra', 'Not that way yet, hatchling. Come and speak with me first: I am by the pools, to the north-west.'));
     p.oval(32, 12, 9, 11, 'Q');
     p.fill(34, 14, 5, 7, 'h');
     p.npc(lizard('Scale-Tender Ossik', 'Scale-Tender Ossik, weaving reed with quick clawed fingers.', 36, 15, TENDER));

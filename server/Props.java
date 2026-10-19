@@ -78,6 +78,10 @@ public class Props {
         String trimmed = line.trim();
         String lower = trimmed.toLowerCase();
         try {
+            if (lower.startsWith("get ") && !who.isPet() && lower.indexOf(" from ") < 0 && !Storage.isNumber(trimmed.substring(4).trim().split("\\s+")[0])) {
+                String hint = Crafting.getHint(who, engine, trimmed.substring(4).trim());
+                return hint != null ? hint : "There's no " + trimmed.substring(4).trim() + " here to pick up.";
+            }
             if (lower.startsWith("sell ")) {
                 String sold = sellByName(who, engine, trimmed.substring(5).trim());
                 if (sold != null) return sold;

@@ -15,7 +15,7 @@ import { newQuest, newStep, mergeQuest } from '../../../js/quests.js';
 const AGAIN_MINUTES = 20 * 60; // "once a day", whenever you play
 const TIERS = [
   { gold: 40, exp: 60, label: 'A job for a new hunter.' },
-  { gold: 90, exp: 160, label: 'For seasoned hunters: not for someone fresh off the boat.' },
+  { gold: 90, exp: 160, label: 'For seasoned hunters: not for a beginner.' },
   { gold: 180, exp: 350, label: 'Only for the strongest.' },
 ];
 
@@ -61,7 +61,7 @@ const BOARDS = [
     ['ice skeleton', 4, 'Ice Skeleton Bounty', 'round the dragon\'s lair in the frozen land'],
   ] },
   { id: 'ss', town: 'Ssarakh', at: [1692, 946], posts: [[1692,  946],  [1698,  946],  [1701,  946]], jobs: [
-    ['bog slime', 6, 'Bog Slime Bounty', 'in the marsh round the city'],
+    ['bog slime', 6, 'Bog Slime Bounty', "in the marsh east and north-east of the city, past the Shaman's hut"],
     ['swamp serpent', 5, 'Swamp Serpent Bounty', 'out in the mire beyond the city'],
     ['dry one raider', 4, 'Dry One Raider Bounty', 'deep in the isles, where the Dry Ones raid', { gold: 240, exp: 500 }],
   ] },

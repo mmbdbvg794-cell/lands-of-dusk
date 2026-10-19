@@ -1628,6 +1628,51 @@ Play-test 2 (Wrenlow, paladin; review ~/dusk-playtest/playtest-review-2026-10-19
   (restart), and the browser's race buttons read js/raceinfo.json, which
   tools/deploy.sh rebuilds from the server. Tested on scratch (lizcheck).
 
+## 2026-10-19 19:50: play-test 3 fixes (NOT LIVE yet: tested on scratch)
+
+Play-test 3: a lizardman fighter (~/dusk-playtest, notes in
+archive/run3 once archived). Server code (build.sh + install.sh, restart):
+- Gloves vanished at every login (engine bug, live too): Equipment.wearItem
+  (String, Item) counted its slots down from 7 ("int i = 8; while (--i >=
+  0)"), so the hands (8) were never put back on. EquipmentPatch makes it 9.
+  Players who wore gloves before this have lost them (not recoverable from
+  their files; memaw had gloves saved when found).
+- Training prices rise (Skills.price): traincost (10) a point times stat/10,
+  max HP or MP/30, or 1 + skill/20, never under 1x. Stats, HP, MP and
+  skills are all trained in Skills.train now (not the engine's flat
+  Merchant.train); cross-class skills pay that times the multiplier; magic
+  schools (Classes.trainSchool) stay flat. The trainer's list shows each
+  player's price (Classes.wares -> Skills.priced) and is re-sent after
+  each purchase (refreshEntities). Stat and skill training now says "Your
+  Strength rises by 1." (only HP/MP said anything).
+- "get mushroom" (a name, not an item number) threw in the engine and said
+  nothing: Props.command answers first, with how to gather/mine when a
+  matching patch or vein is within 2 (Crafting.getHint), else "There's no
+  X here to pick up."
+- Attacks out of reach: "They're too far away: stand right beside them (a
+  diagonal square counts as two)." (EnginePatch; range is counted along
+  the grid). The tester took diagonal refusals for a stuck attack.
+- Talk.forClient: the wear hint lost its "e.g. wear leather vest".
+Content (tools/server/fix_playtest3.py, 42 files, backups in
+backups/playtest3-*; sources updated to match):
+- Ssarakh: signposts at 1689,948 (south: the harbour, Marsh Wren) and
+  1704,940 (east: Shaman, slimes); Chieftain Hesska names the board, the
+  Shaman and the pier (ssarakh.mjs).
+- Bog slime bounty: "east and north-east of the city, past the Shaman's
+  hut" (bounties.mjs); tier-2 notices "not for a beginner" (all towns).
+- Brood-Mother's gaps say where she is (hatchery.mjs).
+- Leather jerkin mod 10 -> 20 (it equalled the free cloth shirt).
+- Bog slime, mire lizard, bog crawler, swamp serpent: grouprelation 0, no
+  faction (no ganging up, as the hounds; they no longer attack first or
+  wander) (swampmobs.mjs).
+- Green blob INT 11 -> 1, WIS 12 -> 2: gold is goldgainmod (0.5) x the
+  creature's points (cp), so 34 gp -> ~24, and its cp (48) no longer
+  looks scarier than a mire lizard's (50).
+The user's calls: all five content fixes, rising training price, packs to
+0, cut the blob's gold. dusk-bot (playtest repo) also changed: waits for
+the sex/class answers after a race, "You are female.", journal listed as
+the Journal tab, flee announced, "Damage modifier".
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

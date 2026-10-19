@@ -279,6 +279,23 @@ public class Crafting {
         return best;
     }
 
+    // "get mushroom" beside a mushroom patch (get takes the number of an
+    // item on the ground, and a name made the engine throw, so it said
+    // nothing): how to gather or mine it instead.
+    static String getHint(LivingThing who, DuskEngine engine, String what) {
+        for (Object o : engine.vctProps.toArray()) {
+            Prop p = (Prop) o;
+            Source s = p == null ? null : sourceOf(p);
+            if (s == null || s.tree()) continue;
+            if (Math.max(Math.abs(p.intLocX - who.intLocX), Math.abs(p.intLocY - who.intLocY)) > SOURCE_REACH + 1) continue;
+            String bare = Talk.bare(p.strName);
+            if (!what.equalsIgnoreCase(s.item) && !what.equalsIgnoreCase(s.item + "s") && !what.equalsIgnoreCase(bare) && !bare.toLowerCase().startsWith(what.toLowerCase() + " "))
+                continue;
+            return "You can't just pick that up. Stand next to the " + bare + " and type: " + s.command + " (you need " + a(s.tool) + ").";
+        }
+        return null;
+    }
+
     static String gather(Player who, DuskEngine engine, String command, String arg) {
         String key = who.strName.toLowerCase();
         String verb = command.equals("mine") ? "mining" : command.equals("chop") ? "chopping" : "gathering";

@@ -24,11 +24,13 @@ const mobFile = (stats) => Object.entries(stats).flatMap(([k, v]) => (Array.isAr
 const base = { maxsp: 0, inte: 1, wisd: 2, bravery: '3.0', grouprelation: '0.9' };
 
 // Strength by HP, as the other new monsters (HANDOVER: monster tuning).
+// Tiers 1 and 2 don't gang up (grouprelation 0, no faction: play-test 3),
+// as Kingshaven's stray hounds.
 export const MOBS = {
-  'bog slime': { ...base, description: 'A quivering heap of green bog-slime, smelling of rot.', maxhp: 30, stre: 28, dext: 3, cons: 8, image: 33, giveitem: [['mushroom', '0.3']], faction: 'bog slime' },
-  'mire lizard': { ...base, description: 'A mud-coloured lizard as long as a man, all teeth and patience.', maxhp: 38, stre: 28, dext: 8, cons: 8, image: 28, faction: 'mire lizard' },
-  'bog crawler': { ...base, description: 'A pale, many-legged thing that crawls up out of the bog pools.', maxhp: 75, stre: 40, dext: 10, cons: 12, image: 29, faction: 'bog crawler' },
-  'swamp serpent': { ...base, description: 'A thick green serpent, coiled in the reeds.', maxhp: 95, stre: 40, dext: 14, cons: 14, image: 26, giveitem: [['mandrake', '0.25']], faction: 'swamp serpent' },
+  'bog slime': { ...base, description: 'A quivering heap of green bog-slime, smelling of rot.', maxhp: 30, stre: 28, dext: 3, cons: 8, image: 33, giveitem: [['mushroom', '0.3']], grouprelation: '0' },
+  'mire lizard': { ...base, description: 'A mud-coloured lizard as long as a man, all teeth and patience.', maxhp: 38, stre: 28, dext: 8, cons: 8, image: 28, grouprelation: '0' },
+  'bog crawler': { ...base, description: 'A pale, many-legged thing that crawls up out of the bog pools.', maxhp: 75, stre: 40, dext: 10, cons: 12, image: 29, grouprelation: '0' },
+  'swamp serpent': { ...base, description: 'A thick green serpent, coiled in the reeds.', maxhp: 95, stre: 40, dext: 14, cons: 14, image: 26, giveitem: [['mandrake', '0.25']], grouprelation: '0' },
   'marsh wisp': { ...base, description: 'A drifting green light with a face in it. The brood says they are the drowned.', maxhp: 110, stre: 45, dext: 28, cons: 10, wisd: 10, image: 36, giveitem: [['blue potion', '0.2']], faction: 'marsh wisp' },
   'mire hound': { ...base, description: 'A black, slick-furred hound that hunts the mire in packs.', maxhp: 160, stre: 55, dext: 20, cons: 18, image: 38, faction: 'mire hound' },
   'swamp horror': { ...base, description: 'A writhing mass of roots, weed and bone that has learned to walk.', maxhp: 300, stre: 70, dext: 16, cons: 30, image: 41, giveitem: [['red potion', '0.4']], faction: 'swamp horror' },

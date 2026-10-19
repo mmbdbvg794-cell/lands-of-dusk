@@ -12,6 +12,10 @@
  * the loop uses there, and refuses to write anything unless that run is
  * found exactly once.
  *
+ * And starting a fight out of reach said only "They're too far away.":
+ * reach is counted along the grid, so a creature on a diagonal square is
+ * two away, which players can't see. The message now says so.
+ *
  *   javac --add-exports java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED \
  *         --add-exports java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED EnginePatch.java
  *   java  --add-exports ... EnginePatch <DuskEngine.class in> <DuskEngine.class out>
@@ -34,6 +38,9 @@ public class EnginePatch {
     static final String[] FIND = { "wisd", "wisdbon", "cons", "consbon", "mp", "maxhp", "hpbon" };
     static final String[] FIXED = { "wisd", "wisdbon", "wisd", "wisdbon", "mp", "maxmp", "mpbon" };
 
+    static final String FAR = "They're too far away.\n";
+    static final String FAR_FIXED = "They're too far away: stand right beside them (a diagonal square counts as two).\n";
+
     public static void main(String[] args) throws Exception {
         ClassNode cls = new ClassNode();
         new ClassReader(Files.readAllBytes(Paths.get(args[0]))).accept(cls, 0);
@@ -53,9 +60,15 @@ public class EnginePatch {
         }
         if (count != 1) throw new Exception("expected the MP healing code once, found it " + count + " times; not patching");
         for (int k = 0; k < FIND.length; k++) strings.get(found + k).cst = FIXED[k];
+        // The attack range message, once anywhere in the class.
+        int far = 0;
+        for (MethodNode m : cls.methods)
+            for (AbstractInsnNode n = m.instructions.getFirst(); n != null; n = n.getNext())
+                if (n instanceof LdcInsnNode && FAR.equals(((LdcInsnNode) n).cst)) { ((LdcInsnNode) n).cst = FAR_FIXED; far++; }
+        if (far != 1) throw new Exception("expected the attack range message once, found it " + far + " times; not patching");
         ClassWriter w = new ClassWriter(0); // same frames and sizes: only constants changed
         cls.accept(w);
         Files.write(Paths.get(args[1]), w.toByteArray());
-        System.out.println("Patched MP healing in " + args[1]);
+        System.out.println("Patched MP healing and the attack range message in " + args[1]);
     }
 }

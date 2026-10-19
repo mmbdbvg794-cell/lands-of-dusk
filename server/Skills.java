@@ -46,26 +46,97 @@ public class Skills {
         return name;
     }
 
+    // A stat's or skill's name to show: "Strength", "Dodge".
+    static String label(String what) {
+        for (String[] st : STATS) if (st[1].equals(what)) return st[0];
+        return what.isEmpty() ? what : Character.toUpperCase(what.charAt(0)) + what.substring(1);
+    }
+
+    static boolean isStat(String what) {
+        return what != null && what.length() == 4 && "stre inte dext cons wisd".contains(what);
+    }
+
+    // The exp for n points of what, the price rising as it goes up (the
+    // engine's was traincost a point, whatever you had: 30 to 126 max HP
+    // for one beginner's bounty). Each point costs traincost times:
+    //   a stat     its (base) value / 10       10 -> 1x, 20 -> 2x
+    //   HP or MP   the max / 30                30 -> 1x, 120 -> 4x
+    //   a skill    1 + its value / 20          5 -> 1x, 40 -> 3x, 99 -> 5x
+    // never less than 1x. Magic schools (Classes.trainSchool) stay flat.
+    public static long price(LivingThing who, String what, int n, int traincost) {
+        int v, step = 1;
+        if ("hp".equals(what) || "mp".equals(what)) {
+            v = who.attributes.getStat("max" + what);
+            step = Classes.growth(who, what);
+        } else if (isStat(what)) {
+            v = who.attributes.getStat(what);
+        } else {
+            v = who.getSkill(what);
+        }
+        long total = 0;
+        for (int k = 0; k < n; k++, v += step) {
+            long times = "hp".equals(what) || "mp".equals(what) ? v / 30 : isStat(what) ? v / 10 : 1 + v / 20;
+            total += (long) traincost * Math.max(1, times);
+        }
+        return total;
+    }
+
+    // A trainer list's "10exp)train:X" price, for who (Classes.wares).
+    public static String priced(LivingThing who, String line, int traincost) {
+        try {
+            int i = line.indexOf("exp)train:");
+            if (i < 0) return line;
+            String what = statFor(line.substring(i + 10).trim());
+            if (what == null || what.toLowerCase().endsWith("group") || Classes.schoolMax(who, what) != null) return line;
+            int start = i;
+            while (start > 0 && Character.isDigit(line.charAt(start - 1))) start--;
+            return line.substring(0, start) + price(who, what, 1, traincost) + line.substring(i);
+        } catch (Exception e) {
+            return line;
+        }
+    }
+
     // Buying training from a trainer. HP and MP are done here: trainers
     // sell them as "HP" and "MP", which the server didn't know (so they
     // became a skill called HP that did nothing), and its own "hp" raised
-    // max HP without taking the exp. Each point is +10 max HP or MP, for
-    // the usual traincost exp.
+    // max HP without taking the exp. Each point is the class's HP or MP
+    // per point (Classes.growth). Stats and skills are done here too, at
+    // the rising price (price above), not the engine's flat one.
     public static void train(Merchant m, String ware, int n, LivingThing who) {
         String what = statFor(ware);
-        // Classes: another class's skill costs more or can't be learned
-        // (server/Classes.java); stats, HP and MP are for everyone.
-        boolean stat = what != null && what.length() == 4 && "stre inte dext cons wisd".contains(what);
-        if (!stat && !"hp".equals(what) && !"mp".equals(what) && Classes.train(m, what, n, who)) return;
-        if (!"hp".equals(what) && !"mp".equals(what)) {
-            m.train(what, n, who);
-            return;
-        }
+        if (what == null) return;
         if (n > 100) n = 100;
         if (n < 1) return;
-        long cost = (long) m.engGame.traincost * n;
+        // Classes: another class's skill costs more or can't be learned
+        // (server/Classes.java); stats, HP and MP are for everyone.
+        boolean stat = isStat(what);
+        if (!"hp".equals(what) && !"mp".equals(what)) {
+            long exp = who.exp;
+            int had = stat ? who.attributes.getStat(what) : who.getSkill(what);
+            if (stat || !Classes.train(m, what, n, who)) {
+                if (!stat) n = Math.min(n, 100 - had);
+                if (n < 1) {
+                    who.chatMessage("You have learnt all there is of " + label(what) + ".\n");
+                    return;
+                }
+                long cost = price(who, what, n, m.engGame.traincost);
+                if (who.exp < cost) {
+                    who.chatMessage("Sorry, you don't have enough experience points (that costs " + cost + " exp).\n");
+                    return;
+                }
+                if (!who.raiseStats(what, n, (int) cost)) who.learnSkill(what, n, (int) cost);
+            }
+            // The engine raised a stat or skill without a word (only HP and
+            // MP said anything): say how much, when exp was spent.
+            int now = stat ? who.attributes.getStat(what) : who.getSkill(what);
+            if (who.exp < exp && now > had && !what.toLowerCase().endsWith("group"))
+                who.chatMessage("Your " + label(what) + " rises by " + (now - had) + ".\n");
+            if (who.exp < exp) newPrices(m, who);
+            return;
+        }
+        long cost = price(who, what, n, m.engGame.traincost);
         if (who.exp < cost) {
-            who.chatMessage("Sorry, you don't have enough experience points\n");
+            who.chatMessage("Sorry, you don't have enough experience points (that costs " + cost + " exp).\n");
             return;
         }
         int per = Classes.growth(who, what);
@@ -74,6 +145,17 @@ public class Skills {
         who.updateInfo();
         who.updateStats();
         who.chatMessage("Your max " + what.toUpperCase() + " rises by " + (n * per) + ".\n");
+        newPrices(m, who);
+    }
+
+    // The trainer's list again, at the new prices (the engine sends it
+    // only on stepping onto the trainer: DuskEngine.refreshEntities).
+    static void newPrices(Merchant m, LivingThing who) {
+        try {
+            m.engGame.refreshEntities(who);
+        } catch (Exception e) {
+            // The old prices stay shown; the right one is charged.
+        }
     }
 
     // Setting someone's respawn point from a script. The script language's

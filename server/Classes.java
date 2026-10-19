@@ -452,17 +452,19 @@ public class Classes {
     // left out, so nobody sees what they can't learn.
     public static String wares(LivingThing who, String list) {
         try {
-            if (list == null || exempt(who) || list.indexOf("train:") < 0) return list;
+            if (list == null || list.indexOf("train:") < 0) return list;
+            int traincost = who.engGame.traincost;
             // The opcode (\u0011) shares a line with the first ware: keep it.
             String op = list.length() > 0 && list.charAt(0) < ' ' ? list.substring(0, 1) : "";
             List<String> kept = new ArrayList<String>();
             for (String line : list.substring(op.length()).split("\n", -1)) {
                 int i = line.indexOf("train:");
-                if (i >= 0) {
+                if (i >= 0 && !exempt(who)) {
                     Integer max = schoolMax(who, line.substring(i + 6));
                     if (max != null && max < 0) continue;
                 }
-                kept.add(line);
+                // The price for who, rising with what they have (Skills.price).
+                kept.add(i >= 0 ? Skills.priced(who, line, traincost) : line);
             }
             return op + String.join("\n", kept);
         } catch (Exception e) {
@@ -499,7 +501,7 @@ public class Classes {
         }
         if (n > room) n = room;
         if (n < 1) return true;
-        long cost = (long) m.engGame.traincost * n * multiplier;
+        long cost = Skills.price(who, what, n, m.engGame.traincost) * multiplier;
         if (who.exp < cost) {
             who.chatMessage("Sorry, you don't have enough experience points. (" + what + " is another class's skill: " + multiplier + " times the price, " + cost + " exp.)\n");
             return true;

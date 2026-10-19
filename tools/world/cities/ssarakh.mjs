@@ -73,7 +73,7 @@ export default {
     // The Hall of the Brood.
     B(1688, 920, 15, 11, { wall: 'W', floor: 'P', doors: [['s', 7]] });
     NPC({ name: 'Chieftain Hesska', look: 'lizardfolk', desc: 'Chieftain Hesska, old and broad, her crest faded to the grey of river stone.', x: 1695, y: 924,
-      dlg: dawnward('Chieftain Hesska', say('Ssss. Welcome to Ssarakh, warm-blood or scale-kin. The mire keeps us, and we keep the mire. Mind the bog pools; they keep what they take. And if you go east to the sands, beware the Dry Ones. They were brood once.')) });
+      dlg: dawnward('Chieftain Hesska', say('Ssss. Welcome to Ssarakh, warm-blood or scale-kin. The mire keeps us, and we keep the mire. Mind the bog pools; they keep what they take. Hunters take work from the bounty board on the plaza. Shaman Ithrae, along the east street, teaches those with experience to spend. And the Marsh Wren sails from the pier at the south end of the city, for Eastreach. If you go east to the sands, beware the Dry Ones. They were brood once.')) });
     SIGN('Hall of the Brood', 'The Hall of the Brood. Chieftain Hesska hears all who come in peace.', 1697, 932);
 
     // The Shaman's hut: training.
@@ -109,6 +109,9 @@ export default {
     // The Brood Stone at the plaza's heart, and braziers for the night.
     SIGN('Brood Stone', 'The Brood Stone of Ssarakh. Here the brood returns: those who fall in the mire wake here.', HEART[0], HEART[1] - 2);
     for (const [x, y] of [[1688, 936], [1702, 936], [1688, 946], [1702, 946]]) PR('brazier', x, y);
+    // Signposts on the plaza: the way to the harbour and to the Shaman.
+    SIGN('Signpost', 'South: the harbour. The Marsh Wren sails from the pier to Eastreach; tickets from Captain Sskarr.', 1689, 948);
+    SIGN('Signpost', 'East: the Shaman\'s hut, for training, and the marsh where the bog slimes are.', 1704, 940);
     SIGN('Ssarakh', 'Ssarakh, the Mire City of the lizardfolk. All who come in peace are welcome.', 1691, 960);
 
     // A few stilt huts along the streets.
