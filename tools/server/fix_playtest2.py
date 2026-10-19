@@ -16,6 +16,7 @@
     and the journal's old lines (the city installer only adds missing
     ones); the bounty notices are reinstalled from bounties.mjs
   - a signpost outside the north gate (1435,318) pointing to the hounds
+  - lizardmen +2 STR, +2 CON, +1 DEX (they had the elves' bonuses exactly)
 
     python3 fix_playtest2.py <game dir> [--apply]
 
@@ -153,6 +154,24 @@ def add_sign_name(s):
     return s + ('' if s.endswith('\n') or not s else '\n') + entry
 
 
+# Lizardmen had the elves' bonuses exactly (+1 DEX, +2 INT, +2 WIS): now
+# tough swamp folk, +2 STR, +2 CON, +1 DEX (the same total). Bonuses are
+# given at every login from this file, so every lizardman gets them.
+LIZARDMAN = '''image
+6
+stre
+2
+cons
+2
+dext
+1
+x
+1853
+y
+1007
+'''
+
+
 print('Fixes from play-test 2, in', game, '' if apply else '(dry run: add --apply)')
 for c in CAPTAINS:
     for rel in (f'talk/{c}', f'talk/{c}.dlg'):
@@ -165,4 +184,5 @@ for rel in ('talk/Sergeant Wexley', 'talk/Sergeant Wexley.dlg', 'quests/kw_stray
     edit(rel, WEX)
 edit('signs', add_sign)
 edit('signnames', add_sign_name)
+edit('defRaces/lizardman', lambda s: LIZARDMAN if 'image\n6\n' in s else s)
 print(f'{len(changed)} file(s) {"changed" if apply else "to change"}' + (f'; backups in {backup}' if apply and changed else ''))

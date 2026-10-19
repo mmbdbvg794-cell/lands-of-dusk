@@ -1619,6 +1619,15 @@ Play-test 2 (Wrenlow, paladin; review ~/dusk-playtest/playtest-review-2026-10-19
 - dusk-bot: open explains map doors, goto X Y refuses beyond the view, the
   class list waits for male/female.
 
+## 2026-10-19 18:10: lizardman bonuses (data applied; LIVE after the next restart, then deploy)
+
+- defRaces/lizardman: +2 STR, +2 CON, +1 DEX (was +1 DEX, +2 INT, +2 WIS,
+  the elves' exactly); via fix_playtest2.py (backup in
+  backups/playtest2-*). Bonuses aren't saved in user files: every
+  lizardman gets them at their next login. Races are read at start-up
+  (restart), and the browser's race buttons read js/raceinfo.json, which
+  tools/deploy.sh rebuilds from the server. Tested on scratch (lizcheck).
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
