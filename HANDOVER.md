@@ -1679,6 +1679,26 @@ The user's calls: all five content fixes, rising training price, packs to
 the sex/class answers after a race, "You are female.", journal listed as
 the Journal tab, flee announced, "Damage modifier".
 
+## 2026-10-19 20:30: Friend of Aelindor gets a real task (installed; LIVE after the next restart)
+
+- aelindor.mjs: Ilsevel no longer blesses on the spot. aelindor_welcome ->
+  she asks for a gloom fang (new flag aelindor_task, journal line) -> fang
+  taken -> aelindor_blessed -> Elder as before. Elder has an aelindor_task line.
+- Den: 7 gloom hounds (36 HP, stre 28, dext 4, bravery 3, wolf sprite 21;
+  Painted art draws them as dark wolves via /hound/), meadow north-west of
+  the city 426-434 x 1181-1192 (open grass, reached from the north gate road
+  then west; the west gate is a much longer walk). giveitem gloom fang 0.5; the fang has no cost (unsellable).
+- Installed with a trimmed bundle (scratch ilsevel.json: the two NPCs' talk
+  files, defMobs/defItems, 7 mobs entries, journal + flag) via install_city
+  --force. The full plan can't rebuild over the live map (the city's own
+  walls fail mayBuild), so it was built through a wrapper with
+  mayBuild: () => true and only those parts kept. Live talk files matched the
+  old build exactly before replacing (no god edits lost).
+- LIVE since the 20:34 restart. Played end to end on scratch as hgate:
+  offer, no-fang refusal, 2nd kill dropped a fang, taken, blessed, Elder
+  reward. Ilsevel's directions changed to the north gate (105 steps vs 177
+  by the west gate); that talk file reinstalled on live (no restart needed).
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

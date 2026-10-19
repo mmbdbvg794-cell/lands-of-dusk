@@ -35,6 +35,8 @@ const says = (text, answers = []) => ({ says: text, answers });
 const always = (text, answers = []) => ({ when: { kind: 'always', value: '' }, ...says(text, answers) });
 const ifFlag = (flag, text, answers = []) => ({ when: { kind: 'flag', value: flag }, ...says(text, answers) });
 const QUEST = 'Friend of Aelindor';
+// The gloom hounds' den (absolute squares), open meadow north-west of the city.
+const GLOOM_HOUNDS = [[426, 1181], [429, 1184], [434, 1183], [427, 1188], [431, 1187], [428, 1192], [433, 1191]];
 
 const ELDER = {
   shouts: ['Welcome, traveller, to Aelindor.'],
@@ -55,6 +57,7 @@ const ELDER = {
       },
     ]),
     ifFlag('aelindor_welcome', 'Have you been to the Moonwell yet? Priestess Ilsevel keeps the shrine across the avenue, to the north-east.'),
+    ifFlag('aelindor_task', 'Ilsevel has set you a task? Then see it done. The Moonwell does not bless idle hands.'),
     always('Welcome to Aelindor, traveller. Few find their way through the old wood. Would you hear of our city?', [
       {
         label: 'Tell me',
@@ -73,18 +76,33 @@ const PRIESTESS = {
   stages: [
     ifFlag('aelindor_done', 'The Moonwell remembers you, friend of Aelindor.'),
     ifFlag('aelindor_blessed', 'Go to Elder Faelar. He will want to know.'),
-    ifFlag('aelindor_welcome', 'The Elder sent you? Then stand in the Moonwell\'s light. Are you ready?', [
+    // Before the blessing, a task: gloom hounds in the meadow north-west of
+    // the city (the den is placed in build below); one drops a gloom fang.
+    ifFlag('aelindor_task', 'Have you brought me a fang from the gloom hounds?', [
       {
-        label: 'I am ready',
+        label: 'Here is a fang',
+        needs: { kind: 'item', value: 'gloom fang' },
         replyVerb: 'acts',
-        reply: 'Ilsevel dips her fingers in a silver bowl and touches your brow. A cool light runs through you.',
+        reply: 'Ilsevel drops the fang into the Moonwell, where it hisses and is gone. Then she dips her fingers in a silver bowl and touches your brow. A cool light runs through you.',
         effects: [
-          { kind: 'unflag', flag: 'aelindor_welcome' },
+          { kind: 'take', item: 'gloom fang' },
+          { kind: 'unflag', flag: 'aelindor_task' },
           { kind: 'flag', flag: 'aelindor_blessed', journal: { title: QUEST, text: 'Priestess Ilsevel gave me the Moonwell\'s blessing. I should tell Elder Faelar in his hall, north-west of the Moonwell.', done: false } },
         ],
         next: says('It is done. Go now, and tell Elder Faelar.'),
       },
-      { label: 'Not yet', reply: 'Come back when you are.' },
+      { label: 'Not yet', reply: 'They prowl the meadow north-west of the city, beyond the ring of oaks. Go carefully: they hunt together.' },
+    ]),
+    ifFlag('aelindor_welcome', 'The Elder sent you? The Moonwell blesses only those who have served it. Gloom hounds have come out of the deep woods into the meadow north-west of the city, and every night they bay at the Moonwell\'s light. Drive them back, and bring me a fang from one. Will you?', [
+      {
+        label: 'I will',
+        reply: 'Out by the north gate, then west along the edge of the wood. Not every hound carries a fang worth bringing; keep at it.',
+        effects: [
+          { kind: 'unflag', flag: 'aelindor_welcome' },
+          { kind: 'flag', flag: 'aelindor_task', journal: { title: QUEST, text: 'Priestess Ilsevel asked me to drive back the gloom hounds in the meadow north-west of Aelindor and bring her a gloom fang.', done: false } },
+        ],
+      },
+      { label: 'Not yet', reply: 'Come back when you are ready.' },
     ]),
     always('The Moonwell\'s light is for all who come in peace. Rest here a while.'),
   ],
@@ -166,6 +184,12 @@ export default {
     for (const [name, text] of Object.entries(BASE_PROPS)) p.file(`defProps/${name}`, text);
     // The Elder's reward: worn at the neck.
     p.file('defItems/moonleaf amulet', 'type\narmor\nkind\nneck\ndescription\na silver leaf on a fine chain, glowing faintly like the Moonwell\ncost\n500\nmod\n40\nimage\n7\ndurability\n-1\n.\n');
+    // Ilsevel's task: a den of gloom hounds (bravery 3: they never run; the
+    // weakest tier's strength, see greenwardens.mjs) in the meadow north-west
+    // of the city. Half of them drop a gloom fang (no cost: can't be sold).
+    p.file('defMobs/gloom hound', 'maxhp\n36\nmaxsp\n0\nstre\n28\ninte\n1\ndext\n4\nwisd\n1\ncons\n8\nbravery\n3.0\ngrouprelation\n0.9\nimage\n21\ngiveitem\ngloom fang\n0.5\nfaction\ngloom hound\n.\n');
+    p.file('defItems/gloom fang', 'type\nitem\ndescription\na black fang, cold as a night with no moon\nimage\n7\n.\n');
+    for (const [x, y] of GLOOM_HOUNDS) p.mob('gloom hound', 1, x - 425, y - 1180);
     p.file('talk/Elven Teller.greet', 'Your gold is safe beneath the oaks.\nThe bank of Aelindor is open.\n');
 
     // The clearing and its ring of oaks, with four gates.
