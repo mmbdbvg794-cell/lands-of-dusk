@@ -69,6 +69,13 @@ public class Who {
         if (!tmp.renameTo(new File(FILE))) Talk.write(new File(FILE), out.toString().getBytes("UTF-8"));
     }
 
+    // Minutes since a player came online (as first seen here), for "who" and
+    // "whois" (patch.py): the engine's own count restarts at every save.
+    public static long minutesOn(Player p) {
+        Long at = p.strName == null ? null : since.get(p.strName.toLowerCase());
+        return at == null ? 0 : (System.currentTimeMillis() - at) / 60000L;
+    }
+
     static String json(String s) {
         if (s == null) return "null";
         StringBuilder b = new StringBuilder("\"");

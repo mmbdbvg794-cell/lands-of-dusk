@@ -410,6 +410,27 @@ public class Skills {
     // clicked one stayed behind "used up". Before the script runs, the
     // clicked one is put in front of its namesakes, so it's the one taken.
     // Only same-named items swap places, so the inventory looks the same.
+    // Armour from what's worn (LivingThingPatch makes getArmorMod this): the
+    // engine's share of each piece's mod (the body 0.4, the head 0.2, the
+    // waist 0.15, arms, legs, hands, eyes and neck 0.05), added up and then
+    // rounded down once. The engine rounded after each piece, so a piece
+    // worth under 1 (leather sleeves, mod 10) added nothing.
+    static final int[] ARMOR_SLOTS = { 1, 2, 8, 7, 5, 6, 3, 4 };
+    static final double[] ARMOR_SHARE = { 0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.4, 0.15 };
+
+    public static int armorMod(LivingThing who) {
+        double sum = 0;
+        for (int i = 0; i < ARMOR_SLOTS.length; i++) {
+            try {
+                Item item = who.equWorn.getItem(ARMOR_SLOTS[i]);
+                if (item != null) sum += ARMOR_SHARE[i] * item.intMod;
+            } catch (Exception e) {
+                // Nothing there.
+            }
+        }
+        return (int) sum;
+    }
+
     public static void useFirst(LivingThing who, Item item) {
         if (who == null || item == null || item.strName == null) return;
         synchronized (who.items) {

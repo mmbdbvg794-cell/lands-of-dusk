@@ -1590,6 +1590,35 @@ review with every claim checked against the transcripts in
 - leather shield 604 -> 180 gp (fix_playtest.py; LIVE 16:25, no restart:
   prices are read from defItems each time).
 
+## 2026-10-19: play-test 2 fixes (NOT LIVE: install + data + restart)
+
+Play-test 2 (Wrenlow, paladin; review ~/dusk-playtest/playtest-review-2026-10-19.md).
+- Engine: unwear shows the stats again (patch.py); armour adds up before
+  rounding (LivingThingPatch: getArmorMod -> Skills.armorMod), so cheap
+  sleeves/leggings count; who/whois minutes from Who.minutesOn (the engine's
+  lngSessionStart restarts at every save).
+- Data (tools/server/fix_playtest2.py): ferry fare 50 -> 20 in the five
+  captains (ferry.mjs FARE = 20 too); map: trees at 1411,299 (Hilda's door)
+  and 1457,413 + 1458,413 (Old Fisher Tam's) -> grass (capital.mjs would
+  put random trees back on a rebuild); the "sales list" prop in every shop
+  now a general line (fix_playtest.py had made it the 2003 potion list);
+  leather gloves 104 -> 30; Wexley's quest and the journal say "the meadow
+  behind Hilda's farm, out of the north gate and west along the road";
+  a signpost at 1435,318 (signs + signnames). kingswatch.mjs says the same
+  but can't be rebuilt over the live map (its Watch Post is built).
+- Bounty notices (bounties.mjs, reinstalled with install_city --force):
+  the hounds' directions and a difficulty label per tier ("A job for a new
+  hunter." / "For seasoned hunters: not for someone fresh off the boat." /
+  "Only for the strongest.").
+- Kept on purpose: both envoy placeholders (Circle, Mage Guild).
+- Not done: elf vs lizardman bonuses (asked), "lavendar" (the item's real
+  name), the death message's gp rounding, large/small bag prices.
+- Tested on scratch (char runtwo): AC 4 -> 5 -> 6 with sleeves/gloves,
+  unwear updates; who "connected 1m"; signpost; Hilda's door; hounds
+  reached from her farm; notices; glove price; sign text.
+- dusk-bot: open explains map doors, goto X Y refuses beyond the view, the
+  class list waits for male/female.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

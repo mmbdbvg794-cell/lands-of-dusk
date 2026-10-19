@@ -16,6 +16,9 @@
  * and not a fresh copy, which left the clicked one "used up". It goes in
  * just before "new Script", where the stack is empty.
  *
+ * And getArmorMod() is replaced by Skills.armorMod(this): each piece's
+ * share added up before rounding down, not after each piece.
+ *
  * Part of the browser client project (dusk-browser-client/server).
  */
 import java.nio.file.Files;
@@ -62,9 +65,24 @@ public class LivingThingPatch {
         first.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "Skills", "useFirst", "(LLivingThing;LItem;)V", false));
         use.instructions.insertBefore(script, first);
         use.maxStack = Math.max(use.maxStack, 3);
+        // getArmorMod() becomes "return Skills.armorMod(this)": the same
+        // share of each piece, added up before rounding down (the engine
+        // rounded after each piece, so sleeves or leggings under mod 20
+        // added nothing).
+        MethodNode armor = null;
+        for (MethodNode m : cls.methods) if (m.name.equals("getArmorMod") && m.desc.equals("()I")) armor = m;
+        if (armor == null) throw new Exception("no getArmorMod() in " + args[0]);
+        armor.instructions.clear();
+        armor.tryCatchBlocks.clear();
+        if (armor.localVariables != null) armor.localVariables.clear();
+        armor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        armor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "Skills", "armorMod", "(LLivingThing;)I", false));
+        armor.instructions.add(new jdk.internal.org.objectweb.asm.tree.InsnNode(Opcodes.IRETURN));
+        armor.maxStack = 1;
+        armor.maxLocals = 1;
         ClassWriter w = new ClassWriter(0);
         cls.accept(w);
         Files.write(Paths.get(args[1]), w.toByteArray());
-        System.out.println("Patched the use message in " + args[1]);
+        System.out.println("Patched the use message and armour adding up in " + args[1]);
     }
 }

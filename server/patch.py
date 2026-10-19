@@ -92,6 +92,13 @@ patch('Commands.java', [
     ('''return "You see " + item.strDescription + ".";''', '''return Props.sentence("You see " + item.strDescription);''', 1),
     ('''return "You see " + prop.strDescription + ".";''', '''return Props.sentence("You see " + prop.strDescription);''', 1),
     ('''return "The sign says " + sign.strMessage + ".";''', '''return Props.sentence("The sign says " + sign.strMessage);''', 1),
+    # "who" and "whois": minutes online from Who (the engine's session start
+    # restarts at every save, so it always said "connected 0m").
+    ('''long l = (System.currentTimeMillis() - player2.lngSessionStart) / 60000L;''', '''long l = Who.minutesOn(player2);''', 2),
+    # Taking something off shows the stats again (AC), as wearing does.
+    ('''                return livingThing.equWorn.unWearItem((String)object);''', '''                String unworn = livingThing.equWorn.unWearItem((String)object);
+                livingThing.updateStats();
+                return unworn;''', 1),
     # A command no one knows: "huh?", unless it answers a question that's
     # over (Talk.unknown: "That conversation is over: talk to X again.").
     ('''            return "huh?";

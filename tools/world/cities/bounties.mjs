@@ -14,9 +14,9 @@ import { newQuest, newStep, mergeQuest } from '../../../js/quests.js';
 
 const AGAIN_MINUTES = 20 * 60; // "once a day", whenever you play
 const TIERS = [
-  { gold: 40, exp: 60 },
-  { gold: 90, exp: 160 },
-  { gold: 180, exp: 350 },
+  { gold: 40, exp: 60, label: 'A job for a new hunter.' },
+  { gold: 90, exp: 160, label: 'For seasoned hunters: not for someone fresh off the boat.' },
+  { gold: 180, exp: 350, label: 'Only for the strongest.' },
 ];
 
 // Each board: `at`, where the sign stands (just east of where the posters
@@ -26,7 +26,7 @@ const TIERS = [
 // where they are (for the offer and Journal), a reward override].
 const BOARDS = [
   { id: 'kh', town: 'Kingshaven', at: [1449, 352], posts: [[1443,  352],  [1446,  352],  [1449,  352]], jobs: [
-    ['stray hound', 6, 'Stray Hound Bounty', 'in the meadow north of the farms'],
+    ['stray hound', 6, 'Stray Hound Bounty', 'in the meadow behind Hilda\'s farm, out of the north gate and west along the road'],
     ['highway thief', 5, 'Highway Thief Bounty', 'on the wooded point south-east of the city'],
     ['barrow skeleton', 4, 'Barrow Skeleton Bounty', 'in the hidden valley in the hills north-east'],
   ] },
@@ -87,7 +87,7 @@ function bountyQuest(board, [mob, count, poster, where, pay], tier) {
     again: { minutes: AGAIN_MINUTES, flag: `bounty_${board.id}`, says: `You've already taken today's bounty from ${board.town}'s board (one a day, whichever notice). New notices go up tomorrow.` },
     offer: {
       ...q.offer,
-      says: `WANTED: ${count} ${many}, ${where}. Reward: ${reward.gold} gold and ${reward.exp} experience, paid at this board. One bounty a day from ${board.town}'s board, whichever notice you pick.`,
+      says: `WANTED: ${count} ${many}, ${where}. Reward: ${reward.gold} gold and ${reward.exp} experience, paid at this board. ${TIERS[tier].label} One bounty a day from ${board.town}'s board, whichever notice you pick.`,
       accept: 'I will take it',
       acceptReply: `Your name is on the notice. Kill ${count} ${many} and come back to claim it.`,
       decline: 'Not today',

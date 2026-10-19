@@ -1,14 +1,14 @@
 // The ferry network (server/Ferry.java): ports with their piers and
 // docks, the routes between docks (tools/world/routes, made by
 // tools/world/sea-route.mjs), and the ships that sail them on a timetable.
-// A port's captain sells a ticket (the 50 gp fare and the hidden flag
+// A port's captain sells a ticket (FARE gold, and the hidden flag
 // voyage_<port>); the ship takes ticket holders aboard when she's in, and
 // they ride her across the sea. westsea.mjs writes the server's "ferries"
 // file and the routes; the ports' plans place the captains.
 
 import { readFileSync } from 'node:fs';
 
-export const FARE = 50;
+export const FARE = 20; // 50 until 2026-10-19: too dear for a new player's first voyage
 
 // pier: the square passengers step down onto; berths: where the ship to
 // and from each other port waits, its centre and which way it faces
