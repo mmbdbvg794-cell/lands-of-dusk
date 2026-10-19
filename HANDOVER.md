@@ -1590,7 +1590,7 @@ review with every claim checked against the transcripts in
 - leather shield 604 -> 180 gp (fix_playtest.py; LIVE 16:25, no restart:
   prices are read from defItems each time).
 
-## 2026-10-19: play-test 2 fixes (NOT LIVE: install + data + restart)
+## 2026-10-19: play-test 2 fixes (LIVE since the 18:00 restart)
 
 Play-test 2 (Wrenlow, paladin; review ~/dusk-playtest/playtest-review-2026-10-19.md).
 - Engine: unwear shows the stats again (patch.py); armour adds up before
