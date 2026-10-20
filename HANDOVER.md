@@ -1920,9 +1920,19 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   you wield one". Plans match (velkarath, grove, hatchery, bounties .mjs).
   Class backups classes-20261020-211601. Checked on scratch with Velrith
   (shadow42): the message, the west sign, the guard.
-- Not done: progression unexplained (exp is spent at trainers; no levels:
-  see the class/level ideas below); dusk-bot's legend names some wall
+- Not done: (progression: explained at 21:40, see below); dusk-bot's legend names some wall
   tiles "cobblestones" (bot-side); the bank's back rooms are fiddly.
+
+## 2026-10-20 21:40: progression explained (LIVE, no restart needed)
+
+- tools/server/fix_progression.py (applied, backups progression-*): help
+  gets "Growing stronger: ... There are no levels: spend your exp at a
+  trainer ..." and "(a bow reaches a few squares)" on the fighting line
+  (help is read from disk per use); the four tutorial trainers' hand-in
+  replies (Drill Sergeant, Thandril, Kreeth, Zeerith; script + .dlg) add
+  that fights earn experience and trainers turn it into strength and skill.
+  Plans (grove/hatchery/velkarath .mjs) and fix_playtest.py's HELP match.
+  Not played in-game; text checked in the live files.
 
 ## Open / ideas
 

@@ -680,6 +680,11 @@ What they ran into is fixed:
   the bounty board and out towards Eastreach.
 - Attacking out of reach says to get closer: right beside them, or within
   your bow's reach.
+- **How you grow stronger** is explained: `help` has a "Growing stronger"
+  line (no levels: spend experience at a trainer on stats, health, mana and
+  your class's skills), and each tutorial's trainer says so when you hand
+  in the dummy's stuffing. The help's fighting line says a bow reaches a
+  few squares.
 - The bounty boards say the easiest notice is on the left. The tutorials'
   last journal line says "Training done."
 - **Armour shops** in Kingshaven list "silver helmet", "gold leggings" and so

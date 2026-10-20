@@ -52,11 +52,11 @@ const HUNTER = {
   stages: [
     ifFlag('lizTut5', 'Go on. Mossa keeps the larder, through the willows to the south.'),
     ifFlag('lizTut4', 'Well? Tear the stuffing out of a training dummy and bring it to me. (Stand right beside one, not diagonally, then click it and choose Attack.)', [
-      { label: 'Here it is', reply: 'Hsss, not bad. Mossa keeps the larder, through the willows to the south. Nobody hunts hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('lizTut4'), jflag('lizTut5', 'Hunt-Master Kreeth sent me south to Mossa, for water and a mushroom.')] },
+      { label: 'Here it is', reply: 'Hsss, not bad. Every hunt earns you experience: trainers turn it into strength and skill. Mossa keeps the larder, through the willows to the south. Nobody hunts hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('lizTut4'), jflag('lizTut5', 'Hunt-Master Kreeth sent me south to Mossa, for water and a mushroom.')] },
     ]),
     // Dressed and a dummy beaten before speaking to him: straight to the hand-in.
     { ...ifFlag('lizTut3', 'Hsss, you did not wait for me: dressed, and a dummy already torn open. Show me the stuffing.', [
-      { label: 'Here it is', reply: 'Hsss, not bad. Mossa keeps the larder, through the willows to the south. Nobody hunts hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('lizTut3'), jflag('lizTut5', 'Hunt-Master Kreeth sent me south to Mossa, for water and a mushroom.')] },
+      { label: 'Here it is', reply: 'Hsss, not bad. Every hunt earns you experience: trainers turn it into strength and skill. Mossa keeps the larder, through the willows to the south. Nobody hunts hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('lizTut3'), jflag('lizTut5', 'Hunt-Master Kreeth sent me south to Mossa, for water and a mushroom.')] },
     ]), also: { kind: 'item', value: 'straw stuffing' } },
     ifFlag('lizTut3', 'First, put on what Ossik gave you (in your Backpack, press Wear beside each). Then we hunt.', [
       { label: 'I am ready', reply: 'Then go at a training dummy, and bring me its stuffing. (Stand beside one, click it and choose Attack.)', effects: [unflag('lizTut3'), jflag('lizTut4', 'Hunt-Master Kreeth wants the stuffing of a training dummy. Time to practise.')] },

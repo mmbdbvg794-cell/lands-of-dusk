@@ -112,9 +112,10 @@ HELP = '''--Help--
 Moving: the arrow keys, or click where you want to go. Typed: n, s, e, w.
 Talking to people: stand beside them and type talk (in the browser, click them and choose Talk). When they ask you something, the answers are in brackets at the end, like (yes/no): type one.
 Speaking to players: start a line with ' to talk to those nearby, or ; to be heard across the land.
-Fighting: stand right beside a creature, not diagonally, and attack it (browser: click it and choose Attack; classic client: pick it in the Attack list).
+Fighting: stand right beside a creature, not diagonally (a bow reaches a few squares), and attack it (browser: click it and choose Attack; classic client: pick it in the Attack list).
 Shops: stand on the merchant's square. The browser's Shop tab, or the classic client's Merchant button, lists what they sell and what they'd buy. Typed: buy 1 water, sell 1 water.
 Gear and food: wear and use things from your Backpack (classic client: type wear or use and the name, e.g. use water). Eat when you're hungry and drink when you're thirsty.
+Growing stronger: fights and quests give experience (exp). There are no levels: spend your exp at a trainer to raise your stats, health, mana and your class's skills. Stand on the square in front of the trainer and open the Shop tab (classic client: the Merchant button); each point costs a little more than the last.
 Resting: type sleep to heal faster, and wake to get up again.
 Staying quiet for 30 minutes logs you out.
 For a list of commands, type "help commands".
