@@ -1987,8 +1987,29 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   harbourmaster), aelindor, ssarakh, arena, greystone, kingswatch,
   bounties, grove/hatchery/velkarath.
 
+## 2026-10-20: item audit (report only; nothing changed)
+
+- The user asked for low/mid/high sets, everything working, nothing crazy
+  except quest rewards; then chose "report only". Report (private
+  artifact): https://claude.ai/artifact/SSGysN9qi33j4robXXDdu4, built from
+  tools/server/audit_gear.py's JSON.
+- Damage (javap of live Battle.damRoll; CFR showed integer division, it's
+  double): STR/2 x (0.5-1.5) x weapon mod/100 - (weighted armour + DEX +
+  dextbon/10 + acbon). Fists = 100.
+- All items load and work. Findings: bows range 20-25 (cheap bow, wooden
+  crossbow, ash/yew/elderwood); crafted armour weaker/dearer than shop
+  (bronze breastplate, iron pieces); price outliers (leather vest 832,
+  crystal helmet 40000, wizards gauntlets 800); full sets: leather 19,
+  bronze 44, silver 58, gold/plat 73, steel 102, crafted mithril 205,
+  crystal 102, vortan 152 (2 pieces), diamond 250 +200 HP, blood 198 +90
+  HP; steel helmet (30 armour) from early quests (Wexley barrow, Warden
+  Marr); shifty god items' wear scripts missing; Generic Item Post junk.
+  Only 16 item kinds are owned by players. Waiting for the user's call.
+
 ## Open / ideas
 
+- Item rebalance: the 2026-10-20 audit report waits for the user's decision
+  (tier plan sketched in it).
 - Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone
   ran out of B2's free 2,500 class C calls a day (one list per directory);
   --fast-list was added to duskserver's crontab 2026-10-20 ~12:10 (old one
