@@ -1881,8 +1881,8 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
 - First thirst: users/default (the new-character template) had nothirst
   duration 600 ticks (10 min); now 3600 (1 hour). Drinks give 10800.
   Backup backups/thirst-*. Read at character creation, no restart.
-  nohunger there is ticks 600 / duration -1: new characters never get
-  hungry until they first eat (left as is).
+  nohunger there was ticks 600 / duration -1 (never hungry until the
+  first meal); now 0 / 3600 too (backup backups/hunger-*).
 
 ## 2026-10-20 18:35: Kingshaven signposts (LIVE, restart 18:35)
 

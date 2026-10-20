@@ -677,7 +677,8 @@ What they ran into is fixed:
   under the spaced names. Bronze from the anvil now matches the shop's:
   armour 40, helmet 200 gp, gloves and leggings 60, suit 400. "An bronze
   helmet" and the like say "a".
-- New characters get thirsty after an hour, not ten minutes.
+- New characters get thirsty after an hour, not ten minutes, and hungry
+  after an hour too (before, they never got hungry until they first ate).
 - **Signposts in Kingshaven**: one by the arrival square on the plaza and one
   where each avenue meets the street round the plaza, saying which way the
   gates, the keep, the cathedral, the market, the harbour and Sergeant
