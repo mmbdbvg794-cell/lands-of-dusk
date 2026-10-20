@@ -75,7 +75,7 @@ const QUEST = 'Blood of the Deep';
 const MATRON = {
   shouts: ['Kneel before House Xalyth.'],
   stages: [
-    ifFlag('velkarath_done', 'House Xalyth remembers those who serve it. Serve well.'),
+    ifFlag('velkarath_done', 'House Xalyth remembers those who serve it. Now make yourself useful: the bounty board by the Fire Well pays hunters, and the surface folk are building a town called Eastreach, a long walk east of our east stair. Learn what they are about. Serve well.'),
     ifFlag('velkarath_marked', 'The Spider\'s mark is on your hand. Good.', [
       {
         label: 'It is done',
@@ -148,7 +148,7 @@ const TRAINER = shop(
 );
 const GUARD = {
   shouts: ['Keep your blade sheathed in Velkarath.', 'The Matron sees all.'],
-  stages: [always('The Matron\'s palace is north of the Fire Well, the temple beside it. The market lies south. The side caves are for the bold: bats nest to the north-west.')],
+  stages: [always('The Matron\'s palace is north of the Fire Well, the temple beside it. South of the main street: Szinra\'s alchemy and Ryld\'s blades, and the bank to the south-east. The Black Lantern is north-west, the Pit east. Three long stairs climb to the surface, one at the end of each tunnel: the west stair comes up beside Aelindor, whose ships sail from Aelindor Landing; the east stair comes up in the hills, a long walk west of Eastreach; the south stair, in the wild southern hills. The side caves are for the bold: bats nest to the north-west.')],
 };
 const NALFEIN = { shouts: [], stages: [always('The Fire Well never goes out. They say it reaches down to the heart of the world.')] };
 const ZESSTRA = { shouts: [], stages: [always('Watch the side caves. The bats up north-west are the size of dogs, and twice as hungry.')] };
@@ -226,7 +226,7 @@ const spiderStone = (flag) => [{
   when: { kind: 'flag', value: flag },
   speaker: '',
   says: '** You step onto the Spider Stone. Webs of light close around you... and you stand beside the Fire Well of Velkarath. ** A guard looks you over: \'Another hatchling. Matron Xalyth sees every new one, in her palace north of the Fire Well. Do not keep her waiting.\'',
-  effects: [...TUT_FLAGS.map(unflag), jflag('drowTutDone', 'Training done (or skipped). Matron Xalyth sees every new hatchling, in her palace north of the Fire Well.', true), { kind: 'bind', x: WELL[0], y: WELL[1] }, { kind: 'teleport', x: WELL[0], y: WELL[1] }],
+  effects: [...TUT_FLAGS.map(unflag), jflag('drowTutDone', 'Training done. Matron Xalyth sees every new hatchling, in her palace north of the Fire Well.', true), { kind: 'bind', x: WELL[0], y: WELL[1] }, { kind: 'teleport', x: WELL[0], y: WELL[1] }],
 }];
 const door = (flag, speaker, words) => ({ kind: 'flag', flag, speaker, verb: 'says', says: words });
 
@@ -424,7 +424,13 @@ export default {
     p.oval(118, 46, 5, 3, 'L');
     for (const [x, y] of [[49, 44], [122, 56], [50, 62], [121, 88], [66, 92], [104, 92], [70, 40], [100, 40]]) if (p.at(x, y) === 'k') p.set(x, y, 'c');
 
-    // Guards where the tunnels come in.
+    // Guards where the tunnels come in, and a sign at each saying where its
+    // stair comes out (play-test 6: nothing said how to reach the surface).
+    for (const [x, y, text] of [
+      [49, 64, 'The west stair: up to the surface beside Aelindor, city of the elves. Ships sail from Aelindor Landing, north of it, to Westsea Harbour and Eastreach.'],
+      [87, 94, 'The south stair: up to the wild southern hills.'],
+      [125, 71, 'The east stair: up into the eastern hills. Eastreach, the surface folk\'s new town, is a long walk east from the top.'],
+    ]) p.sign('Signpost', text, x, y);
     for (const [x, y] of [[49, 65], [86, 95], [125, 72]]) p.set(x, y, 'k');
     p.npc({ name: 'Dark Elf Guard', look: null, x: 49, y: 65, dlg: GUARD });
     p.prop('Dark Elf Guard', 86, 95);

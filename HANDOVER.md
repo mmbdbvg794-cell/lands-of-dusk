@@ -1899,6 +1899,31 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
   crashed scratch at login. Same risk for any hidden flag made on scratch
   only: check defConditions after a setup.
 
+## 2026-10-20 21:16: play-test 6 fixes (LIVE, restart 21:16:03)
+
+Play-test 6: a dark elf Ranger, Velrith (~/dusk-playtest archive/run6;
+notes, transcript, brief). Tutorial fine; never reached Eastreach: nothing
+in Velkarath mentions the stairs up. Claims checked in the transcript:
+- Real: no way out pointed to (flood fill from the stair mouths: west 106
+  steps to Aelindor Landing, east 289 steps to Eastreach on foot, south
+  wilderness); the guard's "market lies south" (no market; the tester
+  walked into the bank); "stand right beside them" with a bow (the dummy
+  was 7 away by the grid, range 3: refusal right, text wrong).
+- Not real: "hunger/thirst came silently" (both messages at 20:41, 62
+  min in, as the 1-hour start meant; the tester missed them); "only two
+  bounty notices" (Cave Slime at 1338,907, never read); "never asked about
+  sex" (the bot passed --sex).
+- Fixed: tools/server/fix_playtest6.py (backups playtest6-*): tunnel
+  signposts 1309,914 / 1347,944 / 1385,921, guard and Matron lines, journal
+  "Training done.", bounty boards "the easiest on the left". EnginePatch
+  FAR_FIXED: "get closer. Right beside them, or within your bow's reach if
+  you wield one". Plans match (velkarath, grove, hatchery, bounties .mjs).
+  Class backups classes-20261020-211601. Checked on scratch with Velrith
+  (shadow42): the message, the west sign, the guard.
+- Not done: progression unexplained (exp is spent at trainers; no levels:
+  see the class/level ideas below); dusk-bot's legend names some wall
+  tiles "cobblestones" (bot-side); the bank's back rooms are fiddly.
+
 ## Open / ideas
 
 - Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone
@@ -1907,10 +1932,11 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
   in ~/crontab-before-fastlist.bak). ~/DuskRPG/rclone_backup.log should
   have no "Transaction cap" lines on the 21st; if it does, cut the
   frequency or add --max-age. Then check the account zips reach the bucket.
-- Play-tests: runs 1-5 in ~/dusk-playtest/archive/runN (notes + transcript).
-  Run 6 could be a dark elf or lizardfolk (runs 4-5 were elf and human),
-  brief-run5.md as the template; scratch is stopped (tools/scratch.sh
-  setup, then start). Block archive/** and the briefs in the launch line.
+- Play-tests: runs 1-6 in ~/dusk-playtest/archive/runN (notes + transcript).
+  Run 7 could be a lizardfolk again (run 3) to check Ssarakh, or a dark
+  elf to see if the new signs get one to Eastreach; brief-run6.md as the
+  template; scratch is stopped (tools/scratch.sh setup, then start). Block
+  archive/** and the briefs in the launch line.
 - Class and level ideas the user raised (not started): choosing the class
   at the end of the tutorial instead of at creation; a level system (maybe
   cosmetic levels on top of the experience-for-stats training).

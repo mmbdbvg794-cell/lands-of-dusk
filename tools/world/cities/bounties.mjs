@@ -127,7 +127,7 @@ export default {
         p.npc({ name: poster, look: LOOK, desc: `A bounty notice on ${b.town}'s bounty board: ${job[1]} ${plural(job[0], job[1])} wanted.`, x: px, y: py, dlg });
         p.quest(quest);
       });
-      p.sign('Bounty Board', `${b.town}'s bounty board. Three jobs, one a day per hunter: read a notice to take it, and come back to it to be paid.`, x + 3, y);
+      p.sign('Bounty Board', `${b.town}'s bounty board. Three jobs, one a day per hunter, the easiest on the left: read a notice to take it, and come back to it to be paid.`, x + 3, y);
     }
   },
 };

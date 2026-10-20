@@ -672,6 +672,16 @@ What they ran into is fixed:
   full stop.
 - In the browser, `help` and other text windows show in the chat.
 - Old Sailor Wick in the Drunken Dragon has a tale, if you ask for one.
+- **Velkarath's way out**: a signpost at each of the three tunnels says where
+  its stair comes out (the west one beside Aelindor and its ships, the east
+  one a long walk from Eastreach, the south one in the wild hills). The
+  guard names them, and the city's real shops instead of a market that
+  isn't there. Once you're Drow of House Xalyth, the Matron sends you to
+  the bounty board and out towards Eastreach.
+- Attacking out of reach says to get closer: right beside them, or within
+  your bow's reach.
+- The bounty boards say the easiest notice is on the left. The tutorials'
+  last journal line says "Training done."
 - **Armour shops** in Kingshaven list "silver helmet", "gold leggings" and so
   on, with spaces instead of underscores; belts and sleeves are new items
   under the spaced names. Bronze from the anvil now matches the shop's:

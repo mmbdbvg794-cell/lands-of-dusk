@@ -84,7 +84,7 @@ const moonstone = (flag) => [{
   when: { kind: 'flag', value: flag },
   speaker: '',
   says: '** You step onto the Moonstone. Silver light rises around you... and you stand beside the Moonwell of Aelindor. ** An elf tending the well smiles at you: \'Welcome to Aelindor. Elder Faelar likes to meet everyone new to the city; his hall is north-west of the Moonwell.\'',
-  effects: [...TUT_FLAGS.map(unflag), jflag('elfTutDone', 'Training done (or skipped). Elder Faelar meets everyone new to Aelindor, in his hall north-west of the Moonwell.', true), { kind: 'bind', x: MOONWELL[0], y: MOONWELL[1] }, { kind: 'teleport', x: MOONWELL[0], y: MOONWELL[1] }],
+  effects: [...TUT_FLAGS.map(unflag), jflag('elfTutDone', 'Training done. Elder Faelar meets everyone new to Aelindor, in his hall north-west of the Moonwell.', true), { kind: 'bind', x: MOONWELL[0], y: MOONWELL[1] }, { kind: 'teleport', x: MOONWELL[0], y: MOONWELL[1] }],
 }];
 // A gap in the trees that opens on a flag.
 const gap = (flag, speaker, words) => ({ kind: 'flag', flag, speaker, verb: 'says', says: words });

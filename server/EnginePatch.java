@@ -14,7 +14,9 @@
  *
  * And starting a fight out of reach said only "They're too far away.":
  * reach is counted along the grid, so a creature on a diagonal square is
- * two away, which players can't see. The message now says so.
+ * two away, which players can't see. The message now says so, and that a
+ * bow reaches further (play-test 6: "stand right beside them" made a
+ * Ranger think the bow was a melee weapon).
  *
  *   javac --add-exports java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED \
  *         --add-exports java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED EnginePatch.java
@@ -39,7 +41,7 @@ public class EnginePatch {
     static final String[] FIXED = { "wisd", "wisdbon", "wisd", "wisdbon", "mp", "maxmp", "mpbon" };
 
     static final String FAR = "They're too far away.\n";
-    static final String FAR_FIXED = "They're too far away: stand right beside them (a diagonal square counts as two).\n";
+    static final String FAR_FIXED = "They're too far away: get closer. Right beside them, or within your bow's reach if you wield one (a diagonal square counts as two).\n";
 
     public static void main(String[] args) throws Exception {
         ClassNode cls = new ClassNode();
