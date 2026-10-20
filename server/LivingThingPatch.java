@@ -19,6 +19,9 @@
  * And getArmorMod() is replaced by Skills.armorMod(this): each piece's
  * share added up before rounding down, not after each piece.
  *
+ * And in moveTo, a fighter that moved no longer flees for want of a foe
+ * in its own vctEntities (only players keep one): BattleFix.sees.
+ *
  * Part of the browser client project (dusk-browser-client/server).
  */
 import java.nio.file.Files;
@@ -80,9 +83,32 @@ public class LivingThingPatch {
         armor.instructions.add(new jdk.internal.org.objectweb.asm.tree.InsnNode(Opcodes.IRETURN));
         armor.maxStack = 1;
         armor.maxLocals = 1;
+        // moveTo: a fighter who moved flees unless it still sees a foe, read
+        // from its vctEntities, which only players keep: creatures walking
+        // toward a ranged attacker fled. "this.vctEntities.contains(foe)"
+        // (aload 0, getfield, aload foe, invokevirtual) becomes
+        // BattleFix.sees(this, foe): the getfield goes, the call changes.
+        MethodNode move = null;
+        for (MethodNode m : cls.methods) if (m.name.equals("moveTo") && m.desc.equals("(IIB)V")) move = m;
+        if (move == null) throw new Exception("no moveTo(int, int, byte) in " + args[0]);
+        int sees = 0;
+        for (AbstractInsnNode n : move.instructions.toArray()) {
+            if (n instanceof MethodInsnNode && ((MethodInsnNode) n).name.equals("sees")) throw new Exception("moveTo already patched; not patching again");
+            if (!(n instanceof MethodInsnNode)) continue;
+            MethodInsnNode call = (MethodInsnNode) n;
+            if (!call.owner.equals("java/util/Vector") || !call.name.equals("contains")) continue;
+            AbstractInsnNode arg = call.getPrevious(), field = arg.getPrevious();
+            if (!(arg instanceof VarInsnNode) || !(field instanceof jdk.internal.org.objectweb.asm.tree.FieldInsnNode) || !((jdk.internal.org.objectweb.asm.tree.FieldInsnNode) field).name.equals("vctEntities")) continue;
+            AbstractInsnNode self = field.getPrevious();
+            if (!(self instanceof VarInsnNode) || ((VarInsnNode) self).var != 0) continue;
+            move.instructions.remove(field);
+            move.instructions.set(call, new MethodInsnNode(Opcodes.INVOKESTATIC, "BattleFix", "sees", "(LLivingThing;Ljava/lang/Object;)Z", false));
+            sees++;
+        }
+        if (sees != 2) throw new Exception("expected 2 this.vctEntities.contains(foe) in moveTo, found " + sees);
         ClassWriter w = new ClassWriter(0);
         cls.accept(w);
         Files.write(Paths.get(args[1]), w.toByteArray());
-        System.out.println("Patched the use message and armour adding up in " + args[1]);
+        System.out.println("Patched the use message, armour adding up and creatures stepping in a fight in " + args[1]);
     }
 }

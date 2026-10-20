@@ -39,6 +39,7 @@
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -89,13 +90,14 @@ public class Classes {
         "open Mining, Herbalism, Woodcutting, Smithing, Alchemy, Fletching",
         "",
         "# start <id> <what> <n>, ... : on choosing. Stats stre inte dext cons wisd, maxhp, maxmp;",
-        "# a skill or spell group and its points; item <name>.",
-        "start fighter stre 3, cons 1, maxhp 10, maxmp 8, Dodge 5",
+        "# a skill or spell group and its points; item <name>. The items and skills",
+        "# (not groups) are the starter kit, which the choice names.",
+        "start fighter stre 3, cons 1, maxhp 10, maxmp 8, Dodge 5, item short sword, Double Attack 10",
         "start mage inte 3, wisd 1, maxhp -5, maxmp 30, arcane group 1, item quarter staff",
-        "start cleric wisd 3, inte 1, maxhp 2, maxmp 26, divine group 1",
-        "start priest wisd 3, inte 1, maxhp 2, maxmp 26",
-        "start ranger dext 3, stre 1, maxhp 5, maxmp 16",
-        "start paladin stre 2, wisd 2, maxhp 7, maxmp 20, divine group 1",
+        "start cleric wisd 3, inte 1, maxhp 2, maxmp 26, divine group 1, item quarter staff",
+        "start priest wisd 3, inte 1, maxhp 2, maxmp 26, drow group 1, item quarter staff",
+        "start ranger dext 3, stre 1, maxhp 5, maxmp 16, item hunting bow, Double Attack 10",
+        "start paladin stre 2, wisd 2, maxhp 7, maxmp 20, divine group 1, item short sword, Dodge 5",
         "",
         "# growth <id> <max HP per point> <max MP per point>, bought at a trainer (else 10 and 10)",
         "growth fighter 12 8",
@@ -637,6 +639,15 @@ public class Classes {
                     Log.logEvent("Classes: " + p.strName + " (a Mage) joins the Mage Guild");
                 }
             }
+            if (!exempt(p) && was != null && !p.hasCondition(KIT_FLAG)) {
+                String kit = giveKit(p, p.engGame, was);
+                if (!kit.isEmpty()) {
+                    p.updateStats();
+                    p.savePlayer();
+                    p.chatMessage("Every " + nameFor(was, p) + " now starts with a kit. " + kit + "\n");
+                    Log.logEvent("Classes: " + p.strName + " got the " + was.id + " starter kit");
+                }
+            }
             if (exempt(p) || of(p) != null) return;
             // The browser client opens its picker instead.
             if (BridgedSocket.browser(p.sckConnection)) return;
@@ -764,6 +775,69 @@ public class Classes {
         return null;
     }
 
+    // ---- the starter kit -------------------------------------------------------
+
+    // A class's start items and skills (not its stats, HP, MP or spell
+    // groups): given on choosing, and once at login to anyone who chose
+    // before the kits (the starter_kit flag says they have it).
+    static final String KIT_FLAG = "starter_kit";
+    static final List<String> STATS = Arrays.asList("stre", "inte", "dext", "cons", "wisd", "maxhp", "maxmp");
+
+    static boolean inKit(String[] s) {
+        if (s[0].equals("item")) return true;
+        return !STATS.contains(s[0].toLowerCase()) && !s[0].toLowerCase().endsWith(" group");
+    }
+
+    // Gives the kit's items and raises its skills to their points (a skill
+    // already as high is left); says what it gave ("" for nothing). The
+    // flag goes on once every item fitted in the Backpack.
+    static String giveKit(Player p, DuskEngine engine, Def c) {
+        List<String> got = new ArrayList<String>(), learnt = new ArrayList<String>();
+        boolean fitted = true;
+        for (String[] s : c.start) {
+            if (!inKit(s)) continue;
+            try {
+                if (s[0].equals("item")) {
+                    if (p.hasCondition(KIT_FLAG)) continue;
+                    Item it = engine.getItem(CaseFix.file("defItems", s[1]));
+                    if (it == null) { Log.logEvent("Classes: no item " + s[1] + " for the " + c.id + " kit"); continue; }
+                    if (p.items.add(it)) { p.updateItems(); got.add(s[1]); } else fitted = false;
+                    continue;
+                }
+                int n = Integer.parseInt(s[1]), have = skillPoints(p, s[0]);
+                if (n > have) {
+                    p.learnSkill(s[0], n - have, 0);
+                    learnt.add(s[0]);
+                }
+            } catch (Exception e) {
+                Log.logError(e, "Classes: kit for " + p.strName + ": " + s[0], false);
+            }
+        }
+        if (fitted && !p.hasCondition(KIT_FLAG)) {
+            hiddenFlag(KIT_FLAG);
+            Condition cond = engine.getCondition(KIT_FLAG);
+            if (cond != null) p.addCondition(cond);
+        }
+        StringBuilder b = new StringBuilder();
+        if (!got.isEmpty()) b.append("You get ").append(words(got, true)).append(" (in your Backpack: wear ").append(got.size() > 1 ? "them" : "it").append(")");
+        if (!learnt.isEmpty()) b.append(b.length() > 0 ? " and learn " : "You learn ").append(words(learnt, false));
+        if (b.length() > 0) b.append(".");
+        if (!fitted) b.append(b.length() > 0 ? " " : "").append("Your Backpack is too full for the rest of your kit: make room and log in again.");
+        return b.toString();
+    }
+
+    // "a short sword", "a hunting bow and an axe"; skills as they are.
+    static String words(List<String> names, boolean article) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < names.size(); i++) {
+            if (i > 0) b.append(i == names.size() - 1 ? " and " : ", ");
+            String n = names.get(i);
+            if (article) b.append("aeiou".indexOf(Character.toLowerCase(n.charAt(0))) >= 0 ? "an " : "a ");
+            b.append(n);
+        }
+        return b.toString();
+    }
+
     static void setFlag(Player p, DuskEngine engine, Def c) {
         for (Def other : defs.values()) p.removeCondition("class_" + other.id);
         hiddenFlag(c);
@@ -803,11 +877,7 @@ public class Classes {
         p.exp += refund;
         for (String[] s : c.start) {
             try {
-                if (s[0].equals("item")) {
-                    Item it = engine.getItem(CaseFix.file("defItems", s[1]));
-                    if (it != null && p.items.add(it)) p.updateItems();
-                    continue;
-                }
+                if (inKit(s)) continue; // giveKit, below
                 int n = Integer.parseInt(s[1]);
                 String stat = s[0].toLowerCase();
                 if (stat.equals("stre") || stat.equals("inte") || stat.equals("dext") || stat.equals("cons") || stat.equals("wisd")) {
@@ -826,12 +896,13 @@ public class Classes {
                 Log.logError(e, "Classes: starting " + p.strName + " with " + s[0], false);
             }
         }
+        String kit = giveKit(p, engine, c);
         p.updateInfo();
         p.updateStats();
         p.savePlayer();
         Log.logEvent(p.strName + " chose " + c.id + (note.length() > 0 ? " (took away " + note + ", " + refund + " exp back)" : ""));
         p.chatMessage("Class: " + c.id + "|" + nameFor(c, p) + "\n");
-        String out = "You are now a " + nameFor(c, p) + ".";
+        String out = "You are now a " + nameFor(c, p) + "." + (kit.isEmpty() ? "" : " " + kit);
         if (note.length() > 0) out += " Another class's training was taken away (" + note + "); you get its " + refund + " exp back.";
         return out;
     }

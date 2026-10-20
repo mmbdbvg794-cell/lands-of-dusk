@@ -14,6 +14,12 @@
  *   way ("You have lost 0gp" took 1).
  * - A creature that started the fight dropped nothing when killed: the
  *   drop checked the attacking side's front (the creature) for a player.
+ * - A creature that stepped during a fight fled from it. Out of a ranged
+ *   weapon's reach, a creature walks toward its foe; after any step
+ *   LivingThing.moveTo has the mover flee unless its list of what it sees
+ *   holds a foe, and only players keep that list. So every ranged shot
+ *   ended the fight after one round ("Your foe has fled"). Now a creature
+ *   sees a player when the player sees it (LivingThingPatch: sees).
  *
  * Part of the browser client project (dusk-browser-client/server).
  */
@@ -25,6 +31,14 @@ import java.util.Vector;
 import java.util.WeakHashMap;
 
 public class BattleFix {
+    // Whether a fighter who just moved still sees a foe (in place of
+    // self.vctEntities.contains(other) in LivingThing.moveTo).
+    public static boolean sees(LivingThing self, Object other) {
+        if (self instanceof Player) return self.vctEntities.contains(other);
+        if (other instanceof Player) return ((Player) other).vctEntities.contains(self);
+        return true;
+    }
+
     // Fights where someone has been killed (for the closing line).
     private static final Map<Battle, Boolean> KILLS = Collections.synchronizedMap(new WeakHashMap<Battle, Boolean>());
 

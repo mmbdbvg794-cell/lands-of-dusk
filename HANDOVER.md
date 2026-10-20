@@ -1778,8 +1778,8 @@ the server sending status throughout. Fixed (plans, then on scratch):
   Eastreach (~4 min).
 - Live: installed 11:59 (backups city-play-test-4-20261020-115924 and
   playtest4-20261020-115924), restarted from the host 11:59:26, clean load.
-- Not done: a new Ranger can't afford the 250 gp bow and has no skills or
-  spells at level 1; "look" can't examine your own items (may be dusk-bot
+- Not done (then): a new Ranger can't afford the 250 gp bow and has no
+  skills or spells at level 1 (see starter kits, 13:20); "look" can't examine your own items (may be dusk-bot
   only); answering after a "look" ends a conversation. (Human tutorial:
   see the 12:48 section.)
 
@@ -1797,6 +1797,36 @@ the server sending status throughout. Fixed (plans, then on scratch):
   city of night on the other side. The only hint of Midnight, by design.
 - Not played in-game after install (talk scripts made by the same
   toScript as all the others).
+
+## 2026-10-20 13:20: starter kits + ranged fights (LIVE, restart 13:25:57)
+
+- Classes.java: a class's start items and skills (not stats, HP, MP or
+  spell groups) are its starter kit. Choosing names it ("You are now a
+  Ranger. You get a hunting bow (in your Backpack: wear it) and learn
+  Double Attack."). Anyone who chose before gets it once at login (hidden
+  flag starter_kit; set only when every item fitted; skills raised to the
+  kit's points, never lowered).
+- Kits (tools/server/install_starter_kits.py writes the classes file's start
+  lines and defItems/hunting bow; Classes.java defaults match): Fighter
+  short sword + Double Attack 10 (+ Dodge 5 as before); Ranger hunting bow
+  (new: ranged, mod 120, range 3, 60 gp) + Double Attack 10; Paladin short
+  sword + Dodge 5; Cleric and Priest quarter staff.
+- Double Attack n = n% a round of an extra hit (Battle); Dodge is weak
+  (skill x 0.75 x a DEX factor).
+- Ranged fights ended after one round with every creature ("X is out of
+  range", "Your foe has fled"): a creature out of reach walks toward its
+  foe, and LivingThing.moveTo makes any mover flee unless its vctEntities
+  holds a foe, which only players keep. LivingThingPatch now swaps those
+  two checks for BattleFix.sees (a creature sees a player when the player
+  sees it). The cheap bow and every ranged weapon had this.
+- Tested on scratch: new Ranger/Cleric/Fighter messages and skills; an old
+  Ranger (Rfivetest) got the kit once, not twice; a lizard shot from 3
+  squares walked up and the fight went on to the kill.
+- To go live: the build in /tmp/dusk-scratch-build/out on duskserver (built
+  from live's classes), install.sh with OUT= that dir,
+  install_starter_kits.py --apply, restart at once.
+- Live: installed by the user 13:25 (backups classes-20261020-132555,
+  starter-kits-20261020-132555), restarted 13:25:57, clean load.
 
 ## Open / ideas
 
