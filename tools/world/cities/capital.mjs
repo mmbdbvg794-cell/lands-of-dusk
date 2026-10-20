@@ -90,8 +90,8 @@ const FEMALE = new Set(['Bess', 'Delia', 'Faye', 'Hester', 'Joan', 'Lark', 'Nora
 
 const WARES = {
   weapons: ['dagger', 'short sword', 'broad sword', 'long sword', 'iron sword', 'bronze sword', 'war axe', 'heavy axe', 'expert sword', 'burn blade', 'crystal sword'],
-  armour: ['leather cap', 'leather jerkin', 'leather sleeves', 'leather leggings', 'leather gloves', 'leather belt', 'bronze_helmet', 'bronze_suit', 'bronze_sleeves', 'bronze_leggings', 'bronze_gloves', 'bronze_belt', 'leather shield'],
-  royal: ['silver_helmet', 'silver_suit', 'silver_sleeves', 'silver_leggings', 'silver_gloves', 'silver_belt', 'gold_helmet', 'gold_suit', 'gold_sleeves', 'gold_leggings', 'gold_gloves', 'gold_belt', 'platinum_suit', 'steel plate mail', 'bronze shield', 'iron shield'],
+  armour: ['leather cap', 'leather jerkin', 'leather sleeves', 'leather leggings', 'leather gloves', 'leather belt', 'bronze helmet', 'bronze suit', 'bronze sleeves', 'bronze leggings', 'bronze gloves', 'bronze belt', 'leather shield'],
+  royal: ['silver helmet', 'silver suit', 'silver sleeves', 'silver leggings', 'silver gloves', 'silver belt', 'gold helmet', 'gold suit', 'gold sleeves', 'gold leggings', 'gold gloves', 'gold belt', 'platinum suit', 'steel plate mail', 'bronze shield', 'iron shield'],
   bows: ['cheap bow', 'wooden crossbow', 'arrow', 'quiver', 'celestial arrow'],
   potions: ['minor potion', 'minor mana potion', 'tiny potion', 'x-potion', 'anti-curse potion', 'red potion', 'green potion', 'blue potion', 'lavender', 'mandrake', 'mushroom'],
   jewels: ['opal', 'ruby', 'topaz', 'aquamarine', 'chaotic amulet', 'pyramid studded necklace', 'goggles', 'crystal lens'],

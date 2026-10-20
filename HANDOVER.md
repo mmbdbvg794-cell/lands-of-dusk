@@ -1868,6 +1868,23 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
   localStorage dusk.betakey/betatoken, beta_site_links.py (now writes
   "Alpha"). The "beta" god item is unrelated and unchanged.
 
+## 2026-10-20 18:28: armoury names, first thirst (LIVE, restart 18:28)
+
+- tools/server/fix_armoury_names.py (applied, backups armoury-names-*):
+  both Kingshaven armour shops (merchants 1427,343 and 1444,343) list
+  spaced names; missing twins (bronze/silver/gold belt and sleeves) made
+  from the underscored files; the bronze helmet/gloves/leggings/suit twins
+  (anvil recipes, zakken drop) took the shop's stats (user's call).
+  capital.mjs matches. Underscored files kept (no player holds one).
+  "an <consonant>" descriptions fixed in 10 item files AFTER the restart
+  (backups armoury-names-an-*): live text updates at the next restart; the
+  client's iteminfo already has them.
+- First thirst: users/default (the new-character template) had nothirst
+  duration 600 ticks (10 min); now 3600 (1 hour). Drinks give 10800.
+  Backup backups/thirst-*. Read at character creation, no restart.
+  nohunger there is ticks 600 / duration -1: new characters never get
+  hungry until they first eat (left as is).
+
 ## Open / ideas
 
 - Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone
@@ -1880,10 +1897,8 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
   Run 6 could be a dark elf or lizardfolk (runs 4-5 were elf and human),
   brief-run5.md as the template; scratch is stopped (tools/scratch.sh
   setup, then start). Block archive/** and the briefs in the launch line.
-- Left from play-test 5: the Royal Armoury's underscored item names
-  (silver_helmet, gold_leggings, platinum_suit); Kingshaven is still slow
-  to find your way round (a town map or more crossroads signs); thirst
-  comes about 12 minutes in.
+- Left from play-test 5: Kingshaven is still slow to find your way round
+  (a town map or more crossroads signs).
 - Class and level ideas the user raised (not started): choosing the class
   at the end of the tutorial instead of at creation; a level system (maybe
   cosmetic levels on top of the experience-for-stats training).

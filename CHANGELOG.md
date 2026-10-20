@@ -672,6 +672,12 @@ What they ran into is fixed:
   full stop.
 - In the browser, `help` and other text windows show in the chat.
 - Old Sailor Wick in the Drunken Dragon has a tale, if you ask for one.
+- **Armour shops** in Kingshaven list "silver helmet", "gold leggings" and so
+  on, with spaces instead of underscores; belts and sleeves are new items
+  under the spaced names. Bronze from the anvil now matches the shop's:
+  armour 40, helmet 200 gp, gloves and leggings 60, suit 400. "An bronze
+  helmet" and the like say "a".
+- New characters get thirsty after an hour, not ten minutes.
 
 ## Closed alpha
 
