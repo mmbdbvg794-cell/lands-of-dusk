@@ -1859,6 +1859,23 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
 
 ## Open / ideas
 
+- Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone
+  ran out of B2's free 2,500 class C calls a day (one list per directory);
+  --fast-list was added to duskserver's crontab 2026-10-20 ~12:10 (old one
+  in ~/crontab-before-fastlist.bak). ~/DuskRPG/rclone_backup.log should
+  have no "Transaction cap" lines on the 21st; if it does, cut the
+  frequency or add --max-age. Then check the account zips reach the bucket.
+- Play-tests: runs 1-5 in ~/dusk-playtest/archive/runN (notes + transcript).
+  Run 6 could be a dark elf or lizardfolk (runs 4-5 were elf and human),
+  brief-run5.md as the template; scratch is stopped (tools/scratch.sh
+  setup, then start). Block archive/** and the briefs in the launch line.
+- Left from play-test 5: the Royal Armoury's underscored item names
+  (silver_helmet, gold_leggings, platinum_suit); Kingshaven is still slow
+  to find your way round (a town map or more crossroads signs); thirst
+  comes about 12 minutes in.
+- Class and level ideas the user raised (not started): choosing the class
+  at the end of the tutorial instead of at creation; a level system (maybe
+  cosmetic levels on top of the experience-for-stats training).
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
   Hidden Order / tier-5 quests that set forbidden_lore, archmage_quest,
   archdruid_quest (skipped for now; god-set flags only). A ferry to the
