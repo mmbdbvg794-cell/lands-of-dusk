@@ -672,6 +672,9 @@ What they ran into is fixed:
   full stop.
 - In the browser, `help` and other text windows show in the chat.
 - Old Sailor Wick in the Drunken Dragon has a tale, if you ask for one.
+- **The Bank of Velkarath** is one room: the counter runs wall to wall, so
+  there's no dead-end back room to get lost in. The teller answers across
+  it as before.
 - **Clans on the who page**: each player's clan shows beside their name,
   with "(leader)" for its leader.
 - **Velkarath's way out**: a signpost at each of the three tunnels says where

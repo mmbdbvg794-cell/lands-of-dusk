@@ -1920,7 +1920,7 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   Class backups classes-20261020-211601. Checked on scratch with Velrith
   (shadow42): the message, the west sign, the guard.
 - Not done: (progression: explained at 21:40, see below); dusk-bot's legend names some wall
-  tiles "cobblestones" (bot-side); the bank's back rooms are fiddly.
+  tiles "cobblestones" (bot-side); (bank: fixed 22:13, see below).
 
 ## 2026-10-20 21:40: progression explained (LIVE, no restart needed)
 
@@ -1941,6 +1941,17 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   after the title (rows wrap on phones). test/who.test.mjs covers it.
   Checked on scratch: hgate -> "clan":"Grey Hand","leader":true. Class
   backups classes-20261020-214649.
+
+## 2026-10-20 22:13: Velkarath bank counter (LIVE, restart 22:13:40)
+
+- tools/server/fix_velkarath_bank.py (applied, backup
+  velkarath-bank-*): shortmap 1353,927 1354,927 1362,927 1363,927 floor
+  (42) -> counter (58), so the counter meets both side walls and the back
+  room (teller at 1358,928) is closed off. The run 6 trace: in at the door,
+  south blocked, round the east gap into the back, then south/east into
+  walls. velkarath.mjs fill(93, 77, 11, ...). No saved character stood in
+  the back room. Checked on scratch: "talk Dark Elf Teller" from 1358,926
+  answers (TELLER_REACH 5); south is blocked.
 
 ## Open / ideas
 

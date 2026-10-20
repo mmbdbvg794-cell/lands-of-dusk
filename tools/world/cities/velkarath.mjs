@@ -398,7 +398,7 @@ export default {
 
     // The bank (south-east of the plaza).
     p.building(92, 74, 13, 7, { wall: 's', floor: 'M', doors: [['n', 6]] });
-    p.fill(95, 77, 7, 1, 's');
+    p.fill(93, 77, 11, 1, 's'); // the counter, wall to wall (the back room was a dead end)
     p.npc({ name: 'Dark Elf Teller', look: null, x: 98, y: 78 });
     p.set(98, 70, 'e'); p.set(98, 71, 'e'); p.set(98, 72, 'e'); p.set(98, 73, 'e');
     p.sign('Bank of Velkarath', 'The Bank of Velkarath: your gold and your deposit box, the same as at every bank.', 99, 72);
