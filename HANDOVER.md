@@ -1910,8 +1910,7 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
   Old Sailor Wick's tale hints at it. No signposts.
 - Clans: show the clan on the who page / who.json; maybe a "clan hall"
   sign or name plaque when claimed.
-- CHANGELOG.md is up to date to 2026-10-14 03:51 (creature cap, layout);
-  not yet: Greystone Mine, emptied clan halls, clan commands, claimhall.
+- CHANGELOG.md is up to date to 2026-10-20 (alpha rename, play-tests 1-5).
 
 ## More notes
 

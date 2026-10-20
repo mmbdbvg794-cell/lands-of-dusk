@@ -571,6 +571,11 @@ backups; see `server/`.
   the map). On the map it's a little smaller.
 - **Settings in sections**: Display, Screen layout, Sound, Music, Account and
   help, and a closed Advanced (the bridge address and protocol trace).
+- **Equipment panel redesigned**: nine equal cards on a grid round the body
+  outline (Skull and Eyes on top; Arms, Torso and Neck; Wield, Waist and
+  Hands; Legs), each with a big centred icon and the name under it. Names
+  only wrap between words. Tap a card for the item's details. It fits on a
+  phone screen.
 
 ## The story tidied up (15 October 2026)
 
@@ -590,20 +595,93 @@ backups; see `server/`.
 - Tombkeeper Aldous has a thought about King Zilen's crown, and Shaman Ithrae
   a word more about the wyrms.
 
-## Closed alpha (was "closed beta")
+## Greystone Mine and clan halls (14 October 2026)
 
-- **Alpha first.** Testing now starts as a closed alpha: every word players
-  see (login, key messages, apply page, website sidebar and home page, news)
-  says alpha instead of beta. Internal names (betagate.py, tools/betakey,
-  ~/dusk-beta, BETA_GATE, the #beta frame, saved browser keys) stay, so
-  existing keys and logins keep working.
-- **Beta keys.** Playing in the browser needs a beta key. Type it once in the
-  new **Beta key** box on the login screen; that browser remembers it after
-  that. Clear messages when a key is wrong, has been withdrawn, or the beta
-  is full. Works on phones and the installed app.
+- **Greystone Mine**, about 200 steps north of Kingshaven: a door in the
+  grey cliff leads down to an entry hall with Overseer Garrick,
+  **Pickwright's Tools** (Hessa Pickwright sells picks, hammers, water and
+  apples), an east gallery of bronze and iron, the miners' camp with a forge
+  and anvil (Old Bryn and Tess the Hauler), and a deep seam of mithril and
+  coal. 21 veins in all.
+- **The old clan halls stand empty**, ready for new clans: their doors say
+  so, and a god can hand one over.
+- **Clan commands that work**: `clan`, `clan members`, `clan invite` (the
+  invited player gets a Join box), `clan accept` / `decline`, `clan leave`
+  for any member, and `clan kick` (even when the member is offline). A clan
+  name keeps its capital letters.
+- Gods: `claimhall` lists the halls; `claimhall <clan>` gives the hall you
+  stand in to a clan (its doors then let only members in); `claimhall
+  <hall> none` frees it.
+
+## From the play-tests (15–20 October 2026)
+
+Five AI play-testers played new characters of each race from the start.
+What they ran into is fixed:
+
+- **Talking to NPCs.** Answering an NPC's question no longer swallows other
+  commands: anything that isn't one of the answers runs as a command. An
+  answer after the conversation has ended says "That conversation is over:
+  talk to <name> again." instead of "huh?". Quest givers offer the next
+  quest in a chain right after your thank-you, and greet you as before once
+  the chain is done.
+- **Selling by name** works (`sell 1 apple`), in both clients.
+- **Bounty boards** say up front when you've already taken today's bounty
+  from that town's board, and each notice says how hard it is ("A job for a
+  new hunter." up to "Only for the strongest.").
+- **Fights.** Ranged fights no longer end after one shot: creatures walk up
+  to you and the fight goes on. Attacking out of reach says to stand right
+  beside them (a diagonal square counts as two). Nobody is paid for a fight
+  where both sides die, "You have won the battle." only shows after a kill,
+  and what you lose at death or fleeing is exactly what the message says.
+  Creatures that start a fight drop their loot too.
+- **Gentler starts.** Stray hounds are a little weaker, and hounds and swamp
+  creatures (bog slimes, mire lizards, bog crawlers, swamp serpents) no
+  longer gang up or attack first. Green blobs give less gold.
+- **Class starter kits.** Fighters get a short sword and Double Attack,
+  Rangers a hunting bow (new; needs no arrows) and Double Attack, Paladins a
+  short sword and Dodge, Clerics and Priests a quarter staff. Characters who
+  chose a class before get theirs once at their next login.
+- **Training** costs a little more as a stat or skill rises, and the trainer
+  shows your own price. Training a stat or skill says what rose.
+- **Races.** Lizardfolk get +2 STR, +2 CON and +1 DEX (they had the elves'
+  bonuses). The classic client's race list shows each race's bonuses.
+- **Armour.** Every piece counts: armour adds up before rounding, so cheap
+  sleeves and gloves help. Gloves no longer vanish at login (an old bug).
+  The browser shows what a piece really adds (a shield's +200 is +10).
+  Buying heavy armour your class can't use warns you first.
+- **Prices.** Shields cost about the same per point of armour as the
+  Royal Armoury's other pieces (bronze 300, iron 480, leather 180); leather
+  gloves 30, cheap bow 250, large bag 120 (and bigger), quarter staff 40,
+  cloth shirt 5. The ferry costs 20 gold. The Kingshaven cathedral altar
+  takes 5 gold, and only when you're hurt.
+- **Finding your way.** New signposts in Kingshaven (Sergeant Wexley's lane,
+  the hound meadow lane up beside Farmer Hollin's), Ssarakh, and on the road
+  to Aelindor Landing. Guards, gate signs, bounty notices and the journal
+  say where things really are; the harbourmaster names the ferry pier; and
+  Eastreach's sign lists all four ships. Each tutorial's last step says who
+  to see next. Tutorial trainers take the stuffing at once if you beat a
+  dummy before talking to them, and their gates say "come and see me first".
+  The tutorial shopkeepers stand behind their counters.
+- **Quests.** Ilsevel in Aelindor sets a task (a gloom hound's fang from the
+  den north-west of the city) before her blessing. In Velkarath, Matron
+  Xalyth's rite now makes a hatchling a Drow of House Xalyth.
+- Hunger and thirst say that they weaken you, and what to eat or drink. The
+  idle timeout is 30 minutes (was 10). `get` on a herb or ore says how to
+  gather it. "Lavender" and "training dummy" are spelt properly. The Basking
+  Rock's counter can be seen from its door. `look` ends a sentence with one
+  full stop.
+- In the browser, `help` and other text windows show in the chat.
+- Old Sailor Wick in the Drunken Dragon has a tale, if you ask for one.
+
+## Closed alpha
+
+- **Alpha keys.** Playing in the browser needs an alpha key. Type it once in
+  the new **Alpha key** box on the login screen; that browser remembers it
+  after that. Clear messages when a key is wrong, has been withdrawn, or the
+  alpha is full. Works on phones and the installed app.
 - Up to 25 players at once, and a short block for anyone trying lots of
   wrong keys.
-- **Apply for the beta** on the website (`/web/apply.html`): an email or
+- **Apply for the alpha** on the website (`/web/apply.html`): an email or
   Discord name, an optional character name, your device and why you're
   interested. "Need a key? Ask for one" on the login screen goes there.
   Gods review applications in the Admin page (or `betakey` on the server)
@@ -614,13 +692,15 @@ backups; see `server/`.
   Discord and the Dusk website in chat can be clicked.
 - **New welcome message** at login: "Welcome to the Lands of Dusk!", with
   the website and Discord.
-- The game's pages ask search engines not to list them while the beta is
+- The game's pages ask search engines not to list them while the alpha is
   closed. The public home page and Lore page stay as they are.
+- (20 October) Testing starts as a closed alpha rather than a beta: the
+  login, key messages, apply page, website and news all say alpha now.
 
 ## Website
 
-- **Apply for the Beta** and **Join our Discord** in the sidebar of every
-  page, and a "Closed beta: apply for a key" line under Play Now on the home
+- **Apply for the Alpha** and **Join our Discord** in the sidebar of every
+  page, and a "Closed alpha: apply for a key" line under Play Now on the home
   and How to Play pages.
 
 - **Forum** (forum.html): an old-school forum with boards for news,
