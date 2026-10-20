@@ -34,6 +34,16 @@ const WARES = {
 };
 
 const say = (says, answers = []) => ({ shouts: [], stages: [{ when: { kind: 'always', value: '' }, says, answers }] });
+// Hesska's welcome: short, with topics (the user, 2026-10-20: one long
+// speech was too much). Exported for tools/server/regen_npc.mjs.
+const topic = (label, reply) => ({ label, reply, effects: [] });
+export const HESSKA = say('Ssss. Welcome to Ssarakh, warm-blood or scale-kin. What do you seek?', [
+  topic('Work', 'The bounty board on the plaza. Mind the bog pools: they keep what they take.'),
+  topic('Training', 'Shaman Ithrae, along the east street, teaches those with experience to spend.'),
+  topic('Ships', 'The Marsh Wren sails for Eastreach from the pier at the south end of the city.'),
+  topic('The sands', 'East, past the mire. Beware the Dry Ones there. They were brood once.'),
+  topic('Farewell', 'The mire keeps us.'),
+]);
 
 export default {
   name: 'Ssarakh',
@@ -73,7 +83,7 @@ export default {
     // The Hall of the Brood.
     B(1688, 920, 15, 11, { wall: 'W', floor: 'P', doors: [['s', 7]] });
     NPC({ name: 'Chieftain Hesska', look: 'lizardfolk', desc: 'Chieftain Hesska, old and broad, her crest faded to the grey of river stone.', x: 1695, y: 924,
-      dlg: dawnward('Chieftain Hesska', say('Ssss. Welcome to Ssarakh, warm-blood or scale-kin. The mire keeps us, and we keep the mire. Mind the bog pools; they keep what they take. Hunters take work from the bounty board on the plaza. Shaman Ithrae, along the east street, teaches those with experience to spend. And the Marsh Wren sails from the pier at the south end of the city, for Eastreach. If you go east to the sands, beware the Dry Ones. They were brood once.')) });
+      dlg: dawnward('Chieftain Hesska', HESSKA) });
     SIGN('Hall of the Brood', 'The Hall of the Brood. Chieftain Hesska hears all who come in peace.', 1697, 932);
 
     // The Shaman's hut: training.

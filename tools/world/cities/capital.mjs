@@ -42,20 +42,14 @@ const bye = ask('Farewell', 'Go well.');
 
 // Signposts round the plaza: text, x, y.
 const SIGNPOSTS = [
-  ['North up the avenue: the keep, the cathedral and the north gate (the farms, and the stray hounds\' meadow). ' +
-     'East: the bounty board, the bank, and the east gate with Sergeant Wexley\'s Watch post outside it. ' +
-     'South: the market, the south gate and the harbour (the ferries). West: Lantern Row and the west gate.', 1441, 351],
-  ['North: the north gate, and the road west to the farms and the stray hounds\' meadow. ' +
-     'West along this street: the Royal Keep. East: the Cathedral of Light. South: the Grand Plaza.', 1433, 340],
-  ['West: the west gate and the west landing. North up this street: Lantern Row. ' +
-     'South: the Market Square and the Drunken Dragon. East: the Grand Plaza.', 1413, 356],
-  ['East: the east gate. Sergeant Wexley\'s Watch post is just outside, north of the road behind the first houses. ' +
-     'North up this street: the Cathedral of Light. South: the Warriors\' Guild. West: the Grand Plaza.', 1459, 360],
-  ['South: the south gate and the harbour. The ferries leave from the longest pier. ' +
-     'West along this street: the Market Square and the Drunken Dragon. East: the Warriors\' Guild. North: the Grand Plaza.', 1438, 375],
+  ['North: keep, cathedral, north gate. East: bounty board, bank, east gate. South: market, south gate, harbour. West: Lantern Row, west gate.', 1441, 351],
+  ['North: the north gate and the farms. West: the Royal Keep. East: the Cathedral. South: the Grand Plaza.', 1433, 340],
+  ['West: the west gate and landing. North: Lantern Row. South: the Market Square. East: the Grand Plaza.', 1413, 356],
+  ['East: the east gate, Sergeant Wexley\'s post just outside. North: the Cathedral. South: the Warriors\' Guild. West: the Grand Plaza.', 1459, 360],
+  ['South: the south gate and the harbour. West: the Market Square. East: the Warriors\' Guild. North: the Grand Plaza.', 1438, 375],
 ];
 
-const DIRECTIONS = 'The keep is to the north-west, the cathedral to the north-east, and the grand plaza where the avenues cross. Shops and the bank are round the plaza, the market south-west of it, the inns and taverns all over, and the harbour through the south gate.';
+const DIRECTIONS = 'The keep is north-west, the cathedral north-east, and the Grand Plaza where the avenues cross. The harbour is through the south gate.';
 
 // Lord Steward Halvard governs in Princess Elowen's name, beside her empty
 // chair in the keep (LORE.md: King Aldric stayed behind and is gone). Once
@@ -222,7 +216,7 @@ export default {
     for (const [x, y] of [[1426, 349], [1446, 349], [1426, 367], [1446, 367]]) PR('Flower Box', x, y);
     PR('statue', 1436, 349);
     PR('newsboard', 1434, 347);
-    SIGN('Grand Plaza', `The Grand Plaza of ${NAME}. ${DIRECTIONS}`, 1438, 347);
+    SIGN('Grand Plaza', `The Grand Plaza of ${NAME}. The keep is north-west, the cathedral north-east, the harbour through the south gate.`, 1438, 347);
 
     // ---- the royal keep (north-west) ----
     F(1392, 324, 43, 13, ','); // its courtyard garden
@@ -450,12 +444,14 @@ export default {
     row(1479, 1483, 324, 6, 's');
 
     // ---- gates, guards and the city's name ----
-    const guard = (x, y, line) => NPC({ name: `Gate Guard ${['North', 'South', 'West', 'East'][guard.n++]}`, look: 'Guard', desc: 'A guard of the city watch.', x, y, dlg: talk(line ?? DIRECTIONS, [bye], ['Welcome to Kingshaven!']) });
+    // Short, with topics (the user, 2026-10-20: one long speech was too much).
+    const CITY = 'The keep is north-west, the cathedral north-east, and the Grand Plaza where the avenues cross. Shops and the bank are round the plaza.';
+    const guard = (x, y, harbour = 'Through the south gate. The ferries leave from the longest pier.', extra = []) => NPC({ name: `Gate Guard ${['North', 'South', 'West', 'East'][guard.n++]}`, look: 'Guard', desc: 'A guard of the city watch.', x, y, dlg: talk('Welcome to Kingshaven. Need directions?', [ask('City', CITY), ask('Harbour', harbour), ...extra, bye], ['Welcome to Kingshaven!']) });
     guard.n = 0;
     guard(1434, 322);
-    guard(1438, 395, `${DIRECTIONS} The harbour's through this gate: ferries, fish and the Salty Mermaid.`);
+    guard(1438, 395, 'Through this gate: ferries, fish and the Salty Mermaid. The ferries leave from the longest pier.');
     guard(1391, 356);
-    guard(1482, 356, `${DIRECTIONS} Out of this gate: Sergeant Wexley's Watch post, just north of the road behind the first houses. She takes on volunteers.`);
+    guard(1482, 356, undefined, [ask('Watch post', 'Sergeant Wexley\'s post, just outside this gate: north of the road, behind the first houses. She takes on volunteers.')]);
     const welcome = `${NAME}, the capital. Welcome, traveller.`;
     SIGN(NAME, welcome, 1439, 319);
     SIGN(NAME, welcome, 1434, 398);
@@ -482,7 +478,7 @@ export default {
     B(1440, 398, 7, 5, { doors: [['w', 2]] }); PR('Box', 1442, 399); PR('goods', 1444, 400); PR('junk', 1442, 401);
     B(1460, 398, 9, 7, { doors: [['w', 3]] });
     NPC({ name: 'Harbourmaster Quint', look: 'Villager Man', desc: 'Quint the harbourmaster, a ledger under his arm.', x: 1464, y: 401,
-      dlg: talk('Every ship that ties up here pays its due to the crown. The ferries call at the longest pier, west along the quay, with the Kingshaven Ferry sign at its head: the Royal Swan from Westsea, the Gannet from Eastreach. Captain Rowan sells the tickets, out at its end.', [ask('What\'s down the shore?', 'The fishing quarter. Smells of fish because it is fish.'), bye]) });
+      dlg: talk('Every ship here pays the crown its due. The ferries use the longest pier, west along the quay. Captain Rowan sells tickets at its end.', [ask('What\'s down the shore?', 'The fishing quarter. Smells of fish because it is fish.'), bye]) });
     PR('sales list', 1462, 399);
     SIGN('Harbourmaster', 'The Harbourmaster of Kingshaven.', 1459, 402);
     // The Salty Mermaid, a dockside tavern.

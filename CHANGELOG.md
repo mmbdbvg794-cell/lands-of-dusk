@@ -675,6 +675,13 @@ What they ran into is fixed:
 - **The Bank of Velkarath** is one room: the counter runs wall to wall, so
   there's no dead-end back room to get lost in. The teller answers across
   it as before.
+- **Shorter lines everywhere.** Guards in Kingshaven and Chieftain Hesska
+  in Ssarakh greet you briefly and offer topics (city, harbour, work,
+  ships...) instead of one long speech. The Matron, the Elf Guard, the
+  harbourmaster, Overseer Garrick, the Ringmaster, Sergeant Wexley and the
+  tutorial greeters say less, the chat tip is one short line, bounty
+  notices drop the repeated "one a day" text, and Kingshaven's signposts
+  and Velkarath's stair signs are a few words each.
 - **Clans on the who page**: each player's clan shows beside their name,
   with "(leader)" for its leader.
 - **Velkarath's way out**: a signpost at each of the three tunnels says where

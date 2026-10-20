@@ -34,7 +34,7 @@ const go = (says, x, y) => [{ when: { kind: 'always', value: '' }, speaker: '', 
 const TALK = {
   [OVERSEER]: {
     shouts: ['Mind the carts!', 'Picks are at Pickwright\'s, west of the hall.'],
-    stages: [always('Welcome to Greystone. Bronze and iron in the east gallery, coal and more iron down in the lower workings, and if you\'ve the arm for it, mithril in the deep seam. Dig what you like, just don\'t bring the roof down.', [
+    stages: [always('Welcome to Greystone. Bronze and iron in the east gallery, coal below, mithril in the deep seam. Just don\'t bring the roof down.', [
       { label: 'How do I mine?', reply: 'Buy a pick from Hessa, stand by a vein and work it. The better you get, the harder the rock you can break. A worked-out vein comes back in time.' },
       { label: 'The old drift?', reply: 'East, past the gallery. It caved in years back. Nobody\'s been brave enough, or paid enough, to dig it out.' },
       { label: 'Any work?', reply: 'Not today. Come back and ask me again; there\'s always something going wrong in a mine.' },

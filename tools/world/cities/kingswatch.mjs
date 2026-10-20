@@ -59,15 +59,15 @@ const QUESTS = [
     title: 'Strays at the Farms',
     giver: WEXLEY,
     offer: {
-      says: 'You there, with the look of someone who can swing a blade. A pack of stray hounds has been at the farms north of the walls, worrying the sheep. The Watch is stretched thin. Will you see to them?',
+      says: 'You there, you can swing a blade. Stray hounds are worrying the sheep at the farms north of the walls. Will you see to them?',
       accept: 'I will see to them',
-      acceptReply: 'Good. Out of the north gate and west along the road: they\'re in the meadow north of the farms. Go up the lane beside Farmer Hollin\'s, the last farm on the road, then east. Five of them should send the rest running.',
+      acceptReply: 'Good. Out of the north gate, west along the road, then up the lane beside Farmer Hollin\'s farm. Five of them should send the rest running.',
       decline: 'Not now',
       declineReply: 'The sheep won\'t thank you. Come back if you change your mind.',
     },
     reminder: 'The hounds are still in the meadow north of the farms: out of the north gate, west along the road, and up the lane beside Farmer Hollin\'s.',
     reward: { gold: 40, exp: 60, items: ['leather cap'], says: 'Take this cap. Every watchman starts with one.' },
-    after: 'The farmers are sleeping again. The Watch remembers its friends.',
+    after: 'The farmers sleep again.',
   }, [
     ['kill', '', { mob: 'stray hound', count: 5, what: 'stray hounds driven off', journal: 'Kill 5 stray hounds in the meadow north of the farms (out of Kingshaven\'s north gate, west along the road, then up the lane beside Farmer Hollin\'s).' }],
     ['talk', WEXLEY, { says: 'Back from the farms?', answer: 'The hounds are gone', reply: 'Then the sheep are safe, and so is my ear from the farmers\' complaining.', journal: 'Tell Sergeant Wexley, at the Watch post outside the east gate (north of the road, behind the first houses), that the hounds are gone.' }],
@@ -78,7 +78,7 @@ const QUESTS = [
     giver: WEXLEY,
     requires: 'kw_strays',
     offer: {
-      says: 'Pedlars on the coast road keep coming in with empty pockets. Thieves, holed up somewhere on the wooded point south-east of the city. Find their hideout, break them, and bring back what they took.',
+      says: 'Now pedlars on the coast road come in robbed: thieves, on the wooded point south-east of the city. Break them and bring back what they took.',
       accept: 'I will find them',
       acceptReply: 'Follow the shore south-east, past the fishing huts, onto the point. There\'s an old ruin in the trees out there. Start with that.',
       decline: 'Not yet',
@@ -86,7 +86,7 @@ const QUESTS = [
     },
     reminder: 'The thieves are on the wooded point south-east of the city. Bring me a stolen purse.',
     reward: { gold: 90, exp: 160, items: ['broad sword'], says: 'A broad sword from the Watch armoury. You\'ve earned it.' },
-    after: 'The coast road is quiet. Pedlars are buying the Watch drinks, if you can believe it.',
+    after: 'The coast road is quiet again.',
   }, [
     ['place', '', { x: HIDEOUT[0], y: HIDEOUT[1], radius: 4, what: 'the thieves\' hideout', arrive: 'Cold ashes, a torn sack, a scatter of empty purses. Someone has been living in this ruin.', journal: 'Find the thieves\' hideout in the ruin on the wooded point south-east of Kingshaven.' }],
     ['kill', '', { mob: 'highway thief', count: 4, what: 'highway thieves beaten', journal: 'Beat 4 highway thieves on the wooded point.' }],
@@ -99,7 +99,7 @@ const QUESTS = [
     requires: 'kw_coastroad',
     notYet: 'One thing at a time. The coast road first.',
     offer: {
-      says: 'This one is no job for a fresh recruit. Shepherds swear the dead are walking in the hidden valley in the hills north-east, round an old barrow. Two of my men went to look. One came back. Will you go?',
+      says: 'No job for a fresh recruit, this: the dead walk round an old barrow in the hills north-east. Two of my men went; one came back. Will you go?',
       accept: 'I will go',
       acceptReply: 'Go east from here, then north into the hills. The valley opens to the east. Put the dead back in the ground, and whatever leads them.',
       decline: 'Not yet',

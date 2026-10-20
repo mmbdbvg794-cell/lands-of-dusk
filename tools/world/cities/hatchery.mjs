@@ -17,7 +17,7 @@ const ORIGIN = [1846, 990];
 const TUT = 'From Hatchling to Brood-Guard...';
 const START = [7, 17]; // the hatching pools (plan coordinates)
 
-const CHAT_TIP = " (To talk with other players, press Enter or tap the box at the bottom, then start with ' to speak to those nearby, or ; to be heard across the land.)";
+const CHAT_TIP = " (To chat: press Enter, then start with ' for those nearby or ; for everyone.)";
 const says = (text, answers = []) => ({ says: text, answers });
 const always = (text, answers = []) => ({ when: { kind: 'always', value: '' }, ...says(text, answers) });
 const ifFlag = (flag, text, answers = []) => ({ when: { kind: 'flag', value: flag }, ...says(text, answers) });
@@ -30,7 +30,7 @@ const MOTHER = {
   stages: [
     ifFlag('lizSkip', 'The way to the south. The Warm Stone will carry you to Ssarakh.'),
     ifFlag('lizTut2', 'Scale-Tender Ossik waits in the hut, through the willows to the east.'),
-    ifFlag('lizTut1', 'Out of the shell at last. The brood remembers every egg, and now it remembers you. Will you learn the ways of the mire first, or do you think yourself grown already?' + CHAT_TIP, [
+    ifFlag('lizTut1', 'Out of the shell at last. Will you learn the ways of the mire first, or are you grown already?' + CHAT_TIP, [
       { label: 'Teach me', reply: 'Wise, for one so small. Through the willows to the east: Scale-Tender Ossik will clothe and arm you.', effects: [unflag('lizTut1'), jflag('lizTut2', 'Brood-Mother Ssethra sent me east, to Scale-Tender Ossik in the hut.')] },
       { label: 'I am ready', reply: 'Every hatchling says so. Go, then: the path to the south, and the Warm Stone will carry you to Ssarakh.', effects: [unflag('lizTut1'), jflag('lizSkip', 'I told Brood-Mother Ssethra I was ready. The Warm Stone down the south path leads to Ssarakh.')] },
     ]),

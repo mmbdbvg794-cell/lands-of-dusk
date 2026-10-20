@@ -142,7 +142,7 @@ const TRAINER = shop(
 );
 const GUARD = {
   shouts: ['Halt! ... Ah, a traveller. Be welcome in Aelindor.', 'Keep to the paths, stranger.'],
-  stages: [always('The Elder\'s hall is to the north-west of the Moonwell, the shrine to the north-east. Shops and the inn are along the avenues. The road north of this gate runs to Aelindor Landing, where the ships put in. Keep the peace and you\'re welcome here.')],
+  stages: [always('The Elder\'s hall is north-west of the Moonwell, the shrine north-east. The road north of this gate runs to Aelindor Landing and its ships.')],
 };
 const LORIEN = { shouts: [], stages: [always('Have you seen the Moonwell at night? It glows like a second moon.')] };
 const NIMUE = { shouts: [], stages: [always('My grandmother says these oaks were saplings when the first elves came. She would know: she planted some of them.')] };

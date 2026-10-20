@@ -60,7 +60,7 @@ const RINGMASTER = {
   shouts: ['Duels in the ring! Come and test yourself. Nobody loses a coin!'],
   stages: [{
     when: { kind: 'always', value: '' },
-    says: 'Welcome to the Duelling Ring. Step onto the sand with someone you want to fight, and type duel and their name. When they accept, you face off on a count of three, and fight until one of you falls. Nobody dies here, and nobody loses gold or experience: you walk out as you walked in, only wiser. Type duel on its own to see your record.',
+    says: 'Welcome to the Duelling Ring. Step onto the sand and type duel and a name. Nobody dies or loses a thing here. Type duel alone for your record.',
     answers: [
       { label: 'Who has won the most?', reply: 'Every win and loss is written on your profile, on the website. Win enough and they will know your name in Kingshaven.', effects: [] },
       { label: 'Thank you', reply: 'Fight fair. Or at least fight well.', effects: [] },

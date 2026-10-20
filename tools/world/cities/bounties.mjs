@@ -26,7 +26,7 @@ const TIERS = [
 // where they are (for the offer and Journal), a reward override].
 const BOARDS = [
   { id: 'kh', town: 'Kingshaven', at: [1449, 352], posts: [[1443,  352],  [1446,  352],  [1449,  352]], jobs: [
-    ['stray hound', 6, 'Stray Hound Bounty', 'in the meadow north of the farms: out of the north gate, west along the road to Farmer Hollin\'s, the last farm, then up the lane beside it'],
+    ['stray hound', 6, 'Stray Hound Bounty', 'in the meadow up the lane beside Farmer Hollin\'s, the last farm west of the north gate'],
     ['highway thief', 5, 'Highway Thief Bounty', 'on the wooded point south-east of the city'],
     ['barrow skeleton', 4, 'Barrow Skeleton Bounty', 'in the hidden valley in the hills north-east'],
   ] },
@@ -87,7 +87,7 @@ function bountyQuest(board, [mob, count, poster, where, pay], tier) {
     again: { minutes: AGAIN_MINUTES, flag: `bounty_${board.id}`, says: `You've already taken today's bounty from ${board.town}'s board (one a day, whichever notice). New notices go up tomorrow.` },
     offer: {
       ...q.offer,
-      says: `WANTED: ${count} ${many}, ${where}. Reward: ${reward.gold} gold and ${reward.exp} experience, paid at this board. ${TIERS[tier].label} One bounty a day from ${board.town}'s board, whichever notice you pick.`,
+      says: `WANTED: ${count} ${many}, ${where}. Reward: ${reward.gold} gold, ${reward.exp} exp. ${TIERS[tier].label}`,
       accept: 'I will take it',
       acceptReply: `Your name is on the notice. Kill ${count} ${many} and come back to claim it.`,
       decline: 'Not today',

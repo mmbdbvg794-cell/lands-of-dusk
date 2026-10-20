@@ -1963,6 +1963,30 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   on scratch: greeting, surface, city.
 - Lesson: keep NPC lines short; split directions into topics.
 
+## 2026-10-20 23:00: shorter NPC lines and signs (talk LIVE; signs at the next restart)
+
+- The user: directions "way too long", trim them in every city. Trimmed
+  directions/instructions (story and lore lines NOT trimmed; asked).
+- Every live talk script rebuilds exactly from its .dlg (147/147 checked),
+  so: copy talk/ -> tools/server/trim_lines.py edits the .dlg copies ->
+  tools/server/regen_talk.mjs rebuilds the scripts -> copy pairs back,
+  .dsko removed. 41 NPCs (backup backups/short-lines-*): four Kingshaven
+  gate guards (greeting + City/Harbour[/Watch post]/Farewell), Halvard's
+  city answer (DIRECTIONS), Elf Guard, Harbourmaster Quint, Ringmaster
+  Corvin, Overseer Garrick, Matron Xalyth (both lines), Sergeant Wexley
+  (the kingswatch.mjs pieces: offers, acceptReply, afters), Drill
+  Sergeant, the tutorial greeters + CHAT_TIP, all 24 bounty notices
+  (bounties.mjs template: "Reward: G gold, E exp. <tier>"). Chieftain
+  Hesska rebuilt from ssarakh.mjs HESSKA by tools/server/regen_hesska.mjs
+  (her topics merge into her quest stages, as mergeQuest does).
+- Signs: tools/server/fix_short_signs.py applied to the signs file (backup
+  short-signs-*): Grand Plaza, the five Kingshaven signposts, Velkarath's
+  west/east stair signs. Read at start-up: flan was online at 23:00, so
+  the restart is the user's (`restart 10`). No god "save" before it.
+- Plans match: capital (DIRECTIONS, guard(), SIGNPOSTS, plaza sign,
+  harbourmaster), aelindor, ssarakh, arena, greystone, kingswatch,
+  bounties, grove/hatchery/velkarath.
+
 ## Open / ideas
 
 - Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone

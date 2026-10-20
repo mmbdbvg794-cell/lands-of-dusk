@@ -66,7 +66,7 @@ function tunnel(p, points, width = 3, ch = 'k') {
 // ---- who lives here ----
 
 // The first thing a new player hears ends with how to chat.
-const CHAT_TIP = " (To talk with other players, press Enter or tap the box at the bottom, then start with ' to speak to those nearby, or ; to be heard across the land.)";
+const CHAT_TIP = " (To chat: press Enter, then start with ' for those nearby or ; for everyone.)";
 const says = (text, answers = []) => ({ says: text, answers });
 const always = (text, answers = []) => ({ when: { kind: 'always', value: '' }, ...says(text, answers) });
 const ifFlag = (flag, text, answers = []) => ({ when: { kind: 'flag', value: flag }, ...says(text, answers) });
@@ -75,7 +75,7 @@ const QUEST = 'Blood of the Deep';
 const MATRON = {
   shouts: ['Kneel before House Xalyth.'],
   stages: [
-    ifFlag('velkarath_done', 'House Xalyth remembers those who serve it. Now make yourself useful: the bounty board by the Fire Well pays hunters, and the surface folk are building a town called Eastreach, a long walk east of our east stair. Learn what they are about. Serve well.'),
+    ifFlag('velkarath_done', 'Serve well. Hunt for the bounty board, or climb the east stair and learn what the surface folk are building at Eastreach.'),
     ifFlag('velkarath_marked', 'The Spider\'s mark is on your hand. Good.', [
       {
         label: 'It is done',
@@ -91,7 +91,7 @@ const MATRON = {
       },
     ]),
     ifFlag('velkarath_task', 'Why are you still here? Go to the temple, east of my palace. Priestess Ilvra is waiting.'),
-    always('A hatchling, fresh from the cells below. My House fed you and trained you; now you will show it was worth the trouble. Until the Spider Queen marks you, you are nothing in Velkarath. Will you take her mark?', [
+    always('A hatchling from the cells below. Until the Spider Queen marks you, you are nothing in Velkarath. Will you take her mark?', [
       {
         label: 'I will',
         reply: 'Then go to the Temple of the Spider Queen, east of my palace. Priestess Ilvra will mark you. Come back to me when it is done.',
@@ -179,7 +179,7 @@ const TASKMISTRESS = {
   stages: [
     ifFlag('drowSkip', 'The south passage. Go, before I change my mind.'),
     ifFlag('drowTut2', 'Why are you still here? Armsmaster Quave is through the east door.'),
-    ifFlag('drowTut1', 'So, the newest hatchling of Velkarath crawls out of its cell. Will you be trained, or do you think yourself ready for the city?' + CHAT_TIP, [
+    ifFlag('drowTut1', 'So, the newest hatchling crawls out of its cell. Will you be trained, or are you ready for the city?' + CHAT_TIP, [
       { label: 'Train me', reply: 'Wise. Through the east door: Armsmaster Quave will arm you.', effects: [unflag('drowTut1'), jflag('drowTut2', 'Taskmistress Vhal sent me east, to Armsmaster Quave.')] },
       { label: 'I am ready', reply: 'Arrogant. We shall see. The passage to the south leads to the Spider Stone; it will carry you to the city.', effects: [unflag('drowTut1'), jflag('drowSkip', 'I told Taskmistress Vhal I needed no training. The Spider Stone down the south passage leads to the city.')] },
     ]),
@@ -434,9 +434,9 @@ export default {
     // Guards where the tunnels come in, and a sign at each saying where its
     // stair comes out (play-test 6: nothing said how to reach the surface).
     for (const [x, y, text] of [
-      [49, 64, 'The west stair: up to the surface beside Aelindor, city of the elves. Ships sail from Aelindor Landing, north of it, to Westsea Harbour and Eastreach.'],
+      [49, 64, 'The west stair: up beside Aelindor, whose ships sail from Aelindor Landing.'],
       [87, 94, 'The south stair: up to the wild southern hills.'],
-      [125, 71, 'The east stair: up into the eastern hills. Eastreach, the surface folk\'s new town, is a long walk east from the top.'],
+      [125, 71, 'The east stair: up into the hills. Eastreach is a long walk east.'],
     ]) p.sign('Signpost', text, x, y);
     for (const [x, y] of [[49, 65], [86, 95], [125, 72]]) p.set(x, y, 'k');
     p.npc({ name: 'Dark Elf Guard', look: null, x: 49, y: 65, dlg: GUARD });
