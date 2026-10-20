@@ -681,7 +681,8 @@ What they ran into is fixed:
   its stair comes out (the west one beside Aelindor and its ships, the east
   one a long walk from Eastreach, the south one in the wild hills). The
   guard names them, and the city's real shops instead of a market that
-  isn't there. Once you're Drow of House Xalyth, the Matron sends you to
+  isn't there. He says it in short answers: ask him about the city, the
+  surface or the caves. Once you're Drow of House Xalyth, the Matron sends you to
   the bounty board and out towards Eastreach.
 - Attacking out of reach says to get closer: right beside them, or within
   your bow's reach.

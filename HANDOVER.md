@@ -1953,6 +1953,16 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   the back room. Checked on scratch: "talk Dark Elf Teller" from 1358,926
   answers (TELLER_REACH 5); south is blocked.
 
+## 2026-10-20 22:29: Velkarath guard in short answers (LIVE, no restart)
+
+- The user found the guard's one long speech too long. velkarath.mjs
+  GUARD (now exported): "Keep your blade sheathed, Drow. What do you
+  need? (city/surface/caves/farewell)", one short reply each.
+  tools/server/fix_velkarath_guard.mjs writes the .dlg and script from it;
+  copied to live talk/ (backup velkarath-guard-*, .dsko removed). Checked
+  on scratch: greeting, surface, city.
+- Lesson: keep NPC lines short; split directions into topics.
+
 ## Open / ideas
 
 - Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone

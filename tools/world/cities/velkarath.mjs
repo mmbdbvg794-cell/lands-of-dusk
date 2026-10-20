@@ -146,9 +146,16 @@ const TRAINER = shop(
   'The pit makes the Drow strong and quick. Stand on the stone in front of me and open the Shop tab to train.',
   [{ label: 'The dummies?', reply: 'Hit them. They do not hit back. Yet.' }],
 );
-const GUARD = {
+// Short, with a topic to pick (the user, 2026-10-20: one long speech was
+// too much to read). tools/server/fix_velkarath_guard.mjs puts it on live.
+export const GUARD = {
   shouts: ['Keep your blade sheathed in Velkarath.', 'The Matron sees all.'],
-  stages: [always('The Matron\'s palace is north of the Fire Well, the temple beside it. South of the main street: Szinra\'s alchemy and Ryld\'s blades, and the bank to the south-east. The Black Lantern is north-west, the Pit east. Three long stairs climb to the surface, one at the end of each tunnel: the west stair comes up beside Aelindor, whose ships sail from Aelindor Landing; the east stair comes up in the hills, a long walk west of Eastreach; the south stair, in the wild southern hills. The side caves are for the bold: bats nest to the north-west.')],
+  stages: [always('Keep your blade sheathed, Drow. What do you need?', [
+    { label: 'City', reply: 'The palace is north of the Fire Well, the temple beside it. Shops and the bank are south of the main street, the Black Lantern north-west, the Pit east.' },
+    { label: 'Surface', reply: 'Take the stair at the end of a tunnel. West: up by Aelindor and its ships. East: the hills, a long walk from Eastreach. South: wild hills.' },
+    { label: 'Caves', reply: 'Bats nest in the north-west caves, the size of dogs. Go armed.' },
+    { label: 'Farewell', reply: 'The Matron sees all.' },
+  ])],
 };
 const NALFEIN = { shouts: [], stages: [always('The Fire Well never goes out. They say it reaches down to the heart of the world.')] };
 const ZESSTRA = { shouts: [], stages: [always('Watch the side caves. The bats up north-west are the size of dogs, and twice as hungry.')] };
