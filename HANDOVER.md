@@ -1828,6 +1828,35 @@ the server sending status throughout. Fixed (plans, then on scratch):
 - Live: installed by the user 13:25 (backups classes-20261020-132555,
   starter-kits-20261020-132555), restarted 13:25:57, clean load.
 
+## 2026-10-20 16:16: play-test 5 fixes (LIVE, restart 16:16:45)
+
+Play-test 5: a human Ranger (~/dusk-playtest archive/run5). The tutorial,
+the kit, the Drill Sergeant and the Gannet to Eastreach all worked; the
+lost time was all in Kingshaven. tools/server/fix_playtest5.py changes the
+live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
+- The cathedral altar (defMoveActions/1460_329, on the way up to the
+  priestess) took 25 gold at every step, full health or not: the tester
+  paid 50 of 90 walking through. Now 5 gold, and only when HP or MP is
+  below full; otherwise "You are whole already".
+- Sergeant Wexley's post is behind the houses north of the east road;
+  nothing on the road said so. A signpost at the lane (1496,357), the
+  east gate guard says where, and the arrival line and journal say "north
+  of the road, behind the first houses" (and "her": Wexley is a woman).
+- "The meadow behind Hilda's farm, the last farmhouse": no such farm (a
+  townsperson called Hilda lives in a cottage); the last farm is Farmer
+  Hollin's, and the meadow is only reached up the lane beside it. Every
+  text (notice, journal, Wexley, north gate sign) now says so, a signpost
+  stands at the lane's foot (1399,300) and Hollin mentions the hounds.
+- Harbourmaster: "the longest pier, with the Kingshaven Ferry sign at its
+  head" (was "the long middle pier"; there are five). Eastreach's sign
+  names all four ships. Trees in front of the door at 1511,354 are meadow.
+  The hunting bow's description says it needs no arrows.
+- Not done: the Royal Armoury's underscored item names (silver_helmet,
+  gold_leggings, platinum_suit) need item files, shops and backpacks
+  renamed together.
+- Tested on scratch with botcheck: altar hurt (5 gold) and full (free),
+  Maren, the east guard, both signposts, Hollin, hounds seen from the lane.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

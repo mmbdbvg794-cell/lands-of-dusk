@@ -28,7 +28,7 @@ apply = '--apply' in sys.argv
 backup = os.path.join(game, 'backups', time.strftime('starter-kits-%Y%m%d-%H%M%S'))
 changed = []
 
-BOW = 'type\nranged\ndescription\na light hunting bow, made for a first hunt\ncost\n60\nimage\n8\nmod\n120\ndurability\n3000\nrange\n3\n.\n'
+BOW = 'type\nranged\ndescription\na light hunting bow, made for a first hunt. It needs no arrows\ncost\n60\nimage\n8\nmod\n120\ndurability\n3000\nrange\n3\n.\n'
 START = {
     'fighter': 'stre 3, cons 1, maxhp 10, maxmp 8, Dodge 5, item short sword, Double Attack 10',
     'cleric': 'wisd 3, inte 1, maxhp 2, maxmp 26, divine group 1, item quarter staff',

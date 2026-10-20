@@ -26,7 +26,7 @@ const TIERS = [
 // where they are (for the offer and Journal), a reward override].
 const BOARDS = [
   { id: 'kh', town: 'Kingshaven', at: [1449, 352], posts: [[1443,  352],  [1446,  352],  [1449,  352]], jobs: [
-    ['stray hound', 6, 'Stray Hound Bounty', 'in the meadow behind Hilda\'s farm, out of the north gate and west along the road'],
+    ['stray hound', 6, 'Stray Hound Bounty', 'in the meadow north of the farms: out of the north gate, west along the road to Farmer Hollin\'s, the last farm, then up the lane beside it'],
     ['highway thief', 5, 'Highway Thief Bounty', 'on the wooded point south-east of the city'],
     ['barrow skeleton', 4, 'Barrow Skeleton Bounty', 'in the hidden valley in the hills north-east'],
   ] },

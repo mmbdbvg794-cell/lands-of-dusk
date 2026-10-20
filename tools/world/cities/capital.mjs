@@ -123,16 +123,25 @@ set trigger mp trigger maxmp
 chat trigger " You sleep in your own bed and wake refreshed."
 endscript
 `;
-// The cathedral's altar: a blessing for a donation.
-const BLESSING = `#The altar of the Cathedral of Light, in ${NAME}.
-if < trigger cash 25
-	chat trigger " A priest whispers: A blessing asks a donation of 25 gold."
+// The cathedral's altar: a blessing for a donation, only for the hurt
+// (play-test 5: walking up to the priestess at full health took 25 gold,
+// twice). The script runs on every step onto the square.
+const BLESS = `	if < trigger cash 5
+		chat trigger " A priest whispers: A blessing asks a donation of 5 gold."
+		endscript
+	end
+	inc trigger cash - 0 5
+	set trigger hp trigger maxhp
+	set trigger mp trigger maxmp
+	chat trigger " You kneel at the altar and give 5 gold. Warm light fills you: you are healed."
 	endscript
-end
-inc trigger cash - 0 25
-set trigger hp trigger maxhp
-set trigger mp trigger maxmp
-chat trigger " You kneel at the altar and give 25 gold. Warm light fills you: you are healed."
+`;
+const BLESSING = `#The altar of the Cathedral of Light, in ${NAME}.
+if < trigger hp trigger maxhp
+${BLESS}end
+if < trigger mp trigger maxmp
+${BLESS}end
+chat trigger " You stand at the altar. You are whole already: the Light asks nothing of you."
 endscript
 `;
 
@@ -221,7 +230,7 @@ export default {
     for (let x = 1446; x <= 1474; x += 4) { PR('chair', x, 332); PR('chair', x, 334); }
     PR('statue', 1460, 325); PR('candlestick stand', 1456, 326); PR('candlestick stand', 1464, 326);
     NPC({ name: 'High Priestess Maren', look: 'Woman', desc: 'High Priestess Maren, in white and gold.', x: 1460, y: 328,
-      dlg: talk('The Light keeps all who ask. Kneel at the altar before me and give what you can: twenty-five gold, and the Light will heal you.', [ask('Tell me of the Light', 'It burned in the old world before the cities, and it burns here. Some say the elves\' Moonwell is its sister.'), bye], ['Peace be on you, child.']) });
+      dlg: talk('The Light keeps all who ask. Come to the altar before me hurt or weary, give five gold, and the Light will heal you.', [ask('Tell me of the Light', 'It burned in the old world before the cities, and it burns here. Some say the elves\' Moonwell is its sister.'), bye], ['Peace be on you, child.']) });
     ACT(1460, 329, BLESSING);
     SIGN('Cathedral of Light', 'The Cathedral of Light. A blessing heals for a donation: kneel at the altar.', 1461, 337);
 
@@ -431,7 +440,7 @@ export default {
     guard(1434, 322);
     guard(1438, 395, `${DIRECTIONS} The harbour's through this gate: ferries, fish and the Salty Mermaid.`);
     guard(1391, 356);
-    guard(1482, 356);
+    guard(1482, 356, `${DIRECTIONS} Out of this gate: Sergeant Wexley's Watch post, just north of the road behind the first houses. She takes on volunteers.`);
     const welcome = `${NAME}, the capital. Welcome, traveller.`;
     SIGN(NAME, welcome, 1439, 319);
     SIGN(NAME, welcome, 1434, 398);
@@ -444,7 +453,7 @@ export default {
     F(1446, 398, 14, 6, '=');
     // Piers into the sea, three wide.
     for (const x of [1393, 1403, 1423]) F(x, 402, 3, 10, '=');
-    // The middle pier runs out to deep water: the ferry pier (ferry.mjs),
+    // The longest pier runs out to deep water: the ferry pier (ferry.mjs),
     // its captain at the end, ships berthing either side.
     F(1413, 402, 3, 17, '=');
     NPC({ name: 'Captain Rowan', look: 'Villager Man', desc: 'Captain Rowan, the harbour\'s ferry captain, salt-white beard.', x: 1413, y: 417, dlg: captain('kingshaven', 'Ferries to Westsea Harbour and Eastreach! Twenty gold!') });
@@ -454,7 +463,7 @@ export default {
     B(1440, 398, 7, 5, { doors: [['w', 2]] }); PR('Box', 1442, 399); PR('goods', 1444, 400); PR('junk', 1442, 401);
     B(1460, 398, 9, 7, { doors: [['w', 3]] });
     NPC({ name: 'Harbourmaster Quint', look: 'Villager Man', desc: 'Quint the harbourmaster, a ledger under his arm.', x: 1464, y: 401,
-      dlg: talk('Every ship that ties up here pays its due to the crown. The ferries call at the long middle pier: the Royal Swan from Westsea, the Gannet from Eastreach. Captain Rowan sells the tickets.', [ask('What\'s down the shore?', 'The fishing quarter. Smells of fish because it is fish.'), bye]) });
+      dlg: talk('Every ship that ties up here pays its due to the crown. The ferries call at the longest pier, west along the quay, with the Kingshaven Ferry sign at its head: the Royal Swan from Westsea, the Gannet from Eastreach. Captain Rowan sells the tickets, out at its end.', [ask('What\'s down the shore?', 'The fishing quarter. Smells of fish because it is fish.'), bye]) });
     PR('sales list', 1462, 399);
     SIGN('Harbourmaster', 'The Harbourmaster of Kingshaven.', 1459, 402);
     // The Salty Mermaid, a dockside tavern.
@@ -501,7 +510,7 @@ export default {
       if (who) NPC({ ...who, x: x + 3, y: y + 2 });
       for (let fy = y + 6; fy < y + 12; fy += 2) F(x - 2, fy, 11, 1, 'e');
     };
-    farm(1392, 296, { name: 'Farmer Hollin', look: 'Villager Man', desc: 'Hollin, a farmer with mud to the knees.', dlg: talk('The city eats what I grow and complains about the price. Every year.') });
+    farm(1392, 296, { name: 'Farmer Hollin', look: 'Villager Man', desc: 'Hollin, a farmer with mud to the knees.', dlg: talk('The city eats what I grow and complains about the price. Every year. And now there are stray hounds in the meadow behind us: up the lane beside my farm, then east.') });
     farm(1408, 304, { name: 'Farmer Joss', look: 'Villager', desc: 'Joss, leaning on a hoe.', dlg: talk('Wolves took two sheep last week. The watch says it\'s outside the walls, not their trouble.') });
     farm(1420, 296);
     PATH([[1486, 358], [1510, 358]], '.');
@@ -510,6 +519,7 @@ export default {
     hut(1494, 362, ['n', 3], { name: 'Smith\'s Widow Orla', look: 'Woman', desc: 'Orla, who keeps the roadside forge cold now.', dlg: talk('My husband shod every horse on this road. Now the horses go barefoot and so do I.') });
     hut(1503, 362, ['n', 3]);
     hut(1508, 350, ['s', 3]);
+    F(1511, 355, 1, 2, ';'); // trees grew in front of its door (play-test 5)
     // Cottages along the north road, outside the gate.
     for (const [x, y, door] of [[1429, 306, ['e', 2]], [1429, 312, ['e', 2]], [1421, 312, ['e', 2]], [1408, 294, ['s', 3]], [1400, 312, ['n', 3]]]) {
       hut(x, y, door, r() < 0.5 ? null : undefined);

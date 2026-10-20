@@ -61,16 +61,16 @@ const QUESTS = [
     offer: {
       says: 'You there, with the look of someone who can swing a blade. A pack of stray hounds has been at the farms north of the walls, worrying the sheep. The Watch is stretched thin. Will you see to them?',
       accept: 'I will see to them',
-      acceptReply: 'Good. Out of the north gate and west along the road: they\'re in the meadow behind Hilda\'s farm, the last farmhouse. Five of them should send the rest running.',
+      acceptReply: 'Good. Out of the north gate and west along the road: they\'re in the meadow north of the farms. Go up the lane beside Farmer Hollin\'s, the last farm on the road, then east. Five of them should send the rest running.',
       decline: 'Not now',
       declineReply: 'The sheep won\'t thank you. Come back if you change your mind.',
     },
-    reminder: 'The hounds are still in the meadow behind Hilda\'s farm: out of the north gate, then west along the road.',
+    reminder: 'The hounds are still in the meadow north of the farms: out of the north gate, west along the road, and up the lane beside Farmer Hollin\'s.',
     reward: { gold: 40, exp: 60, items: ['leather cap'], says: 'Take this cap. Every watchman starts with one.' },
     after: 'The farmers are sleeping again. The Watch remembers its friends.',
   }, [
-    ['kill', '', { mob: 'stray hound', count: 5, what: 'stray hounds driven off', journal: 'Kill 5 stray hounds in the meadow behind Hilda\'s farm (out of Kingshaven\'s north gate, then west along the road).' }],
-    ['talk', WEXLEY, { says: 'Back from the farms?', answer: 'The hounds are gone', reply: 'Then the sheep are safe, and so is my ear from the farmers\' complaining.', journal: 'Tell Sergeant Wexley, at the Watch post outside the east gate, that the hounds are gone.' }],
+    ['kill', '', { mob: 'stray hound', count: 5, what: 'stray hounds driven off', journal: 'Kill 5 stray hounds in the meadow north of the farms (out of Kingshaven\'s north gate, west along the road, then up the lane beside Farmer Hollin\'s).' }],
+    ['talk', WEXLEY, { says: 'Back from the farms?', answer: 'The hounds are gone', reply: 'Then the sheep are safe, and so is my ear from the farmers\' complaining.', journal: 'Tell Sergeant Wexley, at the Watch post outside the east gate (north of the road, behind the first houses), that the hounds are gone.' }],
   ]),
 
   quest('kw_coastroad', {
@@ -141,10 +141,16 @@ export default {
     p.npc({ name: WEXLEY, look: 'Guard', desc: 'Sergeant Wexley of the King\'s Watch, grey at the temples, a notched sword at her hip.', x: 1502 - O[0], y: 342 - O[1], dlg: talk(WEXLEY) });
     p.sign('Watch Post', 'The King\'s Watch. Volunteers, see Sergeant Wexley.', ...P(1504, 346));
 
-    // Stray hounds in the meadow behind Hilda's farm, and a signpost
-    // outside the north gate pointing the way (the 2026-10-19 play-test:
-    // nobody could find them).
-    p.sign('Signpost', 'West along the road: the farms. Stray hounds have been seen in the meadow behind Hilda\'s farm, the last farmhouse.', ...P(1435, 318));
+    // The Watch post is behind the houses north of the east road: a
+    // signpost on the road at the lane to it (play-test 5 walked past).
+    p.sign('Signpost', 'North, up the lane: the Watch post. Sergeant Wexley takes on volunteers.', ...P(1496, 357));
+
+    // Stray hounds in the meadow north of the farms, and signposts outside
+    // the north gate and at the foot of the lane up to it (the 2026-10-19
+    // play-test: nobody could find them; play-test 5: "Hilda's farm" was
+    // nowhere, only a townsperson called Hilda).
+    p.sign('Signpost', 'West along the road: the farms. Stray hounds have been seen in the meadow north of them: up the lane beside Farmer Hollin\'s, the last farm.', ...P(1435, 318));
+    p.sign('Signpost', 'North, up the lane: the meadow. Mind the stray hounds.', ...P(1399, 300));
     for (const [x, y] of [[1420, 282], [1424, 286], [1427, 280], [1419, 289], [1421, 291], [1422, 279]]) p.mob('stray hound', 1, ...P(x, y));
 
     // The thieves on the wooded point.
