@@ -1963,7 +1963,7 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   on scratch: greeting, surface, city.
 - Lesson: keep NPC lines short; split directions into topics.
 
-## 2026-10-20 23:00: shorter NPC lines and signs (talk LIVE; signs at the next restart)
+## 2026-10-20 23:00: shorter NPC lines and signs (LIVE; signs since the 23:21 restart)
 
 - The user: directions "way too long", trim them in every city. Trimmed
   directions/instructions. Story and lore lines stay long (the user's call).
