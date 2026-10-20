@@ -3,7 +3,8 @@
 // hands out as who.json beside the page. Gods who chose not to be seen
 // (wizInvis) are left out.
 //
-// { "updated": <ms>, "players": [ { "name", "race", "title", "god", "since" } ] }
+// { "updated": <ms>, "players": [ { "name", "race", "title", "god", "since",
+//   "clan" (null when none), "leader" } ] }
 // since: when they came online (ms), as first seen here.
 
 import java.io.File;
@@ -59,6 +60,8 @@ public class Who {
                 .append(",\"race\":").append(json(p.strRace))
                 .append(",\"title\":").append(json(p.strTitle))
                 .append(",\"god\":").append(p.privs > 1)
+                .append(",\"clan\":").append(Clans.none(p.strClan) ? "null" : json(p.strClan))
+                .append(",\"leader\":").append(!Clans.none(p.strClan) && p.privs == Clans.LEADER)
                 .append(",\"since\":").append(seen.get(key)).append('}');
         }
         out.append("]}\n");

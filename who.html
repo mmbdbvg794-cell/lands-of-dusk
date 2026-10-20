@@ -14,10 +14,11 @@
     .who .sub { color: var(--muted); margin: 0 0 24px; }
     .who .count { font-size: 15px; margin: 0 0 12px; }
     .who ul { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
-    .who li { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--border); }
+    .who li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 12px 16px; border-top: 1px solid var(--border); }
     .who li:first-child { border-top: none; }
     .who .name { font-weight: 600; }
     .who .title { color: var(--muted); }
+    .who .clan { font-size: 12px; color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 0 6px; white-space: nowrap; }
     .who .race { margin-left: auto; color: var(--muted); font-size: 13px; text-transform: capitalize; white-space: nowrap; }
     .who .god { font-size: 11px; color: var(--warn); border: 1px solid var(--warn); border-radius: 4px; padding: 0 5px; }
     .who .for { color: var(--faint); font-size: 12px; white-space: nowrap; }
@@ -54,6 +55,7 @@
         li.append(name);
         if (p.god) li.append(Object.assign(document.createElement('span'), { className: 'god', textContent: 'God' }));
         if (p.title) li.append(Object.assign(document.createElement('span'), { className: 'title', textContent: p.title }));
+        if (p.clan) li.append(Object.assign(document.createElement('span'), { className: 'clan', textContent: p.clan, title: 'Clan' }));
         li.append(Object.assign(document.createElement('span'), { className: 'race', textContent: p.race }));
         if (p.online) li.append(Object.assign(document.createElement('span'), { className: 'for', textContent: p.online }));
         return li;

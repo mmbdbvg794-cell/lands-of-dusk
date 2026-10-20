@@ -1433,7 +1433,6 @@ Lessons:
   Tested on scratch (aop: member in, non-member turned back, freed).
   Re-running clear_clan_halls.py would reset doors to free but not the
   clanhalls file: claimhall <hall> none / re-claim after it.
-- Not done: clan in who.json / the who page.
 
 ## 2026-10-15: canon cleanup (LIVE: installed 14:12, restart 14:12:57)
 
@@ -1934,6 +1933,15 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   Plans (grove/hatchery/velkarath .mjs) and fix_playtest.py's HELP match.
   Not played in-game; text checked in the live files.
 
+## 2026-10-20 21:46: clan on the who page (LIVE, restart 21:46:51)
+
+- server/Who.java: who.json players get "clan" (null when none, via
+  Clans.none) and "leader" (privs == Clans.LEADER with a clan). js/who.js
+  rows get clan ("Grey Hand (leader)" or ''), who.html shows it as a badge
+  after the title (rows wrap on phones). test/who.test.mjs covers it.
+  Checked on scratch: hgate -> "clan":"Grey Hand","leader":true. Class
+  backups classes-20261020-214649.
+
 ## Open / ideas
 
 - Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone
@@ -1971,8 +1979,8 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
 - Midnight / the Izaru mine (ferry to Westsea, the tree hole at 64,91 to
   494,105, then 450,104 up into Midnight): kept a mystery on purpose; only
   Old Sailor Wick's tale hints at it. No signposts.
-- Clans: show the clan on the who page / who.json; maybe a "clan hall"
-  sign or name plaque when claimed.
+- Clans: maybe a "clan hall" sign or name plaque when claimed (the who
+  page shows clans since 2026-10-20).
 - CHANGELOG.md is up to date to 2026-10-20 (alpha rename, play-tests 1-5).
 
 ## More notes

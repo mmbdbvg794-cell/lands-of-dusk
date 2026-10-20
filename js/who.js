@@ -12,8 +12,9 @@ const ago = (ms) => {
   return `${h} h ${m % 60} min`;
 };
 
-// data: { updated, players: [{ name, race, title, god, since }] } or null.
-// -> { count, updated, empty, rows: [{ name, race, title, god, online }] }
+// data: { updated, players: [{ name, race, title, god, since, clan, leader }] } or null.
+// -> { count, updated, empty, rows: [{ name, race, title, god, clan, online }] }
+// clan is what the page shows: "Clan Name", "Clan Name (leader)", or ''.
 export function describeWho(data, now) {
   if (!data || !Array.isArray(data.players) || !data.updated) {
     return { count: "Can't tell right now.", updated: '', empty: 'The list isn\'t available. Is the server running?', rows: [] };
@@ -28,6 +29,7 @@ export function describeWho(data, now) {
       // Titles read "the newbie." in the game.
       title: String(p.title ?? '').replace(/\.$/, '').trim(),
       god: !!p.god,
+      clan: p.clan ? `${String(p.clan)}${p.leader ? ' (leader)' : ''}` : '',
       online: p.since ? `online ${ago(now - p.since)}` : '',
     }))
     .filter((p) => p.name)
