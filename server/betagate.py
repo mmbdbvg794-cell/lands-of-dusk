@@ -1,5 +1,5 @@
 """
-The closed-beta gate's key store and settings, shared by dusk_bridge.py
+The closed-alpha gate's key store and settings, shared by dusk_bridge.py
 (which enforces it) and tools/betakey (which manages keys).
 
 Everything lives in one directory outside both web roots, by default
@@ -11,7 +11,7 @@ Everything lives in one directory outside both web roots, by default
                      KEY_REQUEST_URL=     the "Need a key?" link on the login
                      DISCORD_URL=         the invite shown after applying
   betakeys.sqlite  keys, the browser tokens they gave out, who is on now,
-                   the busiest moment of each day, and beta applications
+                   the busiest moment of each day, and alpha applications
                    (from the website's apply page, apply.py)
 
 Keys look like K7QM-4XWD-9TPB-2HNR: 16 characters from an alphabet without
@@ -37,8 +37,8 @@ DIR = os.environ.get("DUSK_BETA_DIR") or os.path.expanduser("~/dusk-beta")
 CONF = os.path.join(DIR, "beta.conf")
 DB = os.path.join(DIR, "betakeys.sqlite")
 DEFAULTS = {"BETA_GATE": "off", "MAX_PLAYERS": "25", "KEY_REQUEST_URL": "", "DISCORD_URL": ""}
-CONF_TEXT = """# The closed-beta gate (dusk_bridge.py reads this again within seconds of a change).
-# BETA_GATE=on needs a beta key to play in the browser; off is open, as before.
+CONF_TEXT = """# The closed-alpha gate (dusk_bridge.py reads this again within seconds of a change).
+# BETA_GATE=on needs an alpha key to play in the browser; off is open, as before.
 BETA_GATE=off
 # Browser players at once; 0 for no cap.
 MAX_PLAYERS=25
@@ -278,7 +278,7 @@ def set_offline(db, session):
     db.execute("DELETE FROM online WHERE session = ?", (session,))
 
 
-# ---- beta applications (the website's apply page; apply.py) ----
+# ---- alpha applications (the website's apply page; apply.py) ----
 
 DEVICES = ("computer", "phone", "tablet")
 

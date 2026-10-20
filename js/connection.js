@@ -6,7 +6,7 @@ import { ByteReader } from './bytereader.js';
 import { OP, parseAvailable } from './protocol.js';
 
 //
-// The closed beta: given beta ({ key } or { token }), the first thing sent
+// The closed alpha: given beta ({ key } or { token }), the first thing sent
 // is a text frame "#beta {...}", and 'open' waits for the bridge's
 // "#beta {ok: true, token}". Its answers, and a later notice (a revoked
 // key), come as 'beta' events; text frames are never game data.

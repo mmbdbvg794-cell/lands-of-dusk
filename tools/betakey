@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Closed-beta keys (server/betagate.py; kept in ~/dusk-beta on duskserver).
+"""Closed-alpha keys (server/betagate.py; kept in ~/dusk-beta on duskserver).
 
     tools/betakey create <label> [--single-use]   a new key, shown once
     tools/betakey list                            every key: label, status,

@@ -590,8 +590,13 @@ backups; see `server/`.
 - Tombkeeper Aldous has a thought about King Zilen's crown, and Shaman Ithrae
   a word more about the wyrms.
 
-## Closed beta
+## Closed alpha (was "closed beta")
 
+- **Alpha first.** Testing now starts as a closed alpha: every word players
+  see (login, key messages, apply page, website sidebar and home page, news)
+  says alpha instead of beta. Internal names (betagate.py, tools/betakey,
+  ~/dusk-beta, BETA_GATE, the #beta frame, saved browser keys) stay, so
+  existing keys and logins keep working.
 - **Beta keys.** Playing in the browser needs a beta key. Type it once in the
   new **Beta key** box on the login screen; that browser remembers it after
   that. Clear messages when a key is wrong, has been withdrawn, or the beta

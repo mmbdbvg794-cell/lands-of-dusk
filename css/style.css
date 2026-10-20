@@ -1728,7 +1728,7 @@ dialog::backdrop { background: #000a; }
 .achv-bar { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.12); overflow: hidden; }
 .achv-fill { height: 100%; background: var(--accent); }
 
-/* Beta applications in the admin page (js/applications.js) */
+/* Alpha applications in the admin page (js/applications.js) */
 .ap-row { padding: 8px 0; border-bottom: 1px solid var(--border); }
 .ap-row:last-child { border-bottom: 0; }
 .ap-head { overflow-wrap: anywhere; }

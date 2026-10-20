@@ -909,19 +909,19 @@ let inGame = false; // past "Login Accepted." on this connection
 let quitting = false; // the player pressed Log out
 let dropReason = '';
 
-// The closed beta (server/dusk_bridge.py, server/betagate.py). The bridge's
+// The closed alpha (server/dusk_bridge.py, server/betagate.py). The bridge's
 // /status says whether a key is needed; then the key field shows, and the
 // connection opens with the key, or with the token the bridge gave this
 // browser for it last time, so it's typed once.
 const BETA_KEY = 'dusk.betakey';
 const BETA_TOKEN = 'dusk.betatoken';
 const BETA_MESSAGES = {
-  required: 'This is a closed beta: enter your beta key to play.',
-  invalid: 'Invalid or revoked beta key. Check it and try again.',
-  used: 'That beta key has already been used. Ask for a new one.',
-  revoked: 'Your beta key has been revoked.',
+  required: 'This is a closed alpha: enter your alpha key to play.',
+  invalid: 'Invalid or revoked alpha key. Check it and try again.',
+  used: 'That alpha key has already been used. Ask for a new one.',
+  revoked: 'Your alpha key has been revoked.',
   blocked: 'Too many attempts. Please wait a while before trying again.',
-  full: 'The beta is full right now, try again in a few minutes.',
+  full: 'The alpha is full right now, try again in a few minutes.',
 };
 let betaGate = false;
 $('login-key').value = storage('get', BETA_KEY) ?? '';

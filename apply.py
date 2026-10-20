@@ -1,4 +1,4 @@
-"""Beta applications: the website's apply page (site/apply.html, served as
+"""Alpha applications: the website's apply page (site/apply.html, served as
 /web/apply.html) posts here, and gods review them in the game's admin page
 or with tools/betakey. Kept in ~/dusk-beta/betakeys.sqlite (server/
 betagate.py), outside every web root.

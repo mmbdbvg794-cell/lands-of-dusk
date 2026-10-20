@@ -1,5 +1,5 @@
 // Run with: node test/beta.test.mjs
-// The closed-beta handshake in js/connection.js, against a fake WebSocket.
+// The closed-alpha handshake in js/connection.js, against a fake WebSocket.
 import assert from 'node:assert/strict';
 
 const sockets = [];
@@ -56,7 +56,7 @@ c.addEventListener('beta', (e) => events.push(e.detail.code));
 c.connect();
 ws = sockets.at(-1);
 ws.open();
-ws.onmessage({ data: '#beta {"ok": false, "code": "full", "message": "The beta is full right now, try again in a few minutes."}' });
+ws.onmessage({ data: '#beta {"ok": false, "code": "full", "message": "The alpha is full right now, try again in a few minutes."}' });
 assert.deepEqual(events, ['full']);
 
 console.log('beta tests passed');

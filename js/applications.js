@@ -1,5 +1,5 @@
-// Beta applications in the admin page (js/admin.js): who applied on the
-// website (apply.py), with Approve (makes their beta key, shown once, with
+// Alpha applications in the admin page (js/admin.js): who applied on the
+// website (apply.py), with Approve (makes their alpha key, shown once, with
 // where to send it) and Reject. The list and the actions are web requests
 // to serve.py, so they need the forum's sign-in as a god (the game login
 // doesn't reach the web service); without it, a small sign-in shows here.
@@ -32,7 +32,7 @@ export class ApplicationsPanel {
     this.list = h('div', { className: 'ad-list' });
     this.signin = this.signinBox();
     this.el = h('section', { className: 'ad-sec' },
-      h('h3', { textContent: 'Beta applications' }), this.line,
+      h('h3', { textContent: 'Alpha applications' }), this.line,
       h('label', { className: 'toggle' }, this.showAll, ' Show approved and rejected'),
       this.result, this.signin, this.list);
     this.list.addEventListener('click', (e) => {
@@ -117,7 +117,7 @@ export class ApplicationsPanel {
     const a = this.apps.find((x) => x.id === id);
     if (!a) return;
     const who = `#${id} ${a.name || a.contact}`;
-    if (what === 'approve' && !window.confirm(`Approve ${who}? This makes their beta key now.`)) return;
+    if (what === 'approve' && !window.confirm(`Approve ${who}? This makes their alpha key now.`)) return;
     if (what === 'reject' && !window.confirm(`Reject ${who}?`)) return;
     try {
       const r = await fetch(`apply/api/admin/${what}`, {

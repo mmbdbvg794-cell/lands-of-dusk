@@ -74,7 +74,7 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
         return True
 
     def apply_request(self, method):
-        """Beta applications (apply.py), under .../apply/api/."""
+        """Alpha applications (apply.py), under .../apply/api/."""
         url = urllib.parse.urlsplit(self.path)
         if "/apply/api/" not in url.path:
             return False
@@ -131,7 +131,7 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-cache")
-        # The client and its pages stay out of search engines (closed beta);
+        # The client and its pages stay out of search engines (closed alpha);
         # the public home and Lore pages are served elsewhere (DuskRPG/web).
         self.send_header("X-Robots-Tag", "noindex, nofollow")
         super().end_headers()

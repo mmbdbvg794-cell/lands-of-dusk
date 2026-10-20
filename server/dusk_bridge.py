@@ -27,7 +27,7 @@ the funnel), and the device is the random ID the browser client keeps
 is in conf/bridgesecret, written by the game server each time it starts;
 no file (a server without BridgedSocket) means no line, as before.
 
-The closed beta (betagate.py beside this file; settings and keys in
+The closed alpha (betagate.py beside this file; settings and keys in
 ~/dusk-beta, see there). With BETA_GATE=on in ~/dusk-beta/beta.conf:
   - the browser's first WebSocket message must be a text frame
         #beta {"key": "K7QM-4XWD-9TPB-2HNR"}   or   #beta {"token": "..."}
@@ -81,12 +81,12 @@ connects = collections.defaultdict(collections.deque)
 blocked = {}             # address -> until (time.time())
 
 MESSAGES = {
-    "required": (4400, "This is a closed beta: a beta key is needed to play."),
-    "invalid": (4401, "Invalid or revoked beta key."),
-    "used": (4401, "That beta key has already been used."),
-    "revoked": (4403, "Invalid or revoked beta key."),
+    "required": (4400, "This is a closed alpha: an alpha key is needed to play."),
+    "invalid": (4401, "Invalid or revoked alpha key."),
+    "used": (4401, "That alpha key has already been used."),
+    "revoked": (4403, "Invalid or revoked alpha key."),
     "blocked": (4429, "Too many attempts. Try again in a while."),
-    "full": (4503, "The beta is full right now, try again in a few minutes."),
+    "full": (4503, "The alpha is full right now, try again in a few minutes."),
 }
 SECRET_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conf", "bridgesecret")
 DEVICE_RE = re.compile(r"^[A-Za-z0-9-]{8,64}$")
@@ -323,7 +323,7 @@ async def handle_client(websocket):
 
 async def main():
     print(f"Dusk bridge starting on port {BRIDGE_PORT}, relaying to {GAME_HOST}:{GAME_PORT}")
-    print(f"Beta gate {'ON' if settings.gate_on else 'off'} (settings in {betagate.CONF})")
+    print(f"Alpha gate {'ON' if settings.gate_on else 'off'} (settings in {betagate.CONF})")
     asyncio.create_task(watch_revoked())
     async with websockets.serve(handle_client, "0.0.0.0", BRIDGE_PORT, process_request=status_request):
         await asyncio.Future()  # run forever

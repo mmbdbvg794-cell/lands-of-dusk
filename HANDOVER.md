@@ -1857,6 +1857,17 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
 - Tested on scratch with botcheck: altar hurt (5 gold) and full (free),
   Maren, the east guard, both signposts, Hollin, hounds seen from the lane.
 
+## 2026-10-20: beta renamed to alpha (LIVE)
+
+- The user wants to start with alpha testing. Player-facing wording only:
+  client (deploy.sh), live web pages + news.json (sed; backup
+  DuskRPG/backups/web-alpha-20261020-165617), bridge messages (dusk-bridge
+  restarted 16:56 via pct exec 303, nobody online), beta.conf comments.
+- Kept internal names on purpose: betagate.py, tools/betakey, ~/dusk-beta,
+  betakeys.sqlite, BETA_GATE, DUSK_BETA_DIR, "#beta" protocol frame,
+  localStorage dusk.betakey/betatoken, beta_site_links.py (now writes
+  "Alpha"). The "beta" god item is unrelated and unchanged.
+
 ## Open / ideas
 
 - Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone
