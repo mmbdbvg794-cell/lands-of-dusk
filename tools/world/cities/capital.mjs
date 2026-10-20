@@ -334,7 +334,11 @@ export default {
     };
     tavern({ x: 1413, y: 348, w: 10, h: 8, door: ['e', 4], name: 'The Rusty Tankard', text: 'The Rusty Tankard: ale and talk.',
       keeper: { name: 'Bartender Gus', look: 'Bar Tender', desc: 'Gus, wiping a tankard that will never be clean.', dlg: SHOP('Ale! Cold ale!', 'What\'ll it be? Stand at the bar and open the Shop tab.', [ask('Heard anything?', 'Fellow in the corner swears he\'s been to the Underdark. Buy him an ale and he\'ll tell you twice.')]) },
-      patrons: [{ name: 'Old Sailor Wick', look: 'hermit', desc: 'Wick, an old sailor with one ear.', dlg: talk('I sailed with the Seahawk when she was new. Now she\'s a ferry. Now I\'m a drunk. We all come down in the world.') }] });
+      patrons: [{ name: 'Old Sailor Wick', look: 'hermit', desc: 'Wick, an old sailor with one ear.', dlg: talk('I sailed with the Seahawk when she was new. Now she\'s a ferry. Now I\'m a drunk. We all come down in the world.', [
+        // A rumour of Midnight (through the hollow tree in the old world), no more: it stays a thing to find.
+        { label: 'Any tales?', reply: 'Tales? Buy me one more and... no? Fine. Back in the old country there was a tree, an old one, hollow. My grandfather swore a whole city lay on the other side of it, where it\'s always night. Through the tree, mind, not under it. He drank more than I do.' },
+        { label: 'Farewell', reply: 'Mind the eels.' },
+      ]) }] });
     tavern({ x: 1392, y: 379, w: 17, h: 8, door: ['n', 8], name: 'The Drunken Dragon', text: 'The Drunken Dragon: the best ale and the worst songs.',
       keeper: { name: 'Bartender Maud', look: 'Villager Woman', desc: 'Maud, who has thrown out bigger than you.', dlg: SHOP('Ale and song at the Dragon!', 'Ale\'s at the bar: open the Shop tab. Sing if you must. Fight and you\'re out.') },
       patrons: [{ name: 'Minstrel Fenwick', look: 'Villager', desc: 'Fenwick the minstrel, lute out of tune.', dlg: talk('Oh, the king had a crown and the crown had a king... no, wait. How does it go?') }, { name: 'Dockhand Bolt', look: 'Villager Man', desc: 'Bolt, a dockhand off his shift.', dlg: talk('Unloaded forty crates of eels today. Forty! Pour me another.') }] });

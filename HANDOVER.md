@@ -1780,8 +1780,23 @@ the server sending status throughout. Fixed (plans, then on scratch):
   playtest4-20261020-115924), restarted from the host 11:59:26, clean load.
 - Not done: a new Ranger can't afford the 250 gp bow and has no skills or
   spells at level 1; "look" can't examine your own items (may be dusk-bot
-  only); answering after a "look" ends a conversation; the human tutorial
-  (no plan file) wasn't checked for the counter layout.
+  only); answering after a "look" ends a conversation. (Human tutorial:
+  see the 12:48 section.)
+
+## 2026-10-20 12:48: human tutorial + a Midnight rumour (LIVE, no restart needed)
+
+- The human tutorial (no plan file) checked: the Quartermaster is a named
+  entry in the merchants file (144,381), not a prop, and is there. The
+  Drill Sergeant now takes the stuffing at once from a recruit who beat a
+  dummy before talking to him (tools/server/fix_drill_sergeant.mjs makes his
+  .dlg and script), and his gate (139,377) says "Not so fast, recruit!
+  Report to me first." (tools/server/fix_playtest4b.py). Backups
+  playtest4b-talk-20261020-124848, playtest4b-20261020-124849.
+- Old Sailor Wick (The Drunken Dragon, Kingshaven; capital.mjs) has "Any
+  tales?": his grandfather's tale of a hollow tree in the old country with a
+  city of night on the other side. The only hint of Midnight, by design.
+- Not played in-game after install (talk scripts made by the same
+  toScript as all the others).
 
 ## Open / ideas
 
@@ -1803,10 +1818,9 @@ the server sending status throughout. Fixed (plans, then on scratch):
   are Garrick's "Any work?", Old Bryn's knocking below the deep seam, the
   caved-in Old Drift (914-922,221); dig a new hall from the spare rock for
   monsters and a boss. The mine has no monsters yet.
-- Old-world signposting: Midnight / the Izaru mine are reachable only by
-  ferry to Westsea, then the tree hole at 64,91 (to 494,105) and 450,104 up
-  into Midnight; no signs or posters point there. Offered a Kingshaven
-  poster, ferry line and a sign at the tree.
+- Midnight / the Izaru mine (ferry to Westsea, the tree hole at 64,91 to
+  494,105, then 450,104 up into Midnight): kept a mystery on purpose; only
+  Old Sailor Wick's tale hints at it. No signposts.
 - Clans: show the clan on the who page / who.json; maybe a "clan hall"
   sign or name plaque when claimed.
 - CHANGELOG.md is up to date to 2026-10-14 03:51 (creature cap, layout);
