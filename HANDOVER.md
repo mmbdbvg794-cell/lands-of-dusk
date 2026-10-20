@@ -1966,7 +1966,7 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
 ## 2026-10-20 23:00: shorter NPC lines and signs (talk LIVE; signs at the next restart)
 
 - The user: directions "way too long", trim them in every city. Trimmed
-  directions/instructions (story and lore lines NOT trimmed; asked).
+  directions/instructions. Story and lore lines stay long (the user's call).
 - Every live talk script rebuilds exactly from its .dlg (147/147 checked),
   so: copy talk/ -> tools/server/trim_lines.py edits the .dlg copies ->
   tools/server/regen_talk.mjs rebuilds the scripts -> copy pairs back,
