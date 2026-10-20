@@ -196,6 +196,10 @@ const BLADEMISTRESS = {
     ifFlag('drowTut4', 'Well? Cut the stuffing out of a training dummy and bring it to me. (Stand right beside one, not diagonally, then click it and choose Attack.)', [
       { label: 'Here it is', reply: 'Clean work. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut4'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')] },
     ]),
+    // Dressed and a dummy beaten before speaking to her: straight to the hand-in.
+    { ...ifFlag('drowTut3', 'You did not wait to be told. Good. Show me the stuffing.', [
+      { label: 'Here it is', reply: 'Clean work. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut3'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')] },
+    ]), also: { kind: 'item', value: 'straw stuffing' } },
     ifFlag('drowTut3', 'Put on what Quave gave you (in your Backpack, press Wear beside each). Then we fight.', [
       { label: 'I am ready', reply: 'Then strike a training dummy, and bring me its stuffing. (Stand beside one, click it and choose Attack.)', effects: [unflag('drowTut3'), jflag('drowTut4', 'The Blademistress wants the stuffing of a training dummy. Time to fight.')] },
     ]),
@@ -251,13 +255,14 @@ function tutorial(p) {
   p.fill(41, 104, 13, 13, 'e');
   p.npc({ name: 'Blademistress Zeerith', look: 'Dark Elf Guard', desc: 'Blademistress Zeerith, watching your footwork with contempt.', x: 47, y: 105, dlg: BLADEMISTRESS });
   p.mob('training dummy', 1, 44, 113); p.mob('training dummy', 1, 50, 113);
-  // The provisioner, behind a counter.
+  // The provisioner, behind a counter: its near side (the way in) is where
+  // buyers stand.
   p.set(47, 117, 'D');
-  p.walk(47, 117, door('drowTut5', 'Blademistress Zeerith', 'Not yet! Bring me the stuffing of a training dummy first.'));
+  p.walk(47, 117, door('drowTut5', 'Blademistress Zeerith', 'Not yet! Come and see me first, at the north end of the pit.'));
   p.fill(43, 118, 9, 6, 'k');
   p.fill(46, 120, 3, 1, 's');
-  p.npc({ name: 'Provisioner Nym', look: 'Dark Elf Woman', desc: 'Provisioner Nym, counting mushrooms.', x: 47, y: 119, dlg: PROVISIONER });
-  p.merchant(47, 121, ['water', 'mushroom']);
+  p.npc({ name: 'Provisioner Nym', look: 'Dark Elf Woman', desc: 'Provisioner Nym, counting mushrooms.', x: 47, y: 121, dlg: PROVISIONER });
+  p.merchant(47, 119, ['water', 'mushroom']);
   // The way out: the Spider Stone.
   p.set(52, 121, '>');
   p.walk(52, 121, door('drowTut6', 'Provisioner Nym', 'Supplies first! A water and a mushroom.'));

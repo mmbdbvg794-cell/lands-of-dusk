@@ -142,7 +142,7 @@ const TRAINER = shop(
 );
 const GUARD = {
   shouts: ['Halt! ... Ah, a traveller. Be welcome in Aelindor.', 'Keep to the paths, stranger.'],
-  stages: [always('The Elder\'s hall is to the north-west of the Moonwell, the shrine to the north-east. Shops and the inn are along the avenues. Keep the peace and you\'re welcome here.')],
+  stages: [always('The Elder\'s hall is to the north-west of the Moonwell, the shrine to the north-east. Shops and the inn are along the avenues. The road north of this gate runs to Aelindor Landing, where the ships put in. Keep the peace and you\'re welcome here.')],
 };
 const LORIEN = { shouts: [], stages: [always('Have you seen the Moonwell at night? It glows like a second moon.')] };
 const NIMUE = { shouts: [], stages: [always('My grandmother says these oaks were saplings when the first elves came. She would know: she planted some of them.')] };
@@ -315,18 +315,20 @@ export default {
     for (const x of [32, 33, 34]) { p.walk(CITY.x + x, CITY.y + 1, noDarkElves); p.walk(CITY.x + x, CITY.y + 52, noDarkElves); }
     for (const y of [26, 27, 28]) { p.walk(CITY.x + 1, CITY.y + y, noDarkElves); p.walk(CITY.x + 64, CITY.y + y, noDarkElves); }
     const welcome = 'Aelindor, city of the elves. Be welcome under the trees.';
-    c.sign('Aelindor', welcome, 34, -1);
+    c.sign('Aelindor', `${welcome} North along the road: Aelindor Landing, and the ships.`, 34, -1);
     c.sign('Aelindor', welcome, 32, 54);
     c.sign('Aelindor', welcome, -1, 26);
     c.sign('Aelindor', welcome, 66, 28);
 
     // The road north to the lake shore, and short roads out of the other gates.
     p.path([[CITY.x + 33, CITY.y - 1], [CITY.x + 33, 14], [21, 14], [21, 8]]);
+    // A signpost where it turns west (play-test 4 walked on north into the trees).
+    p.sign('Aelindor Landing', 'Aelindor Landing, west along the road: ships to Westsea Harbour and Eastreach. Aelindor is back south.', CITY.x + 34, 13);
     p.fill(17, 6, 9, 2, '_');
     // Aelindor Landing: a pier into the inlet (which is open sea) and a
     // ferry captain (ferry.mjs); the ferry docks off its end.
     p.fill(18, 0, 3, 5, '=');
-    p.npc({ name: 'Captain Liriel', look: 'Elf', desc: 'Captain Liriel, an elf who prefers the sea to the trees.', x: 19, y: 0, dlg: captain('landing', 'Ships to Westsea Harbour and Eastreach! Fifty gold!') });
+    p.npc({ name: 'Captain Liriel', look: 'Elf', desc: 'Captain Liriel, an elf who prefers the sea to the trees.', x: 19, y: 0, dlg: captain('landing', 'Ships to Westsea Harbour and Eastreach! Twenty gold!') });
     p.sign('Aelindor Landing', 'Aelindor Landing. Ships to Westsea Harbour and Eastreach. Aelindor is south along the road.', 22, 6);
     clearMooring(p, 'landing');
     c.path([[33, 54], [33, 60]]);

@@ -54,6 +54,10 @@ const RANGER = {
     ifFlag('elfTut4', 'Well? Take the stuffing from a training dummy and bring it to me. (Stand right beside one, not diagonally, then click it and choose Attack.)', [
       { label: 'Here it is', reply: 'Neatly done. Provisioner Merrin is through the trees to the south: no one should walk the wood hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('elfTut4'), jflag('elfTut5', 'Ranger Thandril sent me south to Provisioner Merrin, for water and an apple.')] },
     ]),
+    // Dressed and a dummy beaten before speaking to him: straight to the hand-in.
+    { ...ifFlag('elfTut3', 'You have been busy: dressed, and a dummy already beaten. Let me see that stuffing.', [
+      { label: 'Here it is', reply: 'Neatly done. Provisioner Merrin is through the trees to the south: no one should walk the wood hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('elfTut3'), jflag('elfTut5', 'Ranger Thandril sent me south to Provisioner Merrin, for water and an apple.')] },
+    ]), also: { kind: 'item', value: 'straw stuffing' } },
     ifFlag('elfTut3', 'First, put on what Ysolde gave you (in your Backpack, press Wear beside each). Then we practise.', [
       { label: 'I am ready', reply: 'Then strike a training dummy, and bring me its stuffing. (Stand beside one, click it and choose Attack.)', effects: [unflag('elfTut3'), jflag('elfTut4', 'Ranger Thandril wants the stuffing of a training dummy. Time to practise.')] },
     ]),
@@ -128,13 +132,14 @@ export default {
     p.npc({ name: 'Ranger Thandril', look: 'Elf Guard', desc: 'Ranger Thandril, leaning on a longbow and watching your footwork.', x: 49, y: 11, dlg: RANGER });
     p.mob('training dummy', 1, 45, 19); p.mob('training dummy', 1, 52, 19);
 
-    // The provisioner, behind a counter.
+    // The provisioner, behind a counter: its near side (the way in, from
+    // the glade) is where buyers stand.
     p.path([[49, 23], [49, 25]]);
-    p.walk(49, 24, gap('elfTut5', 'Ranger Thandril', 'Not yet! Bring me the stuffing of a training dummy first.'));
+    p.walk(49, 24, gap('elfTut5', 'Ranger Thandril', 'Not yet! Come and see me first, at the north end of the glade.'));
     p.oval(43, 25, 13, 9, ',');
     p.fill(48, 27, 3, 1, '#');
-    p.npc({ name: 'Provisioner Merrin', look: 'Elf', desc: 'Provisioner Merrin, polishing an apple on his sleeve.', x: 49, y: 26, dlg: PROVISIONER });
-    p.merchant(49, 28, ['water', 'apple']);
+    p.npc({ name: 'Provisioner Merrin', look: 'Elf', desc: 'Provisioner Merrin, polishing an apple on his sleeve.', x: 49, y: 28, dlg: PROVISIONER });
+    p.merchant(49, 26, ['water', 'apple']);
 
     // The way out: the Moonstone.
     p.path([[56, 29], [59, 29]]);

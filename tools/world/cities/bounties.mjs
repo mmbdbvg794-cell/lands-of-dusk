@@ -31,7 +31,7 @@ const BOARDS = [
     ['barrow skeleton', 4, 'Barrow Skeleton Bounty', 'in the hidden valley in the hills north-east'],
   ] },
   { id: 'ae', town: 'Aelindor', at: [478, 1227], posts: [[472,  1227],  [475,  1227],  [478,  1227]], jobs: [
-    ['lake slimer', 6, 'Lake Slimer Bounty', 'by the lake north of the city'],
+    ['lake slimer', 6, 'Lake Slimer Bounty', 'on the lake shore east of the city'],
     ['shrine gargoyle', 5, 'Shrine Gargoyle Bounty', 'at the shrines on the western mountains\' slopes'],
     ['blighted wolf', 4, 'Blighted Wolf Bounty', 'in the withered grove far to the east'],
   ] },

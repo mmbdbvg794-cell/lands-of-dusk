@@ -54,6 +54,10 @@ const HUNTER = {
     ifFlag('lizTut4', 'Well? Tear the stuffing out of a training dummy and bring it to me. (Stand right beside one, not diagonally, then click it and choose Attack.)', [
       { label: 'Here it is', reply: 'Hsss, not bad. Mossa keeps the larder, through the willows to the south. Nobody hunts hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('lizTut4'), jflag('lizTut5', 'Hunt-Master Kreeth sent me south to Mossa, for water and a mushroom.')] },
     ]),
+    // Dressed and a dummy beaten before speaking to him: straight to the hand-in.
+    { ...ifFlag('lizTut3', 'Hsss, you did not wait for me: dressed, and a dummy already torn open. Show me the stuffing.', [
+      { label: 'Here it is', reply: 'Hsss, not bad. Mossa keeps the larder, through the willows to the south. Nobody hunts hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('lizTut3'), jflag('lizTut5', 'Hunt-Master Kreeth sent me south to Mossa, for water and a mushroom.')] },
+    ]), also: { kind: 'item', value: 'straw stuffing' } },
     ifFlag('lizTut3', 'First, put on what Ossik gave you (in your Backpack, press Wear beside each). Then we hunt.', [
       { label: 'I am ready', reply: 'Then go at a training dummy, and bring me its stuffing. (Stand beside one, click it and choose Attack.)', effects: [unflag('lizTut3'), jflag('lizTut4', 'Hunt-Master Kreeth wants the stuffing of a training dummy. Time to practise.')] },
     ]),
@@ -129,13 +133,14 @@ export default {
     p.npc(lizard('Hunt-Master Kreeth', 'Hunt-Master Kreeth, scarred across the snout, watching how you move.', 49, 11, HUNTER));
     p.mob('training dummy', 1, 45, 19); p.mob('training dummy', 1, 52, 19);
 
-    // The larder, behind a counter.
+    // The larder, behind a counter: its near side (the way in) is where
+    // buyers stand.
     p.path([[49, 23], [49, 25]], 'h');
-    p.walk(49, 24, gap('lizTut5', 'Hunt-Master Kreeth', 'Not yet! Bring me the stuffing of a training dummy first.'));
+    p.walk(49, 24, gap('lizTut5', 'Hunt-Master Kreeth', 'Not yet! Come and see me first, at the north end of the hunting ground.'));
     p.oval(43, 25, 13, 9, 'Q');
     p.fill(48, 27, 3, 1, '#');
-    p.npc(lizard('Mossa', 'Mossa, keeper of the larder, sorting mushrooms by smell.', 49, 26, LARDER));
-    p.merchant(49, 28, ['water', 'mushroom']);
+    p.npc(lizard('Mossa', 'Mossa, keeper of the larder, sorting mushrooms by smell.', 49, 28, LARDER));
+    p.merchant(49, 26, ['water', 'mushroom']);
 
     // The way out: the Warm Stone.
     p.path([[56, 29], [59, 29]], 'h');

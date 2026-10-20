@@ -1741,6 +1741,48 @@ the Journal tab, flee announced, "Damage modifier".
 - Tested on scratch with a new dark elf (arrivetest/arrive42, skipped the
   tutorial): arrival line and journal shown.
 
+## 2026-10-20 00:55: play-test 4 fixes (LIVE, restart 11:59)
+
+Play-test 4 (an elf Ranger, ~70 min; ~/dusk-playtest/archive/run4) never
+reached Eastreach and found no monsters. Its "commands stalled for minutes"
+was the tester itself: the transcript shows every goto done in a second and
+the server sending status throughout. Fixed (plans, then on scratch):
+- Aelindor's lake slimer bounty said "by the lake north of the city"; the
+  slimers are on the lake shore east (534-584 x 1266-1290, greenwardens.mjs):
+  bounties.mjs + its journal line.
+- Nobody pointed to Aelindor Landing (444,1184, ships to Eastreach), which
+  the tester passed within 10 squares: the Elf Guard says the north road
+  goes there, the north gate sign says so, and a new signpost stands at the
+  road's turn west (474,1193).
+- Tutorial provisioners (Merrin, Mossa, Nym) stood on the near side of
+  their counters with the shop square behind: swapped (props + merchants).
+- The trainers' gate ("Not yet! Bring me the stuffing...") spoke before the
+  player had met them: now "Come and see me first, at the north end of the
+  glade/hunting ground/pit". Thandril, Kreeth and Zeerith take the stuffing
+  at once if the player beat a dummy before talking to them.
+- Quarter staff and cloth shirt were sold for 0 gp: 40 and 5.
+- Hunger/thirst lower five stats silently: the messages now say so and what
+  to use.
+- Morvane's boss call said "the old world": "the east field, south-east of
+  Southfield". Captains Liriel and Rowan shouted "Fifty gold!" (the fare is
+  20): "Twenty gold!" (their talk files also clear the newer voyage flags,
+  as ferry.mjs already did).
+- Install: trimmed bundle (the changed talk/tileaction files + worldbosses,
+  built from the plans with mayBuild overridden; scratchpad r4/pt4.json)
+  with install_city.py --force, then tools/server/fix_playtest4.py
+  --apply, then restart. Note: the signs file is text, x, y; signnames is
+  x, y, name (a wrong-order entry stops the engine loading props: no NPCs).
+- Tested on scratch (Rfivetest/botpw42): dummy before Thandril -> gate line
+  -> shortcut hand-in; bought from the near side of Merrin's counter; bounty
+  text, guard, gate sign, signpost; Liriel ticket and the Morning Star to
+  Eastreach (~4 min).
+- Live: installed 11:59 (backups city-play-test-4-20261020-115924 and
+  playtest4-20261020-115924), restarted from the host 11:59:26, clean load.
+- Not done: a new Ranger can't afford the 250 gp bow and has no skills or
+  spells at level 1; "look" can't examine your own items (may be dusk-bot
+  only); answering after a "look" ends a conversation; the human tutorial
+  (no plan file) wasn't checked for the counter layout.
+
 ## Open / ideas
 
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the

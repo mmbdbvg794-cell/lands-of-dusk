@@ -443,7 +443,7 @@ export default {
     // The middle pier runs out to deep water: the ferry pier (ferry.mjs),
     // its captain at the end, ships berthing either side.
     F(1413, 402, 3, 17, '=');
-    NPC({ name: 'Captain Rowan', look: 'Villager Man', desc: 'Captain Rowan, the harbour\'s ferry captain, salt-white beard.', x: 1413, y: 417, dlg: captain('kingshaven', 'Ferries to Westsea Harbour and Eastreach! Fifty gold!') });
+    NPC({ name: 'Captain Rowan', look: 'Villager Man', desc: 'Captain Rowan, the harbour\'s ferry captain, salt-white beard.', x: 1413, y: 417, dlg: captain('kingshaven', 'Ferries to Westsea Harbour and Eastreach! Twenty gold!') });
     SIGN('Kingshaven Ferry', 'The Kingshaven ferry pier. The Royal Swan sails to Westsea Harbour, the Gannet to Eastreach: buy a ticket from Captain Rowan and wait at the pier\'s end.', 1416, 403);
     F(1450, 404, 3, 9, '=');
     // Warehouses and the harbour's buildings, east of the gate.
