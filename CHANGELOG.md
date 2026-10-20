@@ -678,6 +678,10 @@ What they ran into is fixed:
   armour 40, helmet 200 gp, gloves and leggings 60, suit 400. "An bronze
   helmet" and the like say "a".
 - New characters get thirsty after an hour, not ten minutes.
+- **Signposts in Kingshaven**: one by the arrival square on the plaza and one
+  where each avenue meets the street round the plaza, saying which way the
+  gates, the keep, the cathedral, the market, the harbour and Sergeant
+  Wexley's post lie. The Royal Keep's sign names Lord Steward Halvard.
 
 ## Closed alpha
 

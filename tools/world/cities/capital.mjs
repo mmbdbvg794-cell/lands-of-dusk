@@ -40,6 +40,21 @@ const talk = (text, answers = [], shouts = []) => ({ shouts, stages: [always(tex
 const ask = (label, reply) => ({ label, reply, effects: [] });
 const bye = ask('Farewell', 'Go well.');
 
+// Signposts round the plaza: text, x, y.
+const SIGNPOSTS = [
+  ['North up the avenue: the keep, the cathedral and the north gate (the farms, and the stray hounds\' meadow). ' +
+     'East: the bounty board, the bank, and the east gate with Sergeant Wexley\'s Watch post outside it. ' +
+     'South: the market, the south gate and the harbour (the ferries). West: Lantern Row and the west gate.', 1441, 351],
+  ['North: the north gate, and the road west to the farms and the stray hounds\' meadow. ' +
+     'West along this street: the Royal Keep. East: the Cathedral of Light. South: the Grand Plaza.', 1433, 340],
+  ['West: the west gate and the west landing. North up this street: Lantern Row. ' +
+     'South: the Market Square and the Drunken Dragon. East: the Grand Plaza.', 1413, 356],
+  ['East: the east gate. Sergeant Wexley\'s Watch post is just outside, north of the road behind the first houses. ' +
+     'North up this street: the Cathedral of Light. South: the Warriors\' Guild. West: the Grand Plaza.', 1459, 360],
+  ['South: the south gate and the harbour. The ferries leave from the longest pier. ' +
+     'West along this street: the Market Square and the Drunken Dragon. East: the Warriors\' Guild. North: the Grand Plaza.', 1438, 375],
+];
+
 const DIRECTIONS = 'The keep is to the north-west, the cathedral to the north-east, and the grand plaza where the avenues cross. Shops and the bank are round the plaza, the market south-west of it, the inns and taverns all over, and the harbour through the south gate.';
 
 // Lord Steward Halvard governs in Princess Elowen's name, beside her empty
@@ -220,7 +235,7 @@ export default {
     PR('Guard', 1415, 328);
     for (const x of [1400, 1405, 1420, 1425]) PR('candlestick stand', x, 333);
     PR('plants', 1397, 326); PR('plants', 1428, 326);
-    SIGN('The Royal Keep', `The Royal Keep of ${NAME}. King Aldric holds court within.`, 1414, 337);
+    SIGN('The Royal Keep', `The Royal Keep of ${NAME}. Lord Steward Halvard governs here in Princess Elowen's name.`, 1414, 337);
     PR('well', 1394, 326); PR('Flower Box', 1394, 334); PR('Flower Box', 1432, 334);
 
     // ---- the Cathedral of Light (north-east) ----
@@ -446,6 +461,10 @@ export default {
     SIGN(NAME, welcome, 1434, 398);
     SIGN(NAME, welcome, 1387, 361);
     SIGN(NAME, welcome, 1486, 356);
+    // Signposts where the avenues meet the streets round the plaza, and by
+    // the arrival square (play-test 5: nothing said which way the gates
+    // were). tools/server/fix_kingshaven_signs.py put these on live.
+    for (const [text, x, y] of SIGNPOSTS) SIGN('Signpost', text, x, y);
 
     // ---- the harbour (outside the south gate) ----
     // The quay along the shore, planked over the beach.

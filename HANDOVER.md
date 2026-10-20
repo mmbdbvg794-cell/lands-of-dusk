@@ -1877,13 +1877,27 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
   (anvil recipes, zakken drop) took the shop's stats (user's call).
   capital.mjs matches. Underscored files kept (no player holds one).
   "an <consonant>" descriptions fixed in 10 item files AFTER the restart
-  (backups armoury-names-an-*): live text updates at the next restart; the
-  client's iteminfo already has them.
+  (backups armoury-names-an-*), live since the 18:35 restart.
 - First thirst: users/default (the new-character template) had nothirst
   duration 600 ticks (10 min); now 3600 (1 hour). Drinks give 10800.
   Backup backups/thirst-*. Read at character creation, no restart.
   nohunger there is ticks 600 / duration -1: new characters never get
   hungry until they first eat (left as is).
+
+## 2026-10-20 18:35: Kingshaven signposts (LIVE, restart 18:35)
+
+- tools/server/fix_kingshaven_signs.py (applied, backups
+  kingshaven-signs-*): Signposts at 1441,351 (by the arrival square),
+  1433,340 (north), 1413,356 (west), 1459,360 (east), 1438,375 (south),
+  each on a crossing corner off the lanes; the keep sign (1414,337) names
+  Lord Steward Halvard. capital.mjs SIGNPOSTS matches. Checked with
+  dusk-bot on scratch: NPCs load, the plaza signpost reads, the Royal
+  Armoury lists spaced names.
+- defConditions/starter_kit made on live and scratch by hand. Classes
+  makes it at the first kit, but scratch.sh setup (rsync --delete from
+  live) had removed scratch's copy, and botcheck (who has the flag) then
+  crashed scratch at login. Same risk for any hidden flag made on scratch
+  only: check defConditions after a setup.
 
 ## Open / ideas
 
@@ -1897,8 +1911,6 @@ live files; the plans (capital, kingswatch, bounties, eastreach .mjs) match.
   Run 6 could be a dark elf or lizardfolk (runs 4-5 were elf and human),
   brief-run5.md as the template; scratch is stopped (tools/scratch.sh
   setup, then start). Block archive/** and the briefs in the launch line.
-- Left from play-test 5: Kingshaven is still slow to find your way round
-  (a town map or more crossroads signs).
 - Class and level ideas the user raised (not started): choosing the class
   at the end of the tutorial instead of at creation; a level system (maybe
   cosmetic levels on top of the experience-for-stats training).
