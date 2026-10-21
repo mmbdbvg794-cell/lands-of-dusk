@@ -2348,6 +2348,25 @@ then a restart (signs and props are read at start-up; flan was online, so
 - Live: installed 20:08 (backup backups/classes-20261021-200827), restarted
   20:08:29, clean load; no prop has a rule yet.
 
+## 2026-10-21 20:22: main-story NPCs' lines after later quests (LIVE, no restart)
+
+- tools/server/main_story_after.mjs: stages tagged with the later quest
+  and marked keep (js/quests.js stripQuest now keeps "keep" stages, so a
+  re-merge leaves them; client deployed 20:23): Old Wenna ft_word_done /
+  dw_road_done (with her tales menu, no greeting after), Shaman Ithrae
+  ft_word_done, Archivist Zyrith ft_word_done, Tombkeeper Aldous
+  ft_word_done. quests/dw_road.json after -> "Now you know her road. The
+  brood is patient for the rest." (dawnward.mjs too); every quest of
+  each NPC merged again; merge_quests.mjs over the result: 0 changes.
+  Backup backups/canon-20261021-202208.
+- Scratch (msa dw_word, msb dw_road, msc ft_stone, msd ft_word done):
+  all four NPCs right at each stage. Aldous offers his zl_ quests before
+  any thank-you (as before); with them done msd gets the new line,
+  alternating with his greeting.
+- Reported, not installed: Trader Kossk's dw_wreck_done ("Show that
+  locket to the Chieftain") and Chieftain Hesska's dw_brood_done ("Follow
+  her road, if you can") go stale; Old Bram and Elowen don't.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,

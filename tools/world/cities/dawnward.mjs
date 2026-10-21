@@ -118,7 +118,7 @@ export const QUESTS = [
     },
     reminder: 'King Zilen\'s grave is in the City of Light, in the old world. Ask whoever keeps it.',
     reward: { gold: 300, exp: 900, items: [PENDANT], says: 'Here. My mother made this pendant for the princess, before we sailed: a rising sun, in gold. It has never been worn. Wear it for her.' },
-    after: 'The throne is still empty. But now we know where she went. That is more than we had.',
+    after: 'Now you know her road. The brood is patient for the rest.',
   }, [
     ['talk', ALDOUS, { says: 'Another visitor for the old king? You have the look of someone asking after someone.', answer: 'I seek Princess Elowen', reply: 'Elowen. Twelve years ago a grey-haired woman knelt at this grave, with a green stone in her hand, and left a letter for whoever came asking. Here, read it. "To whoever comes asking. I am Elowen, Aldric\'s daughter. The sea did not take me; the mire did, and the brood gave me back. My uncle opened the gate under Firetown. I mean to close it. If I do not come back, the stone is with me, somewhere in the fire. Do not let them keep the throne empty forever. E."', journal: 'Find whoever keeps King Zilen\'s grave in the City of Light, and ask after Princess Elowen.' }],
     ['bring', WENNA, { item: LOCKET, take: true, says: 'You came back. Tell me. Tell me all of it.', answer: 'The locket, and her letter', reply: 'She lived. She lived, and she went back into the fire to undo what he did. Oh, child. Forty years we kept that chair warm for her, and she was braver than all of us.', journal: 'Take the news, and the silver locket, home to Old Wenna in Kingshaven.' }],

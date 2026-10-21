@@ -220,9 +220,12 @@ export function questNpcs(q) {
   return out;
 }
 
-// A dialogue without this quest's stages.
+// A dialogue without this quest's stages. A stage marked keep stays: one
+// added by hand in a quest's place (what an NPC says once a later quest is
+// done, tagged with that quest so it sorts with the thank-yous), which the
+// quest itself doesn't make.
 export function stripQuest(dlg, id) {
-  return { ...dlg, stages: (dlg.stages ?? []).filter((s) => s.quest !== id) };
+  return { ...dlg, stages: (dlg.stages ?? []).filter((s) => s.quest !== id || s.keep) };
 }
 
 // Where a quest stage goes among all the quests an NPC has, as the first
