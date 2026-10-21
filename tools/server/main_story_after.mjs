@@ -34,6 +34,10 @@ const AFTER = [
   ['Shaman Ithrae', 'ft_word', 'The Brood Stone grew cool last night, for the first time in forty winters. You shut it, then.', false],
   ['Archivist Zyrith', 'ft_word', 'You found her, and the gate is shut. Perhaps I am a little less sorry.', false],
   ['Tombkeeper Aldous', 'ft_word', 'The old king\'s granddaughter is alive. I told him this morning. I think he heard.', false],
+  // Added the same evening.
+  ['Trader Kossk', 'dw_brood', 'Hsss. The Chieftain kept your locket? Then the girl was real. Buy something, warm-blood.', false],
+  ['Chieftain Hesska', 'ft_word', 'The shard did its work. The brood remembers you now, warm-blood.', false],
+  ['Chieftain Hesska', 'dw_road', 'Ithrae told me where her road went. The brood remembers her.', false],
 ];
 
 const problems = [];
@@ -48,7 +52,9 @@ for (const id of ['dw_word', 'dw_wreck', 'dw_brood', 'dw_road', 'ft_page', 'ft_s
 }
 const road = quests.get('dw_road');
 if (road) {
-  if (road.after !== ROAD_AFTER[0]) problems.push(`dw_road after is "${road.after}"`);
+  if (road.after === ROAD_AFTER[1]) {
+    // done already
+  } else if (road.after !== ROAD_AFTER[0]) problems.push(`dw_road after is "${road.after}"`);
   else {
     road.after = ROAD_AFTER[1];
     const raw = JSON.parse(read('quests/dw_road.json'));
@@ -66,7 +72,8 @@ for (const name of [...new Set(AFTER.map((a) => a[0]))]) {
     const q = quests.get(id);
     if (!q) continue;
     const flag = `${id}_done`;
-    if (dlg.stages.some((st) => st.keep && st.when?.value === flag)) { problems.push(`${name}: already has a kept ${flag} stage`); continue; }
+    // Run again: a stage already there stays as it is.
+    if (dlg.stages.some((st) => st.keep && st.when?.value === flag)) continue;
     const tag = q.requires ? { quest: id, requires: q.requires, depth: Math.max(1, q.depth ?? 1) } : { quest: id };
     dlg.stages.unshift({ ...tag, keep: true, when: { kind: 'flag', value: flag }, says, answers: own ? structuredClone(home?.answers ?? []) : [] });
   }

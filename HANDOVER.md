@@ -2363,9 +2363,14 @@ then a restart (signs and props are read at start-up; flan was online, so
   all four NPCs right at each stage. Aldous offers his zl_ quests before
   any thank-you (as before); with them done msd gets the new line,
   alternating with his greeting.
-- Reported, not installed: Trader Kossk's dw_wreck_done ("Show that
-  locket to the Chieftain") and Chieftain Hesska's dw_brood_done ("Follow
-  her road, if you can") go stale; Old Bram and Elowen don't.
+- 20:27, approved: Trader Kossk dw_brood_done "Hsss. The Chieftain kept
+  your locket? Then the girl was real. Buy something, warm-blood."
+  (alternates with his greeting); Chieftain Hesska ft_word_done "The shard
+  did its work. The brood remembers you now, warm-blood." and dw_road_done
+  "Ithrae told me where her road went. The brood remembers her." (her
+  greeting and menu after). Same script (now skips what's there already);
+  backup backups/canon-20261021-202734; re-merge: 0 changes. Old Bram and
+  Elowen needed nothing.
 
 ## Open / ideas
 
