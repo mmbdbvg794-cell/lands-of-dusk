@@ -2105,13 +2105,19 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   the bot doesn't reveal walkability (README "Walkability is not shown",
   updated). Real players face the same thing in Velkarath: see Open.
 
-## Open / ideas
+## 2026-10-21 12:10: Velkarath rock as grey fieldstone (LIVE, restart 12:10:11)
 
-- Velkarath's walls are tile 49, which looks like a cobbled floor (run 7's
-  tester walked into them). Could give the underground block a rock-looking
-  wall tile instead (city.mjs 'R' -> e.g. 98, only inside 1260-1429,
-  850-989; the old world's cliffs keep 49), then rebuild with
-  bundle_only.py. Not asked for yet.
+- The user asked for it after the bot legend fix. Velkarath's cave walls
+  were tile 49 (city.mjs 'R'), drawn as a cobbled floor in both art
+  styles. tools/server/fix_velkarath_rock.py (backup velkarath-rock-*):
+  inside 1260-1429, 850-989 only, 15,355 squares 49 -> 98 (the old
+  world's grey rock face; lights.mjs TORCH_ON knows it) and 60 torches
+  167 -> 162. Both block, so only the look changed. velkarath.mjs turns
+  its 'R' into 98 at the end of the build (a rebuild still needs
+  bundle_only.py or lights-velkarath after it). The old world's cliffs
+  keep 49.
+
+## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes + transcript,
   brief). Run 8 could be a lizardfolk (run 3) to check Ssarakh, or a dark

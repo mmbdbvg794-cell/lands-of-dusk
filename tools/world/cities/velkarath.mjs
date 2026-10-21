@@ -523,6 +523,12 @@ export default {
     // The tutorial's caves, sealed off from the rest.
     tutorial(p);
 
+    // The rock as grey fieldstone (tile 98, the old world's rock face), not
+    // the legend's 'R' (49), which is drawn as a cobbled floor: run 7's
+    // tester took Velkarath's walls for street. lights-velkarath.mjs puts
+    // its torches on it (162) as on any wall.
+    for (let y = 0; y < 140; y++) for (let x = 0; x < 170; x++) if (p.at(x, y) === 'R') p.set(x, y, 98);
+
     // Bats in the north-west cave.
     for (const [x, y] of [[34, 18], [40, 22], [44, 17], [32, 23]]) if (p.at(x, y) === 'k') p.mob('Bat', 1, x, y);
   },

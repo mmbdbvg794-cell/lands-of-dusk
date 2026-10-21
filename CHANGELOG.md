@@ -672,6 +672,8 @@ What they ran into is fixed:
   with a leather-and-silk weaver and a cook; people at home in the four
   houses, a drunk outside the Black Lantern, a lady of the House by the
   palace, and a barracks north of the Pit with its sergeant.
+  Its cave walls are grey fieldstone now: they used to be drawn as
+  cobbles, and looked like street.
 - **Quests.** Ilsevel in Aelindor sets a task (a gloom hound's fang from the
   den north-west of the city) before her blessing. In Velkarath, Matron
   Xalyth's rite now makes a hatchling a Drow of House Xalyth.
