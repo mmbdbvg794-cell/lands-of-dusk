@@ -2372,6 +2372,15 @@ then a restart (signs and props are read at start-up; flan was online, so
   backup backups/canon-20261021-202734; re-merge: 0 changes. Old Bram and
   Elowen needed nothing.
 
+## 2026-10-21 20:35: canon decisions O-P (lore only, nothing built)
+
+- LORE.md pillars: O the Spider Queen is the Weaver of the seals (the
+  Drow serve her vigil; the palm mark of the welcome rite is their
+  "duty"); P the grey blight is a second gate wearing thin under the
+  southern woods near Aelindor, the one Kraghul goes after (place not
+  decided). Both NOT YET IN GAME; no NPC lines changed (Faelith's wind
+  guess stays). Bible section 6 updated, regenerated.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,

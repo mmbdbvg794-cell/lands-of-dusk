@@ -274,13 +274,15 @@ w('''- **Elowen's homecoming** to Kingshaven (decision N, to be built): she come
 - **Kraghul and the Ashen Horde** in the dunes above Eastreach; the Dry Ones (Sand Kings) serve him. Since the Firetown rift shut they are stranded on this side and want a gate opened; the pact with Morvane is broken (decision L).
 - **Morvane, the Skeleton King**, still risen (east field world boss). He wants the crown and the chair (decision K, not in game yet): the crown of Zilen commands the kingdom's dead, and Kingshaven's empty throne would give him the living. He wants the gates kept shut, now that the Horde is his rival. Idea: Morvane's journal pages as boss drops.
 - The other **six gates** (seven in all; only Firetown's opened). The Brood Stone is the last whole warden stone.
-- The **grey blight** in the elven groves (smells of ash and old iron; elves blame the wind from the burning).
+- The **grey blight** in the elven groves (smells of ash and old iron; elves blame the wind from the burning). It is really a second gate wearing thin, under the southern woods near Aelindor (decision P, not in game: Faelith's wind guess stays the only word). It is the gate Kraghul goes after; the Spider Queen's priests know of it.
+- **Where exactly the southern gate lies, and how near it is to breaking.**
+- **The Spider Queen** (decision O, not in game): the Weaver of the seals, a first-age power whose web binds the seven gates; the Drow serve her vigil, and her mark on every drow's palm is their "duty". A hook for the Drow Priesthood's quests.
 - The ember, stone and frost **wyrms** that woke when the gate opened. They are young to dragonkind:
   **elder dragons** exist elsewhere (future endgame; where, and what they make of the young wyrms, is open).
 - **What happened to King Aldric**: he stayed in the old world and is gone, dead or missing. Deliberately undecided (decision M): build nothing that answers it.
 - **Morvane's crown** (decision K): his agent paid the robber boss to fetch it (SECRET: players only get
   Aldous's hint, "Someone paid for this one"; never name Morvane for it in game).
-- **What Morvane will try next for the crown.** **Which gate Kraghul goes after.** **What Elowen does in
+- **What Morvane will try next for the crown.** **Which gate Kraghul goes after** (the southern one, decision P). **What Elowen does in
   Kingshaven if she won't rule.**
 - **Guild invitation quests**: Mage Guild, The Circle; the Hidden Order and tier-5 quests (forbidden lore, archmage, archdruid).
 - **The duergar**: they killed Jhaelra's patrol near Velkarath and dug up under Greystone Mine (Thrumgar's Grey Delve). Where they come from, whether the Delve's tunnels reach Velkarath's caverns, and why they came back, twenty years after their digging brought the Old Drift down, are open.

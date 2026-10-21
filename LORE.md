@@ -85,7 +85,8 @@ and add to it here first.
   week, then gave the refugees the western coast and seed for one spring.
   The **grey blight** in their groves began the year the ships came; it
   smells of ash and old iron. The Green Wardens fight it. The elves suspect
-  the wind carries it from the burning across the sea.
+  the wind carries it from the burning across the sea (it is really a
+  second gate wearing thin: decision P, not in game).
 - **Drow (Velkarath)** are elves who went below in the first age. The
   surface songs call it **the Sundering** and say they went in pride; the
   Drow say they went on guard, to keep the gates. They felt the Firetown
@@ -237,8 +238,21 @@ Decided by flan. None of these is built yet.
 - **N. Elowen comes home to Kingshaven and refuses the crown.** She would
   rather the chair stay empty than be a prize. Morvane hunts her anyway.
   (Not built yet.)
+- **O. The Spider Queen is the Weaver of the seals.** (NOT YET IN GAME.) A
+  first-age power whose web binds the seven gates. The Drow went below to
+  serve her vigil, and her mark on every drow's palm (the needle in the
+  welcome rite) ties them to it: that is the "duty" the Drow speak of.
+- **P. The grey blight is a second gate wearing thin.** (NOT YET IN GAME:
+  in game, Loremistress Faelith's guess that the wind carries it stays the
+  only word.) A gate under the southern woods, near Aelindor, is thinning;
+  the blight is what seeps through, which is why it smells of ash and old
+  iron and comes back however often the Green Wardens cut it. This is the
+  gate Kraghul goes after (decision L). The Spider Queen's priests know of
+  it. Its exact place is not decided.
 
 **Open threads these create:**
 - What Morvane will try next for the crown.
-- Which gate Kraghul goes after.
+- Which gate Kraghul goes after: the southern one (decision P). Where
+  exactly it lies, and how near it is to breaking.
+- The Spider Queen (decision O): a hook for the Drow Priesthood's quests.
 - What Elowen does in Kingshaven if she won't rule.
