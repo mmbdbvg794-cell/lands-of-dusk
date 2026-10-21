@@ -2318,7 +2318,7 @@ then a restart (signs and props are read at start-up; flan was online, so
   if" flag in defProps, checked in refreshEntities and Talk) is the
   recommended one.
 
-## 2026-10-21 20:05: NPCs shown or hidden by flag (BUILT, tested on scratch, not live)
+## 2026-10-21 20:05: NPCs shown or hidden by flag (LIVE, restart 20:08:29)
 
 - A prop file (defProps/<name>) may have "shownIf" then a flag on the next
   line (shown only to players with it) and/or "hiddenIf" then a flag
@@ -2345,6 +2345,8 @@ then a restart (signs and props are read at start-up; flan was online, so
   classes; sources ~/vis-src). To go live: `GAME=$HOME/DuskRPG
   OUT=/tmp/dusk-vis-build/out sh ~/vis-src/install.sh`, then restart at
   once. Nothing changes for players until a prop file has a rule.
+- Live: installed 20:08 (backup backups/classes-20261021-200827), restarted
+  20:08:29, clean load; no prop has a rule yet.
 
 ## Open / ideas
 
