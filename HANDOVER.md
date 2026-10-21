@@ -2264,6 +2264,21 @@ then a restart (signs and props are read at start-up; flan was online, so
   files spelt it vortanian/voration/votanian). Backup
   backups/canon-20261021-180234.
 
+## 2026-10-21 18:16: old players' house names, the character points gate (LIVE, restart 18:16:45)
+
+- Signs: 123,189 Gatotic's -> "An empty house. The name on the door has
+  been scraped off."; 126,191 Tylk's -> "A shuttered house. Whoever lived
+  here took the nameplate east."; 119,100 / 121,100 House of Lord Rean ->
+  "The Lord's House. The crest over the door has been chiselled away.";
+  119,96 "The lord's bedroom"; 121,96 "The guest room"; 596,605 / 600,605
+  Kestrons Private Shack -> "A private shack, long empty".
+- Walk-ons: 122,79 "This was someone's house. The door is still locked.";
+  194,132 "The door won't open for you." / "A comfortable room, if a little
+  dusty." (condition still gatotic); 8,492 (gods-only stall) "This stall
+  trades only with the gods. You are turned away."; 2,270 (cp < 300) "YOU
+  ARE NOT YET MIGHTY ENOUGH TO PASS THROUGH THESE GATES". Backup
+  backups/canon-20261021-181643. Nobody online; restarted via pct.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
