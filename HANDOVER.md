@@ -2285,6 +2285,11 @@ then a restart (signs and props are read at start-up; flan was online, so
   "But no one is left on the other side to pay the prize." instead of
   "But you're not playing against anyone...". Backup backups/canon-20261021-181816.
 
+## 2026-10-21 18:27: the HAHA square removed (LIVE)
+
+- defMoveActions/504_13 (set gp 0, "HAHA!"; probably out of reach) and its
+  .dsko deleted. Backup backups/canon-20261021-182719.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
