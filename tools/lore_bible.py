@@ -285,12 +285,12 @@ w('''- **Elowen's homecoming** to Kingshaven (the empty throne; her letter told 
 ''')
 
 w('## 7. Waiting on flan\'s decisions\n')
-w('''**Still cheerful:** the north-west village's 'Dark Star News' and "a town full of tweeking
-teleporters"; Southfield's own sign ("Visitors welcome; wolves not.").
+w('''**Still cheerful:** Southfield's own sign ("Visitors welcome; wolves not."), a village still lived in.
 
 **Out-of-world text left in for flan to judge:** old players' names on houses (Gatotic's, Tylk's, Lord
 Rean's, Kestron's shack, "VAX's personal merchant"); "YOU DO NOT HAVE ENOUGH CHARACTER POINTS" at a
-gate; the flag game's "But you're not playing against anyone..."; and a square at 504,13 by Southfield
+gate; the flag game's "But you're not playing against anyone..."; the "vortanian news" item's text (a
+player's note on which quest is harder, signed Gatotic); and a square at 504,13 by Southfield
 that says "HAHA!" and sets your gold to 0 (nothing round it can be stood on, so probably out of reach).
 
 **Kept as they are (decision F):** the King's Watch sign and Sergeant Wexley, the Royal Guard, Minstrel

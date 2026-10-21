@@ -2243,6 +2243,17 @@ then a restart (signs and props are read at start-up; flan was online, so
   left is still for sale." Backup backups/canon-20261021-174137, .dsko
   removed.
 
+## 2026-10-21 17:52: north-west village lines (LIVE, no restart)
+
+- 31,36: "You pick a copy of 'Dark Star News' out of the gutter. The last
+  issue, by the look of it." defItems/newspaper "the last issue of 'Dark
+  Star News', yellowed and torn"; scripts/readNewspaper (was the 2001
+  admin's "Einhanzer has returned" note) now the paper's last issue: the
+  village gone to Westsea for a berth east. 130,5 / 140,35: "old
+  teleporters, still humming" instead of "tweeking teleporters". Backup
+  backups/canon-20261021-175238. Left: scripts/news2 ("vortanian news",
+  a player's quest note).
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
