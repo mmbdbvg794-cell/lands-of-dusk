@@ -2094,7 +2094,24 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
 - B2 off-site backup checked: no cap errors since --fast-list (log quiet
   since 2026-10-20 23:30), the 11:16 users zip is in the bucket.
 
+## 2026-10-21: play-test bot legend (no game change)
+
+- ~/dusk-playtest/dusk_bot.py TILE_KINDS: tile 49 and its edges 50-57
+  are "plain brown cobblestones" `b`; 95/104 "cobblestones with large grey
+  stones" `c` (both were "cobblestones" `c`). 49 is drawn as a cobbled
+  floor in both art styles (pixel map.gif and painted) but blocks
+  everywhere: Velkarath's cave walls ('R' in city.mjs) and the old world's
+  cliffs (68k squares). Kept as what a player sees, not "rock face", so
+  the bot doesn't reveal walkability (README "Walkability is not shown",
+  updated). Real players face the same thing in Velkarath: see Open.
+
 ## Open / ideas
+
+- Velkarath's walls are tile 49, which looks like a cobbled floor (run 7's
+  tester walked into them). Could give the underground block a rock-looking
+  wall tile instead (city.mjs 'R' -> e.g. 98, only inside 1260-1429,
+  850-989; the old world's cliffs keep 49), then rebuild with
+  bundle_only.py. Not asked for yet.
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes + transcript,
   brief). Run 8 could be a lizardfolk (run 3) to check Ssarakh, or a dark
