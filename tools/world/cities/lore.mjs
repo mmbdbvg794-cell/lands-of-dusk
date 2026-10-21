@@ -76,6 +76,11 @@ export const TALES = {
   lastships: ['The Last Sailings',
     'A torn, salt-stained notice: LAST SAILINGS. All who can, go east across the sea. The Dawnward sails at first light with Her Highness the Princess Elowen. Gods keep the City of Light.',
     'At Westsea Harbour, a torn notice of the last sailings: the Dawnward was to carry Princess Elowen east.'],
+  // The Grey Beneath (greybeneath.mjs): Ithrae's answer in Cut by No Elf
+  // sets this flag when the quest is done; nobody tells it from a menu.
+  heartstone: ['The Heartstones',
+    'Brood-cut. A sliver of warden stone. Our elders set keepers on the old posts, stone that wakes when the door below grows thin. Where there were keepers, there is a door.',
+    'The heartstones of the waking shrine are warden stone, cut by the lizardfolk elders. The grey blight rises from a door beneath the southern woods.'],
 };
 export const LORE_FLAGS = Object.keys(TALES).map((k) => `lore_${k}`);
 

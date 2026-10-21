@@ -28,6 +28,7 @@ CHAINS = [
     ('er', 'The Eastreach Frontier', 'frontier.mjs'),
     ('kw', "The King's Watch (Kingshaven)", 'kingswatch.mjs'),
     ('gw', 'The Green Wardens (Aelindor)', 'greenwardens.mjs'),
+    ('sg', 'The Grey Beneath (the southern gate)', 'greybeneath.mjs'),
     ('dp', 'The Deep Patrol (Velkarath)', 'deeppatrol.mjs'),
     ('zl', 'The Zilen Legacy (City of Light)', 'zilen.mjs'),
     ('iz', 'The Izaru Deeps (Midnight)', 'izaru.mjs'),
@@ -274,9 +275,9 @@ w('''- **Elowen's homecoming** to Kingshaven (decision N, to be built): she come
 - **Kraghul and the Ashen Horde** in the dunes above Eastreach; the Dry Ones (Sand Kings) serve him. Since the Firetown rift shut they are stranded on this side and want a gate opened; the pact with Morvane is broken (decision L).
 - **Morvane, the Skeleton King**, still risen (east field world boss). He wants the crown and the chair (decision K, not in game yet): the crown of Zilen commands the kingdom's dead, and Kingshaven's empty throne would give him the living. He wants the gates kept shut, now that the Horde is his rival. Idea: Morvane's journal pages as boss drops.
 - The other **six gates** (seven in all; only Firetown's opened). The Brood Stone is the last whole warden stone.
-- The **grey blight** in the elven groves (smells of ash and old iron; elves blame the wind from the burning). It is really a second gate wearing thin, under the southern woods near Aelindor (decision P, not in game: Faelith's wind guess stays the only word). It is the gate Kraghul goes after; the Spider Queen's priests know of it.
-- **Where exactly the southern gate lies, and how near it is to breaking.**
-- **The Spider Queen** (decision O, not in game): the Weaver of the seals, a first-age power whose web binds the seven gates; the Drow serve her vigil, and her mark on every drow's palm is their "duty". A hook for the Drow Priesthood's quests.
+- The **grey blight** is a second gate wearing thin, under the withered grove far east of Aelindor (decision P; partly in game since The Grey Beneath: Ithrae names the heartstones warden stone, and Faelith admits it isn't the wind). Kraghul's Dry Ones dig at its root-crack; three heartstones pin it, but it is **held, not shut**.
+- **How near the southern gate is to breaking**, now it is pinned. A true seal needs whole warden stone, and the only whole one left is the Brood Stone in Ssarakh ("and it stays"). **Kraghul knows someone stands in his way.**
+- **The Spider Queen** (decision O; hinted to drow only, in A Strand Pulled Thin): the Weaver of the seals, a first-age power whose web binds the seven gates; the Drow serve her vigil, and her mark on every drow's palm is their "duty". A hook for the Drow Priesthood's quests.
 - The ember, stone and frost **wyrms** that woke when the gate opened. They are young to dragonkind:
   **elder dragons** exist elsewhere (future endgame; where, and what they make of the young wyrms, is open).
 - **What happened to King Aldric**: he stayed in the old world and is gone, dead or missing. Deliberately undecided (decision M): build nothing that answers it.

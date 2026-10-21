@@ -2381,6 +2381,40 @@ then a restart (signs and props are read at start-up; flan was online, so
   decided). Both NOT YET IN GAME; no NPC lines changed (Faelith's wind
   guess stays). Bible section 6 updated, regenerated.
 
+## 2026-10-21 23:20: The Grey Beneath (sg_) and decision Q (BUILT, tested on scratch, not live)
+
+- tools/world/cities/greybeneath.mjs: sg_return / sg_heart / sg_ash /
+  sg_hold (Faelwen, Faelith; every race after gw_grove) and sg_web
+  (Priestess Ilvra; requires "velkarath" = velkarath_done). The root-crack
+  prop (image 57, as Firetown's rift) at 620,1179; its square is a
+  hand-written script (three heartstones taken one by one, given back if
+  short; cold grey ash). Grey root dig square 618,1176 (tile rules, flag
+  sg_root). 6 dry one diggers (260 HP, str 55, ashen brand 0.6) and the
+  Ash-Sworn Breaker (350 HP, str 70, own faction) round it. Items: grey
+  root, Elders' heartstone, cold grey ash (cost 0), ashen brand (cost 2),
+  Thornward Cloak (torso, mod 120, cost 1200, durability -1; gearneeds
+  DEX 15).
+- js/quests.js: reward.flags (set when the quest is done): sg_heart sets
+  lore_heartstone (in lore.mjs TALES, so Keeper of Tales: 17 now; earned
+  ones are never taken away), sg_web lore_web (journal only, not counted:
+  drow only). achievements.mjs: doorheld (sg_hold_done).
+- tools/server/greybeneath_talk.mjs: merges into live Faelwen, Faelith,
+  Ithrae, Ilvra; Faelith gets a kept sg_heart_done stage with "The Grey
+  Blight" answered anew (lore_blight).
+- paintart: ash-sworn in the person family, horned, ash-red (deploy).
+- Scratch (botcheck boosted to 3000 HP / str 300 for the fights; grove
+  thinned to 5 wolves on scratch only): all four quests, the drow through
+  sg_web + sg_ash, the crack with 0/2/3 heartstones, Faelith before/after,
+  Keeper of Tales kept (2/17 shown, earned), The Door Held on the next 30 s
+  check.
+- Staged on duskserver: ~/sg-city.json (install_city.py, dry run on live
+  clean), ~/sg-talk and ~/sg-extras (canon_install.sh; checked against
+  live 23:18). Restart after (props, monsters, achievements), then
+  deploy (art, the God tab's quests.js).
+- Found: the grove has 20 blighted wolves on live; crowded fights there
+  stall ("out of range" forever: diagonal joiners with no free square).
+  "You got a ashen brand" (engine's "a"). Both reported, not changed.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,

@@ -134,10 +134,32 @@ and add to it here first.
   Delve's tunnels run down to the caverns round Velkarath; why they came
   back, twenty years after the drift fell.
 
+## The southern gate (greybeneath.mjs, *The Grey Beneath*)
+
+- The grey blight came back to the withered grove after the Green Wardens
+  healed it: it rises from a gate wearing thin under the grove (decision
+  P), whose heart is warm to the touch.
+- Kraghul's Dry Ones (**dry one diggers**) are widening the **root-crack**
+  among the grey roots at the grove's heart, which breathes heat and the
+  smell of ash and old iron; they carry **ashen brands**, Kraghul's horned
+  head burned into iron. One of his horned Horde, the **Ash-Sworn
+  Breaker**, was set to break the gate.
+- The heartstones of the waking shrine are warden stone, cut by the
+  lizardfolk elders (Ithrae; decision Q). Three of them, set round the
+  crack, **pin** the gate: it holds, cold, but it is **not shut**.
+- Drow learn more from Priestess Ilvra (*A Strand Pulled Thin*): the
+  Spider Queen's web binds the gates, and its southern strand is pulled
+  thin (decision O).
+- Faelwen gives the **Thornward Cloak** (Green Wardens' work, a thread
+  from the healed grove) for holding the door; the achievement is *The
+  Door Held*.
+
 ## Where the pieces are (tools/world/cities/lore.mjs)
 
 Each piece sets a flag `lore_*`, adds a "Tale: ..." line to the journal,
 and counts toward the achievement **Keeper of Tales** (all of them).
+`lore_web` (*A Strand Pulled Thin*, drow only) is a tale too, but doesn't
+count: not every race can learn it.
 
 | Piece | Where | Flag |
 |---|---|---|
@@ -146,6 +168,7 @@ and counts toward the achievement **Keeper of Tales** (all of them).
 | When the ships came; the blight; the Sundering | Loremistress Faelith, by the Moonwell | lore_ships, lore_blight, lore_sundering |
 | The sealed gates; Morvane; the night the gate opened | Archivist Zyrith, Velkarath | lore_gates, lore_morvane, lore_tremor |
 | The broken warden stone | Velkarath, east of the square | lore_shard |
+| The heartstones (warden stone; the door under the woods) | *Cut by No Elf*, sg_heart, when done | lore_heartstone |
 | The brood; the Dry Ones; the wyrms | Shaman Ithrae, Ssarakh | lore_brood, lore_dryones, lore_wyrms |
 | King Aldric's proclamation | City of Light, the street by the statues | lore_proclamation |
 | The last sailings notice | Westsea Harbour quay | lore_lastships |
@@ -238,21 +261,34 @@ Decided by flan. None of these is built yet.
 - **N. Elowen comes home to Kingshaven and refuses the crown.** She would
   rather the chair stay empty than be a prize. Morvane hunts her anyway.
   (Not built yet.)
-- **O. The Spider Queen is the Weaver of the seals.** (NOT YET IN GAME.) A
+- **O. The Spider Queen is the Weaver of the seals.** (HINTED TO DROW ONLY:
+  Priestess Ilvra's *A Strand Pulled Thin*, sg_web, speaks of her web.) A
   first-age power whose web binds the seven gates. The Drow went below to
   serve her vigil, and her mark on every drow's palm (the needle in the
   welcome rite) ties them to it: that is the "duty" the Drow speak of.
-- **P. The grey blight is a second gate wearing thin.** (NOT YET IN GAME:
-  in game, Loremistress Faelith's guess that the wind carries it stays the
-  only word.) A gate under the southern woods, near Aelindor, is thinning;
+- **P. The grey blight is a second gate wearing thin.** (PARTLY IN GAME:
+  *The Grey Beneath*. Ithrae names the heartstones warden stone in
+  *Cut by No Elf*, and once that quest is done Faelith says she was wrong
+  about the wind.) A gate under the southern woods, near Aelindor, is thinning;
   the blight is what seeps through, which is why it smells of ash and old
   iron and comes back however often the Green Wardens cut it. This is the
   gate Kraghul goes after (decision L). The Spider Queen's priests know of
-  it. Its exact place is not decided.
+  it. It lies under the withered grove, far east of Aelindor (The Grey
+  Beneath).
+
+- **Q. The shrine on the mountains west of Aelindor was a warden post.**
+  Its gargoyles are the keepers, which wake when the door below grows
+  thin, and heartstones are slivers of warden stone, cut by the lizardfolk
+  elders. A sliver can pin a gate but never shut it; only whole warden
+  stone shuts one.
 
 **Open threads these create:**
 - What Morvane will try next for the crown.
-- Which gate Kraghul goes after: the southern one (decision P). Where
-  exactly it lies, and how near it is to breaking.
+- Which gate Kraghul goes after: the southern one (decision P), under
+  the withered grove. How near it is to breaking, now it is pinned.
 - The Spider Queen (decision O): a hook for the Drow Priesthood's quests.
+- A true seal for the southern gate needs whole warden stone, and the only
+  whole one left is the Brood Stone in Ssarakh ("and it stays", Ithrae).
+- Kraghul knows someone stands in his way: his Breaker is dead and his
+  door pinned.
 - What Elowen does in Kingshaven if she won't rule.

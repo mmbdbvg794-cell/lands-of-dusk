@@ -138,6 +138,8 @@ function advance(q, i) {
   if (n(q.reward.gold)) out.push({ kind: 'gold', amount: n(q.reward.gold) });
   if (n(q.reward.exp)) out.push({ kind: 'exp', amount: n(q.reward.exp) });
   for (const item of q.reward.items ?? []) if (t(item)) out.push({ kind: 'give', item: t(item) });
+  // Flags the quest sets when it's done, besides its own (a tale learnt).
+  for (const f of Array.isArray(q.reward.flags) ? q.reward.flags : []) if (cleanFlag(f)) out.push({ kind: 'flag', flag: cleanFlag(f) });
   return out;
 }
 
