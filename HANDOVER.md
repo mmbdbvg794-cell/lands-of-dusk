@@ -2233,6 +2233,16 @@ then a restart (signs and props are read at start-up; flan was online, so
   484,38 485,36), plus the beggar at 441,54. Backup
   backups/canon-20261021-172555. Nobody was online; restarted via pct.
 
+## 2026-10-21 17:41: City of Light gate and market lines (LIVE, no restart)
+
+- Walk-ons 96-98,109 (into the city): "Be welcome in the City of Light. It
+  still stands, whatever you've heard." 96-98,112 (out; it used to say "We
+  are looking forward to your visit."): "The gate shuts behind you. Come
+  back while there's still a city to come back to." 105,152: "...Market of
+  Light. Half its stalls stand empty." 105,151: "Look around a bit; what's
+  left is still for sale." Backup backups/canon-20261021-174137, .dsko
+  removed.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,

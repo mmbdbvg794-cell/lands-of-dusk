@@ -285,9 +285,8 @@ w('''- **Elowen's homecoming** to Kingshaven (the empty throne; her letter told 
 ''')
 
 w('## 7. Waiting on flan\'s decisions\n')
-w('''**Still cheerful, not in part 2:** the City of Light's walk-on lines ("We are looking forward to your
-visit.", the Market of Light's "lots to be bought here"); the north-west village's 'Dark Star News' and
-"a town full of tweeking teleporters"; Southfield's own sign ("Visitors welcome; wolves not.").
+w('''**Still cheerful:** the north-west village's 'Dark Star News' and "a town full of tweeking
+teleporters"; Southfield's own sign ("Visitors welcome; wolves not.").
 
 **Out-of-world text left in for flan to judge:** old players' names on houses (Gatotic's, Tylk's, Lord
 Rean's, Kestron's shack, "VAX's personal merchant"); "YOU DO NOT HAVE ENOUGH CHARACTER POINTS" at a
