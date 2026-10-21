@@ -2161,7 +2161,7 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   already). /root/DUSK_LORE_BIBLE.md regenerated from live 14:29, for the
   user to put into Claude on the web.
 
-## 2026-10-21 16:50: canon cleanup, part 2 (STAGED on duskserver, not live)
+## 2026-10-21 16:50: canon cleanup, part 2 (INSTALLED 16:42 UTC; talk and walk-ons live, signs and props wait for flan's restart)
 
 The user's "CANON CLEANUP, PART 2" (decisions F-J, now in LORE.md).
 tools/server/canon_cleanup2.mjs (canon_cleanup.mjs's shape) makes a bundle
@@ -2169,7 +2169,8 @@ from a copy of live; tools/server/canon_install.sh installs it (backup
 under backups/canon-*, refuses if a file changed since: ORIG.sha256).
 Staged: duskserver ~/canon2-bundle (everything) and ~/canon2-bundle-noaged
 (without step 4's aged signs), both checked against live at 16:45.
-Install: `ssh duskserver 'sh canon_install.sh ~/canon2-bundle ~/DuskRPG'`,
+Installed the full bundle (backup backups/canon-20261021-164253) with
+`ssh duskserver 'sh canon_install.sh ~/canon2-bundle ~/DuskRPG'`,
 then a restart (signs and props are read at start-up; flan was online, so
 `restart 10` in the game; no god "save" in between).
 - Step 1: Armsmaster Doyle "fit for the Royal Guard"; keep sign 1414,337
