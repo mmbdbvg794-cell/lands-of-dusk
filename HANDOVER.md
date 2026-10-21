@@ -2006,10 +2006,30 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   Marr); shifty god items' wear scripts missing; Generic Item Post junk.
   Only 16 item kinds are owned by players. Waiting for the user's call.
 
+## 2026-10-21 00:15: item rebalance (LIVE, restart 00:15:05)
+
+- The user approved the proposal in the audit artifact (v2):
+  tools/server/fix_item_rebalance.py (applied; backups
+  item-rebalance-*): 114 defItems (mod/range/cost) + the new game file
+  gearneeds (66 items: "name|STR/DEX/INT|n", tiers mid 15 / high 30 /
+  top 45; quest-only rewards and low tier exempt). server/Classes.java:
+  needs() reads gearneeds when it changes; lacks() checks base + race bonus
+  (stre/dext/inte + *bon); wear (by number or typed name) refuses, buy warns
+  once (2 min) like the class check; gods exempt. Already-worn gear isn't
+  re-checked at login.
+- Wexley's barrow and Warden Marr's rewards: iron helmet (talk .dlg +
+  scripts, backups quest-helmet-*); kingswatch.mjs / frontier.mjs match.
+- Client: tools/iteminfo.py adds range and needs, and skips an underscored
+  twin when the spaced file exists (steel_helmet hid steel helmet's
+  numbers); js/iteminfo.js shows Range and Needs (test updated).
+- Checked on scratch (botcheck, STR 11): gold suit buy warned then bought,
+  wear refused with the message; silver suit (low) fine. Class backups
+  classes-20261021-001503.
+- Not done: the strong old-world sets keep their power (gated by 30-45
+  instead); the audit page shows the pre-change numbers plus the proposal.
+
 ## Open / ideas
 
-- Item rebalance: the 2026-10-20 audit report waits for the user's decision
-  (tier plan sketched in it).
 - Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone
   ran out of B2's free 2,500 class C calls a day (one list per directory);
   --fast-list was added to duskserver's crontab 2026-10-20 ~12:10 (old one

@@ -68,7 +68,7 @@ const QUESTS = [
       declineReply: 'Then I\'ll pray Kell can wait.',
     },
     reminder: 'Any word of Kell? The lookout is on the ridge\'s northern spur, south-west of here.',
-    reward: { gold: 60, exp: 120, items: ['steel helmet'], says: 'Take this helmet. Kell would want it worn by someone with sense.' },
+    reward: { gold: 60, exp: 120, items: ['iron helmet'], says: 'Take this helmet. Kell would want it worn by someone with sense.' },
     after: 'Kell is resting easier. If you haven\'t, go and see Old Tamsin.',
   }, [
     ['place', '', { x: LOOKOUT[0], y: LOOKOUT[1], radius: 3, what: 'the old lookout', arrive: 'The lookout\'s fire is long cold. There is blood on the stones, and tracks lead west towards the trees.', journal: 'Go to the old lookout on the ridge south-west of Eastreach and find out what happened to Scout Kell.' }],

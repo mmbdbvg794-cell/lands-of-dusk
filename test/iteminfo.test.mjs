@@ -17,4 +17,11 @@ assert.equal(armourPoints('feet', 30), '+30', 'a slot the server doesn\'t count:
 assert.deepEqual(describeItem(info, 'long_sword'), { kind: 'Weapon', lines: [['Damage', '+150'], ['Value', '100 gp']], desc: '' }, 'a description that only repeats the name is left out');
 assert.equal(describeItem(info, 'nothing'), null);
 assert.equal(describeItem(null, 'red potion'), null);
+// Range and requirements (2026-10-21 rebalance).
+{
+  const d = describeItem({ 'steel helmet': { type: 'armor', kind: 'skull', mod: 150, needs: 'STR 30' }, 'cheap bow': { type: 'ranged', mod: 140, range: 4 } }, 'steel helmet');
+  assert.deepEqual(d.lines.find((l) => l[0] === 'Needs'), ['Needs', 'Strength 30']);
+  const b = describeItem({ 'cheap bow': { type: 'ranged', mod: 140, range: 4 } }, 'cheap bow');
+  assert.deepEqual(b.lines.find((l) => l[0] === 'Range'), ['Range', '4 squares']);
+}
 console.log('ok - iteminfo');

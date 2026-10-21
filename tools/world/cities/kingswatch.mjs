@@ -106,7 +106,7 @@ const QUESTS = [
       declineReply: 'Wise. Grow a little first, and come back.',
     },
     reminder: 'The barrow is in the hidden valley in the hills north-east. Put the dead to rest.',
-    reward: { gold: 200, exp: 450, items: ['steel helmet'], says: 'A steel helmet, the Captain\'s own spare. She insisted.' },
+    reward: { gold: 200, exp: 450, items: ['iron helmet'], says: 'An iron helmet, the Captain\'s own spare. She insisted.' },
     after: 'The valley is quiet again. Kingshaven owes you more than it will ever say.',
   }, [
     ['place', '', { x: BARROW[0], y: BARROW[1], radius: 5, what: 'the barrow', arrive: 'A low mound of old stones, its door broken open from the inside. The air is cold, and something moves in the dark.', journal: 'Find the old barrow in the hidden valley in the hills north-east of Kingshaven.' }],

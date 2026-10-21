@@ -559,6 +559,52 @@ public class Classes {
         return null;
     }
 
+    // ---- what stronger gear needs (the 2026-10-21 item rebalance) ----------
+    // The game file gearneeds: "<item name>|<STR, DEX or INT>|<points>" per
+    // line, # for comments, read again when it changes. Wearing an item you
+    // don't meet is refused; buying one warns first, like the class check.
+    // The stat counts with race bonuses, as the engine's damage roll does.
+    static final File NEEDS = new File("gearneeds");
+    static long needsRead = -1;
+    static Map<String, String[]> needs = new Hashtable<String, String[]>();
+
+    static synchronized Map<String, String[]> needs() {
+        long at = NEEDS.lastModified();
+        if (at != needsRead) {
+            Map<String, String[]> m = new Hashtable<String, String[]>();
+            try {
+                if (NEEDS.exists()) for (String l : Files.readAllLines(NEEDS.toPath(), java.nio.charset.StandardCharsets.ISO_8859_1)) {
+                    l = l.trim();
+                    if (l.isEmpty() || l.startsWith("#")) continue;
+                    String[] f = l.split("\\|");
+                    if (f.length == 3) m.put(f[0].trim().toLowerCase(), new String[] { f[1].trim().toUpperCase(), f[2].trim() });
+                }
+            } catch (Exception e) {
+                Log.logError(e, "Classes: reading gearneeds", false);
+            }
+            needs = m;
+            needsRead = at;
+        }
+        return needs;
+    }
+
+    static final String[][] NEED_STATS = { { "STR", "stre", "Strength" }, { "DEX", "dext", "Dexterity" }, { "INT", "inte", "Intelligence" } };
+
+    // Null when who can use item; else what they lack, as a sentence.
+    static String lacks(LivingThing who, Item item, String verb) {
+        if (item == null || item.strName == null || exempt(who)) return null;
+        String[] n = needs().get(item.strName.toLowerCase().replace('_', ' '));
+        if (n == null) return null;
+        for (String[] st : NEED_STATS) {
+            if (!st[0].equals(n[0])) continue;
+            int want, have = who.attributes.getStat(st[1]) + who.attributes.getStat(2, st[1] + "bon");
+            try { want = Integer.parseInt(n[1]); } catch (Exception e) { return null; }
+            if (have >= want) return null;
+            return "You need " + want + " " + st[2] + " to " + verb + " the " + item.strName + "; you have " + have + ".";
+        }
+        return null;
+    }
+
     // Buying gear the class can't use: warned first, and the same buy again
     // within two minutes goes through (the shop sells it all the same).
     static final long WARNED_FOR = 2 * 60 * 1000L;
@@ -567,7 +613,6 @@ public class Classes {
     static String buy(LivingThing who, DuskEngine engine, String line) {
         try {
             Def c = of(who);
-            if (c == null || c.wears == null) return null;
             // "buy <qty> <name>", as the engine reads it.
             String rest = line.substring(3).trim();
             int sp = rest.indexOf(' ');
@@ -578,14 +623,17 @@ public class Classes {
             if (shop == null || !shop.contains(name)) return null;
             Item item = engine.getItem(name);
             if (item == null || (item.intType != 1 && item.intType != 2 && item.intType != 5)) return null;
+            String why = lacks(who, item, "use");
             String kind = kindOf(item);
-            if (c.wears.contains(kind)) return null;
+            if (why == null && c != null && c.wears != null && !c.wears.contains(kind))
+                why = "A " + nameFor(c, who) + " can't use " + kindWords(kind) + ", so you couldn't wear the " + item.strName + ".";
+            if (why == null) return null;
             String key = who.strName.toLowerCase() + "|" + name.toLowerCase();
             Long at = warned.remove(key);
             long now = System.currentTimeMillis();
             if (at != null && now - at < WARNED_FOR) return null;
             warned.put(key, now);
-            return "Careful: a " + nameFor(c, who) + " can't use " + kindWords(kind) + ", so you couldn't wear the " + item.strName + ". Buy it again to buy it anyway.";
+            return "Careful: " + why + " Buy it again to buy it anyway.";
         } catch (Exception e) {
             return null; // the engine's own buy
         }
@@ -611,14 +659,17 @@ public class Classes {
 
     static String wear(LivingThing who, String what) {
         Def c = of(who);
-        if (c == null || c.wears == null) return null;
         Item item;
         try {
-            item = who.items.getItem(Integer.valueOf(what));
+            // By number (the browser's buttons) or by name (typed).
+            item = what.matches("\\d+") ? who.items.getItem(Integer.valueOf(what)) : who.items.getItem(what, 0);
         } catch (Exception e) {
             return null; // the engine's own answer
         }
         if (item == null || (item.intType != 1 && item.intType != 2 && item.intType != 5)) return null;
+        String why = lacks(who, item, item.intType == 2 ? "wear" : "wield");
+        if (why != null) return why;
+        if (c == null || c.wears == null) return null;
         String kind = kindOf(item);
         if (c.wears.contains(kind)) return null;
         return "A " + nameFor(c, who) + " can't use " + kindWords(kind) + " (the " + item.strName + ").";

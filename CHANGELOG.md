@@ -675,6 +675,20 @@ What they ran into is fixed:
 - **The Bank of Velkarath** is one room: the counter runs wall to wall, so
   there's no dead-end back room to get lost in. The teller answers across
   it as before.
+- **Weapons and armour rebalanced** (low, mid, high and top tiers):
+  - Bows reach 3 to 6 squares (some reached 25), and hit a little softer
+    than swords of the same price.
+  - Crafted gear is at least as good as shop gear of its material (the
+    bronze breastplate now beats the shop's bronze suit).
+  - Prices follow power: 25 gp per point of real armour, and weapons by
+    their damage. The leather vest is 200 gp (was 832), the crystal helmet
+    500 (was 40,000).
+  - Stronger gear needs a stat to wear: 15 for mid tier, 30 for high, 45
+    for top (Strength; Dexterity for bows, Intelligence for staves). The
+    shops warn you before you buy, and item details show "Needs" and a
+    bow's range. Quest rewards and starter gear need nothing.
+  - Sergeant Wexley and Warden Marr give an iron helmet instead of a steel
+    one.
 - **Shorter lines everywhere.** Guards in Kingshaven and Chieftain Hesska
   in Ssarakh greet you briefly and offer topics (city, harbour, work,
   ships...) instead of one long speech. The Matron, the Elf Guard, the

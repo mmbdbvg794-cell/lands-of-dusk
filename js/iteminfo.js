@@ -29,6 +29,9 @@ export function describeItem(info, name) {
   else if (i.type === 'armor') kind = SLOT_WORDS[i.kind] ?? 'Armour';
   if ((i.type === 'weapon' || i.type === 'ranged') && i.mod) lines.push(['Damage', `+${i.mod}`]);
   if (i.type === 'armor' && i.mod) lines.push(['Armour', armourPoints(i.kind, i.mod)]);
+  if (i.type === 'ranged' && i.range > 0) lines.push(['Range', `${i.range} squares`]);
+  // What stronger gear needs to be worn (the server's gearneeds file).
+  if (i.needs) lines.push(['Needs', i.needs.replace(/^STR /, 'Strength ').replace(/^DEX /, 'Dexterity ').replace(/^INT /, 'Intelligence ')]);
   if (i.uses > 0) lines.push(['Uses', String(i.uses)]);
   if (i.cost > 0) lines.push(['Value', `${i.cost.toLocaleString('en')} gp`]);
   // A description that only says the name again ("a long sword") is left out.
