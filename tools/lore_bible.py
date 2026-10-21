@@ -214,7 +214,7 @@ for ln in open(os.path.join(D, 'worldbosses')):
 w('- Every ~3 h (±1 h) one rises for 60 min. Rewards 300 gold, 800 exp, trophy, 25% rare.\n')
 
 w('## 5. NPCs and their everyday dialogue\n')
-w('_Non-quest conversation of every scripted NPC (quest lines are in section 3). '
+w('_Non-quest conversation of every scripted NPC, and what each says once its quests are done (quest lines are in section 3); a player gets the first stage that fits. '
   'Bounty posters omitted. Format: greeting, then *answer* → reply._\n')
 
 def render_node(says, answers, ind, seen):
@@ -242,7 +242,10 @@ names = sorted(os.path.basename(f)[:-4] for f in glob.glob(os.path.join(D, 'talk
 for n in names:
     if n.endswith('Bounty'): continue
     d = json.load(open(os.path.join(D, 'talk', n + '.dlg')))
-    stages = [s for s in d.get('stages', []) if not s.get('quest')]
+    # Its own stages, and what it says once each of its quests is done
+    # (a finished chain's NPC can talk differently: Old Bryn after the drum).
+    done = lambda s: s.get('when', {}).get('kind') == 'flag' and str(s['when'].get('value', '')).endswith('_done')
+    stages = [s for s in d.get('stages', []) if not s.get('quest') or done(s)]
     if not stages: continue
     w(f'### {n}')
     seen = set()

@@ -2290,6 +2290,19 @@ then a restart (signs and props are read at start-up; flan was online, so
 - defMoveActions/504_13 (set gp 0, "HAHA!"; probably out of reach) and its
   .dsko deleted. Backup backups/canon-20261021-182719.
 
+## 2026-10-21 19:11: Recruiter's skip answer; the bible shows after-quest stages
+
+- Recruiter (live, no restart): "Fresh? No just show me the door." is now
+  "No. Just show me the door." (also takes "no just show me the door").
+  Backup backups/canon-20261021-191104.
+- lore_bible.py section 5 now includes each NPC's quest-done stages (36 in
+  17 NPCs), so Bryn's and Garrick's gs_knocking_done lines show (they're
+  tagged with the quest, which the dump skipped). Live's Bryn/Garrick/Dagna
+  talk files are byte-identical to scratch's, where they were played.
+- Finale strength 70 dates from 1cd8024 (2026-10-07, "Monster strength by
+  tier... 28 / 40 / 55 / 70"); the 42-45 in plan headers was stale. No
+  defMobs file has changed since.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
