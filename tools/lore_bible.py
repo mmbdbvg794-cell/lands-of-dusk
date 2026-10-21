@@ -32,6 +32,7 @@ CHAINS = [
     ('zl', 'The Zilen Legacy (City of Light)', 'zilen.mjs'),
     ('iz', 'The Izaru Deeps (Midnight)', 'izaru.mjs'),
     ('fr', 'The Frozen Reach (east field village)', 'frozenreach.mjs'),
+    ('gs', 'The Old Drift (Greystone Mine)', 'greystone.mjs'),
 ]
 quests = {}
 for f in glob.glob(os.path.join(D, 'quests/*.json')):
@@ -88,7 +89,7 @@ def quest_md(q, lvl='####'):
 # ---------------------------------------------------------------- doc
 w('# Dusk — World Bible & Lore Compendium')
 w('')
-w('_Generated 2026-10-15 from the live server (quests, NPC dialogue) and the build repo (city plans, LORE.md). '
+w('_Generated 2026-10-21 from the live server (quests, NPC dialogue) and the build repo (city plans, LORE.md). '
   'This is everything that exists in the game so far. Use it to plan new lore and write build prompts for Claude Code._')
 w('')
 w('## 0. How to use this document (for Claude on the web)')
@@ -143,7 +144,7 @@ w('''### Geography (map coordinates are x,y)
 - **The new lands (east, across the sea):**
   - *North continent:* **Kingshaven** (human capital, built from the refugee ships, ~1388-1485 x 320-397;
     plaza, keep with the empty throne (Lord Steward Halvard governs beside it), Lantern Row houses to rent, harbour, Watch post at the east gate,
-    Duelling Ring to the north-east), **Greystone Mine** (in the mountains ~200 steps north; working mine, no quests yet).
+    Duelling Ring to the north-east), **Greystone Mine** (in the mountains ~200 steps north; working mine; quest chain *The Old Drift*, duergar in the Grey Delve below).
   - *South continent:* **Aelindor** (elven city in a ring of old oaks, the Moonwell; ~425-510 x 1175-1280),
     the Grove of Waking (elf tutorial), The Circle's wood and grove (druids, standing stones, ~705,1218).
   - *Underdark (beneath):* **Velkarath** (drow outpost, Temple of the Spider Queen, the Fire Well, Ember Hollow).
@@ -198,7 +199,7 @@ for qid in order(other):
 
 w('### Script-based quests and places (not in the quest system)\n')
 for mjs in ['swamp.mjs', 'fireorb.mjs', 'gauntlet.mjs', 'grove.mjs', 'hatchery.mjs', 'velkarath.mjs',
-            'aelindor.mjs', 'capital.mjs', 'eastreach.mjs', 'ssarakh.mjs', 'westsea.mjs', 'greystone.mjs',
+            'aelindor.mjs', 'capital.mjs', 'eastreach.mjs', 'ssarakh.mjs', 'westsea.mjs',
             'circlewood.mjs', 'circlegrove.mjs', 'magetower.mjs', 'magetowerfloors.mjs', 'drowtemple.mjs',
             'arena.mjs', 'swampmobs.mjs', 'worldbosses.mjs', 'achievements.mjs', 'guildstubs.mjs']:
     p = os.path.join(CITIES, mjs)
@@ -273,7 +274,7 @@ w('''- **Elowen's homecoming** to Kingshaven (the empty throne; her letter told 
 - **Why Morvane wanted his father's crown**: his agent paid the robber boss to fetch it (SECRET: players
   only get Aldous's hint, "Someone paid for this one"; never name Morvane for it in game).
 - **Guild invitation quests**: Mage Guild, The Circle; the Hidden Order and tier-5 quests (forbidden lore, archmage, archdruid).
-- **Greystone Mine**: Overseer Garrick's "Any work?", Old Bryn's knocking below the deep seam, the caved-in Old Drift; no monsters yet.
+- **The duergar**: they killed Jhaelra's patrol near Velkarath and dug up under Greystone Mine (Thrumgar's Grey Delve). Where they come from, whether the Delve's tunnels reach Velkarath's caverns, and why they began digging toward the surface now, are open.
 - **Old-world signposting**: Midnight/Izaru reachable only via Westsea and a tree hole; nothing points players there.
 - Rogue class (later). Owned ships (on hold). The Fairy King's sealed glade.
 - Old unfinished items: crystal box, nova package, bloody book (expensive shop items with no use).
@@ -281,7 +282,6 @@ w('''- **Elowen's homecoming** to Kingshaven (the empty throne; her letter told 
 
 w('## 7. Waiting on flan\'s decisions (from the 2026-10-15 canon cleanup)\n')
 w('''**Kingshaven lines that still imply a king or an old city** (not changed yet):
-- The keep's sign (1414,337): "The Royal Keep of Kingshaven. King Aldric holds court within." (contradicts Halvard)
 - Armsmaster Doyle: "Silver, gold and plate, fit for the king's own guard."
 - Old Fisher Tam: "Fifty years I've fished this shore." (the city is 40 years old)
 - The King's Watch: its sign (1504,346) and Sergeant Wexley's description ("of the King's Watch").
@@ -306,10 +306,10 @@ towns elder"; Reeve Osric is the reeve); old player graffiti and builders' notes
 "Xyphoid is probally working on this"); the human tutorial says you just stepped off the boat at
 Westsea, then sends you "across the sea" to Kingshaven.
 
-**Engine quirk to design around**: a quest's "after" line is only heard after the LAST quest a giver
-has (the next quest's offer always comes first). So Aldous's "Whoever paid for it will want it again"
-(zl_crown), Osric's fr_wolves line and Dask's iz_slimes line, and Dask's own greeting, are never
-heard. Put hints you need players to hear in a turn-in reply, an offer, or an NPC answer instead.
+**How quest lines join up** (checked 2026-10-21 on Greystone): when a giver has a next quest, the
+last quest's "after" line is said first and the next offer straight after it, in one speech ("The carts
+run again. Those crawlers came from somewhere..."). Reminders and "after" lines are followed by the NPC's
+everyday greeting. So keep "after" lines short, and don't let a later offer repeat them.
 ''')
 
 open(OUT, 'w').write('\n'.join(o) + '\n')

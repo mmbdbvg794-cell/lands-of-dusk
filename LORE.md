@@ -97,6 +97,29 @@ and add to it here first.
   torn. They all woke when the gate opened. They are old to humans but young
   to dragonkind: elder dragons exist elsewhere (Ithrae: "Old, you call them?
   To you. The brood remembers their mothers.").
+- **The duergar** (grey dwarves) live deep below and dig upward. In
+  Velkarath's caverns they raid the Drow (*The Deep Patrol*: they killed
+  Jhaelra's lost patrol). Under Greystone Mine they are cutting toward the
+  mithril of the deep seam (*The Old Drift*, below).
+
+## Greystone Mine (greystone.mjs, *The Old Drift*)
+
+- The refugees' mine in the hills north of Kingshaven. **Overseer Garrick**
+  runs it; **Old Bryn** has swung a pick there for forty years.
+- **The Old Drift** caved in twenty years ago with six miners inside, among
+  them Bryn's brother **Wil Ashby**. It was never dug out. Scratched in the
+  rock at its end: "SIX OF US. AIR GOING. THEY ARE DIGGING. NOT OURS. W.A."
+  The duergar's digging brought the roof down.
+- For about a year Bryn has heard **knocking** below the deep seam. It is the
+  great iron drum of **Thrumgar the Grey Warlord**, beating time for the
+  duergar digging up from the **Grey Delve**, a hall cut square under the
+  drift. Tunnel crawlers driven up into the old sump were the first sign.
+- In the quests: crawlers in the sump; the drift opened, the delvers at its
+  end, and Wil's brass lamp brought home to Bryn; then Thrumgar killed and
+  the drum silenced ("First quiet in a year. Wil can rest.").
+- **Open threads:** where the duergar come from, and whether the Grey
+  Delve's tunnels run down to the caverns round Velkarath; why they began
+  digging toward the surface now.
 
 ## Where the pieces are (tools/world/cities/lore.mjs)
 
