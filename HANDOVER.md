@@ -2135,6 +2135,10 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   The lamp has cost 30 (sells for 15; cost 0 can't be sold), added 15:28
   straight into live and scratch defItems (getItem reads the file each
   time: no restart). No player had one yet.
+- Old Fisher Tam (capital.mjs): "Forty years I've fished this shore, since
+  the ships came." Live talk/ script + .dlg edited 15:3x (backup
+  backups/fisher-tam-*, .dsko removed, no restart); dropped from
+  lore_bible.py section 7; /root/DUSK_LORE_BIBLE.md regenerated.
 - The mine's rock is now tile 98 (end of the build), like Velkarath; the
   new halls are built after the veins, so the 21 veins didn't move (props:
   29 added, 34 already there). mayBuild is now () => true (the whole box is

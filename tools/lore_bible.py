@@ -283,7 +283,6 @@ w('''- **Elowen's homecoming** to Kingshaven (the empty throne; her letter told 
 w('## 7. Waiting on flan\'s decisions (from the 2026-10-15 canon cleanup)\n')
 w('''**Kingshaven lines that still imply a king or an old city** (not changed yet):
 - Armsmaster Doyle: "Silver, gold and plate, fit for the king's own guard."
-- Old Fisher Tam: "Fifty years I've fished this shore." (the city is 40 years old)
 - The King's Watch: its sign (1504,346) and Sergeant Wexley's description ("of the King's Watch").
 - Mild: Minstrel Fenwick's song ("the king had a crown and the crown had a king"), the Royal Teller
   ("safe with the crown"), the Harbourmaster ("pays its due to the crown"), the Shipwright ("when the crown pays").

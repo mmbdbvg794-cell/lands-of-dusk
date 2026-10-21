@@ -509,7 +509,7 @@ export default {
       PR('bed', x + 1, y + 1);
       if (who) NPC({ ...who, x: x + 3, y: y + 2 });
     };
-    hut(1452, 408, ['s', 3], { name: 'Old Fisher Tam', look: 'hermit', desc: 'Tam, mending nets on his doorstep.', dlg: talk('Fifty years I\'ve fished this shore. The fish get smaller and the stories get bigger.') });
+    hut(1452, 408, ['s', 3], { name: 'Old Fisher Tam', look: 'hermit', desc: 'Tam, mending nets on his doorstep.', dlg: talk('Forty years I\'ve fished this shore, since the ships came. The fish get smaller and the stories get bigger.') });
     hut(1459, 411, ['s', 3]);
     hut(1466, 414, ['s', 3], { name: 'Netmaker Ilse', look: 'Villager Woman', desc: 'Ilse the netmaker.', dlg: talk('A good net catches fish. A great net catches gossip.') });
     hut(1472, 419, ['w', 2]);

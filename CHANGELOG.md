@@ -635,6 +635,8 @@ backups; see `server/`.
   delvers with picks); Thrumgar wears a horned helm and a gold-trimmed
   shield.
 - Spare brass lamps (the delvers keep dropping them) sell for 15 gp.
+- Old Fisher Tam in Kingshaven has fished its shore forty years, since the
+  ships came (not fifty: the city is forty years old).
 
 ## From the play-tests (15–21 October 2026)
 
