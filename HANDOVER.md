@@ -2303,6 +2303,21 @@ then a restart (signs and props are read at start-up; flan was online, so
   tier... 28 / 40 / 55 / 70"); the 42-45 in plan headers was stale. No
   defMobs file has changed since.
 
+## 2026-10-21 19:45: canon decisions K-N (lore only, nothing built)
+
+- LORE.md "Canon decisions (2026-10-21, pillars)": K Morvane wants the
+  crown and the chair (not in game); L the Morvane/Kraghul pact broken;
+  M Aldric's fate deliberately undecided; N Elowen comes home and refuses
+  the crown (to be built). lore_bible.py section 6 updated; bible
+  regenerated.
+- Engine check for N (report only): per-player visibility exists only for
+  creatures and players (conf/canSeeLivingThing, run in
+  DuskEngine.refreshEntities/addEntity/removeEntity behind an instanceof
+  LivingThing check). Props, so every talking NPC, are sent to everyone
+  in view. Options are in the 2026-10-21 report: a small patch (a "shown
+  if" flag in defProps, checked in refreshEntities and Talk) is the
+  recommended one.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,

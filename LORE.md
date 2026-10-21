@@ -70,8 +70,9 @@ and add to it here first.
   keep the chair warm for me; keep the people warm." She stays in Firetown
   until she can walk the passage. (Per player: the rift is closed in each
   player's own story.)
-  **Open threads:** Elowen coming home to Kingshaven; Kraghul and the Horde
-  still in the dunes above Eastreach; Morvane, still risen.
+  **Open threads:** Elowen coming home to Kingshaven (decision N);
+  Kraghul and the Horde still in the dunes above Eastreach (decision L);
+  Morvane, still risen (decision K).
 - New human characters are refugees still in the old world (decision I):
   the tutorial ("From Refugee to Soldier...") is at Westsea Harbour, where
   they wait for a berth east, enlist and are trained; the teleport stone
@@ -187,8 +188,9 @@ Decided by flan; live NPC dialogue follows them.
   and flags did not change.
 
 **Open threads these create:**
-- What happened to King Aldric (dead, missing, taken?).
-- Why Morvane wanted his father's crown.
+- What happened to King Aldric (dead, missing, taken?). Left open on
+  purpose (decision M).
+- Why Morvane wanted his father's crown. (Answered by decision K.)
 - The elder dragons: where they are, and what they make of the young wyrms.
 
 ## Canon decisions (2026-10-21)
@@ -213,3 +215,30 @@ Decided by flan (canon cleanup, part 2).
   their digging brought the Old Drift's roof down, then they went quiet.
   About a year ago the drum began again. The open thread is why they came
   back.
+
+## Canon decisions (2026-10-21, pillars)
+
+Decided by flan. None of these is built yet.
+
+- **K. Morvane wants the crown and the chair.** (NOT YET IN GAME: no NPC
+  states this.) The crown of Zilen commands the kingdom's dead: that is
+  why the dead marched in the old king's colours (Old Wenna's father).
+  Morvane never needed the fire; he needs to be crowned. His agent bought
+  King Zilen's crown (decision C), and Aldous's "Whoever paid for it will
+  want it again" stands. Kingshaven's empty throne is his prize: the dead
+  are his, and the chair would give him the living.
+- **L. The pact between Morvane and Kraghul is broken.** With the Firetown
+  rift shut, Kraghul and his Horde are stranded on this side of the sea
+  and want a gate opened; Morvane wants the gates kept shut, because the
+  Horde is now his rival. Kraghul's story is the gates; Morvane's is the
+  crown.
+- **M. King Aldric's fate is deliberately undecided.** Build nothing that
+  answers it.
+- **N. Elowen comes home to Kingshaven and refuses the crown.** She would
+  rather the chair stay empty than be a prize. Morvane hunts her anyway.
+  (Not built yet.)
+
+**Open threads these create:**
+- What Morvane will try next for the crown.
+- Which gate Kraghul goes after.
+- What Elowen does in Kingshaven if she won't rule.
