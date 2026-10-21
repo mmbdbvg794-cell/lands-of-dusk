@@ -2254,6 +2254,16 @@ then a restart (signs and props are read at start-up; flan was online, so
   backups/canon-20261021-175238. Left: scripts/news2 ("vortanian news",
   a player's quest note).
 
+## 2026-10-21 18:02: the Vortanian news (LIVE, no restart)
+
+- scripts/news2 (was Gatotic's player note) is now "The Vortanian Crier":
+  the two trials, the top one harder with the stronger weapon. Item
+  "vortanian news" (name kept: it's the ID) described as the Crier;
+  walk-on 200,900 "You pick up a copy of the Vortanian Crier. No one has
+  printed a newer one." "Vortania" as the town's name is new (the old
+  files spelt it vortanian/voration/votanian). Backup
+  backups/canon-20261021-180234.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
