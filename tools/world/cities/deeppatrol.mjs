@@ -64,15 +64,15 @@ const QUESTS = [
     offer: {
       says: 'You. The Matron\'s newest blade. Cave slimes have crept into the north-east cavern and are fouling the water we draw there. Clear them, and I\'ll know whether you\'re worth a place on my patrol.',
       accept: 'I will clear them',
-      acceptReply: 'The cavern is north-east of the town. Five should do. Don\'t let them touch your boots.',
+      acceptReply: 'The cavern is north-east of the town, up the temple\'s east side. Five should do. Don\'t let them touch your boots.',
       decline: 'Not now',
       declineReply: 'Then stay out of my way.',
     },
-    reminder: 'The slimes are still in the north-east cavern.',
+    reminder: 'The slimes are still in the north-east cavern, up the temple\'s east side.',
     reward: { gold: 40, exp: 60, items: ['leather gloves'], says: 'Take these gloves. Slime eats leather slower than skin.' },
     after: 'The water runs clean. You may yet be worth something.',
   }, [
-    ['kill', '', { mob: 'cave slime', count: 5, what: 'cave slimes destroyed', journal: 'Destroy 5 cave slimes in the cavern north-east of Velkarath.' }],
+    ['kill', '', { mob: 'cave slime', count: 5, what: 'cave slimes destroyed', journal: 'Destroy 5 cave slimes in the cavern north-east of Velkarath, up the temple\'s east side.' }],
     ['talk', JHAELRA, { says: 'Well?', answer: 'The water is clean', reply: 'Good. I heard you didn\'t run. That matters more.', journal: 'Report to Patrol Leader Jhaelra, near the Fire Well.' }],
   ]),
 
@@ -108,7 +108,7 @@ const QUESTS = [
       decline: 'Not yet',
       declineReply: 'Sharpen yourself first. A dragon is a dragon, however young.',
     },
-    reminder: 'The Ember Hollow, by the lava south-east. The slimes, then the dragon.',
+    reminder: 'The Ember Hollow, by the lava south-east: south down the Pit\'s east side. The slimes, then the dragon.',
     reward: { gold: 200, exp: 450, items: ['steel plate mail'], says: 'Plate mail, made for a Patrol Leader. I have another.' },
     after: 'They\'re singing your name in the House. Don\'t let it go to your head.',
   }, [

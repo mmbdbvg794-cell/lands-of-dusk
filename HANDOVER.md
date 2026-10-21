@@ -2028,6 +2028,42 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
 - Not done: the strong old-world sets keep their power (gated by 30-45
   instead); the audit page shows the pre-change numbers plus the proposal.
 
+## 2026-10-21 03:14: play-test 7 fixes (LIVE, restart 03:14:12)
+
+- Run 7: a dark elf Ranger (Velithra), notes + transcript in
+  ~/dusk-playtest/archive/run7. It spent most of the hour lost in
+  Velkarath and never reached Aelindor. Every place it looked for is
+  reachable (checked by walking the map's walkable tiles); what it was
+  told didn't get it there.
+- tools/server/fix_playtest7.py (28 files, backups playtest7-*):
+  - the guard: names the shops by the Fire Well (the tester took the south
+    street for "the main street"), says Dral trains in the Pit, and the
+    Caves answer gives the way to the slime and duergar caverns; his
+    passing line (.greet) is "Walk softly, Drow. Talk to me if you are
+    lost." (was "Keep your blade sheathed", read as a telling-off)
+  - where to train: Zeerith and the Matron's last line name Weaponmaster
+    Dral in the Pit (301 exp went unspent)
+  - the dens: the bounties, the Deep Patrol and the journal add "up the
+    temple's east side" (north-east cavern), "round behind the Black
+    Lantern" (north-west cavern), "south down the Pit's east side" (Ember
+    Hollow)
+  - the stairs: the sign at each stair's foot names the stair and the way
+    to the city; the tunnel signposts say the stair is at the end of the
+    tunnel; climbing the west stair says Aelindor Landing lies north-east
+    (the tester walked north, away from it), the east stair Eastreach east.
+    The game runs defMoveActions/<x>_<y>; tileactions/*.json is the God
+    tab's copy (both changed)
+  - Armsmaster Quave names what he gives
+- velkarath.mjs (STAIRS up/below), bounties.mjs and deeppatrol.mjs match.
+  Checked on scratch with Velrith: guard answers, signs, the west stair.
+- Not changed (the tester's other points): the slow goto was the tester
+  pausing (no command for 70 s); the classic prompt says "Priest" because
+  it comes before the sex is chosen; arrows (a thing you use to shoot) are
+  described only as "an arrow"; the Archivist says "mire-folk" where the
+  journal says "lizardfolk" (lore, kept); the bot legend's walls-as-
+  cobblestones (open item). Velkarath feels big and empty (a big plaza,
+  ~10 identical houses): the user's call.
+
 ## Open / ideas
 
 - Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone
@@ -2036,10 +2072,10 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   in ~/crontab-before-fastlist.bak). ~/DuskRPG/rclone_backup.log should
   have no "Transaction cap" lines on the 21st; if it does, cut the
   frequency or add --max-age. Then check the account zips reach the bucket.
-- Play-tests: runs 1-6 in ~/dusk-playtest/archive/runN (notes + transcript).
-  Run 7 could be a lizardfolk again (run 3) to check Ssarakh, or a dark
-  elf to see if the new signs get one to Eastreach; brief-run6.md as the
-  template; scratch is stopped (tools/scratch.sh setup, then start). Block
+- Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes + transcript,
+  brief). Run 8 could be a lizardfolk (run 3) to check Ssarakh, or a dark
+  elf again to see if run 7's directions get one to the dens and Aelindor;
+  archive/run7/brief-run7.md as the template; scratch is stopped (tools/scratch.sh setup, then start). Block
   archive/** and the briefs in the launch line.
 - Class and level ideas the user raised (not started): choosing the class
   at the end of the tutorial instead of at creation; a level system (maybe

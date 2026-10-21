@@ -36,9 +36,9 @@ const BOARDS = [
     ['blighted wolf', 4, 'Blighted Wolf Bounty', 'in the withered grove far to the east'],
   ] },
   { id: 'vk', town: 'Velkarath', at: [1344, 907], posts: [[1338,  907],  [1341,  907],  [1344,  907]], jobs: [
-    ['cave slime', 6, 'Cave Slime Bounty', 'in the north-east cavern'],
-    ['duergar soldier', 5, 'Duergar Bounty', 'at the mouth of the north-west cavern'],
-    ['magma slime', 4, 'Magma Slime Bounty', 'in the Ember Hollow'],
+    ['cave slime', 6, 'Cave Slime Bounty', 'in the north-east cavern, up the temple\'s east side'],
+    ['duergar soldier', 5, 'Duergar Bounty', 'at the mouth of the north-west cavern, round behind the Black Lantern'],
+    ['magma slime', 4, 'Magma Slime Bounty', 'in the Ember Hollow, south down the Pit\'s east side'],
   ] },
   { id: 'er', town: 'Eastreach', at: [1675, 1305], posts: [[1669,  1305],  [1672,  1305],  [1675,  1305]], jobs: [
     ['Lizard', 8, 'Lizard Bounty', 'in the scrub round the town'],

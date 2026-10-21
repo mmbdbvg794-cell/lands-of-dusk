@@ -613,9 +613,9 @@ backups; see `server/`.
   stand in to a clan (its doors then let only members in); `claimhall
   <hall> none` frees it.
 
-## From the play-tests (15–20 October 2026)
+## From the play-tests (15–21 October 2026)
 
-Five AI play-testers played new characters of each race from the start.
+Seven AI play-testers played new characters of each race from the start.
 What they ran into is fixed:
 
 - **Talking to NPCs.** Answering an NPC's question no longer swallows other
@@ -662,6 +662,11 @@ What they ran into is fixed:
   to see next. Tutorial trainers take the stuffing at once if you beat a
   dummy before talking to them, and their gates say "come and see me first".
   The tutorial shopkeepers stand behind their counters.
+  In Velkarath, the guard names the shops by the Fire Well and says where
+  to train (Weaponmaster Dral, in the Pit), the bounties and the Deep
+  Patrol say how to reach their caverns, each stair's foot is signed with
+  its name, and climbing the west stair says Aelindor Landing lies
+  north-east.
 - **Quests.** Ilsevel in Aelindor sets a task (a gloom hound's fang from the
   den north-west of the city) before her blessing. In Velkarath, Matron
   Xalyth's rite now makes a hatchling a Drow of House Xalyth.

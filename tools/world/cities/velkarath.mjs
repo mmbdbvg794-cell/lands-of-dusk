@@ -14,9 +14,12 @@ const RACE_ONLY = { kind: 'race', flag: 'darkelf', speaker: 'A voice in the dark
 // the square in front of it) and where it comes out below (plan
 // coordinates: the stair up, the square you arrive on).
 const STAIRS = [
-  { name: 'west', mouth: [391, 1236], front: [392, 1236], stair: [9, 60], arrive: [10, 60] },
-  { name: 'south', mouth: [686, 1484], front: [686, 1485], stair: [80, 130], arrive: [80, 129] },
-  { name: 'east', mouth: [1489, 1407], front: [1488, 1407], stair: [162, 72], arrive: [161, 72] },
+  { name: 'west', mouth: [391, 1236], front: [392, 1236], stair: [9, 60], arrive: [10, 60],
+    up: ' Aelindor Landing and its ships lie north-east.', below: 'The west stair: up to the surface beside Aelindor and its ships. Velkarath is east, along the tunnel.' },
+  { name: 'south', mouth: [686, 1484], front: [686, 1485], stair: [80, 130], arrive: [80, 129],
+    up: '', below: 'The south stair: up to the wild southern hills. Velkarath is north, along the tunnel.' },
+  { name: 'east', mouth: [1489, 1407], front: [1488, 1407], stair: [162, 72], arrive: [161, 72],
+    up: ' Eastreach lies a long walk east.', below: 'The east stair: up to the hills, a long walk west of Eastreach. Velkarath is west, along the tunnel.' },
 ];
 const ORIGIN = [1260, 850];
 
@@ -75,7 +78,7 @@ const QUEST = 'Blood of the Deep';
 const MATRON = {
   shouts: ['Kneel before House Xalyth.'],
   stages: [
-    ifFlag('velkarath_done', 'Serve well. Hunt for the bounty board, or climb the east stair and learn what the surface folk are building at Eastreach.'),
+    ifFlag('velkarath_done', 'Serve well. Train with Weaponmaster Dral in the Pit, hunt for the bounty board, or climb the east stair and learn what the surface folk are building at Eastreach.'),
     ifFlag('velkarath_marked', 'The Spider\'s mark is on your hand. Good.', [
       {
         label: 'It is done',
@@ -149,11 +152,11 @@ const TRAINER = shop(
 // Short, with a topic to pick (the user, 2026-10-20: one long speech was
 // too much to read). tools/server/fix_velkarath_guard.mjs puts it on live.
 export const GUARD = {
-  shouts: ['Keep your blade sheathed in Velkarath.', 'The Matron sees all.'],
+  shouts: ['Walk softly, Drow. Talk to me if you are lost.', 'The Matron sees all.'],
   stages: [always('Keep your blade sheathed, Drow. What do you need?', [
-    { label: 'City', reply: 'The palace is north of the Fire Well, the temple beside it. Shops and the bank are south of the main street, the Black Lantern north-west, the Pit east.' },
+    { label: 'City', reply: 'The palace is north of the Fire Well, the temple beside it. Ryld\'s Blades and Szinra\'s Alchemy are just west of the Well, the bank just south-east, doors on their north side. The Black Lantern is north-west; the Pit east, where Weaponmaster Dral trains you.' },
     { label: 'Surface', reply: 'Take the stair at the end of a tunnel. West: up by Aelindor and its ships. East: the hills, a long walk from Eastreach. South: wild hills.' },
-    { label: 'Caves', reply: 'Bats nest in the north-west caves, the size of dogs. Go armed.' },
+    { label: 'Caves', reply: 'Slimes in the north-east cavern, up the temple\'s east side. Duergar and bats in the north-west cavern, round behind the Black Lantern. Go armed.' },
     { label: 'Farewell', reply: 'The Matron sees all.' },
   ])],
 };
@@ -190,7 +193,7 @@ const ARMSMASTER = {
   shouts: [],
   stages: [
     ifFlag('drowTut3', 'One set each, hatchling. The pit is through the east door.'),
-    ifFlag('drowTut2', 'Another blade for the House. Take these.', [
+    ifFlag('drowTut2', 'Another blade for the House. Take these: a cloth shirt and a wooden dagger.', [
       { label: 'Thank you', reply: 'Do not thank me; survive. Blademistress Zeerith waits in the pit, through the east door.', effects: [{ kind: 'give', item: 'cloth shirt' }, { kind: 'give', item: 'wooden dagger' }, unflag('drowTut2'), jflag('drowTut3', 'Armed and dressed. The Blademistress waits in the pit, through the east door.')] },
     ]),
     always('I arm hatchlings. You are not one I was sent.'),
@@ -201,11 +204,11 @@ const BLADEMISTRESS = {
   stages: [
     ifFlag('drowTut5', 'Go. The Provisioner is through the south door.'),
     ifFlag('drowTut4', 'Well? Cut the stuffing out of a training dummy and bring it to me. (Stand right beside one, not diagonally, then click it and choose Attack.)', [
-      { label: 'Here it is', reply: 'Clean work. Every kill earns you experience: a trainer turns it into strength and skill. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut4'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')] },
+      { label: 'Here it is', reply: 'Clean work. Every kill earns you experience: Weaponmaster Dral, in the Pit east of the Fire Well, turns it into strength and skill. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut4'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')] },
     ]),
     // Dressed and a dummy beaten before speaking to her: straight to the hand-in.
     { ...ifFlag('drowTut3', 'You did not wait to be told. Good. Show me the stuffing.', [
-      { label: 'Here it is', reply: 'Clean work. Every kill earns you experience: a trainer turns it into strength and skill. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut3'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')] },
+      { label: 'Here it is', reply: 'Clean work. Every kill earns you experience: Weaponmaster Dral, in the Pit east of the Fire Well, turns it into strength and skill. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut3'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')] },
     ]), also: { kind: 'item', value: 'straw stuffing' } },
     ifFlag('drowTut3', 'Put on what Quave gave you (in your Backpack, press Wear beside each). Then we fight.', [
       { label: 'I am ready', reply: 'Then strike a training dummy, and bring me its stuffing. (Stand beside one, click it and choose Attack.)', effects: [unflag('drowTut3'), jflag('drowTut4', 'The Blademistress wants the stuffing of a training dummy. Time to fight.')] },
@@ -340,14 +343,14 @@ export default {
       const [sx, sy] = s.stair, [ax, ay] = s.arrive;
       p.set(sx, sy, 'U');
       p.set(ax, ay, 'k');
-      p.action(sx, sy, [{ when: { kind: 'always', value: '' }, speaker: '', says: 'You climb the long stair up into the open air.', effects: [{ kind: 'teleport', x: s.front[0], y: s.front[1] }] }]);
+      p.action(sx, sy, [{ when: { kind: 'always', value: '' }, speaker: '', says: 'You climb the long stair up into the open air.' + s.up, effects: [{ kind: 'teleport', x: s.front[0], y: s.front[1] }] }]);
       p.farTile(s.mouth[0], s.mouth[1], 'u');
       p.farWalk(s.mouth[0], s.mouth[1], RACE_ONLY);
       p.farAction(s.mouth[0], s.mouth[1], [{ when: { kind: 'always', value: '' }, speaker: '', says: 'You descend a long, winding stair into the dark...', effects: [{ kind: 'teleport', x: ORIGIN[0] + ax, y: ORIGIN[1] + ay }] }]);
-      // The city's name beside where you arrive.
+      // Which stair this is, and the way to the city, beside where you arrive.
       const [gx, gy] = s.name === 'south' ? [ax + 1, ay - 1] : [ax + Math.sign(ax - sx), ay + 1];
       p.set(gx, gy, 'k');
-      p.sign('Velkarath', 'Velkarath, city of the Drow. Only the Drow walk here.', gx, gy);
+      p.sign('Velkarath', s.below, gx, gy);
     }
 
     // ---- the city ----
@@ -434,9 +437,9 @@ export default {
     // Guards where the tunnels come in, and a sign at each saying where its
     // stair comes out (play-test 6: nothing said how to reach the surface).
     for (const [x, y, text] of [
-      [49, 64, 'The west stair: up beside Aelindor, whose ships sail from Aelindor Landing.'],
-      [87, 94, 'The south stair: up to the wild southern hills.'],
-      [125, 71, 'The east stair: up into the hills. Eastreach is a long walk east.'],
+      [49, 64, 'The west stair, at the end of this tunnel: up beside Aelindor, whose ships sail from Aelindor Landing.'],
+      [87, 94, 'The south stair, at the end of this tunnel: up to the wild southern hills.'],
+      [125, 71, 'The east stair, at the end of this tunnel: up into the hills. Eastreach is a long walk east.'],
     ]) p.sign('Signpost', text, x, y);
     for (const [x, y] of [[49, 65], [86, 95], [125, 72]]) p.set(x, y, 'k');
     p.npc({ name: 'Dark Elf Guard', look: null, x: 49, y: 65, dlg: GUARD });
