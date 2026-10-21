@@ -285,10 +285,7 @@ w('''- **Elowen's homecoming** to Kingshaven (the empty throne; her letter told 
 ''')
 
 w('## 7. Waiting on flan\'s decisions\n')
-w('''**Trank's hall:** 56 thief figures still stand in Trank's training hall in Midnight (props, no lines);
-the old-world NPC lines themselves were rewritten for decision G on 2026-10-21.
-
-**Still cheerful, not in part 2:** the City of Light's walk-on lines ("We are looking forward to your
+w('''**Still cheerful, not in part 2:** the City of Light's walk-on lines ("We are looking forward to your
 visit.", the Market of Light's "lots to be bought here"); the north-west village's 'Dark Star News' and
 "a town full of tweeking teleporters"; Southfield's own sign ("Visitors welcome; wolves not.").
 

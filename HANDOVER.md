@@ -2226,6 +2226,13 @@ then a restart (signs and props are read at start-up; flan was online, so
   frozenreach.mjs carry the same lines. The 56 thief props in Trank's hall
   are unchanged.
 
+## 2026-10-21 17:25: Trank's hall thinned (LIVE, restart 17:25:56)
+
+- 48 of the 56 thief props in Trank's training hall (472-485 x 32-40)
+  removed from props; 8 stay (472,38 474,33 476,39 478,37 480,40 483,34
+  484,38 485,36), plus the beggar at 441,54. Backup
+  backups/canon-20261021-172555. Nobody was online; restarted via pct.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
