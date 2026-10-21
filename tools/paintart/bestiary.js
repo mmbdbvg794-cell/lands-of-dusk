@@ -419,6 +419,7 @@ function person(ctx, name, step = 0) {
   if (/thief|stalker|assassin/.test(name)) { look = { ...CIVILIAN[3], top: '#2a2a2e', trim: '#1a1a1e', legs: '#1e1e22', hair: '#1a1a1a' }; gear = { weapon: { kind: 'dagger', colour: '#c8ccd4' } }; }
   // Duergar: grey dwarves, grey-skinned and bearded, in dark iron; delvers dig.
   if (/duergar|thrumgar/.test(name)) { look = { skin: '#8a8c90', top: '#3e3e44', trim: '#7a6a4a', legs: '#2e2e34', boots: '#1a1818', style: 'armour', helm: '#4a4a52', beard: '#5a5a60' }; gear = { weapon: { kind: /delver/.test(name) ? 'pick' : 'axe', colour: '#9a9ca4' } }; }
+  if (/thrumgar/.test(name)) { look = { ...look, trim: '#c8a040', helm: '#2e2e34', horns: true }; gear = { ...gear, shield: { colour: '#c8a040' } }; }
   ctx.save();
   ctx.translate(OUT * 0.5 - 144 * 0.85, OUT - 144 * 1.7 - 4);
   ctx.scale(1.7, 1.7);
