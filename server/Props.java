@@ -50,6 +50,14 @@
  *   flagadd <id>|<flag>      give the player a flag (made if it's new)
  *   flagremove <id>|<flag>   take one away
  *
+ * Props seen by some players only: a prop file's "shownIf" line (the flag
+ * on the next line) shows it only to players with that flag, "hiddenIf"
+ * hides it from them. The engine's own prop loader skips lines it doesn't
+ * know. DuskEngine.refreshEntities and addEntity ask sees() for every
+ * object that isn't a player or creature (VisibilityPatch.java), and Talk
+ * leaves hidden NPCs out; a prop already in view goes when the player
+ * next moves, or at once after a conversation or a god's flagadd.
+ *
  * Bank tellers (a name, or the look of a named prop, with "teller" in it)
  * can be used from TELLER_REACH squares, since they stand behind counters.
  *
@@ -383,6 +391,7 @@ public class Props {
             message = "Took " + flag + " from " + target.strName + ".";
         }
         target.savePlayer();
+        refresh(engine, target);
         Log.logEvent(who.strName + ": " + message);
         return flags(who, engine, id, target, message);
     }
@@ -638,6 +647,65 @@ public class Props {
     // ---- tellers ----
 
     static final int TELLER_REACH = 5;
+
+    // ---- who sees a prop ----
+
+    static final long RULES_EVERY = 10 * 1000L; // how often a prop file is looked at again
+    static volatile boolean anyRules;           // any prop with a rule seen yet
+
+    // Prop name -> { shownIf, hiddenIf }, and when its file was read and
+    // last changed (plain tables: install.sh copies Props.class alone).
+    static final Hashtable<String, String[]> rules = new Hashtable<String, String[]>();
+    static final Hashtable<String, long[]> ruleRead = new Hashtable<String, long[]>();
+
+    // Whether who sees o: false only for a prop whose rule leaves them out.
+    public static boolean sees(LivingThing who, Object o) {
+        if (!(o instanceof Prop) || !(who instanceof Player)) return true;
+        String[] r = rule(((Prop) o).strName);
+        if (r == null) return true;
+        if (r[0] != null && !who.hasCondition(r[0])) return false;
+        if (r[1] != null && who.hasCondition(r[1])) return false;
+        return true;
+    }
+
+    static String[] rule(String name) {
+        if (name == null) return null;
+        long now = System.currentTimeMillis();
+        String[] r = rules.get(name);
+        long[] read = ruleRead.get(name);
+        if (r != null && now - read[0] < RULES_EVERY) return r;
+        File f = new File(DIR, name);
+        long modified = f.lastModified();
+        if (r != null && read[1] == modified) { read[0] = now; return r; }
+        String[] fresh = new String[2];
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(f));
+            try {
+                String l;
+                while ((l = in.readLine()) != null && !l.equals(".")) {
+                    if (l.equalsIgnoreCase("shownIf")) fresh[0] = flagLine(in.readLine());
+                    else if (l.equalsIgnoreCase("hiddenIf")) fresh[1] = flagLine(in.readLine());
+                }
+            } finally {
+                in.close();
+            }
+        } catch (Exception e) {
+        }
+        if (fresh[0] != null || fresh[1] != null) anyRules = true;
+        rules.put(name, fresh);
+        ruleRead.put(name, new long[] { now, modified });
+        return fresh;
+    }
+
+    static String flagLine(String l) {
+        return l == null || l.trim().length() == 0 ? null : l.trim();
+    }
+
+    // After someone's flags change: what they see, again (only once any
+    // prop has a rule, since refreshEntities also resends a shop's list).
+    static void refresh(DuskEngine engine, LivingThing who) {
+        if (anyRules && who instanceof Player) engine.refreshEntities(who);
+    }
 
     // A bank teller: "teller" in its name, or in the look of a named prop.
     static boolean isTeller(DuskObject o) {

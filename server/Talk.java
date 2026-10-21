@@ -103,7 +103,7 @@ public class Talk {
                 npc = null;
             }
         }
-        if (npc == null || npc instanceof Player) return "There's no one like that here.";
+        if (npc == null || npc instanceof Player || !Props.sees(who, npc)) return "There's no one like that here.";
         String name = bare(npc.strName);
         // Tellers stand behind counters: they can be talked to from further.
         int reach = Props.isTeller(npc) ? Props.TELLER_REACH : REACH;
@@ -126,6 +126,8 @@ public class Talk {
             if (npc instanceof LivingThing) script.varVariables.addVariable("npc", npc);
             script.runScript();
             script.close();
+            // A conversation can set flags that show or hide someone.
+            Props.refresh(engine, who);
             // A script can hand over to a built-in afterwards by setting
             // "then": the teller's "box" opens the player's deposit box.
             Variable then = script.varVariables.getVariable("then");
@@ -388,7 +390,7 @@ public class Talk {
         for (Vector v : new Vector[] { engine.vctProps, engine.vctMobs, engine.vctMerchants }) {
             for (Object o : v.toArray()) {
                 DuskObject npc = (DuskObject) o;
-                if (npc == null || npc instanceof Player) continue;
+                if (npc == null || npc instanceof Player || !Props.sees(who, npc)) continue;
                 int reach = far > 0 ? far : Props.isTeller(npc) ? Props.TELLER_REACH : REACH;
                 int dx = Math.abs(npc.intLocX - who.intLocX), dy = Math.abs(npc.intLocY - who.intLocY);
                 if (dx > reach || dy > reach) continue;
@@ -518,6 +520,7 @@ public class Talk {
             for (int j = 0; j < npcs.size(); j++) {
                 DuskObject npc = npcs.elementAt(j);
                 if (Math.abs(npc.intLocX - p.intLocX) > SHOUT_RANGE || Math.abs(npc.intLocY - p.intLocY) > SHOUT_RANGE) continue;
+                if (!Props.sees(p, npc)) continue;
                 // Only in the same room: a short walk away, not through a wall.
                 if (!nearOnFoot(engine, p, npc.intLocX, npc.intLocY)) continue;
                 String key = p.strName + "|" + npc.ID;

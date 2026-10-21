@@ -66,6 +66,10 @@ javac -nowarn $ASM -d tools "$SRC/SpellPatch.java"
 java $ASM -cp tools SpellPatch living out/LivingThing.class out/LivingThing.class
 # Trainers' lists without the spell schools closed to the one looking.
 java $ASM -cp tools SpellPatch engine out/DuskEngine.class out/DuskEngine.class
+# Props seen by some players only (a prop file's shownIf / hiddenIf flag),
+# on the DuskEngine patched above (VisibilityPatch.java; Props.sees).
+javac -nowarn $ASM -d tools "$SRC/VisibilityPatch.java"
+java $ASM -cp tools VisibilityPatch out/DuskEngine.class out/DuskEngine.class
 SCRIPT="$GAME/Script.class"
 [ -f "$GAME/storage-originals/Script.class" ] && SCRIPT="$GAME/storage-originals/Script.class"
 java $ASM -cp tools SpellPatch script "$SCRIPT" out/Script.class

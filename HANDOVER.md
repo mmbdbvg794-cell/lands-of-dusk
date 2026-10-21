@@ -2318,6 +2318,34 @@ then a restart (signs and props are read at start-up; flan was online, so
   if" flag in defProps, checked in refreshEntities and Talk) is the
   recommended one.
 
+## 2026-10-21 20:05: NPCs shown or hidden by flag (BUILT, tested on scratch, not live)
+
+- A prop file (defProps/<name>) may have "shownIf" then a flag on the next
+  line (shown only to players with it) and/or "hiddenIf" then a flag
+  (hidden from them). The engine's prop loader skips unknown lines.
+- server/VisibilityPatch.java (build.sh, after SpellPatch engine) puts
+  Props.sees(player, object) into DuskEngine.refreshEntities (before the
+  vctEntities.contains check; unseen -> the loop's getNextObject, so an
+  already-sent prop gets the usual opcode 16 removal) and addEntity (after
+  the contains check; that one compiles as ifeq <add>; goto <next>). Both
+  jump to labels that already have frames: ClassWriter(0) is enough.
+- Props.sees/rule: rules cached per prop name, file re-read when its
+  mtime changes (looked at every 10 s); plain Hashtables, no inner class
+  (install.sh copies Props.class only). Props.refresh(engine, who) after a
+  Talk script runs and after flagadd/flagremove (only once any rule
+  exists, as refreshEntities also resends a shop list). Talk.nearest, talk
+  <id> and the shouts skip hidden NPCs.
+- Scratch (canonskip, god for flagadd): Netmaker Ilse shownIf vistest
+  appeared/vanished at once on flagadd/flagremove and talked only with the
+  flag; Old Fisher Tam hiddenIf vistest vanished on flagadd, stayed gone
+  after moving, came back on flagremove; a talk script setting the flag
+  hid Tam at once; dropped items still show (addEntity); players still see
+  each other. Test rules were scratch-only.
+- Build: duskserver /tmp/dusk-vis-build/out (built 19:59 from live's
+  classes; sources ~/vis-src). To go live: `GAME=$HOME/DuskRPG
+  OUT=/tmp/dusk-vis-build/out sh ~/vis-src/install.sh`, then restart at
+  once. Nothing changes for players until a prop file has a rule.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
