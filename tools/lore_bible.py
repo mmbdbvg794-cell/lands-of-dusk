@@ -287,8 +287,7 @@ w('''- **Elowen's homecoming** to Kingshaven (the empty throne; her letter told 
 w('## 7. Waiting on flan\'s decisions\n')
 w('''**Still cheerful:** Southfield's own sign ("Visitors welcome; wolves not."), a village still lived in.
 
-**Out-of-world text left in for flan to judge:** the flag game's "But you're not playing against
-anyone..."; and a square at 504,13 by Southfield that says "HAHA!" and sets your gold to 0 (nothing
+**Out-of-world text left in for flan to judge:** a square at 504,13 by Southfield that says "HAHA!" and sets your gold to 0 (nothing
 round it can be stood on, so probably out of reach).
 
 **Kept as they are (decision F):** the King's Watch sign and Sergeant Wexley, the Royal Guard, Minstrel
