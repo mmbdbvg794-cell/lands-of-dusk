@@ -2279,11 +2279,11 @@ then a restart (signs and props are read at start-up; flan was online, so
   ARE NOT YET MIGHTY ENOUGH TO PASS THROUGH THESE GATES". Backup
   backups/canon-20261021-181643. Nobody online; restarted via pct.
 
-## 2026-10-21 18:25: the flag game's line (LIVE, no restart)
+## 2026-10-21 18:18: the flag game's line (LIVE, no restart)
 
 - 955,870 (capturing the flag with no one on the other side, so no 50 gp):
   "But no one is left on the other side to pay the prize." instead of
-  "But you're not playing against anyone...". Backup canon-* of 18:2x.
+  "But you're not playing against anyone...". Backup backups/canon-20261021-181816.
 
 ## Open / ideas
 
