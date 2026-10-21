@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-21 12:15 UTC. Everything below is live
+State as of 2026-10-21 14:35 UTC. Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
 (The newest work is at the end, before "Open / ideas".)
 
@@ -2117,6 +2117,43 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   bundle_only.py or lights-velkarath after it). The old world's cliffs
   keep 49.
 
+## 2026-10-21 14:27: Greystone Mine filled out, The Old Drift (LIVE, restart 14:27:43)
+
+- The user picked the Greystone quest chain ("fill out the mine"), then
+  "add the drum too". All in tools/world/cities/greystone.mjs (header has
+  the places): bunkhouse 860-881 x 201-211 (Cook Dagna's shop square
+  876,204; Petra Coalhand), the sump 841-862 x 264-282 (6 tunnel
+  crawlers), the Old Drift dug east and south to the lost crew's camp
+  928-946 x 236-248 (5 duergar delvers, the W.A. sign), the Grey Delve
+  922-948 x 257-282 (5 duergar guards, Thrumgar the Grey Warlord 937,277,
+  the great iron drum prop 938,279 with the barrel picture). Rubble
+  923,221-222 is tile 49 with a walk rule: gs_dig, set by accepting
+  gs_drift (offer.effects). Digger Rook beside it (flag stage).
+- Quests gs_crawlers -> gs_drift -> gs_knocking (Garrick, Garrick, Bryn).
+  Rewards bronze helmet / iron gloves / bronze shield. Delvers drop the
+  "brass lamp" at 0.5 (not "Wil's lamp": the engine says "You got a <name>").
+- The mine's rock is now tile 98 (end of the build), like Velkarath; the
+  new halls are built after the veins, so the 21 veins didn't move (props:
+  29 added, 34 already there). mayBuild is now () => true (the whole box is
+  the mine's). Garrick's "Any work?" topic is gone (the quest offer
+  replaces it); Bryn's topic is "What does it say?".
+- Built with `node tools/world/city.mjs tools/world/cities/greystone.mjs
+  <shortmap> <out> <props.json>` (props.json = live defProps of Villager
+  Woman, Villager Man, hermit), installed with install_city.py
+  --old-world --force (backup backups/city-greystone-mine-20261021-142741),
+  restarted from the Proxmox host (nobody online).
+- Tested end to end on scratch with botcheck (buffed: str 60, hp 500-900):
+  rubble blocks without the flag, every step counts, the rewards arrive.
+  Thrumgar did ~350 damage to a 40-dex character; the guards ~80 each.
+- tools/paintart/bestiary.js: duergar in the person family (grey skin,
+  beard, dark iron; delvers a pick, others an axe), Thrumgar horned and
+  gold-trimmed. Deployed.
+- LORE.md: the duergar and a Greystone section. tools/lore_bible.py adds the
+  gs chain, fixes the stale "after lines are never heard" note (they are,
+  joined to the next offer) and drops the keep sign from section 7 (fixed
+  already). /root/DUSK_LORE_BIBLE.md regenerated from live 14:29, for the
+  user to put into Claude on the web.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
@@ -2144,10 +2181,8 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   now the doubled monster numbers.
 - Game ideas the user liked, not started: owned ships (on hold).
 - Classes: Rogue later.
-- Greystone Mine quest chain (suggested, user hasn't said yes yet): hooks
-  are Garrick's "Any work?", Old Bryn's knocking below the deep seam, the
-  caved-in Old Drift (914-922,221); dig a new hall from the spare rock for
-  monsters and a boss. The mine has no monsters yet.
+- Greystone: done (The Old Drift). Open: where the duergar come from, and
+  whether the Grey Delve's tunnels should one day join Velkarath's caverns.
 - Midnight / the Izaru mine (ferry to Westsea, the tree hole at 64,91 to
   494,105, then 450,104 up into Midnight): kept a mystery on purpose; only
   Old Sailor Wick's tale hints at it. No signposts.

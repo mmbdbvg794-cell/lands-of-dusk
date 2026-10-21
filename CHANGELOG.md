@@ -613,6 +613,28 @@ backups; see `server/`.
   stand in to a clan (its doors then let only members in); `claimhall
   <hall> none` frees it.
 
+## The Old Drift: Greystone Mine filled out (21 October 2026)
+
+- **A quest chain in the mine**, for every race:
+  - *Crawlers in the Sump* (Overseer Garrick): tunnel crawlers in the old
+    sump, down a wet tunnel off the lower workings. Reward: a bronze helmet.
+  - *The Old Drift* (Garrick): the drift that caved in twenty years ago is
+    dug open. At its end, the lost crew's camp, duergar delvers, and a
+    brass lamp to bring to Old Bryn: it was his brother Wil's. Reward: iron
+    gloves.
+  - *The Knocking Below* (Old Bryn): down a hole to the **Grey Delve**,
+    the duergar's hall, its guards and **Thrumgar the Grey Warlord**, whose
+    great iron drum is the knocking Bryn has heard for a year. Reward: a
+    bronze shield.
+- The rubble at the drift's mouth lets you past only once Garrick has sent
+  you; Digger Rook waits beside it.
+- **A bunkhouse** north of the entry hall: Cook Dagna sells sandwiches,
+  mushrooms, water and ale; Petra Coalhand is trying to sleep.
+- The mine's rock is drawn as grey stone, not as a cobbled floor.
+- In the Painted style the duergar are grey dwarves in dark iron (the
+  delvers with picks); Thrumgar wears a horned helm and a gold-trimmed
+  shield.
+
 ## From the play-tests (15–21 October 2026)
 
 Seven AI play-testers played new characters of each race from the start.
