@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-15 19:20 (duskserver time). Everything below is live
+State as of 2026-10-21 12:15 UTC. Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
 (The newest work is at the end, before "Open / ideas".)
 
@@ -2119,11 +2119,14 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
 
 ## Open / ideas
 
-- Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes + transcript,
-  brief). Run 8 could be a lizardfolk (run 3) to check Ssarakh, or a dark
-  elf again to see if run 7's directions get one to the dens and Aelindor;
-  archive/run7/brief-run7.md as the template; scratch is stopped (tools/scratch.sh setup, then start). Block
-  archive/** and the briefs in the launch line.
+- Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
+  brief). Suggested next: run 8, a dark elf again, to see if run 7's
+  directions, the new market/gardens and the grey walls get a newcomer to
+  a trainer, the dens and Aelindor Landing (or a lizardfolk, run 3, for
+  Ssarakh). archive/run7/brief-run7.md as the template; scratch is stopped
+  (tools/scratch.sh setup, then start; tunnel -L 10011). Block archive/**
+  and the briefs in the launch line. The bot's legend now names the two
+  cobble tiles apart (b plain brown = blocks, c with grey stones).
 - Class and level ideas the user raised (not started): choosing the class
   at the end of the tutorial instead of at creation; a level system (maybe
   cosmetic levels on top of the experience-for-stats training).
@@ -2150,7 +2153,8 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   Old Sailor Wick's tale hints at it. No signposts.
 - Clans: maybe a "clan hall" sign or name plaque when claimed (the who
   page shows clans since 2026-10-20).
-- CHANGELOG.md is up to date to 2026-10-20 (alpha rename, play-tests 1-5).
+- CHANGELOG.md is up to date to 2026-10-21 (play-tests 1-7, item
+  rebalance, Velkarath lived in and its grey walls).
 
 ## More notes
 
