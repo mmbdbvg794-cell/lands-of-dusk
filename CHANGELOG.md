@@ -638,6 +638,26 @@ backups; see `server/`.
 - Old Fisher Tam in Kingshaven has fished its shore forty years, since the
   ships came (not fifty: the city is forty years old).
 
+## The last of the crossing (21 October 2026)
+
+- **The human tutorial** now happens in the old world, before sailing: a
+  coaster brings you down to Westsea Harbour, where refugees wait for a
+  berth east. The Recruiter signs you up ("The ships take soldiers first"),
+  and the teleport stone puts you aboard one of the last ships, which lands
+  at Kingshaven.
+- **Greystone after the drum**: once you've silenced Thrumgar, Old Bryn,
+  Cook Dagna and Overseer Garrick talk about the quiet.
+- **Southfield**: the old guard at the village's east gate no longer sends
+  you to look for Salharasha. She took ship east; Reeve Osric keeps the
+  village now, and the gate is open.
+- **Old signs read as old**: the original game's shop and welcome signs in
+  the old world keep their words, faded and peeling.
+- **Graffiti gone**: players' and builders' notes are off the signs
+  (including the one by Southfield that swore), and a few walk-on lines
+  that talked about the game itself are fixed.
+- Armsmaster Doyle's plate is "fit for the Royal Guard"; the keep's sign
+  says the Lord Steward governs in the princess's name.
+
 ## From the play-tests (15–21 October 2026)
 
 Seven AI play-testers played new characters of each race from the start.

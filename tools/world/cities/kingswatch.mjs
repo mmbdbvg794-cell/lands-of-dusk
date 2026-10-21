@@ -16,7 +16,7 @@
 //   the barrow, in the valley in the hills         1559-1565, 288-292
 // The monsters are new (defMobs files below), named so the Painted art
 // draws them from a family (wolf, person, skeleton). Quests 1-2 suit a new
-// character; the barrow's knight (320 HP, strength 42) is one to grow into.
+// character; the barrow's knight (320 HP, strength 70) is one to grow into.
 
 import { newQuest, newStep, mergeQuest, questDepth } from '../../../js/quests.js';
 

@@ -156,7 +156,7 @@ w('''### Geography (map coordinates are x,y)
 - Ferries link the ports (Kingshaven, Westsea, Eastreach, Aelindor, Ssarakh...). Weather differs by region.
 
 ### Races and starts
-- **Humans:** refugees; tutorial "From Refugee to Soldier..." ends in Kingshaven.
+- **Humans:** refugees still in the old world; tutorial "From Refugee to Soldier..." at Westsea Harbour (waiting for a berth east, enlist, train), and the teleport stone puts them aboard one of the last ships, which lands at Kingshaven.
 - **Elves:** Aelindor; tutorial Grove of Waking "From Seedling to Sentinel...".
 - **Dark elves (drow):** Velkarath; tutorial under Taskmistress Vhal.
 - **Lizardfolk:** Ssarakh; tutorial Hatching Pools "From Hatchling to Brood-Guard...".
@@ -219,6 +219,10 @@ w('_Non-quest conversation of every scripted NPC (quest lines are in section 3).
 
 def render_node(says, answers, ind, seen):
     if says: w(f'{ind}- "{says}"')
+    # Answers already shown for this NPC aren't repeated; say so, or a
+    # stage that shares them reads as having none.
+    repeats = [a.get('label') for a in answers if (a.get('label'), a.get('reply')) in seen]
+    if repeats: w(f'{ind}  - _(also: {", ".join(f"*{r}*" for r in repeats)}, as above)_')
     for a in answers:
         key = (a.get('label'), a.get('reply'))
         if key in seen: continue
@@ -274,36 +278,31 @@ w('''- **Elowen's homecoming** to Kingshaven (the empty throne; her letter told 
 - **Why Morvane wanted his father's crown**: his agent paid the robber boss to fetch it (SECRET: players
   only get Aldous's hint, "Someone paid for this one"; never name Morvane for it in game).
 - **Guild invitation quests**: Mage Guild, The Circle; the Hidden Order and tier-5 quests (forbidden lore, archmage, archdruid).
-- **The duergar**: they killed Jhaelra's patrol near Velkarath and dug up under Greystone Mine (Thrumgar's Grey Delve). Where they come from, whether the Delve's tunnels reach Velkarath's caverns, and why they began digging toward the surface now, are open.
+- **The duergar**: they killed Jhaelra's patrol near Velkarath and dug up under Greystone Mine (Thrumgar's Grey Delve). Where they come from, whether the Delve's tunnels reach Velkarath's caverns, and why they came back, twenty years after their digging brought the Old Drift down, are open.
 - **Old-world signposting**: Midnight/Izaru reachable only via Westsea and a tree hole; nothing points players there.
 - Rogue class (later). Owned ships (on hold). The Fairy King's sealed glade.
 - Old unfinished items: crystal box, nova package, bloody book (expensive shop items with no use).
 ''')
 
-w('## 7. Waiting on flan\'s decisions (from the 2026-10-15 canon cleanup)\n')
-w('''**Kingshaven lines that still imply a king or an old city** (not changed yet):
-- Armsmaster Doyle: "Silver, gold and plate, fit for the king's own guard."
-- The King's Watch: its sign (1504,346) and Sergeant Wexley's description ("of the King's Watch").
-- Mild: Minstrel Fenwick's song ("the king had a crown and the crown had a king"), the Royal Teller
-  ("safe with the crown"), the Harbourmaster ("pays its due to the crown"), the Shipwright ("when the crown pays").
+w('## 7. Waiting on flan\'s decisions\n')
+w('''**Old-world NPC lines (decision G), drafted 2026-10-21 and not installed:** Izaru and his miner
+in Midnight ("the best place to buy mining equipment", "world famous"), the Midnight innkeeper ("Sweet
+dreams!", "Thank you for coming."), Trank, his bouncer and "All the thieves clap for you. Hurray!",
+Riverside's ExitMan ("hopeing you come back again"), the fire orb man ("amazing riches"), and Reeve
+Osric's "The village owes you everything." Also undecided: the 56 thief figures standing in Trank's
+training hall in Midnight (props, no lines; one more begs on the street).
 
-**Old-world lines that read cheerful, busy or thriving** (decision D; full list in the repo,
-docs/oldworld-audit-2026-10-15.md):
-- City of Light: "We are looking forward to your visit."; the Market of Light ("lots to be bought here").
-- North-west village: "New blacksmith just south of church", the petting zoo, the Gladiators Arena,
-  "Welcome to the town smitty!", a new issue of 'Dark Star News', "a town full of tweeking teleporters".
-- Riverside: "the best fishing lake in dusk!", "buy a boat from me, Mr. Merchant", the ExitMan "hopeing you come back".
-- Midnight: Izaru "Welcome to the best place to buy mining equipment!", a miner on Izaru's "world famous"
-  gear, the innkeeper's "Sweet dreams!", Trank's thieves' guild ("All the thieves clap for you. Hurray!"),
-  57 thief figures in the town.
-- Mild: Southfield's sign "Visitors welcome; wolves not.", Reeve Osric's "The village owes you everything.",
-  the fire orb man's "amazing riches".
+**Still cheerful, not in part 2:** the City of Light's walk-on lines ("We are looking forward to your
+visit.", the Market of Light's "lots to be bought here"); the north-west village's 'Dark Star News' and
+"a town full of tweeking teleporters"; Southfield's own sign ("Visitors welcome; wolves not.").
 
-**Other oddities found**: Southfield has two heads (the old guard at 545,16 sends you to "Salharasha our
-towns elder"; Reeve Osric is the reeve); old player graffiti and builders' notes on signs (500,200
-"I quit this whole goddamn game", "property of supersayanaaron", "sorry can't have houses yet",
-"Xyphoid is probally working on this"); the human tutorial says you just stepped off the boat at
-Westsea, then sends you "across the sea" to Kingshaven.
+**Out-of-world text left in for flan to judge:** old players' names on houses (Gatotic's, Tylk's, Lord
+Rean's, Kestron's shack, "VAX's personal merchant"); "YOU DO NOT HAVE ENOUGH CHARACTER POINTS" at a
+gate; the flag game's "But you're not playing against anyone..."; and a square at 504,13 by Southfield
+that says "HAHA!" and sets your gold to 0 (nothing round it can be stood on, so probably out of reach).
+
+**Kept as they are (decision F):** the King's Watch sign and Sergeant Wexley, the Royal Guard, Minstrel
+Fenwick, the Royal Teller, the Harbourmaster and the Shipwright ("the crown").
 
 **How quest lines join up** (checked 2026-10-21 on Greystone): when a giver has a next quest, the
 last quest's "after" line is said first and the next offer straight after it, in one speech ("The carts

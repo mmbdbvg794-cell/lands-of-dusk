@@ -17,7 +17,7 @@
 //   the old shrine                                  around 395, 1250
 //   the withered grove                              around 618, 1178
 // Quests 1-2 suit a new character; the blighted bear (360 HP, strength
-// 44) is one to grow into.
+// 70) is one to grow into.
 
 import { newQuest, newStep, mergeQuest, questDepth } from '../../../js/quests.js';
 

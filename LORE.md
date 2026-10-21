@@ -26,13 +26,14 @@ and add to it here first.
   in the dead: everyone the Horde killed rose for him. In the end Morvane
   died too and rose as the **Skeleton King**. Kraghul burns; Morvane raises
   what burns.
-- Firetown fell first; the rift is still open there (no one can go: it's
-  "hell"). Then the Horde came west. Midnight's deep mines were overrun
-  (the Izaru Deeps), King Zilen's grave was robbed of its crown and the
-  crypt of his guard defiled (the Zilen Legacy). **The City of Light still
-  holds**, barely. The old world is a dying land, dying by emptying, not
-  burning: most of its people sailed east, and the ones left are stubborn,
-  poor or old. Adventurers go back to fight in it.
+- Firetown fell first; the rift stood open there forty years, and no one
+  went, until Old Bram's boat (see The Firetown Expedition). Then the
+  Horde came west. Midnight's deep mines were overrun (the Izaru Deeps),
+  King Zilen's grave was robbed of its crown and the crypt of his guard
+  defiled (the Zilen Legacy). **The City of Light still holds**, barely.
+  The old world is a dying land, dying by emptying, not burning: most of
+  its people sailed east, and the ones left are stubborn, poor or old.
+  Adventurers go back to fight in it.
 - King Aldric proclaimed Morvane a traitor, closed the road to Firetown, and
   sent his people away by sea. He did not come east himself, and he is gone
   now: dead or missing, no one knows (see "Canon decisions").
@@ -71,8 +72,11 @@ and add to it here first.
   player's own story.)
   **Open threads:** Elowen coming home to Kingshaven; Kraghul and the Horde
   still in the dunes above Eastreach; Morvane, still risen.
-- New human characters are refugees: the tutorial ("From Refugee to
-  Soldier...") is the last of the crossing, and it ends in Kingshaven.
+- New human characters are refugees still in the old world (decision I):
+  the tutorial ("From Refugee to Soldier...") is at Westsea Harbour, where
+  they wait for a berth east, enlist and are trained; the teleport stone
+  puts them aboard one of the last ships, which lands at Kingshaven. It is
+  the last of the crossing.
 
 ## The peoples of the new lands
 
@@ -88,8 +92,9 @@ and add to it here first.
   galleries, and the **ember dragon** woke.
 - **Lizardfolk (Ssarakh)** are the oldest people; the brood remembers
   everything, egg to egg. Their elders cut the warden stones. The **Brood
-  Stone** in Ssarakh's plaza is the last one whole (it may matter, one day,
-  to closing the rift). The fallen of the brood wake beside it.
+  Stone** in Ssarakh's plaza is the last one whole (a shard of it, carried
+  by Elowen, closed the Firetown rift). The fallen of the brood wake
+  beside it.
 - **The Dry Ones** (the Sand Kings of the Eastreach desert) are lizardfolk
   who left the mire long ago. They bow to Kraghul, who raids the dunes
   above Eastreach: the Horde's foothold on this side of the sea.
@@ -100,7 +105,9 @@ and add to it here first.
 - **The duergar** (grey dwarves) live deep below and dig upward. In
   Velkarath's caverns they raid the Drow (*The Deep Patrol*: they killed
   Jhaelra's lost patrol). Under Greystone Mine they are cutting toward the
-  mithril of the deep seam (*The Old Drift*, below).
+  mithril of the deep seam (*The Old Drift*, below). They dug toward it
+  once before, twenty years ago, then went quiet; why they came back is
+  open.
 
 ## Greystone Mine (greystone.mjs, *The Old Drift*)
 
@@ -109,17 +116,21 @@ and add to it here first.
 - **The Old Drift** caved in twenty years ago with six miners inside, among
   them Bryn's brother **Wil Ashby**. It was never dug out. Scratched in the
   rock at its end: "SIX OF US. AIR GOING. THEY ARE DIGGING. NOT OURS. W.A."
-  The duergar's digging brought the roof down.
-- For about a year Bryn has heard **knocking** below the deep seam. It is the
-  great iron drum of **Thrumgar the Grey Warlord**, beating time for the
-  duergar digging up from the **Grey Delve**, a hall cut square under the
-  drift. Tunnel crawlers driven up into the old sump were the first sign.
+  The duergar's digging brought the roof down (decision J). Then they went
+  quiet for twenty years.
+- About a year ago the knocking began again: Bryn hears it below the deep
+  seam. It is the great iron drum of **Thrumgar the Grey Warlord**,
+  beating time for the duergar digging up from the **Grey Delve**, a hall
+  cut square under the drift. Tunnel crawlers driven up into the old sump
+  were the first sign.
 - In the quests: crawlers in the sump; the drift opened, the delvers at its
   end, and Wil's brass lamp brought home to Bryn; then Thrumgar killed and
   the drum silenced ("First quiet in a year. Wil can rest.").
+- Once a player has silenced the drum (gs_knocking_done), the mine says so:
+  Bryn ("It's quiet now"), Cook Dagna and Overseer Garrick.
 - **Open threads:** where the duergar come from, and whether the Grey
-  Delve's tunnels run down to the caverns round Velkarath; why they began
-  digging toward the surface now.
+  Delve's tunnels run down to the caverns round Velkarath; why they came
+  back, twenty years after the drift fell.
 
 ## Where the pieces are (tools/world/cities/lore.mjs)
 
@@ -148,7 +159,9 @@ Other named people in the stories, so names don't clash again: Old Wenna
 (Kingshaven's chronicler) and Old Tamsin (the herbalist by Eastreach) keep
 their names; the old world's herbalist by the swamp is **Herbalist Linnet**,
 the east-field village's reeve is **Reeve Osric** (a man), and Kingshaven's
-tailor is **Corra the Tailor**.
+tailor is **Corra the Tailor**. **Salharasha** was that village's
+(Southfield's) elder in the original game; she took ship east with the
+rest, and its old gate guard says so (decision G).
 
 ## Canon decisions (2026-10-15)
 
@@ -177,3 +190,26 @@ Decided by flan; live NPC dialogue follows them.
 - What happened to King Aldric (dead, missing, taken?).
 - Why Morvane wanted his father's crown.
 - The elder dragons: where they are, and what they make of the young wyrms.
+
+## Canon decisions (2026-10-21)
+
+Decided by flan (canon cleanup, part 2).
+
+- **F. The crown still stands.** Kingshaven is under the crown of Zilen in
+  law: Aldric is missing, not deposed, and Elowen is his heir. The King's
+  Watch, the Royal Guard, the Royal Teller and "the crown" in everyday talk
+  all stay.
+- **G. Old-world content is kept as relics of better days.** The original
+  game's signs keep their words but read as old and faded; its living NPCs
+  keep their character but sound like people hanging on in an emptied
+  land.
+- **H. No out-of-world text anywhere.** Player graffiti, builders' notes and
+  swearing are removed from every sign and NPC.
+- **I. The human tutorial happens in the old world, before sailing.** The
+  player is a refugee waiting for a berth east at Westsea, enlists, is
+  trained, and the teleport stone puts them aboard one of the last ships,
+  which lands at Kingshaven ("the last of the crossing").
+- **J. The duergar dug toward Greystone once before.** Twenty years ago
+  their digging brought the Old Drift's roof down, then they went quiet.
+  About a year ago the drum began again. The open thread is why they came
+  back.

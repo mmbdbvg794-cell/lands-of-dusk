@@ -229,7 +229,7 @@ export default {
     PR('Guard', 1415, 328);
     for (const x of [1400, 1405, 1420, 1425]) PR('candlestick stand', x, 333);
     PR('plants', 1397, 326); PR('plants', 1428, 326);
-    SIGN('The Royal Keep', `The Royal Keep of ${NAME}. Lord Steward Halvard governs here in Princess Elowen's name.`, 1414, 337);
+    SIGN('The Royal Keep', `The Royal Keep of ${NAME}. The Lord Steward governs here in the princess's name.`, 1414, 337);
     PR('well', 1394, 326); PR('Flower Box', 1394, 334); PR('Flower Box', 1432, 334);
 
     // ---- the Cathedral of Light (north-east) ----
@@ -268,7 +268,7 @@ export default {
     shop({ x: 1423, y: 340, door: 's', sign: 'The Iron Shell', text: 'The Iron Shell: armour for every purse.', wares: WARES.armour,
       who: { name: 'Gerda the Armourer', look: 'Villager Woman', desc: 'Gerda the armourer, a hammer at her belt.', dlg: SHOP('Armour! Leather and bronze!', 'Leather for the road, bronze for the fight. Stand at my counter and see the Shop tab.') } });
     shop({ x: 1440, y: 340, door: 's', sign: 'Royal Armoury', text: 'The Royal Armoury: silver, gold and plate.', wares: WARES.royal,
-      who: { name: 'Armsmaster Doyle', look: 'Guard', desc: 'Armsmaster Doyle, keeper of the Royal Armoury.', dlg: SHOP('', 'Silver, gold and plate, fit for the king\'s own guard. Stand at the counter and open the Shop tab, if your purse is deep.') } });
+      who: { name: 'Armsmaster Doyle', look: 'Guard', desc: 'Armsmaster Doyle, keeper of the Royal Armoury.', dlg: SHOP('', 'Silver, gold and plate, fit for the Royal Guard. Stand at the counter and open the Shop tab, if your purse is deep.') } });
     shop({ x: 1450, y: 340, door: 's', sign: 'Fletcher\'s', text: 'The Fletcher\'s: bows and arrows.', wares: WARES.bows,
       who: { name: 'Wynn the Fletcher', look: 'Villager', desc: 'Wynn the fletcher, feathers in her hair.', dlg: SHOP('Bows! Crossbows! Arrows by the quiver!', 'Bows and arrows, straight and true. Stand at my counter and look in the Shop tab.') } });
     // South of the plaza: alchemy, jewels, magic, the general store, the tailor.

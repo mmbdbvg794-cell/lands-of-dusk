@@ -1,6 +1,6 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-21 14:35 UTC. Everything below is live
+State as of 2026-10-21 16:50 UTC. Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
 (The newest work is at the end, before "Open / ideas".)
 
@@ -2160,6 +2160,60 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   joined to the next offer) and drops the keep sign from section 7 (fixed
   already). /root/DUSK_LORE_BIBLE.md regenerated from live 14:29, for the
   user to put into Claude on the web.
+
+## 2026-10-21 16:50: canon cleanup, part 2 (STAGED on duskserver, not live)
+
+The user's "CANON CLEANUP, PART 2" (decisions F-J, now in LORE.md).
+tools/server/canon_cleanup2.mjs (canon_cleanup.mjs's shape) makes a bundle
+from a copy of live; tools/server/canon_install.sh installs it (backup
+under backups/canon-*, refuses if a file changed since: ORIG.sha256).
+Staged: duskserver ~/canon2-bundle (everything) and ~/canon2-bundle-noaged
+(without step 4's aged signs), both checked against live at 16:45.
+Install: `ssh duskserver 'sh canon_install.sh ~/canon2-bundle ~/DuskRPG'`,
+then a restart (signs and props are read at start-up; flan was online, so
+`restart 10` in the game; no god "save" in between).
+- Step 1: Armsmaster Doyle "fit for the Royal Guard"; keep sign 1414,337
+  "The Lord Steward governs here in the princess's name." (capital.mjs too).
+- Step 2: no bug. Halvard's default greeting has all five answers on live;
+  lore_bible.py hid answers already shown for an NPC, now says "(also:
+  ..., as above)".
+- Step 3: 545,16 guard says "Salharasha was our elder. She took ship east
+  with the rest. Osric keeps us now." and no longer pushes you back (only
+  flan has elderchat; egate did all of Southfield's quests without it, so
+  the field is reached another way). Salharasha's prop (946,19), her
+  defProps file and her cave script 943,19 removed.
+- Step 4: nine original old-world signs get an age line ("The paint is old
+  and peeling: ..."). The living-NPC rewrites are a draft only (in the
+  user's report, not installed). Trank's 56 thieves are props in his
+  training hall (472-485 x 32-40), plus one beggar at 441,54 (walk-on).
+- Step 5: signs removed: 500,200 x2, 55,38, 121,78, 167,66, 151,45, 159,45,
+  208,897, 3,395, 500,500; edited: 426,170 ("crapy"), 459,77 ("Players"),
+  21,806 / 199,899 / 144,894 (AOP, MTH clan names). Walk-ons: 458,85 (LOL),
+  194,139 ("You get condition gatotic"), 199,945 (re-spawn), 15,10
+  ("coordinate"), 106,36 (stray endscipt), 846,55 ("Mini Boss"). Watts's
+  description lost its "lol". Left (listed in the bible's section 7):
+  players' names on houses, CHARACTER POINTS, the flag game, 504,13.
+- Step 6: Recruiter (greeting, replies, tutorialStart2, shout "Recruits!
+  The ships take soldiers first!"), Quartermaster, Drill Sergeant, walk-on
+  125,366 (you start on a ship at 125,365: "the coaster that brought you
+  down to Westsea"), the three teleport stones' landing line, journal
+  tutorialStart / skiptutorial / tutorialStart6.
+- Step 7: greystone.mjs `talk` (exported) adds the gs_knocking_done stages:
+  Bryn's thank-you replaced, Garrick a gs_knocking-tagged stage ahead of his
+  gs_drift one, Dagna an own stage. The quest's "after" line is unchanged
+  (a God-tab re-merge of gs_knocking would bring Bryn's old one back).
+- Step 8: no numbers changed. Finales are 300-360 HP, strength 70 (the
+  Ashen Gaoler 900 HP; the Lizard Axemen 300 HP, strength 40); world
+  bosses 1,100-1,400 HP, strength 80-90. The worldbosses note was right;
+  the plan headers (kingswatch, zilen, izaru, frozenreach, deeppatrol,
+  greenwardens) still said 42-45 from before the tune-up and are fixed.
+- Step 9: LORE.md fixes and F-J; lore_bible.py section 7 rewritten.
+  /root/DUSK_LORE_BIBLE.md regenerated from live + the bundle (16:50).
+- Tested on scratch: both tutorial paths to Kingshaven (canontut,
+  canonskip), Halvard with and without ft_word_done, Bryn/Dagna/Garrick
+  with (botcheck) and without (canonskip) gs_knocking_done, the guard both
+  ways, every edited sign read in game (500,200 and 500,500 can't be stood
+  on), the walk-ons that can be reached. Scratch stopped.
 
 ## Open / ideas
 

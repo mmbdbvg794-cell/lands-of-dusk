@@ -18,7 +18,7 @@
 //     miners' camp 368-390 x 304-312, deep chamber 360-400 x 320-331
 // The monsters are new (defMobs files below), named so the Painted art
 // draws them from a family (slime, person, dragon). Quests 1-2 suit a new
-// character; the stone dragon (340 HP, strength 44) is one to grow into.
+// character; the stone dragon (340 HP, strength 70) is one to grow into.
 
 import { newQuest, newStep, mergeQuest, questDepth } from '../../../js/quests.js';
 

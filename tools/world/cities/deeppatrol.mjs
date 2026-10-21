@@ -21,7 +21,7 @@
 // Bats deeper in the north-west cavern (velkarath.mjs) are left out of it:
 // they don't start fights, and they'd kill a new character who did.
 // Quests 1-2 suit a dark elf fresh from the tutorial; the ember dragon
-// (350 HP, strength 45) is one to grow into.
+// (350 HP, strength 70) is one to grow into.
 
 import { newQuest, newStep, mergeQuest, questDepth } from '../../../js/quests.js';
 

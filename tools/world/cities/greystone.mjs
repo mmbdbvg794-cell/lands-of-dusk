@@ -175,9 +175,14 @@ const TALK = {
   },
   [COOK]: {
     shouts: ['Hot food! Cold ale!'],
-    stages: [always('Sit, eat. Stand at the table to buy.', [
-      { label: 'The knocking?', reply: 'Bryn\'s knocking? Half the bunkhouse hears it at night. The other half snores.' },
-    ])],
+    stages: [
+      { when: { kind: 'flag', value: 'gs_knocking_done' }, says: 'Sit, eat. Stand at the table to buy.', answers: [
+        { label: 'The knocking?', reply: 'Stopped. Now the bunkhouse complains about the snoring instead.' },
+      ] },
+      always('Sit, eat. Stand at the table to buy.', [
+        { label: 'The knocking?', reply: 'Bryn\'s knocking? Half the bunkhouse hears it at night. The other half snores.' },
+      ]),
+    ],
   },
   [DIGGER]: {
     shouts: [],
@@ -194,7 +199,31 @@ const TALK = {
 
 const depths = {};
 for (const q of QUESTS) depths[q.id] = q.depth = questDepth(q, (id) => depths[id]);
-const talk = (name) => QUESTS.reduce((dlg, q) => mergeQuest(dlg, q, name), TALK[name]);
+// Once a player has silenced the drum (gs_knocking_done), the mine talks
+// of it. Bryn's thank-you is his own greeting, changed; Garrick's is a
+// stage of a quest he isn't in, so it sorts with the thank-yous, ahead of
+// his own gs_drift one (mergeQuest leaves other quests' stages alone).
+const QUIET = 'gs_knocking_done';
+const AFTER = {
+  [MINER]: { says: 'Forty years I\'ve swung a pick in this hill. It\'s quiet now. I\'d near forgotten the sound of it.', answers: [
+    { label: 'What does it say?', reply: 'Nothing, lately. Good.' },
+    { label: 'The old drift?', reply: 'My brother Wil was in it when it fell. His lamp\'s come home, at least.' },
+  ] },
+  [OVERSEER]: { says: TALK[OVERSEER].stages[0].says, answers: [
+    TALK[OVERSEER].stages[0].answers[0],
+    { label: 'The old drift?', reply: 'Open again. Mind the hole at its end; I\'ve no wish to send anyone else down it.' },
+  ] },
+};
+export const talk = (name) => {
+  const dlg = QUESTS.reduce((d, q) => mergeQuest(d, q, name), TALK[name]);
+  const after = AFTER[name];
+  if (!after) return dlg;
+  const stage = { quest: 'gs_knocking', requires: 'gs_drift', depth: 2, when: { kind: 'flag', value: QUIET }, says: after.says, answers: structuredClone(after.answers) };
+  const at = dlg.stages.findIndex((st) => st.when?.kind === 'flag' && st.when.value === QUIET);
+  if (at >= 0) dlg.stages[at] = stage;
+  else dlg.stages.splice(dlg.stages.findIndex((st) => st.when?.kind === 'flag' && /_done$/.test(st.when.value)), 0, stage);
+  return dlg;
+};
 
 export default {
   name: 'Greystone Mine',
@@ -318,7 +347,7 @@ export default {
     p.prop('chest', ...M(870, 209));
     p.npc({ name: SLEEPER, look: 'Villager Woman', desc: 'Petra Coalhand, boots still on, one eye open.', x: 863 - O[0], y: 206 - O[1], dlg: TALK[SLEEPER] });
     p.fill(...M(877, 203), 1, 4, '#'); // Dagna's table
-    p.npc({ name: COOK, look: 'Villager Woman', desc: 'Cook Dagna, ladle in hand, flour to the elbows.', x: 879 - O[0], y: 204 - O[1], dlg: TALK[COOK] });
+    p.npc({ name: COOK, look: 'Villager Woman', desc: 'Cook Dagna, ladle in hand, flour to the elbows.', x: 879 - O[0], y: 204 - O[1], dlg: talk(COOK) });
     p.merchant(...M(876, 204), ['sandwich', 'mushroom', 'water', 'ale'], 'Dagna\'s Kitchen');
     p.prop('chair', ...M(874, 207));
     p.prop('chair', ...M(876, 208));

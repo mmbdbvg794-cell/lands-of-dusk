@@ -21,7 +21,7 @@
 // until this chain cut a gap in it; nothing else on the map changes. The
 // monsters are new (defMobs files below), named so the Painted art draws
 // them from a family (wolf, bear, skeleton, dragon). Quests 1-2 suit a new
-// character; the frost dragon (350 HP, strength 45) is one to grow into.
+// character; the frost dragon (350 HP, strength 70) is one to grow into.
 
 import { newQuest, newStep, mergeQuest, questDepth } from '../../../js/quests.js';
 

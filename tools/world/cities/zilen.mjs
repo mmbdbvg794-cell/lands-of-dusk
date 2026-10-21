@@ -21,7 +21,7 @@
 // stairs down from the glade and up again. The monsters are new (defMobs
 // files below), named so the Painted art draws them from a family
 // (person, skeleton). Quests 1-2 suit a new character; the skeleton
-// warlord (330 HP, strength 43) is one to grow into.
+// warlord (330 HP, strength 70) is one to grow into.
 
 import { newQuest, newStep, mergeQuest, questDepth } from '../../../js/quests.js';
 import { dawnward } from './dawnward.mjs';
