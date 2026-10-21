@@ -2363,7 +2363,7 @@ then a restart (signs and props are read at start-up; flan was online, so
   all four NPCs right at each stage. Aldous offers his zl_ quests before
   any thank-you (as before); with them done msd gets the new line,
   alternating with his greeting.
-- 20:27, approved: Trader Kossk dw_brood_done "Hsss. The Chieftain kept
+- 20:27, approved: Trader Kossk dw_brood_done "Hsss. The Chieftain saw
   your locket? Then the girl was real. Buy something, warm-blood."
   (alternates with his greeting); Chieftain Hesska ft_word_done "The shard
   did its work. The brood remembers you now, warm-blood." and dw_road_done

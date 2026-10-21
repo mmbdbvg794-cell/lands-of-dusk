@@ -35,7 +35,7 @@ const AFTER = [
   ['Archivist Zyrith', 'ft_word', 'You found her, and the gate is shut. Perhaps I am a little less sorry.', false],
   ['Tombkeeper Aldous', 'ft_word', 'The old king\'s granddaughter is alive. I told him this morning. I think he heard.', false],
   // Added the same evening.
-  ['Trader Kossk', 'dw_brood', 'Hsss. The Chieftain kept your locket? Then the girl was real. Buy something, warm-blood.', false],
+  ['Trader Kossk', 'dw_brood', 'Hsss. The Chieftain saw your locket? Then the girl was real. Buy something, warm-blood.', false],
   ['Chieftain Hesska', 'ft_word', 'The shard did its work. The brood remembers you now, warm-blood.', false],
   ['Chieftain Hesska', 'dw_road', 'Ithrae told me where her road went. The brood remembers her.', false],
 ];
