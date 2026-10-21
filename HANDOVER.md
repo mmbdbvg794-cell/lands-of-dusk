@@ -2216,6 +2216,16 @@ then a restart (signs and props are read at start-up; flan was online, so
   ways, every edited sign read in game (500,200 and 500,500 can't be stood
   on), the walk-ons that can be reached. Scratch stopped.
 
+## 2026-10-21 17:13: step 4's old-world NPC lines (LIVE, no restart)
+
+- Approved by the user: tools/server/canon_relics.mjs (walk-ons 440,76,
+  440,79, 442,72, 463,63, the Midnight inn beds 464,60/464,62/465,61,
+  479,37, 479,38, 479,45, 195,197, 7,966; quest fr_dragon's reply and
+  after), then merge_quests.mjs for Reeve Osric. Installed with
+  canon_install.sh (backup backups/canon-20261021-171343). fireorb.mjs and
+  frozenreach.mjs carry the same lines. The 56 thief props in Trank's hall
+  are unchanged.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,

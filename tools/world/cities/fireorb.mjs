@@ -22,7 +22,7 @@ const TITLE = 'The Fire Orb';
 const head = (what) => `#${what} ("The Fire Orb", tools/world/cities/fireorb.mjs).\n`;
 
 const GIVER = head('The man whose fire orb is in the vault') + `if hasCondition trigger fireorb_done
-	chat trigger " Thank you again for my fire orb. Spend those riches wisely."
+	chat trigger " Thank you again for my fire orb. Spend those riches wisely; there won't be more."
 	endscript
 end
 if hasCondition trigger fireorb_returned
@@ -41,7 +41,7 @@ if hasCondition trigger fireorb_on
 	chat trigger " Haven't you got my fire orb from the vault yet? Its guards won't let anyone near while they're awake... the old lady in the west meadow brews sleeping potions."
 	endscript
 end
-chat trigger " They locked my fire orb in the vault! If you bring it back to me, I'll pay you with amazing riches."
+chat trigger " They locked my fire orb in the vault! Bring it back and I'll pay you with what's left of the family's riches. It's still a fair bit."
 chat trigger " The guards won't let you near it while they're awake. The old lady in the west meadow may help."
 addCondition trigger fireorb_on
 endscript

@@ -109,12 +109,12 @@ const QUESTS = [
     },
     reminder: 'The frost dragon\'s lair is at the far south-east of the frozen land.',
     reward: { gold: 200, exp: 450, items: ['diamond belt'], says: 'A diamond belt. It\'s all the village had of worth, and you\'ve earned it twice over.' },
-    after: 'The frozen land is quiet. The village owes you everything.',
+    after: 'The frozen land is quiet. Nine families sleep easier, and every one of them knows your name.',
   }, [
     ['place', '', { x: LAIR[0], y: LAIR[1], radius: 6, what: 'the dragon\'s lair', arrive: 'Old ice walls, and bones frozen into them. The cold here is alive, and it breathes.', journal: 'Find the frost dragon\'s lair at the far south-east of the frozen land.' }],
     ['kill', '', { mob: 'ice skeleton', count: 5, what: 'ice skeletons put to rest', journal: 'Put 5 ice skeletons to rest round the lair.' }],
     ['kill', '', { mob: 'frost dragon', count: 1, what: 'the frost dragon', journal: 'Kill the frost dragon.' }],
-    ['talk', REEVE, { says: 'You came back! We saw the sky go strange.', answer: 'The dragon is dead', reply: 'Then we\'re safe. All of us, thanks to you.', journal: 'Tell Reeve Osric the frost dragon is dead.' }],
+    ['talk', REEVE, { says: 'You came back! We saw the sky go strange.', answer: 'The dragon is dead', reply: 'Then we\'re safe, the nine families of us, thanks to you.', journal: 'Tell Reeve Osric the frost dragon is dead.' }],
   ]),
 ];
 

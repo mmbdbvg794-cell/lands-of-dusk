@@ -285,12 +285,8 @@ w('''- **Elowen's homecoming** to Kingshaven (the empty throne; her letter told 
 ''')
 
 w('## 7. Waiting on flan\'s decisions\n')
-w('''**Old-world NPC lines (decision G), drafted 2026-10-21 and not installed:** Izaru and his miner
-in Midnight ("the best place to buy mining equipment", "world famous"), the Midnight innkeeper ("Sweet
-dreams!", "Thank you for coming."), Trank, his bouncer and "All the thieves clap for you. Hurray!",
-Riverside's ExitMan ("hopeing you come back again"), the fire orb man ("amazing riches"), and Reeve
-Osric's "The village owes you everything." Also undecided: the 56 thief figures standing in Trank's
-training hall in Midnight (props, no lines; one more begs on the street).
+w('''**Trank's hall:** 56 thief figures still stand in Trank's training hall in Midnight (props, no lines);
+the old-world NPC lines themselves were rewritten for decision G on 2026-10-21.
 
 **Still cheerful, not in part 2:** the City of Light's walk-on lines ("We are looking forward to your
 visit.", the Market of Light's "lots to be bought here"); the north-west village's 'Dark Star News' and
