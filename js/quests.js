@@ -254,7 +254,10 @@ export function mergeQuest(dlg, q, npc) {
   const rest = stripQuest(dlg, q.id).stages;
   const others = rest.filter((s) => s.quest);
   const own = rest.filter((s) => !s.quest);
-  const mine = questStagesFor(q, npc);
+  // A kept stage (stripQuest) stands in for the quest's own stage with the
+  // same condition, rather than sitting in front of a copy no one hears.
+  const kept = (st) => others.some((o) => o.keep && o.quest === st.quest && o.when?.kind === st.when?.kind && cleanFlag(o.when?.value).toLowerCase() === cleanFlag(st.when?.value).toLowerCase());
+  const mine = questStagesFor(q, npc).filter((st) => !kept(st));
   const all = [...others, ...mine];
   const needs = new Map(all.map((st) => [st.quest, st.requires]));
   const depth = (id, seen = new Set()) => (needs.get(id) && !seen.has(id) ? 1 + depth(needs.get(id), seen.add(id)) : 0);

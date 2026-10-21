@@ -2402,6 +2402,10 @@ then a restart (signs and props are read at start-up; flan was online, so
   Ithrae, Ilvra; Faelith gets a kept sg_heart_done stage with "The Grey
   Blight" answered anew (lore_blight).
 - paintart: ash-sworn in the person family, horned, ash-red (deploy).
+- 23:40 fix: js/quests.js mergeQuest drops a quest stage that a kept stage
+  (same quest, same condition) stands in for, so Faelith has one
+  sg_heart_done stage. Re-merge of the live main-story NPCs: 0 changes.
+  ~/sg-talk rebuilt from live and re-staged.
 - Scratch (botcheck boosted to 3000 HP / str 300 for the fights; grove
   thinned to 5 wolves on scratch only): all four quests, the drow through
   sg_web + sg_ash, the crack with 0/2/3 heartstones, Faelith before/after,
