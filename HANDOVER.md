@@ -2132,6 +2132,9 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
 - Quests gs_crawlers -> gs_drift -> gs_knocking (Garrick, Garrick, Bryn).
   Rewards bronze helmet / iron gloves / bronze shield. Delvers drop the
   "brass lamp" at 0.5 (not "Wil's lamp": the engine says "You got a <name>").
+  The lamp has cost 30 (sells for 15; cost 0 can't be sold), added 15:28
+  straight into live and scratch defItems (getItem reads the file each
+  time: no restart). No player had one yet.
 - The mine's rock is now tile 98 (end of the build), like Velkarath; the
   new halls are built after the veins, so the 21 veins didn't move (props:
   29 added, 34 already there). mayBuild is now () => true (the whole box is

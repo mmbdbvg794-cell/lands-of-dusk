@@ -634,6 +634,7 @@ backups; see `server/`.
 - In the Painted style the duergar are grey dwarves in dark iron (the
   delvers with picks); Thrumgar wears a horned helm and a gold-trimmed
   shield.
+- Spare brass lamps (the delvers keep dropping them) sell for 15 gp.
 
 ## From the play-tests (15–21 October 2026)
 

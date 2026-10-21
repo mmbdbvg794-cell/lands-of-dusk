@@ -382,7 +382,8 @@ export default {
     lamps(921, 248, 949, 284, 10);
 
     for (const [name, stats] of Object.entries(MOBS)) p.file(`defMobs/${name}`, mobFile(stats));
-    p.file(`defItems/${LAMP}`, itemFile('a dented brass miner\'s lamp, W.A. scratched on the handle', 7));
+    // Cost 30 (sells for 15): delvers still drop it after The Old Drift.
+    p.file(`defItems/${LAMP}`, `type\nitem\ndescription\na dented brass miner's lamp, W.A. scratched on the handle\ncost\n30\nimage\n7\n.\n`);
     for (const q of QUESTS) p.quest(q);
 
     // The rock as grey fieldstone (tile 98), not 'R' (49, drawn as a
