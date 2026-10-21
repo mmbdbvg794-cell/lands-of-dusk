@@ -667,6 +667,11 @@ What they ran into is fixed:
   Patrol say how to reach their caverns, each stair's foot is signed with
   its name, and climbing the west stair says Aelindor Landing lies
   north-east.
+- **Velkarath feels lived in.** The Fungus Gardens, with mushroom patches
+  anyone can gather from and a gardener selling sickles; a Night Market
+  with a leather-and-silk weaver and a cook; people at home in the four
+  houses, a drunk outside the Black Lantern, a lady of the House by the
+  palace, and a barracks north of the Pit with its sergeant.
 - **Quests.** Ilsevel in Aelindor sets a task (a gloom hound's fang from the
   den north-west of the city) before her blessing. In Velkarath, Matron
   Xalyth's rite now makes a hatchling a Drow of House Xalyth.

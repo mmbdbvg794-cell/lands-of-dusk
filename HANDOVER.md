@@ -2064,14 +2064,38 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   cobblestones (open item). Velkarath feels big and empty (a big plaza,
   ~10 identical houses): the user's call.
 
+## 2026-10-21 11:55: Velkarath lived in (LIVE, restart 11:55:27)
+
+- The user: "fill out velkarath more, make it feel more lived in". Added
+  in velkarath.mjs (TOWNSFOLK, WARES garden/weaver/cook, the build's
+  homes section):
+  - the Fungus Gardens (plan 62-80, 90-97; map 1322-1340, 940-947): 16
+    mushroom patches anyone can gather from (Crafting source, sickle),
+    Fungus-Tender Ilphra sells herb sickles and mushrooms
+  - the Night Market (plan 89-111, 90-97): Weaver Zilvra (leather cap,
+    helmet, belt, sleeves, leggings, pants, jerkin, small/large bag:
+    Velkarath had no armour shop) and Cook Rhylla (sandwich, mushroom,
+    water, ale), barrels, sacks and three shoppers (look-only props)
+  - someone in each of the four homes (Old Ghaundra, Sabal and a Drow
+    Hatchling prop, Dhuunyl the Lamplighter, Ilzt off duty), a chest and a
+    barrel each; Raelag outside the Black Lantern, Lady Myrymma by the
+    palace; a barracks north of the Pit (plan 113-122, 57-62) with bunks
+    and Sergeant Ilzaer. One short line each (two have topics); only the
+    stallholders and Raelag call out
+- Installed with only the squares of those three areas
+  (tools/world/bundle_only.py <bundle> <out> 1322,940,1340,947
+  1349,940,1371,947 1373,907,1382,916): a full Velkarath bundle would
+  take out 99 wall torches that lights-velkarath.mjs put in after. Any
+  later Velkarath rebuild needs the same, or lights-velkarath rebuilt
+  after it. install_city kept the live Dark Elf Guard.dlg (same content).
+- Checked on scratch (Velrith): every shop, the dens and all three stairs
+  reachable on foot; bought a sickle from Ilphra and gathered a mushroom;
+  bought a leather cap from Zilvra.
+- B2 off-site backup checked: no cap errors since --fast-list (log quiet
+  since 2026-10-20 23:30), the 11:16 users zip is in the bucket.
+
 ## Open / ideas
 
-- Next to check: the B2 off-site backup after 2026-10-21 04:30 UTC. rclone
-  ran out of B2's free 2,500 class C calls a day (one list per directory);
-  --fast-list was added to duskserver's crontab 2026-10-20 ~12:10 (old one
-  in ~/crontab-before-fastlist.bak). ~/DuskRPG/rclone_backup.log should
-  have no "Transaction cap" lines on the 21st; if it does, cut the
-  frequency or add --max-age. Then check the account zips reach the bucket.
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes + transcript,
   brief). Run 8 could be a lizardfolk (run 3) to check Ssarakh, or a dark
   elf again to see if run 7's directions get one to the dens and Aelindor;

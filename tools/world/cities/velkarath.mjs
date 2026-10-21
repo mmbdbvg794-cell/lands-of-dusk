@@ -160,6 +160,44 @@ export const GUARD = {
     { label: 'Farewell', reply: 'The Matron sees all.' },
   ])],
 };
+// Townsfolk (the user, 2026-10-21: make Velkarath feel lived in). Short
+// lines; only the stallholders and Raelag call out.
+const GARDENER = shop(
+  ['Mushrooms, fresh from the dark!'],
+  'The gardens feed the city. Gather from any patch with a sickle: stand beside it and type gather. Sickles at my counter.',
+);
+const WEAVER = shop(
+  ['Leather and silk, cut for the Drow!'],
+  'Caps, belts, leggings and bags. Stand at my counter and look in the Shop tab.',
+);
+const COOK = shop(
+  ['Hot food! Cheaper than the Lantern!'],
+  'Roast cave lizard in bread. Do not ask which cave. Stand at my counter and open the Shop tab.',
+);
+const talker = (text, answers = []) => ({ shouts: [], stages: [always(text, answers)] });
+const TOWNSFOLK = [
+  // [name, look, description, x, y, dialogue]
+  ['Old Ghaundra', 'Dark Elf Woman', 'Old Ghaundra, white-haired and sharp-eyed.', 64, 87,
+    talker('I have served three Matrons. This one is the cleverest. Do not tell her I said so.')],
+  ['Sabal', 'Dark Elf Woman', 'Sabal, mending a crossbow string.', 74, 87,
+    talker('Mind the hatchling. She bites.')],
+  ['Dhuunyl the Lamplighter', 'Dark Elf Man', 'Dhuunyl, soot to the elbows.', 96, 87,
+    talker('The dark is ours, but we like to see it. Every brazier in the city is mine to tend.')],
+  ['Ilzt', 'Dark Elf Guard', 'Ilzt, an off-duty guard with his boots off.', 106, 87,
+    talker('Off duty. Go away. ...Unless you brought ale.')],
+  ['Raelag', 'Dark Elf Man', 'Raelag, swaying gently outside the Black Lantern.', 62, 60,
+    { shouts: ['Mushroom ale! Brewed in the dark, drunk in the dark!'], stages: [always('The ale here is brewed from mushrooms. So am I, by now.', [
+      { label: 'News?', reply: 'They say the surface elves sleep with their windows open. Madness.' },
+      { label: 'Farewell', reply: 'Mind the step. There is no step. Mind it anyway.' },
+    ])] }],
+  ['Lady Myrymma', 'Dark Elf Matron', 'Lady Myrymma of House Xalyth, in violet silk.', 91, 57,
+    talker('A cousin of the Matron. You may look at me. Briefly.')],
+  ['Sergeant Ilzaer', 'Dark Elf Guard', 'Sergeant Ilzaer, sharpening a long knife.', 119, 59,
+    talker('The Pit is for hatchlings. Real fights are in the caverns.', [
+      { label: 'Duergar?', reply: 'Grey dwarves from below. They raid the north-west cavern. The bounty board pays for them.' },
+      { label: 'Farewell', reply: 'Keep your edge.' },
+    ])],
+];
 const NALFEIN = { shouts: [], stages: [always('The Fire Well never goes out. They say it reaches down to the heart of the world.')] };
 const ZESSTRA = { shouts: [], stages: [always('Watch the side caves. The bats up north-west are the size of dogs, and twice as hungry.')] };
 
@@ -292,12 +330,16 @@ const BASE_PROPS = {
   'Dark Elf Matron': PROP(5, 'A dark elf matron in purple and gold, used to being obeyed.'),
   'Dark Elf Priestess': PROP(5, 'A dark elf priestess, a silver spider at her throat.'),
   'Dark Elf Teller': PROP(5, 'A dark elf banker behind a counter of black stone.'),
+  'Drow Hatchling': PROP(5, 'A dark elf hatchling, chewing on a mushroom stalk.'),
 };
 
 const WARES = {
   inn: ['water', 'ale', 'mushroom', 'sandwich'],
   smith: ['dagger', 'curved dagger', 'assassin blade', 'short sword', 'wooden crossbow', 'arrow', 'leather vest', 'leather gloves'],
   alchemy: ['minor potion', 'minor mana potion', 'red potion', 'x-potion', 'mushroom', 'mandrake', 'wolfsbane'],
+  garden: ['herb sickle', 'mushroom'],
+  weaver: ['leather cap', 'leather helmet', 'leather belt', 'leather sleeves', 'leather leggings', 'leather pants', 'leather jerkin', 'small bag', 'large bag'],
+  cook: ['sandwich', 'mushroom', 'water', 'ale'],
   train: ['train:Strength', 'train:Intelligence', 'train:Dexterity', 'train:Constitution', 'train:Wisdom', 'train:HP', 'train:MP', 'train:Dodge', 'train:Regeneration', 'train:Mana Regen', 'train:Spell Power'],
 };
 
@@ -425,9 +467,41 @@ export default {
       p.building(x, 84, 8, 6, { wall: 's', floor: 'M', doors: [['n', 3]] });
       p.set(x + 3, 83, 'e');
       p.prop('bed', x + 1, 88); p.prop('chair', x + 5, 86);
-      if (who) p.npc(who);
+      p.prop('chest', x + 6, 88); p.prop('barrel', x + 6, 85);
     };
     home(60); home(70); home(92); home(102);
+    p.prop('Drow Hatchling', 72, 86);
+
+    // Who lives here: the homes, the street, the barracks.
+    for (const [name, look, desc, x, y, dlg] of TOWNSFOLK) p.npc({ name, look, desc, x, y, dlg });
+
+    // The barracks, north of the Pit.
+    p.building(113, 57, 10, 6, { wall: 's', floor: 'M', doors: [['s', 5]] });
+    for (const [x, y] of [[114, 58], [116, 58], [114, 61], [116, 61]]) p.prop('bunk', x, y);
+    p.prop('chest', 121, 61);
+    p.fill(118, 63, 1, 4, 'e');
+    p.sign('Barracks', 'The barracks of the city guard.', 119, 64);
+
+    // The Fungus Gardens (south): patches anyone may gather from.
+    p.fill(62, 90, 19, 8, 'k');
+    p.fill(63, 93, 17, 5, 'e');
+    for (const y of [94, 96]) for (let x = 64; x <= 78; x += 2) p.prop('mushroom patch', x, y);
+    p.npc({ name: 'Fungus-Tender Ilphra', look: 'Dark Elf Woman', desc: 'Ilphra, who tends the Fungus Gardens.', x: 72, y: 91, dlg: GARDENER });
+    p.merchant(72, 92, WARES.garden);
+    p.sign('The Fungus Gardens', 'The Fungus Gardens. Gather with a sickle: Ilphra sells them.', 80, 91);
+
+    // The Night Market (south-east of the gardens): two stalls and shoppers.
+    p.fill(89, 90, 23, 8, 'k');
+    const stall = (x, who, wares) => {
+      p.fill(x - 1, 92, 3, 1, 's');
+      p.npc({ ...who, x, y: 91 });
+      p.merchant(x, 93, wares);
+    };
+    stall(92, { name: 'Weaver Zilvra', look: 'Dark Elf Woman', desc: 'Zilvra the weaver, a spool of black silk on her wrist.', dlg: WEAVER }, WARES.weaver);
+    stall(101, { name: 'Cook Rhylla', look: 'Dark Elf Woman', desc: 'Rhylla, turning skewers over a bed of coals.', dlg: COOK }, WARES.cook);
+    p.sign('The Night Market', 'The Night Market: leather and silk, and hot food.', 89, 91);
+    for (const [name, x, y] of [['barrel', 90, 96], ['barrel', 91, 96], ['goods', 106, 92], ['food', 107, 92], ['brazier', 104, 95],
+      ['Dark Elf Woman', 96, 95], ['Dark Elf Man', 99, 96], ['Dark Elf Man', 108, 94]]) p.prop(name, x, y);
 
     // Lava pools and crystals in the cavern.
     p.oval(51, 86, 6, 4, 'L');
