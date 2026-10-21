@@ -2136,7 +2136,7 @@ in Velkarath mentions the stairs up. Claims checked in the transcript:
   straight into live and scratch defItems (getItem reads the file each
   time: no restart). No player had one yet.
 - Old Fisher Tam (capital.mjs): "Forty years I've fished this shore, since
-  the ships came." Live talk/ script + .dlg edited 15:3x (backup
+  the ships came." Live talk/ script + .dlg edited 15:30 UTC (backup
   backups/fisher-tam-*, .dsko removed, no restart); dropped from
   lore_bible.py section 7; /root/DUSK_LORE_BIBLE.md regenerated.
 - The mine's rock is now tile 98 (end of the build), like Velkarath; the
