@@ -2451,6 +2451,49 @@ then a restart (signs and props are read at start-up; flan was online, so
   live yet" (now: The Grey Beneath, from scratchpad sg/stagedq).
   /root/DUSK_LORE_BIBLE.md regenerated from live 12:05.
 
+## 2026-10-22 13:05: Homecoming (hc_) and decision R (BUILT, tested on scratch, not live)
+
+- tools/world/cities/homecoming.mjs: hc_row (Elowen in her cell, needs
+  ft_word: tell Old Bram) -> hc_chair (Elowen at home: Halvard, then back
+  to her) -> hc_herald (the old graves above the beach 1570-1585 x
+  435-445: 5 risen king's-men, the Grey Herald, the sealed letter to
+  Elowen; gaol-chain belt). Achievement chaircold "The Chair Stays Cold"
+  (hc_herald_done).
+- Elowen in two places: defPropPlaces/Elowen@369_348 hiddenIf hc_row_done;
+  a second Elowen prop at 1430,351 (beside Wenna; no house fits next to
+  her: the plaza's west side is Bartender Gus's tavern), place file
+  shownIf hc_row_done, look "grey-haired woman" (a new base prop, painted
+  in tools/paintart/items.js), its own description.
+- Monsters: risen king's-man 120 HP / str 55 (barrow skeleton tier, faction
+  of its own), Grey Herald 350 / 70 (own faction, drops the letter 100%);
+  image 32; Painted: skeleton family (bestiary.js), a tattered blue tabard
+  with a gold sun, and a grey hooded robe with the black-wax letter.
+  Items: sealed letter (cost 0), gaol-chain belt (waist, mod 200 = the
+  diamond belt's, cost 1200, durability -1, gearneeds STR 15; AC 30 worn).
+- tools/server/homecoming_talk.mjs: merges hc_ into Elowen, Old Bram,
+  Halvard; kept standing lines (main_story_after's way) for Bram, Wenna,
+  Aldous (hc_row_done), Halvard, the Royal Guard (hc_chair_done).
+- No notYet on hc_herald: a not-yet stage (rank 3) sits before every
+  thank-you, so in her cell it cut in on Across the Burning Sea (a player
+  at ft_cross_3 heard "Let me get through the keep first."), and at home
+  the hc_chair stages always come first. A later quest in a chain whose
+  giver gave earlier ones shouldn't have a notYet.
+- tools/server/homecoming_install.sh: install_city + canon_install (talk)
+  + add_achievement + the gearneeds line; each step backs up, re-runs
+  change nothing. Order-safe with The Grey Beneath (both append).
+- Scratch (hcnone: ft up to ft_seal; hcdone: ft_word done; both boosted,
+  password hcpw2026): hcnone sees no Elowen on the plaza, and in her cell
+  she still offers ft_word; hcdone: hc_row offer/decline/accept/reminder,
+  Bram's step, then gone from the cell and beside Wenna; hc_chair; graves
+  arrival, 5 of 5, the Herald, letter, belt worn, achievement. Every
+  standing line before and after. Talk reach is 2: in Firetown stand at
+  371,350 (her cell is walled off from the landing).
+- Staged on duskserver ~/hc-stage (made from live 12:40; dry run on live
+  clean 13:02). Install, restart, deploy (art and people.json).
+- LORE.md: Homecoming under "The crossing", K partly in game, N built,
+  decision R (new section 2026-10-22), open threads. lore_bible.py
+  section 6 updated; regenerate the bible after the install.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
@@ -2471,7 +2514,7 @@ then a restart (signs and props are read at start-up; flan was online, so
   unbuilt spells if wanted (haste needs a Battle patch; turn undead an
   undead flag on monsters; spider swarm an all-foes hit; shadow step a
   "nearby room").
-- Lore next: Elowen's homecoming to Kingshaven; Kraghul and the Horde in
+- Lore next: Morvane "coming himself" (after Homecoming); Kraghul and the Horde in
   the dunes; Morvane's journal pages as boss drops.
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains, and

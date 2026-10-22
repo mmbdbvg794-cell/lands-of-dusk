@@ -627,6 +627,17 @@ function boots(ctx, n) {
 }
 
 function belt(ctx, n) {
+  // The gaol-chain belt (Homecoming): a loop of dark iron links, broken
+  // open at the front.
+  if (/chain/.test(n)) {
+    shadow(ctx, 30, 7);
+    for (let i = 0; i < 18; i++) {
+      const a = Math.PI * 0.62 + i * (Math.PI * 1.76 / 17), x = CX + Math.cos(a) * 28, y = 82 + Math.sin(a) * 11;
+      ctx.strokeStyle = '#4a4c52'; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.ellipse(x, y, 4.5, i % 2 ? 2 : 3.5, a + Math.PI / 2, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = '#9a9ea6'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(x, y - 0.5, 4.5, i % 2 ? 2 : 3.5, a + Math.PI / 2, Math.PI, Math.PI * 1.8); ctx.stroke();
+    }
+    return;
+  }
   const c = /leather|sash/.test(n) ? (/red/.test(n) ? '#c8242c' : /sash/.test(n) ? '#3a5aa0' : '#6a4424') : material(n);
   shadow(ctx, 30, 7);
   ctx.strokeStyle = shade(c, 0.5); ctx.lineWidth = 12;
@@ -767,6 +778,8 @@ function propPerson(ctx, n) {
       hairStyle: /old/.test(n) ? 'bun' : styles[Math.floor(hashName(n) * styles.length)],
       top: fabric(n), skirt: fabric(n + 'x'),
     });
+    // Elowen at home (Homecoming): grey hair worn long, a plain grey-brown cloak.
+    if (/grey-haired/.test(n)) Object.assign(look, { hair: '#b4b4bc', hairStyle: 'long', top: '#6a6052', trim: '#4a4238', skirt: '#4e463c' });
   } else if (/hermit|old|crazy/.test(n)) {
     Object.assign(look, { top: '#6a5a3a', trim: '#4a3a24', hair: '#d8d8d0', beard: '#d8d8d0' });
   } else if (/child/.test(n)) {

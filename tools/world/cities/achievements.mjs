@@ -29,6 +29,7 @@ export const ACHIEVEMENTS = [
   ['dawnward', 'The Dawnward', 'Learn what became of Princess Elowen', 'flags', 'dw_road_done', 1],
   ['riftsealed', 'The Rift Sealed', 'Close the rift under Firetown and bring word home', 'flags', 'ft_word_done', 1],
   ['doorheld', 'The Door Held', 'Pin the door under the withered grove', 'flags', 'sg_hold_done', 1],
+  ['chaircold', 'The Chair Stays Cold', 'See Elowen home and learn who comes for the chair', 'flags', 'hc_herald_done', 1],
   ['champion', 'Champion', 'Win the Champion\'s Blade in the Champions\' Gauntlet', 'flags', 'Champion', 1],
   ['loremaster', 'Keeper of Tales', 'Learn every tale of Dusk, from the chroniclers and the old stones', 'flags', LORE_FLAGS.join(','), LORE_FLAGS.length],
   ['duellist', 'Duellist', 'Win a duel in the Duelling Ring', 'duelwins', '', 1],

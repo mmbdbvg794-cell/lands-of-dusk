@@ -70,9 +70,22 @@ and add to it here first.
   keep the chair warm for me; keep the people warm." She stays in Firetown
   until she can walk the passage. (Per player: the rift is closed in each
   player's own story.)
-  **Open threads:** Elowen coming home to Kingshaven (decision N);
-  Kraghul and the Horde still in the dunes above Eastreach (decision L);
-  Morvane, still risen (decision K).
+  **Open threads:** Kraghul and the Horde still in the dunes above
+  Eastreach (decision L); Morvane, still risen (decision K).
+- **Homecoming** (homecoming.mjs): Elowen walks the passage at last, and
+  Old Bram keeps his promise: he rows her to Westsea, and she sails to
+  Kingshaven on the Royal Swan. She lives with Old Wenna, off the plaza,
+  and refuses the chair: Lord Steward Halvard keeps governing, and she
+  keeps him honest (decision R). Then dead men in King Zilen's colours
+  walk at the old graves above the beach south-east of the city (the
+  crossing's dead, the **risen king's-men**), led by the **Grey Herald**,
+  who carries her uncle's letter: "Niece. The chair is mine by blood.
+  Give it up, or I will come and take it. M." She signs "E." because she
+  learned it from him. She gives the **gaol-chain belt**, the chain from
+  her cell, broken; the achievement is *The Chair Stays Cold*. (Per
+  player: she is in her cell, or at Wenna's, by each player's own story.)
+  **Open threads:** when Morvane "comes himself"; the crown, still on
+  King Zilen's brow in the City of Light.
 - New human characters are refugees still in the old world (decision I):
   the tutorial ("From Refugee to Soldier...") is at Westsea Harbour, where
   they wait for a berth east, enlist and are trained; the teleport stone
@@ -242,10 +255,11 @@ Decided by flan (canon cleanup, part 2).
 
 ## Canon decisions (2026-10-21, pillars)
 
-Decided by flan. None of these is built yet.
+Decided by flan. Most were lore only when decided; each says how far it is built.
 
-- **K. Morvane wants the crown and the chair.** (NOT YET IN GAME: no NPC
-  states this.) The crown of Zilen commands the kingdom's dead: that is
+- **K. Morvane wants the crown and the chair.** (PARTLY IN GAME: the Grey
+  Herald's letter (Homecoming) shows he wants the chair. The crown's
+  power over the dead is still secret.) The crown of Zilen commands the kingdom's dead: that is
   why the dead marched in the old king's colours (Old Wenna's father).
   Morvane never needed the fire; he needs to be crowned. His agent bought
   King Zilen's crown (decision C), and Aldous's "Whoever paid for it will
@@ -260,7 +274,7 @@ Decided by flan. None of these is built yet.
   answers it.
 - **N. Elowen comes home to Kingshaven and refuses the crown.** She would
   rather the chair stay empty than be a prize. Morvane hunts her anyway.
-  (Not built yet.)
+  (BUILT: Homecoming, homecoming.mjs.)
 - **O. The Spider Queen is the Weaver of the seals.** (HINTED TO DROW ONLY:
   Priestess Ilvra's *A Strand Pulled Thin*, sg_web, speaks of her web.) A
   first-age power whose web binds the seven gates. The Drow went below to
@@ -291,4 +305,16 @@ Decided by flan. None of these is built yet.
   whole one left is the Brood Stone in Ssarakh ("and it stays", Ithrae).
 - Kraghul knows someone stands in his way: his Breaker is dead and his
   door pinned.
-- What Elowen does in Kingshaven if she won't rule.
+- What Elowen does in Kingshaven if she won't rule. (Answered by
+  decision R.)
+- When Morvane "comes himself" (his letter's threat).
+- The crown, still on King Zilen's brow in the City of Light.
+
+## Canon decisions (2026-10-22)
+
+Decided by flan.
+
+- **R. Elowen lives with Old Wenna, off Kingshaven's plaza.** (IN GAME:
+  Homecoming.) She will not sit on the throne; Lord Steward Halvard keeps
+  governing, and she keeps him honest. Her uncle signs his letters "M.",
+  as she signs hers "E.": she learned it from him.

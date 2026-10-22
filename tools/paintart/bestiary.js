@@ -377,6 +377,29 @@ function skeleton(ctx, name, step = 0) {
     fill(ctx, ell(ctx, 100, 130, 18, 24), knight ? '#6a6a74' : '#7a5a34', [82, 106, 118, 154]);
   }
   if (knight) fill(ctx, () => { ctx.beginPath(); ctx.arc(128, 72, 23, Math.PI, Math.PI * 2); ctx.closePath(); }, '#7a7a84', [105, 49, 151, 72]);
+  // The risen king's-men (Homecoming): a tattered royal-blue tabard over
+  // the ribs, a faded gold sun on it, the hem torn.
+  if (/king's-man/.test(name)) {
+    fill(ctx, () => { ctx.beginPath(); ctx.moveTo(108, 98); ctx.lineTo(148, 98); ctx.lineTo(150, 150); ctx.lineTo(144, 162); ctx.lineTo(138, 150); ctx.lineTo(131, 166); ctx.lineTo(124, 152); ctx.lineTo(116, 164); ctx.lineTo(110, 150); ctx.lineTo(106, 156); ctx.closePath(); }, '#2a3a6a', [106, 98, 150, 166]);
+    ctx.fillStyle = 'rgba(200,170,80,0.75)'; ctx.beginPath(); ctx.arc(128, 120, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(20,16,12,0.55)'; for (const [x, y, r] of [[116, 108, 3], [140, 136, 4], [122, 142, 2.5]]) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
+  }
+  // The Grey Herald: a grey hooded robe to the ground, the skull in the
+  // hood's shadow, a letter sealed with black wax at the belt.
+  if (/grey herald/.test(name)) {
+    fill(ctx, () => { ctx.beginPath(); ctx.moveTo(104, 96); ctx.quadraticCurveTo(92, 170, 86, 226); ctx.lineTo(170, 226); ctx.quadraticCurveTo(164, 170, 152, 96); ctx.closePath(); }, '#7a7a80', [86, 96, 170, 226]);
+    ctx.strokeStyle = 'rgba(30,30,34,0.5)'; ctx.lineWidth = 2;
+    for (const x of [110, 128, 146]) { ctx.beginPath(); ctx.moveTo(x, 150); ctx.lineTo(x + (x - 128) * 0.25, 224); ctx.stroke(); }
+    ctx.fillStyle = '#4a4a50'; ctx.fillRect(100, 146, 56, 6);
+    fill(ctx, () => { ctx.beginPath(); ctx.rect(134, 150, 18, 12); }, '#e4dcc0', [134, 150, 152, 162], 1.5);
+    ctx.fillStyle = '#141414'; ctx.beginPath(); ctx.arc(143, 156, 3.5, 0, Math.PI * 2); ctx.fill();
+    for (const [x, d] of [[104, -1], [152, 1]]) limb(ctx, [[x, 104], [x + d * 10, 134], [x + d * 6, 150]], 12, 10, '#6e6e74');
+    fill(ctx, () => { ctx.beginPath(); ctx.moveTo(98, 100); ctx.quadraticCurveTo(96, 40, 128, 38); ctx.quadraticCurveTo(160, 40, 158, 100); ctx.quadraticCurveTo(128, 110, 98, 100); ctx.closePath(); }, '#6a6a70', [96, 38, 160, 108]);
+    fill(ctx, ell(ctx, 128, 78, 17, 20), '#c8c0ac', [111, 58, 145, 98]);
+    ctx.fillStyle = 'rgba(10,10,12,0.55)'; ctx.beginPath(); ctx.ellipse(128, 64, 22, 12, 0, Math.PI, Math.PI * 2); ctx.fill();
+    for (const ex of [121, 135]) { ctx.fillStyle = '#0c0a08'; ctx.beginPath(); ctx.ellipse(ex, 78, 4.5, 5.5, 0, 0, Math.PI * 2); ctx.fill(); }
+    ctx.fillStyle = '#0c0a08'; for (let x = 121; x <= 135; x += 4) ctx.fillRect(x, 92, 2, 4);
+  }
   ctx.restore();
 }
 
@@ -433,7 +456,7 @@ function person(ctx, name, step = 0) {
 
 // First match wins, so skeletons come before knights ("skeleton knight").
 export const FAMILIES = [
-  { paint: skeleton, match: /skeleton|stalfos/, walks: true },
+  { paint: skeleton, match: /skeleton|stalfos|king's-man|grey herald/, walks: true },
   { paint: person, match: /knight|guard|warden|soldier|gladiator|warlord|duergar|ash-sworn/, walks: true },
   { paint: dragon, match: /dragon|freyrbrand|dino|dinosaur/ },
   { paint: wolf, match: /wolf|coyote|dog|hound|puppy|rufus|trainer/, walks: true },
