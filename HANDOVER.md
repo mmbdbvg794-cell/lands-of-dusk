@@ -2441,6 +2441,16 @@ then a restart (signs and props are read at start-up; flan was online, so
   editing a user file right after a browser session closes is undone by
   the server's save on disconnect: wait for it.
 
+## 2026-10-22 12:05: lore bible from live, with the engine's new story tools
+
+- tools/lore_bible.py: section 0 lists NPC visibility by flag, one NPC in
+  two places (defPropPlaces), lines after later quests, quests setting
+  extra flags, item-counting squares, and that monsters aren't per player;
+  a "Status of this copy" note. Optional 4th argument: a staged quests
+  dir, printed for a chain with none on live, marked "Not installed on
+  live yet" (now: The Grey Beneath, from scratchpad sg/stagedq).
+  /root/DUSK_LORE_BIBLE.md regenerated from live 12:05.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,

@@ -3,6 +3,7 @@ import json, glob, os, re, sys
 D = sys.argv[1]           # pulled game data (quests/, talk/, classes, worldbosses)
 REPO = sys.argv[2]        # dusk-browser-client
 OUT = sys.argv[3]
+# sys.argv[4] (optional): a staged build's quests dir, for chains not live yet
 CITIES = os.path.join(REPO, 'tools/world/cities')
 o = []
 w = o.append
@@ -39,6 +40,12 @@ quests = {}
 for f in glob.glob(os.path.join(D, 'quests/*.json')):
     q = json.load(open(f))
     quests[q['id']] = q
+# Optional: a staged build's quests dir (built, not installed on live yet),
+# used for a chain that has no quests on live.
+staged = {}
+for f in glob.glob(os.path.join(sys.argv[4], '*.json')) if len(sys.argv) > 4 else []:
+    q = json.load(open(f))
+    staged[q['id']] = q
 
 def order(ids):
     ids = set(ids); out = []
@@ -115,8 +122,23 @@ refine story, then write **build prompts** for that agent.
   new NPCs, new buildings/areas dug into the map, signs, walk-on scripts (teleports, messages).
 - World bosses rise on a timer; bounty boards give daily kill quests; achievements exist.
 - Story state is **per player** (closing the rift happens in each player\'s own story, not globally).
+- **NPCs can be shown or hidden per player by flag** (since 2026-10-21): an NPC appears only to
+  players with a flag, or only to those without it. The **same NPC can stand in two places** (since
+  2026-10-22), each with its own look, description and rule: Elowen in her Firetown cell for players
+  who haven't finished The Firetown Expedition, and in Kingshaven for those who have. Both share one
+  conversation, which branches on the player's flags.
+- An NPC's lines can change after **later** quests, not just their own ("She lived. I keep saying it...").
+- Finishing a quest can set extra flags (a lore tale, a story state) besides its own.
+- Walk-on squares can check flags and items (even "carrying three of X"), take and give items, set
+  flags and teleport: good for digging something up, or setting stones round a crack.
+- **Monsters are the same for everyone** (not per player yet): a story fight's monster is visible to,
+  and fightable by, anyone nearby, and respawns. Per-player monsters would need engine work.
 - Hard limits: no cutscenes, no voice, no branching world state shared by everyone, no new races
   without big work. Monster "level" is ignored; strength comes from HP/str/dex.
+
+**Status of this copy**: generated from the live server. **The Grey Beneath** (sg_, the southern
+gate's first chain) is built and tested but **not installed on live yet**: its quests are printed in
+section 3 from the staged build, and where the canon says it is "in game", read "once installed".
 
 **A good build prompt for Claude Code contains**
 1. The goal and which canon it extends (quote the relevant lines from this doc).
@@ -181,7 +203,13 @@ for pre, name, mjs in CHAINS:
     p = os.path.join(CITIES, mjs)
     if os.path.exists(p):
         w('```\n' + header_comment(p) + '\n```\n')
-    for qid in order([i for i in quests if i.startswith(pre + '_')]):
+    mine = [i for i in quests if i.startswith(pre + '_')]
+    if not mine and staged:
+        mine = [i for i in staged if i.startswith(pre + '_')]
+        if mine:
+            w('_**Not installed on live yet**: built and tested on the scratch server; the text below is the staged build._\n')
+            quests.update({i: staged[i] for i in mine})
+    for qid in order(mine):
         quest_md(quests[qid])
 
 w('### Bounty boards (repeatable daily kill quests)\n')
