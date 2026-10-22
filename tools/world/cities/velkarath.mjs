@@ -15,7 +15,7 @@ const RACE_ONLY = { kind: 'race', flag: 'darkelf', speaker: 'A voice in the dark
 // coordinates: the stair up, the square you arrive on).
 const STAIRS = [
   { name: 'west', mouth: [391, 1236], front: [392, 1236], stair: [9, 60], arrive: [10, 60],
-    up: ' Aelindor Landing and its ships lie north-east.', below: 'The west stair: up to the surface beside Aelindor and its ships. Velkarath is east, along the tunnel.' },
+    up: ' A path runs north from the stair to Aelindor Landing and its ships.', below: 'The west stair: up to the surface beside Aelindor and its ships. Velkarath is east, along the tunnel.' },
   { name: 'south', mouth: [686, 1484], front: [686, 1485], stair: [80, 130], arrive: [80, 129],
     up: '', below: 'The south stair: up to the wild southern hills. Velkarath is north, along the tunnel.' },
   { name: 'east', mouth: [1489, 1407], front: [1488, 1407], stair: [162, 72], arrive: [161, 72],
@@ -335,7 +335,7 @@ const BASE_PROPS = {
 
 const WARES = {
   inn: ['water', 'ale', 'mushroom', 'sandwich'],
-  smith: ['dagger', 'curved dagger', 'assassin blade', 'short sword', 'wooden crossbow', 'arrow', 'leather vest', 'leather gloves'],
+  smith: ['dagger', 'curved dagger', 'assassin blade', 'short sword', 'wooden crossbow', 'leather vest', 'leather gloves'],
   alchemy: ['minor potion', 'minor mana potion', 'red potion', 'x-potion', 'mushroom', 'mandrake', 'wolfsbane'],
   garden: ['herb sickle', 'mushroom'],
   weaver: ['leather cap', 'leather helmet', 'leather belt', 'leather sleeves', 'leather leggings', 'leather pants', 'leather jerkin', 'small bag', 'large bag'],

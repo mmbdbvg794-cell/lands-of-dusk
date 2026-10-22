@@ -87,11 +87,11 @@ const QUESTS = [
       decline: 'Not yet',
       declineReply: 'Every hour you wait, the trail grows colder.',
     },
-    reminder: 'The great cavern, up the passage north-west of the town. Find the camp, and bring me the signet.',
+    reminder: 'The great cavern, up the passage north-west of the town. Find their camp, kill four of the duergar round it, then bring me the signet.',
     reward: { gold: 90, exp: 160, items: ['assassin blade'], says: 'An assassin\'s blade, from the House armoury. Use it well.' },
     after: 'The House remembers those who bring its own home.',
   }, [
-    ['place', '', { x: CAMP[0], y: CAMP[1], radius: 4, what: 'the patrol\'s last camp', arrive: 'A scattered camp: bedrolls slashed, a lamp smashed, and heavy boot-prints that are no elf\'s. Duergar.', journal: 'Find the lost patrol\'s last camp at the mouth of the great cavern north-west of Velkarath.' }],
+    ['place', '', { x: CAMP[0], y: CAMP[1], radius: 7, what: 'the patrol\'s last camp', arrive: 'A scattered camp: bedrolls slashed, a lamp smashed, and heavy boot-prints that are no elf\'s. Duergar.', journal: 'Find the lost patrol\'s last camp at the mouth of the great cavern north-west of Velkarath.' }],
     ['kill', '', { mob: 'duergar soldier', count: 4, what: 'duergar soldiers slain', journal: 'Kill 4 duergar soldiers round the patrol\'s camp.' }],
     ['bring', JHAELRA, { item: 'patrol signet', take: true, says: 'The signet. Do you have it?', answer: 'The patrol signet', reply: 'Their deaths are answered, then. I will tell the Matron.', journal: 'Bring the patrol\'s signet back to Patrol Leader Jhaelra. The duergar carry it.' }],
   ]),

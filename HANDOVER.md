@@ -2494,9 +2494,45 @@ then a restart (signs and props are read at start-up; flan was online, so
   decision R (new section 2026-10-22), open threads. lore_bible.py
   section 6 updated; regenerate the bible after the install.
 
+## 2026-10-22 18:50: play-test 8 fixes (BUILT, tested on scratch, not live)
+
+- Run 8 (dark elf Ranger Zyrnaxquel, ~/dusk-playtest/archive/run8, brief =
+  run 7's): tutorial and Velkarath fine; never reached the ships. Top
+  issues: the west stair's "north-east" led into forest (the pier is 107
+  steps away, 12 squares from where it turned north); The Lost Patrol
+  (kills before the camp don't count, the reminder didn't name them); the
+  Matron's 300 exp makes early fights trivial (flan: leave it for now).
+- tools/world/cities/landingpath.mjs: a dirt path, 91 squares, from where
+  the stair's cobbled clearing ends (393,1222) north and north-east round
+  the trees to the pier's foot (444,1185); sign "To Aelindor Landing" at
+  394,1235. Corners found by tools in the scratchpad (fewest turns over
+  grass/meadow/sand); mayBuild only 36/37/1/38.
+- tools/server/fix_playtest8.py: stair arrival line ("A path runs north
+  from the stair..."); Jhaelra's dp_lostpatrol reminder names all three
+  steps; the camp counts from 7 squares (places file and json); Ryld's
+  sells no arrows (the "arrow" item only works with the old arrow command:
+  an item called "bow" plus the Archery skill; Ssarakh's, Aelindor's and
+  Kingshaven's bow shops still sell it); "use apple, mushroom, or..." in
+  the hunger hint; every ranged item's description ends "It reaches N
+  squares (a diagonal square counts as two)" from its own range (the
+  engine's look <id> shows a carried item's description; "They are
+  wielding <description>" shows it too). Backs up each file once.
+- tools/server/fix_playtest8_talk.mjs: Archivist Zyrith, race darkelf
+  stage "One of our own, with questions. Ask them quietly." before her
+  greeting (lore.mjs zyrith()). Drow on ft_stone still hear "A
+  surface-dweller asking..." and the joined "long way down" (not changed).
+- tools/server/playtest8_install.sh runs the three (stage ~/pt8-stage).
+  velkarath.mjs and deeppatrol.mjs say the same.
+- dusk-bot (outside the repo): look/read/examine falls back to an item you
+  carry or wear (look <id>), as both clients can; PLAYER.md says so. Run 8's
+  "no way to see an item" was partly the bot.
+- Scratch (ptdrowa, pt8pw2026): bow description, Zyrith as drow, Ryld's
+  wares, stair line and sign, walked the path to Captain Liriel on the
+  pier, Lost Patrol reminder and the camp from 7 squares.
+
 ## Open / ideas
 
-- Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,
+- Play-tests: runs 1-8 in ~/dusk-playtest/archive/runN (notes, transcript,
   brief). Suggested next: run 8, a dark elf again, to see if run 7's
   directions, the new market/gardens and the grey walls get a newcomer to
   a trainer, the dens and Aelindor Landing (or a lizardfolk, run 3, for

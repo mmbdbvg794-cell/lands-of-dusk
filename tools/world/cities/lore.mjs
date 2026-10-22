@@ -96,6 +96,16 @@ export const teller = (says, keys, bye = 'Another time.') => ({
   stages: [{ when: { kind: 'always', value: '' }, says, answers: [...keys.map(tale), { label: 'Farewell', reply: bye, effects: [] }] }],
 });
 
+// Archivist Zyrith: "a long way down" is for surface folk; a drow born in
+// Velkarath hears her own greeting (the eighth play-test,
+// tools/server/fix_playtest8_talk.mjs).
+export const ZYRITH_DROW = 'One of our own, with questions. Ask them quietly.';
+function zyrith() {
+  const d = teller('You have come a long way down to ask questions. Ask them quietly.', ['gates', 'morvane', 'tremor'], 'The dark keeps you.');
+  d.stages.unshift({ when: { kind: 'race', value: 'darkelf' }, says: ZYRITH_DROW, answers: structuredClone(d.stages[0].answers) });
+  return d;
+}
+
 // A stone or notice: read once (stepping in front of it), the tale is told
 // and remembered; after that, walking past says nothing.
 function readOnce(p, key, x, y) {
@@ -128,7 +138,7 @@ export default {
 
     // Velkarath.
     p.npc({ name: 'Archivist Zyrith', look: 'Dark Elf Woman', desc: 'Archivist Zyrith, thin as a shadow, a lamp of blue fungus at her side.', x: 1340, y: 914,
-      dlg: firetown('Archivist Zyrith', teller('You have come a long way down to ask questions. Ask them quietly.', ['gates', 'morvane', 'tremor'], 'The dark keeps you.')) });
+      dlg: firetown('Archivist Zyrith', zyrith()) });
     p.file('defProps/Broken Warden Stone', propFile(TALES.shard[1], 48));
     p.prop('Broken Warden Stone', 1357, 909);
     readOnce(p, 'shard', 1357, 910);
