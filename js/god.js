@@ -69,7 +69,8 @@ export const SAVE_MAP = '<s';
 // A message for whoever steps on your square (server/Props.java).
 export const tileMessage = (speaker, text) => `tilemsg ${speaker.replace(/\|/g, ' ')}|${text}`;
 export const tileClear = () => 'tilemsg clear';
-// "Looks: George=Villager Man; ..." for props with names of their own.
+// "Looks: George=Villager Man; ..." for props with names of their own, and
+// "Elowen@1414,330=Villager Woman" for one where it stands (js/world.js propLook).
 export const PROP_LOOKS = 'prop looks';
 export function parseLooks(line) {
   const m = /^Looks:\s*(.*)$/.exec(line.trim());

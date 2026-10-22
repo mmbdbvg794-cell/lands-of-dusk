@@ -50,6 +50,11 @@
  *   flagadd <id>|<flag>      give the player a flag (made if it's new)
  *   flagremove <id>|<flag>   take one away
  *
+ * One prop's own lines where it stands: defPropPlaces/<name>@<x>_<y> (as
+ * Elowen in her cell and Elowen at home), the same lines as a prop file
+ * (shownIf, hiddenIf, look, description, image), each used instead of
+ * the name's. "prop looks" lists their looks as <name>@<x>,<y>=<look>.
+ *
  * Props seen by some players only: a prop file's "shownIf" line (the flag
  * on the next line) shows it only to players with that flag, "hiddenIf"
  * hides it from them. The engine's own prop loader skips lines it doesn't
@@ -648,52 +653,85 @@ public class Props {
 
     static final int TELLER_REACH = 5;
 
-    // ---- who sees a prop ----
+    // ---- who sees a prop, and how it looks where it stands ----
 
     static final long RULES_EVERY = 10 * 1000L; // how often a prop file is looked at again
     static volatile boolean anyRules;           // any prop with a rule seen yet
+    // One prop placed here and not elsewhere (Elowen in her cell, Elowen at
+    // home): defPropPlaces/<name>@<x>_<y>, the same lines as a prop file,
+    // each one used instead of the name's own.
+    static final String PLACES = "defPropPlaces";
+    static final int SHOWN = 0, HIDDEN = 1, DESCRIPTION = 2, IMAGE = 3, LOOK = 4;
 
-    // Prop name -> { shownIf, hiddenIf }, and when its file was read and
-    // last changed (plain tables: install.sh copies Props.class alone).
+    // A file's lines -> { shownIf, hiddenIf, description, image, look }, and
+    // when it was read and last changed (plain tables: install.sh copies
+    // Props.class alone).
     static final Hashtable<String, String[]> rules = new Hashtable<String, String[]>();
     static final Hashtable<String, long[]> ruleRead = new Hashtable<String, long[]>();
 
-    // Whether who sees o: false only for a prop whose rule leaves them out.
+    static String placeKey(DuskObject o) {
+        return o.strName + "@" + o.intLocX + "_" + o.intLocY;
+    }
+
+    // Whether who sees o: false only for a prop whose rule leaves them out
+    // (where it stands, else its name's). Also gives the prop its place's
+    // description and image, if that has its own, before it's sent.
     public static boolean sees(LivingThing who, Object o) {
-        if (!(o instanceof Prop) || !(who instanceof Player)) return true;
-        String[] r = rule(((Prop) o).strName);
-        if (r == null) return true;
-        if (r[0] != null && !who.hasCondition(r[0])) return false;
-        if (r[1] != null && who.hasCondition(r[1])) return false;
+        if (!(o instanceof Prop)) return true;
+        Prop prop = (Prop) o;
+        String[] own = rule(DIR, prop.strName), here = rule(PLACES, placeKey(prop));
+        if (here != null) {
+            if (here[DESCRIPTION] != null) prop.strDescription = here[DESCRIPTION];
+            if (here[IMAGE] != null) try { prop.intImage = Integer.parseInt(here[IMAGE]); } catch (NumberFormatException e) { }
+        }
+        if (!(who instanceof Player)) return true;
+        String shown = pick(here, own, SHOWN), hidden = pick(here, own, HIDDEN);
+        if (shown != null && !who.hasCondition(shown)) return false;
+        if (hidden != null && who.hasCondition(hidden)) return false;
         return true;
     }
 
-    static String[] rule(String name) {
+    static String pick(String[] here, String[] own, int k) {
+        if (here != null && here[k] != null) return here[k];
+        return own == null ? null : own[k];
+    }
+
+    // The file's fields, or null when there's no such file.
+    static String[] rule(String dir, String name) {
         if (name == null) return null;
+        String key = dir + "/" + name;
         long now = System.currentTimeMillis();
-        String[] r = rules.get(name);
-        long[] read = ruleRead.get(name);
-        if (r != null && now - read[0] < RULES_EVERY) return r;
-        File f = new File(DIR, name);
+        String[] r = rules.get(key);
+        long[] read = ruleRead.get(key);
+        if (read != null && now - read[0] < RULES_EVERY) return r;
+        File f = new File(dir, name);
         long modified = f.lastModified();
-        if (r != null && read[1] == modified) { read[0] = now; return r; }
-        String[] fresh = new String[2];
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(f));
+        if (read != null && read[1] == modified) { read[0] = now; return r; }
+        String[] fresh = null;
+        if (modified != 0) {
+            fresh = new String[5];
             try {
-                String l;
-                while ((l = in.readLine()) != null && !l.equals(".")) {
-                    if (l.equalsIgnoreCase("shownIf")) fresh[0] = flagLine(in.readLine());
-                    else if (l.equalsIgnoreCase("hiddenIf")) fresh[1] = flagLine(in.readLine());
+                BufferedReader in = new BufferedReader(new FileReader(f));
+                try {
+                    String l;
+                    while ((l = in.readLine()) != null && !l.equals(".")) {
+                        if (l.equalsIgnoreCase("shownIf")) fresh[SHOWN] = flagLine(in.readLine());
+                        else if (l.equalsIgnoreCase("hiddenIf")) fresh[HIDDEN] = flagLine(in.readLine());
+                        else if (l.equalsIgnoreCase("description")) fresh[DESCRIPTION] = flagLine(in.readLine());
+                        else if (l.equalsIgnoreCase("image")) fresh[IMAGE] = flagLine(in.readLine());
+                        else if (l.equalsIgnoreCase("look")) fresh[LOOK] = flagLine(in.readLine());
+                    }
+                } finally {
+                    in.close();
                 }
-            } finally {
-                in.close();
+            } catch (Exception e) {
             }
-        } catch (Exception e) {
+            if (fresh[SHOWN] != null || fresh[HIDDEN] != null) anyRules = true;
+            rules.put(key, fresh);
+        } else {
+            rules.remove(key);
         }
-        if (fresh[0] != null || fresh[1] != null) anyRules = true;
-        rules.put(name, fresh);
-        ruleRead.put(name, new long[] { now, modified });
+        ruleRead.put(key, new long[] { now, modified });
         return fresh;
     }
 
@@ -767,6 +805,16 @@ public class Props {
             if (look == null) continue;
             if (b.length() > 0) b.append("; ");
             b.append(names[i]).append("=").append(look);
+        }
+        // A prop's look where it stands: "Elowen@1414,330=Villager Woman".
+        String[] places = new File(PLACES).list();
+        for (int i = 0; places != null && i < places.length; i++) {
+            int at = places[i].lastIndexOf('@'), us = places[i].lastIndexOf('_');
+            if (at <= 0 || us < at || places[i].endsWith(".dsko")) continue;
+            String look = lookOf(new File(PLACES, places[i]));
+            if (look == null) continue;
+            if (b.length() > 0) b.append("; ");
+            b.append(places[i], 0, at).append('@').append(places[i], at + 1, us).append(',').append(places[i].substring(us + 1)).append("=").append(look);
         }
         return b.toString();
     }

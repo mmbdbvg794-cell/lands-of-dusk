@@ -2,7 +2,7 @@
 // drawEntity(): tiles first, then entities in list order, each with its
 // selection box, sprite and name.
 
-import { HIT_MS, bareName } from './world.js';
+import { HIT_MS, bareName, propLook } from './world.js';
 import { drawShip } from './ships.js';
 import { drawGroundDetail, groundFlip } from './blend.js';
 import { Terrain } from './terrain.js';
@@ -237,7 +237,7 @@ export class Renderer {
       // A mined-out vein or picked patch keeps its name but not its picture
       // (js/crafting.js).
       const usedUp = e.type === 3 ? usedUpLook(propName, e.image) : null;
-      const key = storage ? `storage ${storageKind(bareName(e.name))}` : usedUp ? `prop ${usedUp}` : e.type === 3 ? `prop ${this.propLooks.get(propName) ?? propName}` : bareName(e.name).toLowerCase();
+      const key = storage ? `storage ${storageKind(bareName(e.name))}` : usedUp ? `prop ${usedUp}` : e.type === 3 ? `prop ${propLook(this.propLooks, e) ?? propName}` : bareName(e.name).toLowerCase();
       // Creatures painted by name step with a walking frame of their own
       // ("<name> walk", tools/paintart/bestiary.js), as players do.
       const byName = (art && art === this.named && world.walking(e, now) ? art.index.get(`${key} walk`) : undefined) ?? art?.index.get(key);
@@ -314,7 +314,7 @@ export class Renderer {
     if (e.type === 2) return 'npc';
     if (e.type !== 3) return 'object';
     const name = bareName(e.name).toLowerCase();
-    const look = this.propLooks.get(name) ?? name;
+    const look = propLook(this.propLooks, e) ?? name;
     if (this.talkers.has(name) || this.talkers.has(look) || this.propPeople.has(look) || /teller/.test(look)) return 'npc';
     return 'object';
   }

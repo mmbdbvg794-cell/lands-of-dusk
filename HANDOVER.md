@@ -2419,6 +2419,28 @@ then a restart (signs and props are read at start-up; flan was online, so
   stall ("out of range" forever: diagonal joiners with no free square).
   "You got a ashen brand" (engine's "a"). Both reported, not changed.
 
+## 2026-10-22 11:52: one NPC's own lines where it stands (LIVE, restart 11:52:14, client deployed)
+
+- defPropPlaces/<name>@<x>_<y>: the same lines as a prop file (shownIf,
+  hiddenIf, look, description, image), each used instead of the name's
+  for the prop placed on that square. For decision N: two props both
+  called "Elowen" (cell and Kingshaven), each with its own rule, look and
+  description; they share one conversation (talk/ is per name), which
+  branches on the same flags.
+- server/Props.java: sees() reads the place file then the name's; while
+  checking it sets that instance's strDescription and intImage (the
+  classic sprite) before it's sent. "prop looks" adds
+  "<name>@<x>,<y>=<look>" entries. js/world.js propLook(looks, e) tries
+  "name@x,y" then the name (renderer, actions, storage's isTeller).
+- Scratch (vischeck): two "Netmaker Ilse" (1469,416 hiddenIf vistest;
+  1460,412 shownIf vistest, look Elf Woman): each shown only to the right
+  players, with its own description and its own Painted look (screenshots
+  compared), talk works for the shown one only.
+- Scratch lessons: a user file holding a flag with no defConditions file
+  can't log in (NPE at load, and the failed load can truncate the file);
+  editing a user file right after a browser session closes is undone by
+  the server's save on disconnect: wait for it.
+
 ## Open / ideas
 
 - Play-tests: runs 1-7 in ~/dusk-playtest/archive/runN (notes, transcript,

@@ -10,7 +10,7 @@
 import { isStorage, isChest, storageKind, isTeller, unlockCommand, BOX, TELLER_REACH } from './storage.js';
 import { talkCommand } from './talk.js';
 import { craftActions } from './crafting.js';
-import { bareName } from './world.js';
+import { bareName, propLook } from './world.js';
 
 // Signs and props are both type 3; signs show the sign picture (the
 // server's signimage, 1) and are called "sign" unless they've been named.
@@ -52,7 +52,7 @@ export function entityActions(ent, me) {
   // NPCs with something to say (me.talkers: lower-case names, from the
   // server's "talk names"; a named prop talks like what it looks like, from
   // me.looks) get Talk first.
-  const look = me.looks?.get(name.toLowerCase());
+  const look = propLook(me.looks, ent);
   if (ent.type !== TYPE.PLAYER && (me.talkers?.has(name.toLowerCase()) || (look && me.talkers?.has(look)))) {
     acts.unshift(within ? { label: 'Talk', cmd: talkCommand(ent.id) } : { label: `Go talk to ${name}`, cmd: `goto ${ent.x} ${ent.y}` });
   }

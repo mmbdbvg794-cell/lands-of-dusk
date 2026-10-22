@@ -56,6 +56,13 @@ export function bareName(name) {
   return name.replace(/^(<[^>]*>)+/, '');
 }
 
+// What a named prop looks like (the server's "prop looks", lower case):
+// its look where it stands ("elowen@1414,330"), else its name's.
+export function propLook(looks, e) {
+  const name = bareName(e?.name ?? '').toLowerCase();
+  return looks?.get(`${name}@${e?.x},${e?.y}`) ?? looks?.get(name);
+}
+
 export class World {
   constructor(mapSize = 11) {
     this.setMapSize(mapSize);

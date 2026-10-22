@@ -13,7 +13,7 @@
 // key; a deposit box listing starts "Deposit box size: <n> (next: <m> for
 // <price> gp)".
 
-import { bareName } from './world.js';
+import { bareName, propLook } from './world.js';
 
 // Each names the storage by its entity ID ("#<id>"), so it's the one that
 // was clicked even with two in reach.
@@ -38,7 +38,7 @@ export const TELLER_REACH = 5;
 export function isTeller(e, looks) {
   if (!(e?.type === 3 || e?.type === 2)) return false;
   const name = bareName(e.name ?? '').toLowerCase();
-  return /teller/.test(name) || /teller/.test(looks?.get(name) ?? '');
+  return /teller/.test(name) || /teller/.test(propLook(looks, e) ?? '');
 }
 // A deposit box line: its listing, or the offer to buy one.
 export const isBoxLine = (t) => /^The deposit box (holds|is empty)|^Deposit box size: |^You don't have a deposit box yet\./.test(t.trim());
