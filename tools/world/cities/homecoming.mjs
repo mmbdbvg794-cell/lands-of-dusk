@@ -72,7 +72,7 @@ export const QUESTS = [
     giver: ELOWEN,
     requires: 'ft_word',
     offer: {
-      says: 'I walked to the end of the passage this morning, and back. Bram once promised me a boat home. Will you tell him I\'m ready?',
+      says: 'And this morning I did: to the end of the passage, and back. Bram once promised me a boat home. Will you tell him I\'m ready?',
       accept: 'I\'ll tell him',
       acceptReply: 'Tell him the woman he rowed across is ready to be rowed back. He\'ll know.',
       decline: 'Not now',
