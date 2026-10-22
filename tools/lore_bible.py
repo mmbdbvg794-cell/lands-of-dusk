@@ -26,6 +26,7 @@ def header_comment(path):
 CHAINS = [
     ('dw', 'The Dawnward (main story, part 1)', 'dawnward.mjs'),
     ('ft', 'The Firetown Expedition (main story, part 2)', 'firetown.mjs'),
+    ('hc', 'Homecoming (main story, part 3)', 'homecoming.mjs'),
     ('er', 'The Eastreach Frontier', 'frontier.mjs'),
     ('kw', "The King's Watch (Kingshaven)", 'kingswatch.mjs'),
     ('gw', 'The Green Wardens (Aelindor)', 'greenwardens.mjs'),
@@ -137,8 +138,9 @@ refine story, then write **build prompts** for that agent.
   without big work. Monster "level" is ignored; strength comes from HP/str/dex.
 
 **Status of this copy**: generated from the live server. **The Grey Beneath** (sg_, the southern
-gate's first chain) is built and tested but **not installed on live yet**: its quests are printed in
-section 3 from the staged build, and where the canon says it is "in game", read "once installed".
+gate's first chain) and **Homecoming** (hc_, main story part 3: Elowen comes home, decision R) are
+built and tested but **not installed on live yet**: their quests are printed in section 3 from the
+staged build, and where the canon says they are "in game", read "once installed".
 
 **A good build prompt for Claude Code contains**
 1. The goal and which canon it extends (quote the relevant lines from this doc).
