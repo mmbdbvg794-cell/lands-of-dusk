@@ -5,6 +5,7 @@ Every weapon, ranged weapon and armour piece in defItems with its numbers,
 wear scripts, and where it comes from: shops (merchants), recipes, monster
 drops (defMobs giveitem), quest rewards (talk .dlg give), scripts and map
 events (giveitem), and how many players own one. JSON on stdout."""
+import collections, json, os, re, sys
 G=sys.argv[1]
 rd=lambda p: open(p,'rb').read().decode('latin-1').replace('\r','')
 items={}

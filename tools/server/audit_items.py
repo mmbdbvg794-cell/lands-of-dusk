@@ -47,7 +47,7 @@ for n, d in items.items():
     s = d.get('onuse')
     if s and s.lower() in scripts:
         body = rd(G+'/scripts/'+scripts[s.lower()])
-        rem = re.findall(r'removeitem\s+trigger\s+"?([^"\n\r]+?)"?\s*$', body, re.M)
+        rem = re.findall(r'removeitem\s+trigger\s+"?([^"\n\r]+?)"?\s*$', body, re.M | re.I)
         uses = d.get('uses', -1)
         if rem and all(r.strip().lower() != n for r in rem): probs['use script removes a different item'].append('%s: removes %s' % (n, rem))
         if not rem and uses == 1: probs['1 use, never removed (stays "used up" in the bag)'].append(n)
