@@ -2530,6 +2530,19 @@ then a restart (signs and props are read at start-up; flan was online, so
   wares, stair line and sign, walked the path to Captain Liriel on the
   pier, Lost Patrol reminder and the camp from 7 squares.
 
+## 2026-10-26 17:05: thirst line without the hint (LIVE, no restart)
+
+- Live scripts/thirst now says "You feel thirsty, and weaker for it."
+  (dropped "Drink something (use water)."; flan: players know to drink).
+  Backup: ~/DuskRPG/backups/thirst-20261026-170436.
+- scripts/ files are compiled only when their .dsko is missing (Script.java,
+  no forcecompile), so a script edit goes live by deleting its .dsko; the
+  next run rebuilds it. reloadprefs doesn't touch scripts/. Edit first,
+  delete after: a player triggered it between my two edits and the stale
+  text got compiled.
+- The hunger line still has its hint "(use apple, or whatever food you
+  carry)", and play-test 8 (staged) adds "mushroom" to it.
+
 ## Open / ideas
 
 - Play-tests: runs 1-8 in ~/dusk-playtest/archive/runN (notes, transcript,
