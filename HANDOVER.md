@@ -2601,6 +2601,26 @@ then a restart (signs and props are read at start-up; flan was online, so
   the shop sells (the ash staff broke its exact match); ~/pt8-stage copy
   updated.
 
+## 2026-10-26 19:11: potions in every town, priests' blessing (blessing LIVE; shops wait for a restart)
+
+- tools/server/fix_potion_shops.py (backup potion-shops-20261026-191044):
+  race homes the whole healing and mana ladder (Miriel's 487,1252 +healing
+  +strong mana; Szinra's 1317,925 +strong mana; Ssarakh 1700,944
+  +healing); minor and regular healing and mana at Southfield 526,5, the
+  Quartermaster 144,381, City of Light 110,141, Troll's Head 29,40, Sabin
+  291,151; minor ones at Dagna's 876,204. Rejuvenation only Kingshaven,
+  Ssarakh, Southfield. Midnight left alone.
+- Blessing: 50 gp, all HP and MP (js/dialogue.js effect "heal": inc hp/mp
+  1000000, the server caps; in the dialogue and tile editors).
+  tools/world/cities/blessings.mjs + tools/server/blessings_talk.mjs:
+  Maren, Ilsevel, Ilvra, Ithrae, on every stage that ends the talk or has
+  a Farewell (not on a quest's yes/no). Installed 19:10 (backup
+  canon-20261026-191044). Re-run blessings_talk after merging a quest into
+  one of them (idempotent). No priests in the old-world towns.
+- ~/sg-talk rebuilt from live after it (greybeneath_talk.mjs with the
+  sg quests from ~/sg-city.json); its ORIG matches live, blessings kept.
+  The old one is ~/sg-talk.before-blessings-20261026.
+
 ## Open / ideas
 
 - Play-tests: runs 1-8 in ~/dusk-playtest/archive/runN (notes, transcript,

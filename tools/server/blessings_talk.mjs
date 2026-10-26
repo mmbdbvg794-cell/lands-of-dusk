@@ -34,6 +34,7 @@ for (const [name, edit] of Object.entries(EDITS)) {
   if (greet) files.set(`${rel}.greet`, greet + '\n');
 }
 for (const [r, text] of [...files]) if (existsSync(`${game}/${r}`) && read(r) === text) files.delete(r);
+mkdirSync(out, { recursive: true });
 const sums = [], remove = [];
 for (const [r, text] of files) {
   mkdirSync(dirname(`${out}/${r}`), { recursive: true });
