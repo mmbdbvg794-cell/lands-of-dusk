@@ -2588,6 +2588,15 @@ then a restart (signs and props are read at start-up; flan was online, so
 - Sources match: capital, ssarakh, aelindor, velkarath, dawnward,
   swampmobs, fireorb. paintart: healing red, mana blue, rejuvenation
   purple; minor small; strong and rejuvenation large and glowing.
+- 18:43: potions heal their flat amount or a share of the drinker's max,
+  whichever is more (minor 10%, regular 25%, strong 50%; rejuvenation all
+  HP and MP; mana the same). js/library.js: item maker effects hppct /
+  mppct (restore(): number hpgain / * trigger maxhp P 100; if < hpgain
+  flat ...), fix_potions2.py writes identical scripts (minor mana potion
+  too now). Engine checked: parseValue reads "trigger maxhp" via
+  attributes.getStat; number re-set replaces (Hashtable). Scripts live at
+  once (.dsko removed); descriptions after the restart. Not tried in game
+  yet: drink one after the restart.
 - fix_playtest8.py's Ryld's edit now drops the arrow line whatever else
   the shop sells (the ash staff broke its exact match); ~/pt8-stage copy
   updated.
