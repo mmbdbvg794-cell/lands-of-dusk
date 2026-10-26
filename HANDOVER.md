@@ -2610,7 +2610,7 @@ then a restart (signs and props are read at start-up; flan was online, so
   Quartermaster 144,381, City of Light 110,141, Troll's Head 29,40, Sabin
   291,151; minor ones at Dagna's 876,204. Rejuvenation only Kingshaven,
   Ssarakh, Southfield. Midnight left alone.
-- Blessing: 50 gp, all HP and MP (js/dialogue.js effect "heal": inc hp/mp
+- Blessing: 10 gp since 19:34 (flan: a small donation; was 50), all HP and MP (js/dialogue.js effect "heal": inc hp/mp
   1000000, the server caps; in the dialogue and tile editors).
   tools/world/cities/blessings.mjs + tools/server/blessings_talk.mjs:
   Maren, Ilsevel, Ilvra, Ithrae, on every stage that ends the talk or has
@@ -2620,6 +2620,10 @@ then a restart (signs and props are read at start-up; flan was online, so
 - ~/sg-talk rebuilt from live after it (greybeneath_talk.mjs with the
   sg quests from ~/sg-city.json); its ORIG matches live, blessings kept.
   The old one is ~/sg-talk.before-blessings-20261026.
+- 19:34: rebuilt again after the 10 gp change (blessings.mjs now remakes
+  an existing Blessing answer). To rebuild ~/sg-talk: copy live talk +
+  quests, add the sg_*.json from ~/sg-city.json's "files", run
+  greybeneath_talk.mjs.
 
 ## Open / ideas
 
