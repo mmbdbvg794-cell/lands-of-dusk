@@ -55,14 +55,17 @@ def edit(rel, fn, create=False):
         os.remove(path + '.dsko')
 
 
-# name: (hp, mp, cost, message, description)
+# name: (hp, hp %, mp, mp %, cost, message, description). Each heals its
+# flat amount or that share of the drinker's max, whichever is more, so a
+# potion still matters as a player grows (flan, 2026-10-26).
 POTIONS = {
-    'minor healing potion': (25, 0, 50, 'You feel better.', 'a small flask of healing potion; heals 25 health'),
-    'healing potion': (100, 0, 300, 'Warmth floods through you.', 'a flask of healing potion; heals 100 health'),
-    'strong healing potion': (300, 0, 900, 'Your wounds close before your eyes.', 'a large flask of strong healing potion; heals 300 health'),
-    'mana potion': (0, 100, 300, 'Your mind sharpens.', 'a flask of mana potion; restores 100 mana'),
-    'strong mana potion': (0, 300, 900, 'Power hums in your fingertips.', 'a large flask of strong mana potion; restores 300 mana'),
-    'rejuvenation potion': (500, 500, 3000, 'You feel completely restored.', 'a flask of rejuvenation potion; heals 500 health and restores 500 mana'),
+    'minor healing potion': (25, 10, 0, 0, 50, 'You feel better.', 'a small flask of healing potion; heals 25 health, or a tenth of yours if that is more'),
+    'healing potion': (100, 25, 0, 0, 300, 'Warmth floods through you.', 'a flask of healing potion; heals 100 health, or a quarter of yours if that is more'),
+    'strong healing potion': (300, 50, 0, 0, 900, 'Your wounds close before your eyes.', 'a large flask of strong healing potion; heals 300 health, or half of yours if that is more'),
+    'minor mana potion': (0, 0, 25, 10, 50, 'Your mind clears.', 'a small flask of mana potion; restores 25 mana, or a tenth of yours if that is more'),
+    'mana potion': (0, 0, 100, 25, 300, 'Your mind sharpens.', 'a flask of mana potion; restores 100 mana, or a quarter of yours if that is more'),
+    'strong mana potion': (0, 0, 300, 50, 900, 'Power hums in your fingertips.', 'a large flask of strong mana potion; restores 300 mana, or half of yours if that is more'),
+    'rejuvenation potion': (0, 100, 0, 100, 3000, 'You feel completely restored.', 'a flask of rejuvenation potion; heals all your health and mana'),
 }
 BREWED = ['minor healing potion', 'strong healing potion', 'strong mana potion', 'rejuvenation potion']
 # Old name -> new, everywhere a name stands on its own.
@@ -85,11 +88,22 @@ def item_file(desc, cost, use):
                       'onuse', use, 'uses', '1', '.', ''])
 
 
-def use_script(name, hp, mp, msg):
-    made = {k: v for k, v in (('hp', hp), ('mp', mp)) if v}
+def restore(stat, flat, pct):
+    # As js/library.js's restore(): the item maker writes the same lines.
+    if pct <= 0:
+        return [f'inc trigger {stat} {flat}'] if flat > 0 else []
+    v = f'{stat}gain'
+    lines = [f'number {v} / * trigger max{stat} {pct} 100']
+    if flat > 0:
+        lines += [f'if < {v} {flat}', f'\tnumber {v} {flat}', 'end']
+    return lines + [f'inc trigger {stat} {v}']
+
+
+def use_script(name, hp, hppct, mp, mppct, msg):
+    made = {k: v for k, v in (('hp', hp), ('hppct', hppct), ('mp', mp), ('mppct', mppct)) if v}
     lines = [f'#Made by the item maker: {json.dumps({**made, "message": msg, "gone": True}, separators=(",", ":"))}',
              f'chat trigger "{msg}"']
-    lines += [f'inc trigger hp {hp}'] * bool(hp) + [f'inc trigger mp {mp}'] * bool(mp)
+    lines += restore('hp', hp, hppct) + restore('mp', mp, mppct)
     return '\n'.join(lines + [f'removeitem trigger "{name}"', 'endscript', ''])
 
 
@@ -145,14 +159,14 @@ def words(*pairs):
 
 
 print('Potions by name, in', game, '' if apply else '(dry run: add --apply)')
-for name, (hp, mp, cost, msg, desc) in POTIONS.items():
+for name, (hp, hppct, mp, mppct, cost, msg, desc) in POTIONS.items():
     edit(f'defItems/{name}', lambda s, t=item_file(desc, cost, f'{name}.use'): t, create=True)
-    edit(f'scripts/{name}.use', lambda s, t=use_script(name, hp, mp, msg): t, create=True)
+    edit(f'scripts/{name}.use', lambda s, t=use_script(name, hp, hppct, mp, mppct, msg): t, create=True)
 for name in BREWED:
-    hp, mp, _, msg, desc = POTIONS[name]
+    hp, hppct, mp, mppct, _, msg, desc = POTIONS[name]
     b = f'brewed {name}'
     edit(f'defItems/{b}', lambda s, t=item_file(f'a hand-brewed {name}; worth nothing to merchants', 0, f'{b}.use'): t, create=True)
-    edit(f'scripts/{b}.use', lambda s, t=use_script(b, hp, mp, msg): t, create=True)
+    edit(f'scripts/{b}.use', lambda s, t=use_script(b, hp, hppct, mp, mppct, msg): t, create=True)
 edit('merchants', merchants)
 edit('recipes', recipes)
 for mob in sorted(os.listdir(os.path.join(game, 'defMobs'))):

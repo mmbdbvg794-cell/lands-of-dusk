@@ -41,6 +41,11 @@ const potion = useScript('minor potion', { hp: '25', mp: '', message: 'You feel 
 assert.equal(potion, '#Made by the item maker: {"hp":25,"message":"You feel  better .","gone":true}\nchat trigger "You feel  better ."\ninc trigger hp 25\nremoveitem trigger "minor potion"\nendscript\n');
 assert.deepEqual(readMade(potion), { hp: 25, message: 'You feel  better .', gone: true });
 assert.equal(useScript('rock', {}), '', 'nothing to do, no script');
+// A share of the max, or the flat amount if that's more.
+const strong = useScript('strong mana potion', { mp: 300, mppct: 50, gone: true });
+assert.match(strong, /\nnumber mpgain \/ \* trigger maxmp 50 100\nif < mpgain 300\n\tnumber mpgain 300\nend\ninc trigger mp mpgain\nremoveitem/);
+assert.deepEqual(readMade(strong), { mp: 300, mppct: 50, gone: true });
+assert.match(useScript('full', { hppct: 100 }), /\nnumber hpgain \/ \* trigger maxhp 100 100\ninc trigger hp hpgain\n/, 'no flat amount, no floor');
 // Wearing adds, taking off takes back (with the script's own minus).
 const ring = wearScripts({ strengthbonus: '2', acbonus: 5, wisdombonus: '' });
 assert.match(ring.wear, /inc trigger strengthbonus 2\ninc trigger acbonus 5\nendscript/);

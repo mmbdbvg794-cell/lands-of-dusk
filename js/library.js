@@ -122,7 +122,7 @@ export function writeDef(kind, def) {
 
 // [key, label]: the use effects, then what wearing it adds.
 export const USE_EFFECTS = [
-  ['hp', 'Heals HP'], ['mp', 'Restores MP'],
+  ['hp', 'Heals HP'], ['hppct', 'Or heals % of max HP, if more'], ['mp', 'Restores MP'], ['mppct', 'Or restores % of max MP, if more'],
   ['food', 'Keeps hunger away for (seconds; food: 2700 = 45 min)'], ['drink', 'Keeps thirst away for (seconds; drink: 2700 = 45 min)'],
 ];
 export const WEAR_EFFECTS = [
@@ -138,19 +138,29 @@ const words = (v) => String(v ?? '').replace(/["\r\n]/g, ' ').trim();
 // The script language reads "-5" badly; "- 0 5" is its own minus.
 const signed = (n) => (n < 0 ? `- 0 ${-n}` : String(n));
 
-// { hp, mp, food, drink, message, gone } -> the use script, or '' if it
-// does nothing. gone: the item is used up (removed) when used.
+// { hp, hppct, mp, mppct, food, drink, message, gone } -> the use script,
+// or '' if it does nothing. gone: the item is used up (removed) when used.
+// hppct: heals that share of max HP, or hp if that's more (so a potion
+// still matters as you grow); mppct the same for mana.
 export function useScript(item, e) {
   const lines = [MADE + JSON.stringify(cleanUse(e))];
   if (words(e.message)) lines.push(`chat trigger "${words(e.message)}"`);
-  if (num(e.hp) > 0) lines.push(`inc trigger hp ${num(e.hp)}`);
-  if (num(e.mp) > 0) lines.push(`inc trigger mp ${num(e.mp)}`);
+  lines.push(...restore('hp', num(e.hp), num(e.hppct)), ...restore('mp', num(e.mp), num(e.mppct)));
   if (num(e.food) > 0) lines.push(`addconditionwithduration trigger nohunger ${num(e.food)}`);
   if (num(e.drink) > 0) lines.push(`addconditionwithduration trigger nothirst ${num(e.drink)}`);
   if (lines.length === 1) return '';
   if (e.gone) lines.push(`removeitem trigger "${words(item)}"`);
   lines.push('endscript');
   return lines.join('\n') + '\n';
+}
+// The lines that raise hp or mp: a flat amount, a share of the max, or the
+// larger of the two (the script language is prefix: / * a b c = a*b/c).
+function restore(stat, flat, pct) {
+  if (pct <= 0) return flat > 0 ? [`inc trigger ${stat} ${flat}`] : [];
+  const v = `${stat}gain`;
+  const lines = [`number ${v} / * trigger max${stat} ${pct} 100`];
+  if (flat > 0) lines.push(`if < ${v} ${flat}`, `\tnumber ${v} ${flat}`, 'end');
+  return [...lines, `inc trigger ${stat} ${v}`];
 }
 function cleanUse(e) {
   const out = {};
