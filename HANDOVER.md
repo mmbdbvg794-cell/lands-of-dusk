@@ -2625,6 +2625,24 @@ then a restart (signs and props are read at start-up; flan was online, so
   quests, add the sg_*.json from ~/sg-city.json's "files", run
   greybeneath_talk.mjs.
 
+## 2026-10-26 20:27: staged work installed (LIVE, restart 20:27:37, deployed)
+
+- The Grey Beneath (install_city sg-city.json, canon_install ~/sg-talk and
+  ~/sg-extras), Homecoming (~/hc-stage/homecoming_install.sh), play-test 8
+  (~/pt8-stage/playtest8_install.sh), and the potion stock, all in one
+  restart. Backups city-the-grey-beneath-20261026-202336,
+  canon-20261026-202336 (the four canon installs share it; no file
+  overlaps), playtest8-*.
+- ~/sg-extras/gearneeds was a whole-file copy from before item audit 2:
+  rebuilt as live + "thornward cloak|DEX|15" (old copy
+  gearneeds.old-20261026), ORIG redone. achievements was unchanged.
+- Checked first: every bundle file was new on live; no old potion names in
+  any bundle; all talk ORIGs matched live; dry runs clean. After: Ryld's
+  has no arrow and keeps the ash staff; gearneeds has the race sets,
+  thornward cloak and gaol-chain belt; doorheld and chaircold achievements.
+- /root/DUSK_LORE_BIBLE.md regenerated from live 20:30 (no staged chains).
+- Not played in game after the install (each was tested on scratch).
+
 ## Open / ideas
 
 - Play-tests: runs 1-8 in ~/dusk-playtest/archive/runN (notes, transcript,
