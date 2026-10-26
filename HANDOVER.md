@@ -2530,7 +2530,7 @@ then a restart (signs and props are read at start-up; flan was online, so
   wares, stair line and sign, walked the path to Captain Liriel on the
   pier, Lost Patrol reminder and the camp from 7 squares.
 
-## 2026-10-26 17:05: thirst line without the hint (LIVE, no restart)
+## 2026-10-26 17:05: thirst and hunger lines without the hints (LIVE, no restart)
 
 - Live scripts/thirst now says "You feel thirsty, and weaker for it."
   (dropped "Drink something (use water)."; flan: players know to drink).
@@ -2540,8 +2540,10 @@ then a restart (signs and props are read at start-up; flan was online, so
   next run rebuilds it. reloadprefs doesn't touch scripts/. Edit first,
   delete after: a player triggered it between my two edits and the stale
   text got compiled.
-- The hunger line still has its hint "(use apple, or whatever food you
-  carry)", and play-test 8 (staged) adds "mushroom" to it.
+- 17:10: hunger too: "You feel hungry, and weaker for it." (backup
+  ~/DuskRPG/backups/hunger-20261026-171027). fix_playtest8.py no longer
+  touches the hunger hint; the staged ~/pt8-stage copy still has that
+  edit, but it's a no-op now (swap only acts when the old text is there).
 
 ## Open / ideas
 

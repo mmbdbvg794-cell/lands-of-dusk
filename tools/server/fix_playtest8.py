@@ -16,7 +16,6 @@
     needs them. Ryld's doesn't sell them now
   - the bow's reach was never said ("within your bow's reach"): every
     ranged weapon's description says how far it reaches, from its range
-  - the hunger hint said "use apple"; Velkarath sells mushrooms
 
 Archivist Zyrith's greeting for drow is a conversation change, made by
 tools/server/fix_playtest8_talk.mjs. The plans (velkarath, deeppatrol
@@ -88,9 +87,6 @@ def ryld(s):
     return s.replace(nl.join(['1331', '925', 'short sword', 'leather vest', 'wooden crossbow', 'dagger', 'assassin blade', 'curved dagger', 'arrow', 'leather gloves', 'end']),
                      nl.join(['1331', '925', 'short sword', 'leather vest', 'wooden crossbow', 'dagger', 'assassin blade', 'curved dagger', 'leather gloves', 'end']))
 edit('merchants', ryld)
-
-# ---- the hunger hint ----
-edit('scripts/hunger', swap(('(use apple, or whatever food you carry)', '(use apple, mushroom, or whatever food you carry)')))
 
 # ---- how far each ranged weapon reaches, in its description ----
 def reach(s):
