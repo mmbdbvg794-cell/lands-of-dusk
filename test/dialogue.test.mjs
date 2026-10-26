@@ -364,3 +364,11 @@ console.log('ok - sex words');
   assert.match(s3, /^if and hasItem trigger "shard" hasItem trigger "stone"$/m);
   console.log('ok - tile also');
 }
+// A paid blessing: gold checked, taken, then all HP and MP back.
+{
+  const priest = { stages: [{ when: { kind: 'always', value: '' }, says: 'Peace.', answers: [
+    { label: 'Blessing', reply: 'Be whole.', needs: { kind: 'gold', value: 50 }, effects: [{ kind: 'takegold', amount: 50 }, { kind: 'heal' }] },
+  ] }] };
+  const script = toScript('Priest', priest);
+  assert.match(script, /< trigger cash 50[\s\S]*inc trigger cash - 0 50\n\t*inc trigger hp 1000000\n\t*inc trigger mp 1000000/);
+}

@@ -10,7 +10,7 @@ const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Pla
 const WALK = [['everyone', 'Everyone (as normal)'], ['flag', 'Only players with flag'], ['noflag', "Only players without flag"], ['race', 'Only players of race'], ['norace', 'Everyone but race'], ['raceorflag', 'Only players of race, or with flag'], ['nobody', 'Nobody']];
 const EFFECTS = [
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['give', 'Give item'], ['take', 'Take item'],
-  ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
+  ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['heal', 'Heal fully (HP and MP)'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
 ];
 
 export class TileEditor {

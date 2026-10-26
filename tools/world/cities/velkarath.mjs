@@ -336,7 +336,7 @@ const BASE_PROPS = {
 const WARES = {
   inn: ['water', 'ale', 'mushroom', 'sandwich'],
   smith: ['dagger', 'curved dagger', 'assassin blade', 'short sword', 'wooden crossbow', 'leather vest', 'leather gloves'],
-  alchemy: ['minor healing potion', 'minor mana potion', 'mana potion', 'strong healing potion', 'healing potion', 'mushroom', 'mandrake', 'wolfsbane'],
+  alchemy: ['minor healing potion', 'minor mana potion', 'mana potion', 'strong healing potion', 'healing potion', 'strong mana potion', 'mushroom', 'mandrake', 'wolfsbane'],
   garden: ['herb sickle', 'mushroom'],
   weaver: ['leather cap', 'leather helmet', 'leather belt', 'leather sleeves', 'leather leggings', 'leather pants', 'leather jerkin', 'small bag', 'large bag'],
   cook: ['sandwich', 'mushroom', 'water', 'ale'],

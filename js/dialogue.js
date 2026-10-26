@@ -12,7 +12,8 @@
 // (carries it) | 'gold' (has at least that much) | 'race'|'norace' (value
 // human, elf...) | 'sex' (value male or female). Effects: { kind:
 // 'give'|'take', item }, { kind: 'gold'|'takegold'|'exp', amount }, { kind:
-// 'flag'|'unflag', flag }, { kind: 'teleport', x, y }. An answer can also
+// 'flag'|'unflag', flag }, { kind: 'teleport', x, y }, { kind: 'heal' } (all
+// HP and MP back). An answer can also
 // have needs: { kind: 'gold'|'item'|'flag', value } (said to be missing
 // otherwise) and next: a follow-up question { says, answers } of its own.
 // A stage can also have `also` (a second condition, both must hold) and
@@ -121,6 +122,8 @@ function effect(e, pad) {
     case 'gold': return Number(e.amount) > 0 ? `${pad}inc trigger cash ${Math.floor(Number(e.amount))}` : null;
     case 'takegold': return Number(e.amount) > 0 ? `${pad}inc trigger cash - 0 ${Math.floor(Number(e.amount))}` : null;
     case 'exp': return Number(e.amount) > 0 ? `${pad}inc trigger exp ${Math.floor(Number(e.amount))}` : null;
+    // Full HP and MP: the server stops each at its max (and the max's bonus).
+    case 'heal': return `${pad}inc trigger hp 1000000\n${pad}inc trigger mp 1000000`;
     case 'flag': return cleanFlag(e.flag) ? `${pad}addCondition trigger ${cleanFlag(e.flag)}` : null;
     case 'unflag': return cleanFlag(e.flag) ? `${pad}removeCondition trigger ${cleanFlag(e.flag)}` : null;
     // Renting a house (server/Housing.java): "rent" or "info"; the hidden
@@ -494,6 +497,7 @@ export function tryAnswer(a, p, who) {
     if (e.kind === 'gold' && n > 0) { p.gold += n; lines.push(`(+${n} gold)`); }
     if (e.kind === 'takegold' && n > 0) { p.gold = Math.max(0, p.gold - n); lines.push(`(-${n} gold)`); }
     if (e.kind === 'exp' && n > 0) lines.push(`(+${n} experience)`);
+    if (e.kind === 'heal') lines.push('(HP and MP restored)');
     if (e.kind === 'rent') lines.push(e.what === 'info' ? '(says which house you rent)' : '(rents a house on Lantern Row)');
     if (e.kind === 'teleport') lines.push(`(sent to ${e.x}, ${e.y})`);
     if (e.kind === 'bind') lines.push(`(comes back to ${e.x}, ${e.y} after dying)`);

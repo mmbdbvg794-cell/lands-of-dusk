@@ -8,7 +8,7 @@ import { journalSet, JOURNAL_ALL } from './social.js';
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)'], ['race', 'Player is race'], ['norace', "Player isn't race"], ['sex', 'Player is (sex)']];
 const ONCE = [['any', 'Works any time'], ['once', 'Only once per player'], ['wait', 'Again after a wait']];
 const EFFECTS = [
-  ['give', 'Give item'], ['take', 'Take item'], ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'],
+  ['give', 'Give item'], ['take', 'Take item'], ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['heal', 'Heal fully (HP and MP)'],
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
 ];
 const NEEDS = [['none', 'Needs nothing'], ['gold', 'Needs gold'], ['item', 'Needs item'], ['flag', 'Needs flag']];
