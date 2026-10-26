@@ -2545,6 +2545,28 @@ then a restart (signs and props are read at start-up; flan was online, so
   touches the hunger hint; the staged ~/pt8-stage copy still has that
   edit, but it's a no-op now (swap only acts when the old text is there).
 
+## 2026-10-26 17:29: item audit 2 (APPLIED 17:28; shops wait for a restart, then deploy)
+
+- Re-audit from live: weapon and armour prices on formula (25 gp per real
+  armour point; weapons 4 x ((mod-100)/10)^2); gearneeds tiers in place.
+  Gaps: medium and strong gear sold only in human lands; no staff for
+  sale; consumable prices (never audited before).
+- tools/server/fix_item_audit2.py (backups item-audit2-20261026-172859):
+  medium sets at each race's home, torso 80 / the rest 60, 25 gp per
+  point, needs 15: leafsilver (Aelindor, Caelum's 449,1252, beside the
+  elven chain mail; no torso; DEX), shadowsteel (Velkarath Night Market
+  1352,943; DEX), swampscale (Ssarakh 1700,938; STR). Elven chain mail
+  needs DEX 15 now (was STR). Ash staff (INT 15, 575) sold at Tome and
+  Wand, Caelum's, Ryld's, Ssarakh's weapon shop. Tiny potion 25, red
+  potion 1200, mushroom 10; crystal box 2565, bloody book 6815, nova
+  package 3410 (the sum of their pieces; were 250k-500k).
+- Not changed (flan's call): serpent scales (Warden Marr, 120 real armour,
+  no need). Seifer's scroll (god only) isn't used up; left as is.
+- audit_items.py read "removeItem" as missing (case): demon's blood and
+  fairy dust were never broken. audit_gear.py had lost its import line.
+- Not tested on scratch: data only, applied to a copy of the live files
+  first (diffs checked, second run changes nothing).
+
 ## Open / ideas
 
 - Play-tests: runs 1-8 in ~/dusk-playtest/archive/runN (notes, transcript,
