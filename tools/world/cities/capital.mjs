@@ -55,6 +55,8 @@ const DIRECTIONS = 'The keep is north-west, the cathedral north-east, and the Gr
 // chair in the keep (LORE.md: King Aldric stayed behind and is gone). Once
 // the player has brought Elowen's letter home (ft_word_done), he has read
 // it too. Exported for tools/server/canon_cleanup.mjs.
+// Alchemist Pell on the dearest potion (fix_potions2_talk.mjs puts it in live).
+export const PELL_REJUVENATION = ask('Rejuvenation potion?', 'Heals body and mind both, all at once. Three thousand gold, and worth every coin in a pinch.');
 export const HALVARD = 'Lord Steward Halvard';
 export const HALVARD_DESC = 'Lord Steward Halvard, grey and tired, in a plain dark coat. He stands beside the throne, not on it.';
 const HALVARD_ANSWERS = [
@@ -102,9 +104,9 @@ const WARES = {
   armour: ['leather cap', 'leather jerkin', 'leather sleeves', 'leather leggings', 'leather gloves', 'leather belt', 'bronze helmet', 'bronze suit', 'bronze sleeves', 'bronze leggings', 'bronze gloves', 'bronze belt', 'leather shield'],
   royal: ['silver helmet', 'silver suit', 'silver sleeves', 'silver leggings', 'silver gloves', 'silver belt', 'gold helmet', 'gold suit', 'gold sleeves', 'gold leggings', 'gold gloves', 'gold belt', 'platinum suit', 'steel plate mail', 'bronze shield', 'iron shield'],
   bows: ['cheap bow', 'wooden crossbow', 'arrow', 'quiver', 'celestial arrow'],
-  potions: ['minor potion', 'minor mana potion', 'tiny potion', 'x-potion', 'anti-curse potion', 'red potion', 'green potion', 'blue potion', 'lavender', 'mandrake', 'mushroom'],
+  potions: ['minor healing potion', 'minor mana potion', 'mana potion', 'healing potion', 'anti-curse potion', 'strong healing potion', 'strong mana potion', 'rejuvenation potion', 'lavender', 'mandrake', 'mushroom'],
   jewels: ['opal', 'ruby', 'topaz', 'aquamarine', 'chaotic amulet', 'pyramid studded necklace', 'goggles', 'crystal lens'],
-  magic: ['spell book', 'book', 'wizards cloak', 'wizards gauntlets', 'minor mana potion', 'crystal lens'],
+  magic: ['spell book', 'book', 'wizards cloak', 'wizards gauntlets', 'minor mana potion', 'mana potion', 'crystal lens'],
   general: ['water', 'ale', 'apple', 'sandwich', 'crisps', 'small bag', 'large bag', 'lumberjack axe', 'quarter staff', 'leather pants'],
   tailor: ['cloth shirt', 'leather jerkin', 'leather vest', 'leather pants', 'leather cap', 'leather belt', 'wizards cloak', 'sash'],
   food: ['water', 'ale', 'apple', 'sandwich', 'crisps'],
@@ -273,7 +275,7 @@ export default {
       who: { name: 'Wynn the Fletcher', look: 'Villager', desc: 'Wynn the fletcher, feathers in her hair.', dlg: SHOP('Bows! Crossbows! Arrows by the quiver!', 'Bows and arrows, straight and true. Stand at my counter and look in the Shop tab.') } });
     // South of the plaza: alchemy, jewels, magic, the general store, the tailor.
     shop({ x: 1438, y: 368, door: 'n', sign: 'The Bubbling Flask', text: 'The Bubbling Flask: potions and herbs.', wares: WARES.potions,
-      who: { name: 'Alchemist Pell', look: 'hermit', desc: 'Pell the alchemist, eyebrows singed.', dlg: SHOP('Potions! Cures for what ails you!', 'Potions for every hurt, and herbs to make your own. Stand at my counter and open the Shop tab.', [ask('Blue potion?', 'Heals body and mind both, all at once. Six thousand gold, and worth every coin in a pinch.')]) } });
+      who: { name: 'Alchemist Pell', look: 'hermit', desc: 'Pell the alchemist, eyebrows singed.', dlg: SHOP('Potions! Cures for what ails you!', 'Potions for every hurt, and herbs to make your own. Stand at my counter and open the Shop tab.', [PELL_REJUVENATION]) } });
     shop({ x: 1448, y: 368, door: 'n', sign: 'Gems of the Crown', text: 'Gems of the Crown: jewels and charms.', wares: WARES.jewels,
       who: { name: 'Jeweller Ansel', look: 'Villager Man', desc: 'Ansel the jeweller, a loupe in one eye.', dlg: SHOP('', 'Opals, rubies, and the rarer stones from the far shores. Stand at my counter and see the Shop tab.', [ask('Topaz?', 'Wurm-country stone. Summoners swear by it.')]) } });
     shop({ x: 1413, y: 368, door: 'n', sign: 'Tome and Wand', text: 'Tome and Wand: books, robes and the arcane.', wares: WARES.magic,

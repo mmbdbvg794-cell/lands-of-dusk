@@ -163,7 +163,7 @@ const WARES = {
   inn: ['water', 'ale', 'sandwich', 'apple'],
   bows: ['cheap bow', 'arrow', 'quiver', 'redwood sword', 'quarter staff', 'elven chain mail'],
   cloth: ['cloth shirt', 'leather cap', 'leather jerkin', 'leather sleeves', 'leather gloves', 'leather leggings', 'leather belt', 'wizards cloak'],
-  herbs: ['minor potion', 'minor mana potion', 'red potion', 'lavender', 'mandrake', 'wolfsbane', 'mushroom', 'apple'],
+  herbs: ['minor healing potion', 'minor mana potion', 'mana potion', 'strong healing potion', 'lavender', 'mandrake', 'wolfsbane', 'mushroom', 'apple'],
   train: ['train:Strength', 'train:Intelligence', 'train:Dexterity', 'train:Constitution', 'train:Wisdom', 'train:HP', 'train:MP', 'train:Dodge', 'train:Regeneration', 'train:Mana Regen', 'train:Spell Power'],
 };
 

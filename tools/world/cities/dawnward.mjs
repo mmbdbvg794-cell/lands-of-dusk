@@ -78,7 +78,7 @@ export const QUESTS = [
       declineReply: 'The wreck is patient. Wrecks are.',
     },
     reminder: 'The wreck is on the far east shore of the isles. Mind the Dry Ones.',
-    reward: { gold: 120, exp: 350, items: ['red potion', 'red potion'], says: 'A locket, from a wreck no one remembers. Take these. You look like you need them.' },
+    reward: { gold: 120, exp: 350, items: ['strong healing potion', 'strong healing potion'], says: 'A locket, from a wreck no one remembers. Take these. You look like you need them.' },
     after: 'Show that locket to the Chieftain. She is older than she looks, and she looks very old.',
   }, [
     ['place', '', { x: WRECK[0], y: WRECK[1], radius: 4, what: 'the wreck on the east shore', arrive: 'Black ribs of a great ship lie across the shore, half in the sea. On a broken board by the stern, sun-bleached letters: DAWNW...', journal: 'Find the wreck on the far east shore of the isles.' }],

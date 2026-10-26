@@ -49,7 +49,8 @@ const HUES = [
   [/moonpetal|moonlight/, '#b8dcff'],
   [/aquamarine/, '#4ccad0'],
   [/topaz/, '#e89a2c'],
-  [/red|ruby|blood|fire|flame|rose/, '#c8242c'],
+  [/rejuvenation/, '#8a38b8'],
+  [/red|ruby|blood|fire|flame|rose|healing/, '#c8242c'],
   [/blue|mana|sapphire|water|ice/, '#2c5cd0'],
   [/green|emerald|forest|poison/, '#2a9a3c'],
   [/purple|amethyst|anti-curse|chaos|curse/, '#8a38b8'],
@@ -65,14 +66,14 @@ const hue = (n, fallback) => HUES.find(([re]) => re.test(n))?.[1] ?? fallback;
 
 function potion(ctx, n) {
   const c = hue(n, '#d0508a');
-  const s = /tiny|minor/.test(n) ? 0.78 : /x-potion|elix|ambrosia/.test(n) ? 1.1 : 1;
+  const s = /tiny|minor/.test(n) ? 0.78 : /x-potion|elix|ambrosia|strong|rejuvenation/.test(n) ? 1.1 : 1;
   shadow(ctx, 22 * s, 6);
   ctx.save(); ctx.translate(CX, GROUND); ctx.scale(s, s); ctx.translate(-CX, -GROUND);
   const body = () => { ctx.beginPath(); ctx.moveTo(CX - 7, 44); ctx.lineTo(CX - 7, 58); ctx.bezierCurveTo(CX - 30, 66, CX - 28, 96, CX, 96); ctx.bezierCurveTo(CX + 28, 96, CX + 30, 66, CX + 7, 58); ctx.lineTo(CX + 7, 44); ctx.closePath(); };
   // Glass, then the liquid inside it, then the shine.
   ctx.fillStyle = 'rgba(220,235,240,0.35)'; body(); ctx.fill();
   ctx.save(); body(); ctx.clip();
-  glow(ctx, c, /x-potion|elix|ambrosia|mana|anti-curse/.test(n) ? 10 : 0, () => fill(ctx, rr(ctx, CX - 32, 66, 64, 34, 0), c, [CX - 30, 66, CX + 30, 96], 0));
+  glow(ctx, c, /x-potion|elix|ambrosia|mana|anti-curse|strong|rejuvenation/.test(n) ? 10 : 0, () => fill(ctx, rr(ctx, CX - 32, 66, 64, 34, 0), c, [CX - 30, 66, CX + 30, 96], 0));
   ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(CX - 32, 66, 64, 3);
   ctx.restore();
   ctx.strokeStyle = 'rgba(40,50,60,0.75)'; ctx.lineWidth = 2; body(); ctx.stroke();

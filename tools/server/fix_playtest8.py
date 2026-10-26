@@ -83,9 +83,19 @@ edit('quests/dp_lostpatrol.json', lambda s: re.sub(r'("x":1310,"y":870,"radius":
 
 # ---- Ryld's Blades sells no arrows (velkarath.mjs WARES.smith) ----
 def ryld(s):
-    nl = '\r\n' if '\r\n' in s else '\n'
-    return s.replace(nl.join(['1331', '925', 'short sword', 'leather vest', 'wooden crossbow', 'dagger', 'assassin blade', 'curved dagger', 'arrow', 'leather gloves', 'end']),
-                     nl.join(['1331', '925', 'short sword', 'leather vest', 'wooden crossbow', 'dagger', 'assassin blade', 'curved dagger', 'leather gloves', 'end']))
+    # The arrow line out of the shop at 1331,925, whatever else it sells now
+    # (item audit 2 added the ash staff).
+    lines = s.split('\n')
+    for i in range(len(lines) - 1):
+        if lines[i].strip() == '1331' and lines[i + 1].strip() == '925':
+            j = i + 2
+            while lines[j].strip() != 'end':
+                if lines[j].strip() == 'arrow':
+                    del lines[j]
+                    continue
+                j += 1
+            break
+    return '\n'.join(lines)
 edit('merchants', ryld)
 
 # ---- how far each ranged weapon reaches, in its description ----

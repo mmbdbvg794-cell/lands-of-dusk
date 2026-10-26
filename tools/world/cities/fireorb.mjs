@@ -7,7 +7,7 @@
 //   7,966    the man whose fire orb is in the vault: starts it, takes the orb
 //            back, gives a reward note
 //   9,948    the old lady in the west meadow: brews a sleeping potion from a
-//            minor potion and a sleeping weed
+//            minor healing potion and a sleeping weed
 //   12,946   where the sleeping weed grows (north-west corner of her meadow)
 //   24,976   the vault guards either side of its door: the potion puts each
 //   26,976   to sleep, and each has a vault key
@@ -55,16 +55,16 @@ if hasItem trigger "sleeping potion"
 	chat trigger " Old Lady: You have your potion. Off with you, and mind those guards."
 	endscript
 end
-if hasItem trigger "minor potion"
+if hasItem trigger "minor healing potion"
 	if hasItem trigger "sleeping weed"
-		removeItem trigger "minor potion"
+		removeItem trigger "minor healing potion"
 		removeItem trigger "sleeping weed"
 		giveItem trigger "sleeping potion"
 		chat trigger " Old Lady: There. A drop in each guard's cup and they'll sleep like babies."
 		endscript
 	end
 end
-chat trigger " Old Lady: The vault guards? I can brew you a sleeping potion. Bring me a minor potion and a sleeping weed. The weed grows in the north-west corner of this meadow."
+chat trigger " Old Lady: The vault guards? I can brew you a sleeping potion. Bring me a minor healing potion and a sleeping weed. The weed grows in the north-west corner of this meadow."
 endscript
 `;
 

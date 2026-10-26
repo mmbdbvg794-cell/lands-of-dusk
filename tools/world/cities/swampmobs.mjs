@@ -31,10 +31,10 @@ export const MOBS = {
   'mire lizard': { ...base, description: 'A mud-coloured lizard as long as a man, all teeth and patience.', maxhp: 38, stre: 28, dext: 8, cons: 8, image: 28, grouprelation: '0' },
   'bog crawler': { ...base, description: 'A pale, many-legged thing that crawls up out of the bog pools.', maxhp: 75, stre: 40, dext: 10, cons: 12, image: 29, grouprelation: '0' },
   'swamp serpent': { ...base, description: 'A thick green serpent, coiled in the reeds.', maxhp: 95, stre: 40, dext: 14, cons: 14, image: 26, giveitem: [['mandrake', '0.25']], grouprelation: '0' },
-  'marsh wisp': { ...base, description: 'A drifting green light with a face in it. The brood says they are the drowned.', maxhp: 110, stre: 45, dext: 28, cons: 10, wisd: 10, image: 36, giveitem: [['blue potion', '0.2']], faction: 'marsh wisp' },
+  'marsh wisp': { ...base, description: 'A drifting green light with a face in it. The brood says they are the drowned.', maxhp: 110, stre: 45, dext: 28, cons: 10, wisd: 10, image: 36, giveitem: [['rejuvenation potion', '0.2']], faction: 'marsh wisp' },
   'mire hound': { ...base, description: 'A black, slick-furred hound that hunts the mire in packs.', maxhp: 160, stre: 55, dext: 20, cons: 18, image: 38, faction: 'mire hound' },
-  'swamp horror': { ...base, description: 'A writhing mass of roots, weed and bone that has learned to walk.', maxhp: 300, stre: 70, dext: 16, cons: 30, image: 41, giveitem: [['red potion', '0.4']], faction: 'swamp horror' },
-  'dry one raider': { ...base, description: 'A Sand King raider, one of the Dry Ones, sun-scarred and sworn to Kraghul.', maxhp: 220, stre: 65, dext: 22, cons: 25, image: 39, giveitem: [['bronze sword', '0.08'], ['red potion', '0.3']], faction: 'dry ones' },
+  'swamp horror': { ...base, description: 'A writhing mass of roots, weed and bone that has learned to walk.', maxhp: 300, stre: 70, dext: 16, cons: 30, image: 41, giveitem: [['strong healing potion', '0.4']], faction: 'swamp horror' },
+  'dry one raider': { ...base, description: 'A Sand King raider, one of the Dry Ones, sun-scarred and sworn to Kraghul.', maxhp: 220, stre: 65, dext: 22, cons: 25, image: 39, giveitem: [['bronze sword', '0.08'], ['strong healing potion', '0.3']], faction: 'dry ones' },
 };
 const TIERS = [['bog slime', 'mire lizard'], ['bog crawler', 'swamp serpent'], ['marsh wisp', 'mire hound'], ['swamp horror', 'dry one raider']];
 const tierAt = (x, y) => { const d = Math.hypot(x - HEART[0], y - HEART[1]); return d < 70 ? 0 : d < 140 ? 1 : d < 210 ? 2 : 3; };

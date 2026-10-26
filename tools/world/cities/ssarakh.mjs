@@ -29,7 +29,7 @@ const WARES = {
   food: ['water', 'ale', 'apple', 'sandwich', 'crisps', 'mushroom'],
   weapons: ['dagger', 'short sword', 'broad sword', 'war axe', 'heavy axe', 'bronze sword', 'cheap bow', 'arrow', 'quiver'],
   armour: ['leather cap', 'leather jerkin', 'leather sleeves', 'leather leggings', 'leather gloves', 'leather belt', 'leather shield'],
-  potions: ['minor potion', 'minor mana potion', 'tiny potion', 'red potion', 'green potion', 'blue potion', 'mandrake', 'mushroom'],
+  potions: ['minor healing potion', 'minor mana potion', 'mana potion', 'strong healing potion', 'strong mana potion', 'rejuvenation potion', 'mandrake', 'mushroom'],
   train: ['train:Strength', 'train:Intelligence', 'train:Dexterity', 'train:Constitution', 'train:Wisdom', 'train:HP', 'train:MP', 'train:Dodge', 'train:Regeneration', 'train:Mana Regen', 'train:Spell Power'],
 };
 
