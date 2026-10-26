@@ -2567,6 +2567,31 @@ then a restart (signs and props are read at start-up; flan was online, so
 - Not tested on scratch: data only, applied to a copy of the live files
   first (diffs checked, second run changes nothing).
 
+## 2026-10-26 17:48: potions named by what they do (INSTALLED 17:48; restart, then deploy)
+
+- flan: like Diablo 2, not colours to guess; no "plain" in names; the
+  flatter prices. tools/server/fix_potions2.py: minor healing potion 25 HP
+  50 gp (minor + tiny potion), healing potion 100 / 300 (x-potion),
+  strong healing potion 300 / 900 (red), minor mana potion 25 MP / 50,
+  mana potion 100 / 300 (new, sold wherever minor mana is), strong mana
+  potion 300 / 900 (green), rejuvenation potion 500+500 / 3000 (blue).
+  Brewed twins (cost 0) and the alchemy recipes renamed; drops (daemon,
+  ddsoldier, dry one raider, marsh wisp, swamp horror), the Fire Orb old
+  lady (9_948), the sad man (137_58), the store inventory sign, Jenova,
+  rc/javahelp.txt, quests/dw_wreck.json. Old item files stay (no player
+  held any; god-made only). The old CoL "place" storage can't take the
+  new names (no defConditions); it says so.
+- tools/server/fix_potions2_talk.mjs: Kossk's dw_wreck reward, Pell's
+  "Rejuvenation potion?" (capital.mjs PELL_REJUVENATION). Installed via
+  potions2_install.sh from ~/potions2-stage (backups potions2-*,
+  canon-20261026-174836).
+- Sources match: capital, ssarakh, aelindor, velkarath, dawnward,
+  swampmobs, fireorb. paintart: healing red, mana blue, rejuvenation
+  purple; minor small; strong and rejuvenation large and glowing.
+- fix_playtest8.py's Ryld's edit now drops the arrow line whatever else
+  the shop sells (the ash staff broke its exact match); ~/pt8-stage copy
+  updated.
+
 ## Open / ideas
 
 - Play-tests: runs 1-8 in ~/dusk-playtest/archive/runN (notes, transcript,
