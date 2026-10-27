@@ -1,44 +1,129 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+<meta charset="utf-8">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Leaderboard</title>
-  <meta name="description" content="The most experienced players in the world of Dusk.">
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    body { overflow: auto; }
-    .board { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
-    .board h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: .04em; }
-    .board .sub { color: var(--muted); margin: 0 0 20px; }
-    .board .wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
-    .board table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    .board th, .board td { padding: 10px 12px; text-align: left; border-top: 1px solid var(--border); white-space: nowrap; }
-    .board thead th { border-top: none; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
-    .board td.num, .board th.num { text-align: right; font-variant-numeric: tabular-nums; }
-    .board .rank { color: var(--faint); width: 2em; }
-    .board tr.top .rank { color: var(--warn); font-weight: 700; }
-    .board .name { font-weight: 600; }
-    .board .title { color: var(--muted); font-weight: normal; margin-left: 6px; }
-    .board .empty { padding: 24px 16px; color: var(--muted); text-align: center; }
-    .board .foot { margin-top: 16px; color: var(--faint); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .board a { color: var(--accent); }
-    @media (max-width: 560px) { .board .hide-sm { display: none; } }
-  </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leaderboard · The Lands of Dusk</title>
+<meta name="description" content="The most experienced players in the world of Dusk.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* The website's own look (~/DuskRPG/web/*.html): stone, gold, parchment. */
+  :root {
+    --stone-dark: #2e2e30;
+    --stone-mid: #45464a;
+    --stone-light: #a9abb2;
+    --sapphire: #1a2f5c;
+    --sapphire-bright: #3a5ba0;
+    --gold: #cbb26a;
+    --gold-bright: #e8d391;
+    --parchment: #d8d2c0;
+    --ember: #b5432f;
+    --emerald: #2e6b4f;
+    --emerald-bright: #4caf7d;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background-color: var(--stone-dark);
+    background-image: url('/images/bgTile.jpg');
+    background-repeat: repeat;
+    color: var(--parchment);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.5;
+  }
+  a { color: var(--gold-bright); text-decoration: none; border-bottom: 1px dotted transparent; }
+  a:hover { border-bottom-color: var(--gold-bright); }
+  .page { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
+  .header { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 8px 0 6px; }
+  .header img { height: 60px; image-rendering: pixelated; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+  .header img.dragon { height: 78px; transform: scaleX(-1); }
+  h1.title { font-family: 'Cinzel', serif; font-weight: 700; font-size: 44px; letter-spacing: 0.04em; margin: 0; color: var(--gold-bright);
+    text-shadow: 0 0 10px rgba(203,178,106,0.35), 2px 2px 0 #1a1a1a, -1px -1px 0 #1a1a1a; }
+  .tagline { text-align: center; font-style: italic; color: var(--stone-light); margin: 0 0 24px; font-size: 15px; }
+  .columns { display: grid; grid-template-columns: 230px 1fr; gap: 22px; align-items: start; }
+  .panel { position: relative; border-image: url('/images/bgframe.jpg') 40 fill stretch; border-image-width: 40px; border-style: solid; border-width: 40px;
+    background-color: rgba(20,20,22,0.55); padding: 4px 20px 20px; margin-bottom: 22px; min-width: 0; }
+  .panel h2 { font-family: 'Cinzel', serif; font-size: 19px; letter-spacing: 0.03em; color: var(--gold); border-bottom: 1px solid rgba(203,178,106,0.3); padding-bottom: 8px; margin: 14px 0 14px; }
+  .nav-list { list-style: none; margin: 0; padding: 0; }
+  .nav-list li { margin-bottom: 10px; }
+  .nav-list a { font-size: 16px; }
+  .nav-list a.here { color: var(--parchment); border-bottom-color: var(--gold); }
+  .play-btn { display: flex; align-items: center; justify-content: center; margin-top: 6px; padding: 12px 8px; width: 100%;
+    background: linear-gradient(#4b4c51, #2c2d31); border: 1px solid var(--gold); border-radius: 4px;
+    color: var(--gold-bright); font-family: 'Cinzel', serif; font-size: 17px; letter-spacing: 0.05em; text-shadow: 0 1px 3px rgba(0,0,0,0.8); box-shadow: 0 3px 10px rgba(0,0,0,0.5); }
+  .play-btn:hover { filter: brightness(1.15); border-bottom-color: var(--gold); }
+  .desc { color: var(--stone-light); font-size: 15px; }
+
+  /* The leaderboard (main panel). */
+  .board .sub { color: var(--stone-light); font-size: 15px; font-style: italic; margin: 0 0 14px; }
+  .board .wrap { overflow-x: auto; }
+  .board table { width: 100%; border-collapse: collapse; }
+  .board th { font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); text-align: left;
+    padding: 8px 10px; border-bottom: 1px solid rgba(203,178,106,0.35); white-space: nowrap; }
+  .board td { padding: 10px; border-top: 1px solid rgba(203,178,106,0.18); white-space: nowrap; font-size: 17px; }
+  .board tr:hover td { background: rgba(203,178,106,0.04); }
+  .board td.num, .board th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .board .rank { color: var(--stone-light); width: 2em; }
+  .board tr.top .rank { color: var(--gold-bright); font-family: 'Cinzel', serif; font-weight: 700; }
+  .board .name { font-weight: 600; }
+  .board .title { color: var(--stone-light); font-weight: normal; font-style: italic; margin-left: 6px; }
+  .board .empty { padding: 24px 16px; color: var(--stone-light); text-align: center; font-style: italic; }
+  @media (max-width: 760px) {
+    .columns { grid-template-columns: 1fr; }
+    .main { order: -1; } /* the leaderboard first, then the links */
+    h1.title { font-size: 34px; }
+    .header img { height: 44px; }
+    .header img.dragon { height: 56px; }
+  }
+  @media (max-width: 560px) { .board .hide-sm { display: none; } }
+  .site-note { margin: 28px 0 0; text-align: center; font-size: 13px; color: var(--stone-light); }
+</style>
 </head>
 <body>
-  <main class="board">
-    <h1>Leaderboard</h1>
-    <p class="sub" id="note">Looking…</p>
-    <div class="wrap">
-      <table aria-label="Top players">
-        <thead><tr><th class="rank">#</th><th>Player</th><th class="hide-sm">Race</th><th class="num">Experience</th><th class="num">Quests</th><th class="num hide-sm">Health</th><th class="num hide-sm">Stats</th><th class="num hide-sm">Played</th></tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
+<div class="page">
+  <div class="header">
+    <img class="knight" src="/images/knight.gif" alt="">
+    <h1 class="title">The Lands of Dusk</h1>
+    <img class="dragon" src="/images/dragon.gif" alt="">
+  </div>
+  <p class="tagline">The most experienced adventurers in the world of Dusk.</p>
+
+  <div class="columns">
+    <div class="sidebar">
+      <div class="panel">
+        <h2>Links</h2>
+        <ul class="nav-list">
+          <li><a href="/web/index.html">Home</a></li>
+          <li><a href="/web/howtoplay.html">How to Play</a></li>
+          <li><a href="/web/javaclient.html">Java Client</a></li>
+          <li><a href="/web/faq.html">FAQ</a></li>
+          <li><a href="forum.html">Forum</a></li>
+          <li><a href="leaderboard.html" class="here">Leaderboard</a></li>
+          <li><a href="who.html">Who's Online</a></li>
+          <li><a href="/web/credits.html">Credits</a></li>
+        </ul>
+        <a class="play-btn" href="./">Play Now</a>
+      </div>
     </div>
-    <p class="foot"><span><a href="who.html">Who's online</a> · <a href="forum.html">Forum</a></span><a href="./">Play Dusk</a></p>
-  </main>
+    <div class="main">
+      <div class="panel">
+        <main class="board">
+          <h2>Leaderboard</h2>
+          <p class="sub" id="note">Looking…</p>
+          <div class="wrap">
+            <table aria-label="Top players">
+              <thead><tr><th class="rank">#</th><th>Player</th><th class="hide-sm">Race</th><th class="num">Experience</th><th class="num">Quests</th><th class="num hide-sm">Health</th><th class="num hide-sm">Stats</th><th class="num hide-sm">Played</th></tr></thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+  <p class="site-note">Nothing we collect is ever sold or shared.</p>
+</div>
   <script type="module">
     import { describeBoard } from './js/leaderboard.js';
     const $ = (id) => document.getElementById(id);
