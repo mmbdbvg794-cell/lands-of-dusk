@@ -7,7 +7,8 @@ button (discord_button.py), in place of the blue beveled button art.
   Every page whose .play-btn rule is still the blockButton.jpg one gets the
   new rule: same size and lettering, a dark stone gradient, gold edge and
   gold text. On apply.html this also restyles Send Application, which shares
-  the class. Pages are copied to backups/web-playgold-<time>/ first.
+  the class. The Java client's Download button gets the same look too.
+  Pages are copied to backups/web-playgold-<time>/ first.
   Running it again changes nothing.
 """
 import os
@@ -62,6 +63,26 @@ NEW = """  .play-btn {
     transition: transform 0.15s, filter 0.15s;
   }
 """
+# The Java client's download button (javaclient.html; its rule is also left
+# over in How to Play and Apply), in the same look at its own size.
+OLD_DOWNLOAD = """    background-image: url(/images/blockButton.jpg);
+    background-size: 100% 100%;
+    border-radius: 4px;
+    color: #eaf1ff;
+    font-family: Cinzel, serif;
+    font-size: 15px;
+"""
+NEW_DOWNLOAD = """    background: linear-gradient(#4b4c51, #2c2d31);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    color: var(--gold-bright);
+    font-family: Cinzel, serif;
+    font-size: 15px;
+"""
+# .howto-section a (links in the guide's text are plain gold) outranks
+# .download-btn, so the button's own lettering needs a closer rule.
+DOWNLOAD_HOVER = "  .download-btn:hover { filter: brightness(1.15); }\n"
+DOWNLOAD_TEXT = "  .howto-section a.download-btn { color: var(--gold-bright); }\n"
 changed = []
 for name in sorted(os.listdir(WEB)):
     if not name.endswith(".html") or name in ("index_draft.html", "cheerpj_test.html"):
@@ -69,13 +90,20 @@ for name in sorted(os.listdir(WEB)):
     path = os.path.join(WEB, name)
     with open(path, encoding="utf-8") as f:
         text = f.read()
-    if text.count(OLD) != 1:
+    new = text
+    if new.count(OLD) == 1:
+        new = new.replace(OLD, NEW).replace(OLD_NOTE, NEW_NOTE)
+    if new.count(OLD_DOWNLOAD) == 1:
+        new = new.replace(OLD_DOWNLOAD, NEW_DOWNLOAD)
+    if new.count(DOWNLOAD_HOVER) == 1 and DOWNLOAD_TEXT not in new:
+        new = new.replace(DOWNLOAD_HOVER, DOWNLOAD_HOVER + DOWNLOAD_TEXT)
+    if new == text:
         continue
     changed.append(name)
     if not DRY:
         os.makedirs(keep, exist_ok=True)
         shutil.copy2(path, os.path.join(keep, name))
         with open(path, "w", encoding="utf-8") as f:
-            f.write(text.replace(OLD, NEW).replace(OLD_NOTE, NEW_NOTE))
+            f.write(new)
 print(("Would change" if DRY else "Changed") + f" {len(changed)} pages: " + ", ".join(changed)
       + ("" if DRY or not changed else f" (backups in {keep})"))

@@ -299,10 +299,10 @@
     display: inline-block;
     margin: 4px 0 10px;
     padding: 8px 16px;
-    background-image: url(/images/blockButton.jpg);
-    background-size: 100% 100%;
+    background: linear-gradient(#4b4c51, #2c2d31);
+    border: 1px solid var(--gold);
     border-radius: 4px;
-    color: #eaf1ff;
+    color: var(--gold-bright);
     font-family: Cinzel, serif;
     font-size: 15px;
     letter-spacing: 0.04em;
@@ -311,6 +311,7 @@
     box-shadow: 0 3px 10px rgba(0,0,0,0.5);
   }
   .download-btn:hover { filter: brightness(1.15); }
+  .howto-section a.download-btn { color: var(--gold-bright); }
 
   @media (max-width: 720px) {
     .columns { grid-template-columns: 1fr; }

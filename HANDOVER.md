@@ -756,7 +756,8 @@ commands that touch live.
   longer adds that link. Pages before: backups/web-discord-20261027-151416.
   Play Now (and Send Application on apply.html) got the same stone-and-gold
   look from tools/server/play_button_gold.py; before: web-playgold-20261027-151834.
-  The Java client's .download-btn keeps the blue button art.
+  The Java client's Download button followed (same tool, 2026-10-27; before:
+  web-playgold-20261027-202500), so no page uses blockButton.jpg any more.
 - Updates page (web/updates.html, the old server version history) taken down
   2026-10-27 at the owner's request: server code updates aren't public; game
   updates go in the home page News (news.json). Page and nav links gone;
