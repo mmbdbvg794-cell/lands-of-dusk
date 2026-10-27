@@ -745,6 +745,10 @@ commands that touch live.
   Hesska warns of the Dry Ones; Kraghul and Morvane have descriptions.
 - Website: ~/DuskRPG/web/lore.html (the opening legend only) linked in every
   page's nav (backup backups/web-lore-20261007), and forum.html here.
+  Taken down 2026-10-27 at the owner's request (it crowded the Links nav):
+  page and nav links gone; the page and the pages before are in
+  ~/DuskRPG/backups/web-nolore-20261027-150247 (lore.html.removed).
+  Don't put it back. The in-game tales are unchanged.
 
 ## 2026-10-07 night: lizardman tutorial (installed 18:15; live after the restart)
 
