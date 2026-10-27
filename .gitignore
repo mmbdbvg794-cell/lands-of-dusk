@@ -33,3 +33,5 @@ conf/bridgesecret
 /profiles.json
 who.json
 leaderboard.json
+# Map editor build output
+/map-editor/**/*.class
