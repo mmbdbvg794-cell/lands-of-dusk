@@ -754,6 +754,9 @@ commands that touch live.
   key" on index and How to Play), from tools/server/discord_button.py. It
   replaced the "Join our Discord" text link in Links; beta_site_links.py no
   longer adds that link. Pages before: backups/web-discord-20261027-151416.
+  Play Now (and Send Application on apply.html) got the same stone-and-gold
+  look from tools/server/play_button_gold.py; before: web-playgold-20261027-151834.
+  The Java client's .download-btn keeps the blue button art.
 
 ## 2026-10-07 night: lizardman tutorial (installed 18:15; live after the restart)
 
