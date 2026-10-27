@@ -757,6 +757,10 @@ commands that touch live.
   Play Now (and Send Application on apply.html) got the same stone-and-gold
   look from tools/server/play_button_gold.py; before: web-playgold-20261027-151834.
   The Java client's .download-btn keeps the blue button art.
+- Updates page (web/updates.html, the old server version history) taken down
+  2026-10-27 at the owner's request: server code updates aren't public; game
+  updates go in the home page News (news.json). Page and nav links gone;
+  before: backups/web-noupdates-20261027-152000 (updates.html.removed).
 
 ## 2026-10-07 night: lizardman tutorial (installed 18:15; live after the restart)
 
