@@ -2,14 +2,14 @@
 // what they do, for one NPC. Opened from the God tab or an NPC's click
 // menu; saved as the NPC's talk script (js/dialogue.js turns it into one).
 
-import { newDialogue, tidyDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS, RACES, SEXES, newOnceFlag, ONCE_SAYS, flagsOf, stageFor, tryAnswer, bySex } from './dialogue.js';
+import { CLASS_WHAT, newDialogue, tidyDialogue, saveCommand, loadCommand, MAX_DEPTH, journalEntriesOf, fillJournal, VERBS, RACES, SEXES, newOnceFlag, ONCE_SAYS, flagsOf, stageFor, tryAnswer, bySex } from './dialogue.js';
 import { journalSet, JOURNAL_ALL } from './social.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)'], ['race', 'Player is race'], ['norace', "Player isn't race"], ['sex', 'Player is (sex)']];
 const ONCE = [['any', 'Works any time'], ['once', 'Only once per player'], ['wait', 'Again after a wait']];
 const EFFECTS = [
   ['give', 'Give item'], ['take', 'Take item'], ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['heal', 'Heal fully (HP and MP)'],
-  ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
+  ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'], ['class', 'Class'],
 ];
 const NEEDS = [['none', 'Needs nothing'], ['gold', 'Needs gold'], ['item', 'Needs item'], ['flag', 'Needs flag']];
 
@@ -220,6 +220,10 @@ export class DialogueEditor {
               ' finishes it'))
           : null;
         if (e.kind === 'teleport' || e.kind === 'bind') fields.push(input(e.x, 'x', (v) => { e.x = v; }, { type: 'number', className: 'de-num' }), input(e.y, 'y', (v) => { e.y = v; }, { type: 'number', className: 'de-num' }));
+        if (e.kind === 'class') {
+          fields.push(select(CLASS_WHAT, CLASS_WHAT.some(([k]) => k === e.what) ? e.what : (e.what = 'pick'), (v) => { e.what = v; again(); }));
+          if (e.what === 'try') fields.push(input(e.id, 'class, e.g. fighter', (v) => { e.id = v; }));
+        }
         const row = h('div', { className: 'de-row de-effect' },
           select(EFFECTS, e.kind, (v) => { a.effects[ei] = { kind: v }; again(); }), ...fields,
           button('✕', () => { a.effects.splice(ei, 1); again(); }, 'ghost de-x'));

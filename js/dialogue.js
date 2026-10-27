@@ -13,7 +13,9 @@
 // human, elf...) | 'sex' (value male or female). Effects: { kind:
 // 'give'|'take', item }, { kind: 'gold'|'takegold'|'exp', amount }, { kind:
 // 'flag'|'unflag', flag }, { kind: 'teleport', x, y }, { kind: 'heal' } (all
-// HP and MP back). An answer can also
+// HP and MP back), { kind: 'class', what: 'pick'|'try'|'end', id } (the
+// class picker at a tutorial's end, trying a class in its yard, stopping:
+// server/Classes.java). An answer can also
 // have needs: { kind: 'gold'|'item'|'flag', value } (said to be missing
 // otherwise) and next: a follow-up question { says, answers } of its own.
 // A stage can also have `also` (a second condition, both must hold) and
@@ -76,6 +78,9 @@ const answerIs = (v, label) => {
 };
 
 // The races, for conditions and walking rules: [id, name].
+// A class effect's choices (server/Classes.java).
+export const CLASS_WHAT = [['pick', 'Open the class picker (tutorial end)'], ['try', 'Try a class (training yard)'], ['end', 'Stop trying a class']];
+
 export const RACES = [['human', 'Human'], ['elf', 'Elf'], ['darkelf', 'Dark elf'], ['lizardman', 'Lizardman']];
 
 // A player's sex (server/Sex.java): the hidden flag "female" decides; anyone
@@ -129,6 +134,13 @@ function effect(e, pad) {
     // Renting a house (server/Housing.java): "rent" or "info"; the hidden
     // rentnow lets the order through, as only a conversation can give it.
     case 'rent': return ['rent', 'info'].includes(e.what) ? `${pad}addCondition trigger rentnow\n${pad}order trigger "house ${e.what}"` : null;
+    // Classes (server/Classes.java): the picker at a tutorial's end stone,
+    // trying a class in a training yard, or stopping.
+    case 'class': {
+      if (e.what === 'pick' || e.what === 'end') return `${pad}order trigger "class ${e.what}"`;
+      const id = String(e.id ?? '').replace(/[^a-z]/gi, '').toLowerCase();
+      return e.what === 'try' && id ? `${pad}order trigger "class try ${id}"` : null;
+    }
     case 'teleport': return Number.isFinite(Number(e.x)) && Number.isFinite(Number(e.y)) && e.x !== '' && e.y !== '' ? `${pad}set trigger locxy ${Math.floor(Number(e.x))} ${Math.floor(Number(e.y))}` : null;
     // Where they come back to after dying. The script language's own "set
     // trigger bindlocx" stores 0 on this server, so the server sets it
@@ -499,6 +511,7 @@ export function tryAnswer(a, p, who) {
     if (e.kind === 'exp' && n > 0) lines.push(`(+${n} experience)`);
     if (e.kind === 'heal') lines.push('(HP and MP restored)');
     if (e.kind === 'rent') lines.push(e.what === 'info' ? '(says which house you rent)' : '(rents a house on Lantern Row)');
+    if (e.kind === 'class') lines.push(e.what === 'pick' ? '(opens the class picker)' : e.what === 'end' ? '(stops trying a class)' : `(tries the ${text(e.id)} class)`);
     if (e.kind === 'teleport') lines.push(`(sent to ${e.x}, ${e.y})`);
     if (e.kind === 'bind') lines.push(`(comes back to ${e.x}, ${e.y} after dying)`);
   }

@@ -12,6 +12,7 @@
 // aren't affected.
 
 import { HEART } from './ssarakh.mjs';
+import { classGate, trialYard } from './classtrials.mjs';
 
 const ORIGIN = [1846, 990];
 const TUT = 'From Hatchling to Brood-Guard...';
@@ -80,7 +81,7 @@ const LARDER = {
   ],
 };
 // The Warm Stone: training done (or skipped), to the Brood Stone, bound there.
-const warmStone = (flag) => [{
+export const warmStone = (flag) => [classGate(flag, '** The Warm Stone stays cold under your feet: first, choose your calling. **'), {
   when: { kind: 'flag', value: flag },
   speaker: '',
   says: '** You step onto the Warm Stone. It hums under your feet like something alive... and you stand before the Brood Stone of Ssarakh. ** A brood-guard flicks her tongue at you: \'New hatchling? Chieftain Hesska sees every one. The Hall of the Brood is just north of the Brood Stone.\'',
@@ -132,6 +133,7 @@ export default {
     p.oval(42, 9, 14, 15, 'q');
     p.npc(lizard('Hunt-Master Kreeth', 'Hunt-Master Kreeth, scarred across the snout, watching how you move.', 49, 11, HUNTER));
     p.mob('training dummy', 1, 45, 19); p.mob('training dummy', 1, 52, 19);
+    trialYard(p, 'lizardman');
 
     // The larder, behind a counter: its near side (the way in) is where
     // buyers stand.

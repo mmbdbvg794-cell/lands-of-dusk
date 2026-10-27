@@ -2643,6 +2643,66 @@ then a restart (signs and props are read at start-up; flan was online, so
 - /root/DUSK_LORE_BIBLE.md regenerated from live 20:30 (no staged chains).
 - Not played in game after the install (each was tested on scratch).
 
+## 2026-10-27 00:10: classes chosen at the end of the tutorials, tried in their yards (BUILT, tested on scratch, not live)
+
+- The user's call: pick the class at the end of the tutorial, with a real
+  trial of each in the training yard, and the choice at the end stone.
+- server/Classes.java: "tutorial x1 y1 x2 y2" and "trial ..." lines in the
+  classes file (DEFAULTS has them; install_class_trials.py appends them to
+  live's). Inside a tutorial box no class is needed (gate lets classless
+  players act; "class" answers "Class: none|No class yet ...", so the
+  browser picker stays shut; classic players get no prompt at login).
+  Boxes: human 116-147 x 364-393 (yard 134-138 x 375-383), elf 408-473 x
+  1290-1325 (yard 450-463 x 1299-1313), dark elf 1268-1316 x 954-973 (yard
+  1301-1313 x 954-966), lizardfolk 1846-1911 x 990-1025 (yard 1888-1901 x
+  999-1013).
+- "class try <id>" (yard only, no real class yet): writes classtrials/<name>
+  (stats incl. hp/mp, skills, spell groups, kit flag), then the class's
+  start + kit go on with hidden flags class_<id> + classtrial. Classes with
+  a spell group start at 60% HP so Mend / Gloom Mend has something to heal.
+  Ended (file put back, kit items taken back worn or carried, flags off) by
+  leaving the yard (Conditions.tick calls Classes.trialTick every second;
+  the gate also checks), another try, "class end", choosing, or the next
+  login (logged out mid-trial). While trying: train/drop/give/sell/put/
+  trade/offer refused.
+- End stones (all nine: human 142,392 143,392 117,373; elf 468,1319
+  431,1321; drow 1316,971 1284,971; lizard 1906,1019 1869,1021) get a first
+  rule: step flag and no hidden flag classchosen -> "first, choose your
+  calling" + order "class pick" (browser: ClassChoices line opens the
+  picker; classic: the typed prompt). Choosing anywhere sets classchosen
+  (setFlag) and, standing on a stone whose script says "class pick", runs
+  it again: bound and sent on. Anyone with a class gets classchosen at
+  login, so old characters still mid-tutorial walk straight through.
+- Ordered commands' replies go nowhere (as Housing found): pick/try/end
+  say theirs with chatMessage (Classes.say). patch.py: an empty Classes
+  reply sends nothing (as Talk's).
+- Trial keepers (tools/world/cities/classtrials.mjs, KEEPERS): Veteran
+  Maddock (138,376), Sentinel Aeris (462,1303), Weapons-Keeper Zhaun
+  (1312,956; "Ilzt" is taken by Velkarath's off-duty guard), Old Ssiv
+  (1900,1003). One greeting, answers Fighter/Ranger/Cleric or Priest/
+  Paladin/How does it work?/Enough. New dialogue + tile effect kind
+  {kind:'class', what:'pick'|'try'|'end', id} (js/dialogue.js, both God-tab
+  editors: "Class"). grove/velkarath/hatchery.mjs call classGate and
+  trialYard, so rebuilds keep it; classtrials-<race>.mjs are keeper-only
+  overlays (no squares change) for install_city.
+- Dropped: a sparring dummy that hits back. Dying costs gold and exp and
+  sends you to your capital, out of the tutorial; the 60% HP start does the
+  job instead.
+- Tested on scratch (trialelf, trialelfb, trialbrow, trialhum, trialhumb,
+  trialdrow / testpw1): classless moving in the tutorial; try outside the
+  yard refused; cleric/ranger/fighter/priest trials (stats, kit, spells,
+  Mend and quoted "gloom mend" heal); switching restores first; leaving the
+  yard and logging in again restore (kit gone even when worn); drop refused;
+  the keeper conversation; the Moonstone with the browser picker
+  (playwright: dark stone, picker with 4 classes, Ranger chosen, at the
+  Moonwell, bound); classic picker; an old classed human straight through.
+  testclient.py misses a line that arrives glued to the previous protocol
+  message (raw bytes showed it was sent).
+- To go live (nobody online; one restart): `sh tools/golive_class_trials.sh`
+  (deploy, build, install, keeper bundles from live's map/props, stones +
+  classes file, restart). The stones must not go in without the restart:
+  the old server never sets classchosen, so they'd hold everyone at the end.
+
 ## Open / ideas
 
 - Play-tests: runs 1-8 in ~/dusk-playtest/archive/runN (notes, transcript,
@@ -2653,9 +2713,9 @@ then a restart (signs and props are read at start-up; flan was online, so
   (tools/scratch.sh setup, then start; tunnel -L 10011). Block archive/**
   and the briefs in the launch line. The bot's legend now names the two
   cobble tiles apart (b plain brown = blocks, c with grey stones).
-- Class and level ideas the user raised (not started): choosing the class
-  at the end of the tutorial instead of at creation; a level system (maybe
-  cosmetic levels on top of the experience-for-stats training).
+- Class at the end of the tutorial: built 2026-10-27 (above), waiting to
+  go live. A level system (maybe cosmetic levels on top of the
+  experience-for-stats training): not started.
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
   Hidden Order / tier-5 quests that set forbidden_lore, archmage_quest,
   archdruid_quest (skipped for now; god-set flags only). A ferry to the

@@ -20,3 +20,7 @@ assert.equal(tierTag(t, 'Mining'), null);
 assert.equal(tierTag(null, 'Dodge'), null);
 assert.equal(parseTiers('ClassTiers: ').size, 0);
 console.log('classes tests passed');
+
+// In a race tutorial no class is needed yet: "none" closes the picker.
+assert.deepEqual(parseClass('Class: none|No class yet (you choose at the end of your training)'), { id: 'none', name: 'No class yet (you choose at the end of your training)' });
+console.log('ok - no class yet');

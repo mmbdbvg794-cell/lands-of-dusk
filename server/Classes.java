@@ -21,14 +21,26 @@
  *   - classes nobody can choose any more ("hidden"), kept for those who are.
  *
  * A character without a class can't move, fight, train, buy or cast until
- * they choose (gods excepted). Choosing, once: the class's start goes on,
- * and skills and spell groups that are another class's (cross-class or
- * barred) are taken away, their exp given back.
+ * they choose (gods excepted), except inside a race tutorial ("tutorial"
+ * boxes): new characters choose at its end, where the end stone asks
+ * ("class pick") before it lets them go. Choosing, once: the class's start
+ * goes on, and skills and spell groups that are another class's
+ * (cross-class or barred) are taken away, their exp given back.
+ *
+ * In a tutorial's training yard ("trial" boxes) a class can be tried: for
+ * a while the character is one, start, kit and all. What they were is
+ * kept in classtrials/<name> first, and put back when they leave the yard
+ * (checked every second, from Conditions), try another, choose, or log in
+ * again.
  *
  *   class                       "Class: <id>|<name>" | "Class: unset" (with how to choose)
  *   class choices               "ClassChoices: id|name|blurb;..." (this race's)
  *   class tiers                 "ClassTiers: name=tier;..." (core|open|cross|barred)
  *   class <id or name>          choose, once
+ *   class pick                  the picker (an end stone's "order"), or on
+ *                               through the stone for one who has chosen
+ *   class try <id or name>      try a class, in a training yard
+ *   class end                   stop trying it
  *   setclass <player> <id>      gods: change a player's class (flag only)
  *   guilds                      your guilds and ranks ("guild <group>: name | 5 ranks")
  *   guildflag <player> <flag> on|off   gods: set or clear a guild flag (FLAGS)
@@ -48,6 +60,17 @@ import java.util.Map;
 
 public class Classes {
     static final int GOD_PRIVS = 3;
+
+    // The race tutorials (human, elf, dark elf, lizardman) and their yards.
+    static final String TUTORIAL_LINES = String.join("\n",
+        "tutorial 116 364 147 393",
+        "trial 134 375 138 383",
+        "tutorial 408 1290 473 1325",
+        "trial 450 1299 463 1313",
+        "tutorial 1268 954 1316 973",
+        "trial 1301 954 1313 966",
+        "tutorial 1846 990 1911 1025",
+        "trial 1888 999 1901 1013");
 
     static final String DEFAULTS = String.join("\n",
         "# Classes (server/Classes.java). Changes take effect at once.",
@@ -159,7 +182,12 @@ public class Classes {
         "refuse nature group: Only those The Circle has taken in may learn its ways.",
         "# hidden <class>: nobody can choose it any more; those who have it keep it.",
         "hidden mage",
+        "",
+        "# tutorial <x1> <y1> <x2> <y2>: a race tutorial. No class is needed inside; its end stone",
+        "# asks for one. trial <x1> <y1> <x2> <y2>: a training yard, where classes can be tried.",
+        TUTORIAL_LINES,
         "");
+
 
     static class Def {
         String id, name, femaleName, blurb = "";
@@ -194,6 +222,8 @@ public class Classes {
     static Map<String, String> itemKinds = new LinkedHashMap<String, String>();
     static int multiplier = 2, crosscap = 50;
     static long read = -1;
+    // { x1, y1, x2, y2 }: race tutorials, and their training yards
+    static List<int[]> tutorials = new ArrayList<int[]>(), yards = new ArrayList<int[]>();
 
     static List<String> list(String s) {
         List<String> out = new ArrayList<String>();
@@ -218,6 +248,7 @@ public class Classes {
         Map<String, List<Entry>> sch = new LinkedHashMap<String, List<Entry>>();
         Map<String, String> t5 = new LinkedHashMap<String, String>(), ref = new LinkedHashMap<String, String>();
         Map<String, String[]> gl = new LinkedHashMap<String, String[]>();
+        List<int[]> tut = new ArrayList<int[]>(), yd = new ArrayList<int[]>();
         try {
             List<String> lines = m > 0 ? Files.readAllLines(f.toPath()) : java.util.Arrays.asList(DEFAULTS.split("\n"));
             for (String line : lines) {
@@ -237,6 +268,10 @@ public class Classes {
                             if (g.length == 6) { for (int i = 0; i < 6; i++) g[i] = g[i].trim(); gl.put(group, g); }
                         }
                         else sch.put(group, entries(rest));
+                    } else if (key.equals("tutorial") || key.equals("trial")) {
+                        String[] n = line.split("\\s+");
+                        int[] box = { Integer.parseInt(n[1]), Integer.parseInt(n[2]), Integer.parseInt(n[3]), Integer.parseInt(n[4]) };
+                        (key.equals("trial") ? yd : tut).add(box);
                     } else if (key.equals("multiplier")) mult = Math.max(1, Integer.parseInt(w[1]));
                     else if (key.equals("crosscap")) cap = Math.max(0, Math.min(100, Integer.parseInt(w[1])));
                     else if (key.equals("open")) o.addAll(list(line.substring(4)));
@@ -283,7 +318,11 @@ public class Classes {
         tier5 = t5;
         refuse = ref;
         guilds = gl;
+        tutorials = tut;
+        yards = yd;
         for (String fl : FLAGS) hiddenFlag(fl);
+        hiddenFlag(TRIAL_FLAG);
+        hiddenFlag(CHOSEN_FLAG);
         for (List<Entry> es : sch.values()) for (Entry e : es) for (String fl : e.flags) hiddenFlag(fl);
         for (String fl : t5.values()) hiddenFlag(fl);
         kinds = k;
@@ -550,7 +589,15 @@ public class Classes {
         if (line == null || exempt(who)) return null;
         String lower = line.trim().toLowerCase();
         String verb = lower.split("\\s+", 2)[0];
+        if (who.hasCondition(TRIAL_FLAG) && who instanceof Player) {
+            if (!inBox(who, yards)) {
+                endTrial((Player) who, engine, TRIAL_OVER);
+                return gate(who, engine, line);
+            }
+            for (String a : TRIAL_REFUSED) if (verb.equals(a)) return "Not while you're trying out a class. Leave the yard first.";
+        }
         if (of(who) == null) {
+            if (inBox(who, tutorials)) return null; // chosen at the tutorial's end
             for (String a : ACTIONS) if (verb.equals(a)) return "Choose your class first: type class to see the choices.";
             return null;
         }
@@ -679,6 +726,11 @@ public class Classes {
 
     public static void atLogin(Player p) {
         try {
+            // Logged out (or the server stopped) while trying a class.
+            if (!exempt(p) && (p.hasCondition(TRIAL_FLAG) || trialFile(p).exists())) endTrial(p, p.engGame, null);
+            // Chosen before the choice moved to the tutorials' end: their end
+            // stones let them straight through.
+            if (!exempt(p) && of(p) != null) mark(p, p.engGame, CHOSEN_FLAG);
             // Mages from before the schools: members of the Mage Guild, their
             // spells kept (the rank follows their arcane points).
             Def was = exempt(p) ? null : of(p);
@@ -691,7 +743,7 @@ public class Classes {
                 }
             }
             if (!exempt(p) && was != null && !p.hasCondition(KIT_FLAG)) {
-                String kit = giveKit(p, p.engGame, was);
+                String kit = giveKit(p, p.engGame, was, null);
                 if (!kit.isEmpty()) {
                     p.updateStats();
                     p.savePlayer();
@@ -700,6 +752,8 @@ public class Classes {
                 }
             }
             if (exempt(p) || of(p) != null) return;
+            // New characters choose at the end of their tutorial.
+            if (inBox(p, tutorials)) return;
             // The browser client opens its picker instead.
             if (BridgedSocket.browser(p.sckConnection)) return;
             p.chatMessage("Before you set out, choose your class: " + choices(p) + ". Type class <name> (for example: class fighter). You choose once.\n");
@@ -772,22 +826,44 @@ public class Classes {
         load();
         Def now = of(who);
         String arg = lower.substring(5).trim();
+        boolean trying = who.hasCondition(TRIAL_FLAG);
         if (arg.length() == 0) {
             if (now != null) return "Class: " + now.id + "|" + nameFor(now, who);
             // Gods needn't choose (the browser's picker stays shut).
             if (exempt(who)) return "Class: none|No class (gods needn't choose; class <name> to take one)";
+            // Nor do new characters until their tutorial's end stone.
+            if (inBox(who, tutorials)) return NO_CLASS_YET;
             return "Class: unset. Choose one: " + choices(who) + ". Type class <name>, for example class fighter.";
         }
-        if (arg.equals("choices")) {
-            StringBuilder b = new StringBuilder("ClassChoices: ");
-            boolean first = true;
-            for (Def c : defs.values()) {
-                if (!allowed(c, who) || c.hidden) continue;
-                if (!first) b.append(';');
-                first = false;
-                b.append(c.id).append('|').append(nameFor(c, who)).append('|').append(c.blurb.replace(';', ',').replace('|', '/'));
+        if (arg.equals("choices")) return choicesLine(who);
+        Player p = (Player) who;
+        if (arg.equals("pick")) {
+            if (trying) endTrial(p, engine, null);
+            if (of(p) != null) {
+                // Chosen before the choice moved to the tutorial's end: on through the stone.
+                mark(p, engine, CHOSEN_FLAG);
+                stoneAgain(p, engine);
+                return "";
             }
-            return b.toString();
+            if (BridgedSocket.browser(p.sckConnection)) return say(p, choicesLine(p));
+            return say(p, "Choose your class: " + choices(p) + ". Type class <name> (for example: class fighter). You choose once.");
+        }
+        if (arg.equals("try") || arg.startsWith("try ")) {
+            if (now != null && !trying) return say(p, "You're a " + nameFor(now, who) + " already.");
+            if (!inBox(who, yards)) return say(p, "Classes can only be tried in a training yard, during your training.");
+            String what = arg.substring(3).trim();
+            Def c = what.length() == 0 ? null : find(what, who);
+            if (c == null || !allowed(c, who) || c.hidden) return say(p, "Try which? " + choices(who) + ". Type class try <name>, for example class try fighter.");
+            return say(p, startTrial(p, engine, c));
+        }
+        if (arg.equals("end")) {
+            if (!trying) return say(p, "You aren't trying out a class.");
+            endTrial(p, engine, "You put the " + nameFor(now, who) + "'s ways aside: you are yourself again.");
+            return "";
+        }
+        if (trying) {
+            endTrial(p, engine, null);
+            now = null;
         }
         if (arg.equals("tiers")) {
             if (now == null) return "ClassTiers: ";
@@ -811,7 +887,29 @@ public class Classes {
         if (c == null) return "Choose one of: " + choices(who) + ".";
         if (!allowed(c, who)) return "A " + raceWords(who.strRace) + " can't be a " + nameFor(c, who) + ". Choose one of: " + choices(who) + ".";
         if (c.hidden) return "Nobody starts out as a " + nameFor(c, who) + " any more. Choose one of: " + choices(who) + ".";
-        return choose((Player) who, engine, c);
+        p.chatMessage(choose(p, engine, c) + "\n");
+        // Chosen on a tutorial's end stone: on through it.
+        stoneAgain(p, engine);
+        return "";
+    }
+
+    // Ordered by a script (a keeper's answer, an end stone), a command's
+    // answer goes nowhere: these say theirs.
+    static String say(Player p, String text) {
+        p.chatMessage(text + "\n");
+        return "";
+    }
+
+    static String choicesLine(LivingThing who) {
+        StringBuilder b = new StringBuilder("ClassChoices: ");
+        boolean first = true;
+        for (Def c : defs.values()) {
+            if (!allowed(c, who) || c.hidden) continue;
+            if (!first) b.append(';');
+            first = false;
+            b.append(c.id).append('|').append(nameFor(c, who)).append('|').append(c.blurb.replace(';', ',').replace('|', '/'));
+        }
+        return b.toString();
     }
 
     static String raceWords(String race) {
@@ -842,7 +940,7 @@ public class Classes {
     // Gives the kit's items and raises its skills to their points (a skill
     // already as high is left); says what it gave ("" for nothing). The
     // flag goes on once every item fitted in the Backpack.
-    static String giveKit(Player p, DuskEngine engine, Def c) {
+    static String giveKit(Player p, DuskEngine engine, Def c, List<String> given) {
         List<String> got = new ArrayList<String>(), learnt = new ArrayList<String>();
         boolean fitted = true;
         for (String[] s : c.start) {
@@ -852,7 +950,7 @@ public class Classes {
                     if (p.hasCondition(KIT_FLAG)) continue;
                     Item it = engine.getItem(CaseFix.file("defItems", s[1]));
                     if (it == null) { Log.logEvent("Classes: no item " + s[1] + " for the " + c.id + " kit"); continue; }
-                    if (p.items.add(it)) { p.updateItems(); got.add(s[1]); } else fitted = false;
+                    if (p.items.add(it)) { p.updateItems(); got.add(s[1]); if (given != null) given.add(s[1]); } else fitted = false;
                     continue;
                 }
                 int n = Integer.parseInt(s[1]), have = skillPoints(p, s[0]);
@@ -894,6 +992,15 @@ public class Classes {
         hiddenFlag(c);
         Condition cond = engine.getCondition("class_" + c.id);
         if (cond != null) p.addCondition(cond);
+        mark(p, engine, CHOSEN_FLAG);
+    }
+
+    // A hidden flag on, if it isn't.
+    static void mark(Player p, DuskEngine engine, String flag) {
+        if (p.hasCondition(flag)) return;
+        hiddenFlag(flag);
+        Condition cond = engine.getCondition(flag);
+        if (cond != null) p.addCondition(cond);
     }
 
     // The choice: the flag, other classes' skills out (exp back), the start on.
@@ -926,6 +1033,21 @@ public class Classes {
             note.append(note.length() > 0 ? ", " : "").append(k);
         }
         p.exp += refund;
+        applyStart(p, c);
+        String kit = giveKit(p, engine, c, null);
+        p.updateInfo();
+        p.updateStats();
+        p.savePlayer();
+        Log.logEvent(p.strName + " chose " + c.id + (note.length() > 0 ? " (took away " + note + ", " + refund + " exp back)" : ""));
+        p.chatMessage("Class: " + c.id + "|" + nameFor(c, p) + "\n");
+        String out = "You are now a " + nameFor(c, p) + "." + (kit.isEmpty() ? "" : " " + kit);
+        if (note.length() > 0) out += " Another class's training was taken away (" + note + "); you get its " + refund + " exp back.";
+        return out;
+    }
+
+    // A class's start, but for its kit (giveKit): stats, a full bar of the
+    // new size, spell groups.
+    static void applyStart(Player p, Def c) {
         for (String[] s : c.start) {
             try {
                 if (inKit(s)) continue; // giveKit, below
@@ -947,15 +1069,174 @@ public class Classes {
                 Log.logError(e, "Classes: starting " + p.strName + " with " + s[0], false);
             }
         }
-        String kit = giveKit(p, engine, c);
-        p.updateInfo();
-        p.updateStats();
-        p.savePlayer();
-        Log.logEvent(p.strName + " chose " + c.id + (note.length() > 0 ? " (took away " + note + ", " + refund + " exp back)" : ""));
-        p.chatMessage("Class: " + c.id + "|" + nameFor(c, p) + "\n");
-        String out = "You are now a " + nameFor(c, p) + "." + (kit.isEmpty() ? "" : " " + kit);
-        if (note.length() > 0) out += " Another class's training was taken away (" + note + "); you get its " + refund + " exp back.";
-        return out;
+    }
+
+    // ---- the tutorials, and trying a class in their yards ---------------------
+
+    static final String TRIAL_FLAG = "classtrial", CHOSEN_FLAG = "classchosen";
+    static final String NO_CLASS_YET = "Class: none|No class yet (you choose at the end of your training)";
+    static final String TRIAL_OVER = "You leave the yard, and the trial with it: you are yourself again.";
+    static final String[] TRIAL_REFUSED = { "train", "drop", "give", "sell", "put", "trade", "offer" };
+    static final List<String> TRIAL_STATS = Arrays.asList("stre", "inte", "dext", "cons", "wisd", "maxhp", "maxmp", "hp", "mp");
+    static final File TRIALS = new File("classtrials");
+    // Who is trying a class now, by lower-case name (for trialTick).
+    static final Map<String, Player> onTrial = new Hashtable<String, Player>();
+
+    static boolean inBox(LivingThing who, List<int[]> boxes) {
+        load();
+        for (int[] b : boxes) if (who.intLocX >= b[0] && who.intLocX <= b[2] && who.intLocY >= b[1] && who.intLocY <= b[3]) return true;
+        return false;
+    }
+
+    static File trialFile(LivingThing who) {
+        return new File(TRIALS, who.strName.toLowerCase());
+    }
+
+    // Becomes the class for a while: what they are now is written down
+    // first (stats, skills, spell groups, the kit flag), then the class's
+    // start and kit go on, and the kit's items are added to the file.
+    static String startTrial(Player p, DuskEngine engine, Def c) {
+        synchronized (onTrial) {
+            if (p.hasCondition(TRIAL_FLAG) || trialFile(p).exists()) endTrial(p, engine, null);
+            StringBuilder b = new StringBuilder("class " + c.id + "\nkit " + (p.hasCondition(KIT_FLAG) ? 1 : 0) + "\n");
+            for (String st : TRIAL_STATS) b.append("stat ").append(st).append(' ').append(p.attributes.getStat(st)).append('\n');
+            for (Enumeration e = p.skillTable.keys(); e.hasMoreElements();) {
+                Object k = e.nextElement();
+                b.append("skill ").append(((Skill) p.skillTable.get(k)).value).append(' ').append(k).append('\n');
+            }
+            for (Enumeration e = p.spellTable.keys(); e.hasMoreElements();) {
+                Object k = e.nextElement();
+                b.append("spell ").append(((Spell) p.spellTable.get(k)).value).append(' ').append(k).append('\n');
+            }
+            try {
+                TRIALS.mkdirs();
+                Talk.write(trialFile(p), b.toString().getBytes("UTF-8"));
+            } catch (Exception e) {
+                Log.logError(e, "Classes: writing " + p.strName + "'s trial", false);
+                return "Something went wrong; please tell a god.";
+            }
+            applyStart(p, c);
+            List<String> given = new ArrayList<String>();
+            String kit = giveKit(p, engine, c, given);
+            for (String it : given) b.append("item ").append(it).append('\n');
+            try {
+                if (!given.isEmpty()) Talk.write(trialFile(p), b.toString().getBytes("UTF-8"));
+            } catch (Exception e) {
+                Log.logError(e, "Classes: writing " + p.strName + "'s trial items", false);
+            }
+            hiddenFlag(c);
+            Condition cond = engine.getCondition("class_" + c.id);
+            if (cond != null) p.addCondition(cond);
+            mark(p, engine, TRIAL_FLAG);
+            // A class with prayers starts a little bruised, to have something to mend.
+            boolean prays = false;
+            for (String[] st : c.start) if (st[0].toLowerCase().endsWith(" group")) prays = true;
+            int maxhp = p.attributes.getStat("maxhp");
+            p.attributes.setStat("hp", prays ? Math.max(1, maxhp * 6 / 10) : maxhp);
+            p.attributes.setStat("mp", p.attributes.getStat("maxmp"));
+            onTrial.put(p.strName.toLowerCase(), p);
+            p.updateInfo();
+            p.updateStats();
+            Log.logEvent(p.strName + " tries " + c.id);
+            p.chatMessage("Class: " + c.id + "|" + nameFor(c, p) + "\n");
+            return "For now you are a " + nameFor(c, p) + "." + (kit.isEmpty() ? "" : " " + kit)
+                + (prays ? " You're a little bruised: try your Spellbook's healing on yourself." : "")
+                + " Try it out here. When you leave the yard, all of it goes back.";
+        }
+    }
+
+    // Puts back what the trial's file says, takes its kit back (worn or
+    // carried), and drops the class. With no file (a stop mid-way), only
+    // the flags go.
+    static void endTrial(Player p, DuskEngine engine, String say) {
+        synchronized (onTrial) {
+            onTrial.remove(p.strName.toLowerCase());
+            File f = trialFile(p);
+            if (!p.hasCondition(TRIAL_FLAG) && !f.exists()) return;
+            List<String> lines = new ArrayList<String>();
+            try {
+                if (f.exists()) lines = Files.readAllLines(f.toPath());
+            } catch (Exception e) {
+                Log.logError(e, "Classes: reading " + p.strName + "'s trial", false);
+            }
+            for (Def d : defs.values()) p.removeCondition("class_" + d.id);
+            p.removeCondition(TRIAL_FLAG);
+            if (!lines.isEmpty()) {
+                Hashtable<Object, Object> skills = new Hashtable<Object, Object>(), spells = new Hashtable<Object, Object>();
+                for (String line : lines) {
+                    String[] w = line.split(" ", 3);
+                    try {
+                        if (w[0].equals("kit") && w[1].equals("0")) p.removeCondition(KIT_FLAG);
+                        else if (w[0].equals("stat")) p.attributes.setStat(w[1], Integer.parseInt(w[2]));
+                        else if (w[0].equals("skill")) skills.put(w[2], new Skill(w[2], (byte) Integer.parseInt(w[1])));
+                        else if (w[0].equals("spell")) spells.put(w[2], new Spell(w[2], (byte) Integer.parseInt(w[1])));
+                        else if (w[0].equals("item")) takeBack(p, line.substring(5).trim());
+                    } catch (Exception e) {
+                        Log.logError(e, "Classes: " + p.strName + "'s trial line " + line, false);
+                    }
+                }
+                p.skillTable.clear();
+                p.skillTable.putAll(skills);
+                p.spellTable.clear();
+                p.spellTable.putAll(spells);
+            }
+            f.delete();
+            p.updateItems();
+            p.updateInfo();
+            p.updateStats();
+            p.savePlayer();
+            Log.logEvent(p.strName + "'s class trial ended");
+            p.chatMessage("Class: none|No class yet\n");
+            if (say != null) p.chatMessage(say + "\n");
+        }
+    }
+
+    // One item of the name, off them if worn, out of the Backpack.
+    static void takeBack(Player p, String name) {
+        for (int i = 0; i < 9; i++) {
+            Item it = p.equWorn.getItem(i);
+            if (it != null && it.strName.equalsIgnoreCase(name)) {
+                p.equWorn.unWearItem(String.valueOf(it.ID));
+                break;
+            }
+        }
+        for (Object o : p.items.toArray()) {
+            if (o instanceof Item && ((Item) o).strName.equalsIgnoreCase(name)) {
+                p.items.remove((Item) o);
+                return;
+            }
+        }
+    }
+
+    // The square's move action again, if it's a tutorial's end stone (it
+    // asks "class pick"): now that they've chosen, it lets them through.
+    static void stoneAgain(Player p, DuskEngine engine) {
+        if (!inBox(p, tutorials)) return;
+        String name = "defMoveActions/" + p.intLocX + "_" + p.intLocY;
+        try {
+            File f = new File(name);
+            if (!f.exists() || !new String(Files.readAllBytes(f.toPath()), "ISO-8859-1").contains("class pick")) return;
+            Script s = new Script(name, engine, false);
+            s.varVariables.addVariable("trigger", p);
+            s.runScript();
+            s.close();
+        } catch (Exception e) {
+            Log.logError(e, "Classes: the end stone at " + name + " for " + p.strName, false);
+        }
+    }
+
+    // Every second (Conditions): out of the yard, the trial ends. Someone
+    // who logged out keeps their file, undone at their next login.
+    public static void trialTick(DuskEngine engine) {
+        if (onTrial.isEmpty()) return;
+        for (Player p : new ArrayList<Player>(onTrial.values())) {
+            try {
+                if (!p.blnWorking || !p.hasCondition(TRIAL_FLAG)) { onTrial.remove(p.strName.toLowerCase()); continue; }
+                if (!inBox(p, yards)) endTrial(p, engine, TRIAL_OVER);
+            } catch (Exception e) {
+                Log.logError(e, "Classes: checking " + p.strName + "'s trial", false);
+            }
+        }
     }
 
     // The flag's condition file: hidden, as Sex makes them.

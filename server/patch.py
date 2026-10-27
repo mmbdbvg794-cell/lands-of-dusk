@@ -122,7 +122,7 @@ patch('Commands.java', [
             }
             String classReply = Classes.command(livingThing, duskEngine, (String)object);
             if (classReply != null) {
-                return classReply;
+                return classReply.length() == 0 ? null : classReply;
             }
             String storageReply = Storage.command(livingThing, duskEngine, (String)object);
             if (storageReply != null) {

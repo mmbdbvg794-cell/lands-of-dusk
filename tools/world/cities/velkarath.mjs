@@ -8,6 +8,8 @@
 // UNDERGROUND): no weather, always dim. Only dark elves may take the
 // stairs down (gods walk anywhere).
 
+import { classGate, trialYard } from './classtrials.mjs';
+
 const RACE_ONLY = { kind: 'race', flag: 'darkelf', speaker: 'A voice in the dark', verb: 'whispers', says: 'Only the Drow walk the Underdark. Turn back, surface-dweller.' };
 
 // The way down from each mouth (map coordinates: the mouth in the rock,
@@ -269,8 +271,9 @@ const PROVISIONER = {
     always('Water and mushrooms, for those who can pay.'),
   ],
 };
-// The Spider Stone: training done (or skipped), to the city, bound there.
-const spiderStone = (flag) => [{
+// The Spider Stone: training done (or skipped), to the city, bound there;
+// first, a class (classtrials.mjs).
+export const spiderStone = (flag) => [classGate(flag, '** The Spider Stone stays cold under your feet: first, choose your calling. **'), {
   when: { kind: 'flag', value: flag },
   speaker: '',
   says: '** You step onto the Spider Stone. Webs of light close around you... and you stand beside the Fire Well of Velkarath. ** A guard looks you over: \'Another hatchling. Matron Xalyth sees every new one, in her palace north of the Fire Well. Do not keep her waiting.\'',
@@ -303,6 +306,7 @@ function tutorial(p) {
   p.fill(41, 104, 13, 13, 'e');
   p.npc({ name: 'Blademistress Zeerith', look: 'Dark Elf Guard', desc: 'Blademistress Zeerith, watching your footwork with contempt.', x: 47, y: 105, dlg: BLADEMISTRESS });
   p.mob('training dummy', 1, 44, 113); p.mob('training dummy', 1, 50, 113);
+  trialYard(p, 'darkelf');
   // The provisioner, behind a counter: its near side (the way in) is where
   // buyers stand.
   p.set(47, 117, 'D');

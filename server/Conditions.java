@@ -45,6 +45,12 @@ public class Conditions {
     }
 
     static void tick(DuskEngine engine) {
+        // Someone trying a class who has left the training yard (Classes).
+        try {
+            Classes.trialTick(engine);
+        } catch (Exception e) {
+            Log.logError(e, "Class trials", false);
+        }
         Object[] things = engine.vctCheckConditions.toArray();
         for (Object o : things) {
             if (!(o instanceof LivingThing)) continue;

@@ -3,14 +3,14 @@
 // each can say something and do things (set flags, give items...).
 // js/dialogue.js turns them into the square's walk-on script.
 
-import { RACES, SEXES, newRule, newWalk, tileSaveCommand, TILE_GET, VERBS, tileScriptCommand, TILE_SCRIPT_REPLACE } from './dialogue.js';
+import { CLASS_WHAT, RACES, SEXES, newRule, newWalk, tileSaveCommand, TILE_GET, VERBS, tileScriptCommand, TILE_SCRIPT_REPLACE } from './dialogue.js';
 import { tileClear } from './god.js';
 
 const WHEN = [['always', 'Always'], ['flag', 'Player has flag'], ['noflag', "Player doesn't have flag"], ['item', 'Player carries item'], ['gold', 'Player has at least (gold)'], ['race', 'Player is race'], ['norace', "Player isn't race"], ['sex', 'Player is (sex)']];
 const WALK = [['everyone', 'Everyone (as normal)'], ['flag', 'Only players with flag'], ['noflag', "Only players without flag"], ['race', 'Only players of race'], ['norace', 'Everyone but race'], ['raceorflag', 'Only players of race, or with flag'], ['nobody', 'Nobody']];
 const EFFECTS = [
   ['flag', 'Set flag'], ['unflag', 'Clear flag'], ['give', 'Give item'], ['take', 'Take item'],
-  ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['heal', 'Heal fully (HP and MP)'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'],
+  ['gold', 'Give gold'], ['takegold', 'Take gold'], ['exp', 'Give experience'], ['heal', 'Heal fully (HP and MP)'], ['teleport', 'Teleport to'], ['bind', 'Set respawn point'], ['class', 'Class'],
 ];
 
 export class TileEditor {
@@ -163,6 +163,10 @@ export class TileEditor {
         if (e.kind === 'gold' || e.kind === 'takegold' || e.kind === 'exp') fields.push(input(e.amount, 'amount', (v) => { e.amount = v; }, { type: 'number', min: 1, className: 'de-num' }));
         if (e.kind === 'flag' || e.kind === 'unflag') fields.push(input(e.flag, 'flag name', (v) => { e.flag = v; }));
         if (e.kind === 'teleport' || e.kind === 'bind') fields.push(input(e.x, 'x', (v) => { e.x = v; }, { type: 'number', className: 'de-num' }), input(e.y, 'y', (v) => { e.y = v; }, { type: 'number', className: 'de-num' }));
+        if (e.kind === 'class') {
+          fields.push(select(CLASS_WHAT, CLASS_WHAT.some(([k]) => k === e.what) ? e.what : (e.what = 'pick'), (v) => { e.what = v; again(); }));
+          if (e.what === 'try') fields.push(input(e.id, 'class, e.g. fighter', (v) => { e.id = v; }));
+        }
         return h('div', { className: 'de-row de-effect' },
           select(EFFECTS, e.kind, (v) => { r.effects[ei] = { kind: v }; again(); }), ...fields,
           button('✕', () => { r.effects.splice(ei, 1); again(); }, 'ghost de-x'));

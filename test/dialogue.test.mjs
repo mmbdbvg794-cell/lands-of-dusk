@@ -372,3 +372,23 @@ console.log('ok - sex words');
   const script = toScript('Priest', priest);
   assert.match(script, /< trigger cash 50[\s\S]*inc trigger cash - 0 50\n\t*inc trigger hp 1000000\n\t*inc trigger mp 1000000/);
 }
+
+// Classes: the picker at a tutorial's end stone (only for those who haven't
+// chosen), trying a class in a training yard, stopping.
+{
+  const s = toTileScript([
+    { when: { kind: 'flag', value: 'elfTut6' }, also: { kind: 'noflag', value: 'classchosen' }, speaker: '', says: 'The stone stays dark.', effects: [{ kind: 'class', what: 'pick' }] },
+    { when: { kind: 'flag', value: 'elfTut6' }, speaker: '', says: 'Away!', effects: [{ kind: 'teleport', x: 1, y: 2 }] },
+  ]);
+  assert.match(s, /if and hasCondition trigger elfTut6 ! hasCondition trigger classchosen\n\torder trigger "class pick"\n\tchat trigger "The stone stays dark\."\n\tendscript\nend\nif hasCondition trigger elfTut6\n\tset trigger locxy 1 2/);
+  const keeper = { shouts: [], stages: [{ when: { kind: 'always', value: '' }, says: 'Which?', answers: [
+    { label: 'Fighter', reply: 'Then fight.', effects: [{ kind: 'class', what: 'try', id: 'Fighter!' }] },
+    { label: 'Enough', reply: 'As you like.', effects: [{ kind: 'class', what: 'end' }] },
+    { label: 'Nothing', reply: '', effects: [{ kind: 'class', what: 'try', id: '' }] },
+  ] }] };
+  const script = toScript('Keeper', keeper);
+  assert.match(script, /order trigger "class try fighter"/);
+  assert.match(script, /order trigger "class end"/);
+  assert.doesNotMatch(script, /class try "?\n/);
+  console.log('ok - class effects');
+}

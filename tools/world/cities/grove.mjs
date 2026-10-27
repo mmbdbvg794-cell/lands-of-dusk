@@ -10,6 +10,7 @@
 // they come back to. Existing elves aren't affected.
 
 import { BASE_PROPS } from './aelindor.mjs';
+import { classGate, trialYard } from './classtrials.mjs';
 
 const ORIGIN = [408, 1290];
 const TUT = 'From Seedling to Sentinel...';
@@ -79,8 +80,9 @@ const PROVISIONER = {
     always('Water and apples, for the road.'),
   ],
 };
-// The Moonstone: training done (or skipped), to Aelindor, bound there.
-const moonstone = (flag) => [{
+// The Moonstone: training done (or skipped), to Aelindor, bound there;
+// first, a class (classtrials.mjs).
+export const moonstone = (flag) => [classGate(flag, '** The Moonstone stays dark under your feet: first, choose your calling. **'), {
   when: { kind: 'flag', value: flag },
   speaker: '',
   says: '** You step onto the Moonstone. Silver light rises around you... and you stand beside the Moonwell of Aelindor. ** An elf tending the well smiles at you: \'Welcome to Aelindor. Elder Faelar likes to meet everyone new to the city; his hall is north-west of the Moonwell.\'',
@@ -131,6 +133,7 @@ export default {
     p.oval(42, 9, 14, 15, 'e');
     p.npc({ name: 'Ranger Thandril', look: 'Elf Guard', desc: 'Ranger Thandril, leaning on a longbow and watching your footwork.', x: 49, y: 11, dlg: RANGER });
     p.mob('training dummy', 1, 45, 19); p.mob('training dummy', 1, 52, 19);
+    trialYard(p, 'elf');
 
     // The provisioner, behind a counter: its near side (the way in, from
     // the glade) is where buyers stand.
