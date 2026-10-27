@@ -2643,7 +2643,7 @@ then a restart (signs and props are read at start-up; flan was online, so
 - /root/DUSK_LORE_BIBLE.md regenerated from live 20:30 (no staged chains).
 - Not played in game after the install (each was tested on scratch).
 
-## 2026-10-27 00:10: classes chosen at the end of the tutorials, tried in their yards (BUILT, tested on scratch, not live)
+## 2026-10-27 00:10: classes chosen at the end of the tutorials, tried in their yards (LIVE 2026-10-27 01:13)
 
 - The user's call: pick the class at the end of the tutorial, with a real
   trial of each in the training yard, and the choice at the end stone.
@@ -2702,6 +2702,8 @@ then a restart (signs and props are read at start-up; flan was online, so
   (deploy, build, install, keeper bundles from live's map/props, stones +
   classes file, restart). The stones must not go in without the restart:
   the old server never sets classchosen, so they'd hold everyone at the end.
+- LIVE 2026-10-27 01:13 (nobody was online). Smoke test: a new elf got
+  "Class: none|No class yet" in the grove; that character was deleted.
 
 ## Open / ideas
 
@@ -2713,8 +2715,7 @@ then a restart (signs and props are read at start-up; flan was online, so
   (tools/scratch.sh setup, then start; tunnel -L 10011). Block archive/**
   and the briefs in the launch line. The bot's legend now names the two
   cobble tiles apart (b plain brown = blocks, c with grey stones).
-- Class at the end of the tutorial: built 2026-10-27 (above), waiting to
-  go live. A level system (maybe cosmetic levels on top of the
+- Class at the end of the tutorial: live 2026-10-27 (above). A level system (maybe cosmetic levels on top of the
   experience-for-stats training): not started.
 - Guilds: the real invitation quests (Mage Guild, The Circle) and the
   Hidden Order / tier-5 quests that set forbidden_lore, archmage_quest,
