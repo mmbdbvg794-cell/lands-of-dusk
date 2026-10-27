@@ -1,44 +1,130 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+<meta charset="utf-8">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Profile</title>
-  <meta name="description" content="A player's profile in the world of Dusk.">
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    body { overflow: auto; display: block; height: auto; }
-    .prof { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
-    .prof h1 { font-size: 30px; margin: 0; letter-spacing: .04em; }
-    .prof .sub { color: var(--muted); margin: 4px 0 20px; }
-    .prof .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #4fb05a; margin-left: 8px; vertical-align: middle; }
-    .prof .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-    .prof section { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); padding: 12px 14px; }
-    .prof h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
-    .prof dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
-    .prof dt { color: var(--muted); }
-    .prof dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-    .prof ul { margin: 0; padding-left: 18px; font-size: 14px; }
-    .prof .achv { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-    .prof .achv li { display: grid; grid-template-columns: 30px 1fr auto; gap: 0 8px; align-items: center; }
-    .prof .medal { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 35%, #ffe7a0, #c8962c); color: #5a3a10; font-weight: 700; font-size: 13px; }
-    .prof .achv b { display: block; }
-    .prof .achv small { color: var(--muted); }
-    .prof .when { color: var(--faint); font-size: 12px; }
-    .prof .wide { grid-column: 1 / -1; }
-    .prof .empty { color: var(--muted); font-size: 14px; }
-    .prof .foot { margin-top: 16px; color: var(--faint); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .prof a { color: var(--accent); }
-  </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile · The Lands of Dusk</title>
+<meta name="description" content="A player's profile in the world of Dusk.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* The website's own look (~/DuskRPG/web/*.html): stone, gold, parchment. */
+  :root {
+    --stone-dark: #2e2e30;
+    --stone-mid: #45464a;
+    --stone-light: #a9abb2;
+    --sapphire: #1a2f5c;
+    --sapphire-bright: #3a5ba0;
+    --gold: #cbb26a;
+    --gold-bright: #e8d391;
+    --parchment: #d8d2c0;
+    --ember: #b5432f;
+    --emerald: #2e6b4f;
+    --emerald-bright: #4caf7d;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background-color: var(--stone-dark);
+    background-image: url('/images/bgTile.jpg');
+    background-repeat: repeat;
+    color: var(--parchment);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.5;
+  }
+  a { color: var(--gold-bright); text-decoration: none; border-bottom: 1px dotted transparent; }
+  a:hover { border-bottom-color: var(--gold-bright); }
+  .page { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
+  .header { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 8px 0 6px; }
+  .header img { height: 60px; image-rendering: pixelated; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+  .header img.dragon { height: 78px; transform: scaleX(-1); }
+  h1.title { font-family: 'Cinzel', serif; font-weight: 700; font-size: 44px; letter-spacing: 0.04em; margin: 0; color: var(--gold-bright);
+    text-shadow: 0 0 10px rgba(203,178,106,0.35), 2px 2px 0 #1a1a1a, -1px -1px 0 #1a1a1a; }
+  .tagline { text-align: center; font-style: italic; color: var(--stone-light); margin: 0 0 24px; font-size: 15px; }
+  .columns { display: grid; grid-template-columns: 230px 1fr; gap: 22px; align-items: start; }
+  .panel { position: relative; border-image: url('/images/bgframe.jpg') 40 fill stretch; border-image-width: 40px; border-style: solid; border-width: 40px;
+    background-color: rgba(20,20,22,0.55); padding: 4px 20px 20px; margin-bottom: 22px; min-width: 0; }
+  .panel h2 { font-family: 'Cinzel', serif; font-size: 19px; letter-spacing: 0.03em; color: var(--gold); border-bottom: 1px solid rgba(203,178,106,0.3); padding-bottom: 8px; margin: 14px 0 14px; }
+  .nav-list { list-style: none; margin: 0; padding: 0; }
+  .nav-list li { margin-bottom: 10px; }
+  .nav-list a { font-size: 16px; }
+  .nav-list a.here { color: var(--parchment); border-bottom-color: var(--gold); }
+  .play-btn { display: flex; align-items: center; justify-content: center; margin-top: 6px; padding: 12px 8px; width: 100%;
+    background: linear-gradient(#4b4c51, #2c2d31); border: 1px solid var(--gold); border-radius: 4px;
+    color: var(--gold-bright); font-family: 'Cinzel', serif; font-size: 17px; letter-spacing: 0.05em; text-shadow: 0 1px 3px rgba(0,0,0,0.8); box-shadow: 0 3px 10px rgba(0,0,0,0.5); }
+  .play-btn:hover { filter: brightness(1.15); border-bottom-color: var(--gold); }
+  .desc { color: var(--stone-light); font-size: 15px; }
+
+  /* A player's profile (main panel). */
+  .prof h2#name { font-size: 26px; color: var(--gold-bright); margin: 14px 0 4px; }
+  .prof .sub { color: var(--stone-light); font-size: 16px; font-style: italic; margin: 0 0 18px; }
+  .prof .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--emerald-bright);
+    box-shadow: 0 0 8px 2px rgba(76,175,125,0.6); margin-left: 10px; vertical-align: middle; }
+  .prof .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .prof section { border: 1px solid rgba(203,178,106,0.28); background: rgba(0,0,0,0.25); border-radius: 3px; padding: 10px 14px 12px; min-width: 0; }
+  .prof section h2 { font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); border-bottom: 1px solid rgba(203,178,106,0.25); padding-bottom: 6px; margin: 0 0 10px; }
+  .prof dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 16px; }
+  .prof dt { color: var(--stone-light); }
+  .prof dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .prof ul { margin: 0; padding-left: 20px; font-size: 16px; }
+  .prof .achv { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .prof .achv li { display: grid; grid-template-columns: 30px 1fr auto; gap: 0 10px; align-items: center; }
+  .prof .medal { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 35%, #ffe7a0, #c8962c);
+    color: #5a3a10; font-weight: 700; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+  .prof .achv b { display: block; font-family: 'Cinzel', serif; font-size: 15px; color: var(--gold-bright); }
+  .prof .achv small { color: var(--stone-light); font-size: 15px; }
+  .prof .when { color: var(--stone-light); font-size: 14px; font-style: italic; white-space: nowrap; }
+  .prof .wide { grid-column: 1 / -1; }
+  .prof .empty { color: var(--stone-light); font-size: 15px; font-style: italic; margin: 0; }
+  @media (max-width: 760px) {
+    .columns { grid-template-columns: 1fr; }
+    .main { order: -1; } /* the profile first, then the links */
+    h1.title { font-size: 34px; }
+    .header img { height: 44px; }
+    .header img.dragon { height: 56px; }
+  }
+  .site-note { margin: 28px 0 0; text-align: center; font-size: 13px; color: var(--stone-light); }
+</style>
 </head>
 <body>
-  <main class="prof" id="prof">
-    <h1 id="name">Profile</h1>
-    <p class="sub" id="sub">Looking…</p>
-    <div class="grid" id="body"></div>
-    <p class="foot"><span><a href="leaderboard.html">Leaderboard</a> · <a href="who.html">Who's online</a> · <a href="forum.html">Forum</a></span><a href="./">Play Dusk</a></p>
-  </main>
+<div class="page">
+  <div class="header">
+    <img class="knight" src="/images/knight.gif" alt="">
+    <h1 class="title">The Lands of Dusk</h1>
+    <img class="dragon" src="/images/dragon.gif" alt="">
+  </div>
+  <p class="tagline">An adventurer of the world of Dusk.</p>
+
+  <div class="columns">
+    <div class="sidebar">
+      <div class="panel">
+        <h2>Links</h2>
+        <ul class="nav-list">
+          <li><a href="/web/index.html">Home</a></li>
+          <li><a href="/web/howtoplay.html">How to Play</a></li>
+          <li><a href="/web/javaclient.html">Java Client</a></li>
+          <li><a href="/web/faq.html">FAQ</a></li>
+          <li><a href="forum.html">Forum</a></li>
+          <li><a href="leaderboard.html">Leaderboard</a></li>
+          <li><a href="who.html">Who's Online</a></li>
+          <li><a href="/web/credits.html">Credits</a></li>
+        </ul>
+        <a class="play-btn" href="./">Play Now</a>
+      </div>
+    </div>
+    <div class="main">
+      <div class="panel">
+        <main class="prof" id="prof">
+          <h2 id="name">Profile</h2>
+          <p class="sub" id="sub">Looking…</p>
+          <div class="grid" id="body"></div>
+        </main>
+      </div>
+    </div>
+  </div>
+  <p class="site-note">Nothing we collect is ever sold or shared.</p>
+</div>
   <script type="module">
     import { describeProfile } from './js/profile.js';
     const $ = (id) => document.getElementById(id);
@@ -50,7 +136,7 @@
       try { const r = await fetch('profiles.json', { cache: 'no-store' }); if (r.ok) data = await r.json(); } catch {}
       const p = describeProfile(data, name);
       if (!p.found) { $('name').textContent = name || 'Profile'; $('sub').textContent = p.message; $('body').replaceChildren(); return; }
-      document.title = `${p.name} · Dusk`;
+      document.title = `${p.name} · The Lands of Dusk`;
       $('name').replaceChildren(p.name, ...(p.online ? [h('span', { className: 'dot', title: 'In the game now' })] : []));
       $('sub').textContent = [p.title, [p.race, p.cls].filter(Boolean).join(' '), p.online ? 'in the game now' : ''].filter(Boolean).join(' · ');
       $('body').replaceChildren(
