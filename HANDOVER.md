@@ -766,6 +766,10 @@ commands that touch live.
   Every page (and forum.html) has a small foot line instead: "Nothing we
   collect is ever sold or shared." Keep that true. Before:
   backups/web-noprivacy-20261027-153042 (rules.html.removed).
+- "Apply for the Alpha" out of Links (2026-10-27): the application link is
+  only "Closed alpha: apply for a key" under Play Now, now on every page but
+  apply.html (tools/server/alpha_link_under_play.py; beta_site_links.py no
+  longer adds the Links entry). Before: backups/web-alphalink-20261027-154958.
 
 ## 2026-10-07 night: lizardman tutorial (installed 18:15; live after the restart)
 
