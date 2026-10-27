@@ -749,6 +749,11 @@ commands that touch live.
   page and nav links gone; the page and the pages before are in
   ~/DuskRPG/backups/web-nolore-20261027-150247 (lore.html.removed).
   Don't put it back. The in-game tales are unchanged.
+- Discord on the website (2026-10-27): a stone-and-gold "Discord" button in
+  the Server Status box, under Play Now (under "Closed alpha: apply for a
+  key" on index and How to Play), from tools/server/discord_button.py. It
+  replaced the "Join our Discord" text link in Links; beta_site_links.py no
+  longer adds that link. Pages before: backups/web-discord-20261027-151416.
 
 ## 2026-10-07 night: lizardman tutorial (installed 18:15; live after the restart)
 
