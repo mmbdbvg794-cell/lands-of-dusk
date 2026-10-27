@@ -13,3 +13,23 @@ server/cfr.jar
 # Original music files before tools/music_compress.sh (not deployed)
 /music-incoming/
 __pycache__/
+# Secrets: never commit
+.env
+.env.*
+!.env.example
+*.env
+rclone.conf
+*.keystore
+*.jks
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+secrets/
+secrets.*
+*.secret
+conf/bridgesecret
+# Player data written by the live server
+/profiles.json
+who.json
+leaderboard.json
