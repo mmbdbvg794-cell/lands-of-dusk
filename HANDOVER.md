@@ -770,6 +770,11 @@ commands that touch live.
   only "Closed alpha: apply for a key" under Play Now, now on every page but
   apply.html (tools/server/alpha_link_under_play.py; beta_site_links.py no
   longer adds the Links entry). Before: backups/web-alphalink-20261027-154958.
+- Java Client page (2026-10-27): the classic Java client's download and setup
+  moved out of How to Play into web/javaclient.html, linked as "Java Client"
+  after How to Play on every page and forum.html; How to Play's Settings
+  section (and its Found a bug? tip) is gone. tools/server/java_client_page.py;
+  before: backups/web-javapage-20261027-161552.
 
 ## 2026-10-07 night: lizardman tutorial (installed 18:15; live after the restart)
 
