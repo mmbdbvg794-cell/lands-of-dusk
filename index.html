@@ -35,14 +35,6 @@
     <span class="spacer"></span>
     <button type="button" id="map-btn" title="World map (M)">Map</button>
     <button type="button" id="help-btn" title="How to play">Help</button>
-    <div id="look-toggle" class="segmented" role="radiogroup" aria-label="Look">
-      <button type="button" role="radio" data-look="classic" aria-checked="true">Classic</button>
-      <button type="button" role="radio" data-look="modern" aria-checked="false">Modern</button>
-    </div>
-    <div id="art-toggle" class="segmented" role="radiogroup" aria-label="Art style">
-      <button type="button" role="radio" data-art="pixel" aria-checked="true">Pixel</button>
-      <button type="button" role="radio" data-art="painted" aria-checked="false">Painted</button>
-    </div>
     <div id="sound-controls">
       <button type="button" id="mute-btn" aria-pressed="false" title="Sound on (click to mute)" aria-label="Mute">🔊</button>
       <input class="volume top-volume" type="range" min="0" max="100" step="5" value="60" aria-label="Sound effects volume" title="Sound effects volume">
@@ -52,14 +44,14 @@
       <div class="settings-menu">
         <section class="settings-group" aria-labelledby="set-display">
           <h3 id="set-display">Display</h3>
-          <div class="toggle-row settings-art">
+          <div class="toggle-row">
             <label class="toggle" for="look-style">Look</label>
             <select id="look-style">
               <option value="classic">Classic</option>
               <option value="modern">Modern</option>
             </select>
           </div>
-          <div class="toggle-row settings-art">
+          <div class="toggle-row">
             <label class="toggle" for="art-style">Art style</label>
             <select id="art-style">
               <option value="pixel">Pixel (original)</option>

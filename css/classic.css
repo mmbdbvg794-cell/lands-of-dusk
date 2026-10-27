@@ -89,9 +89,6 @@ body.classic button:hover:not(:disabled),
 body.classic #settings > summary:hover { filter: brightness(1.15); border-color: var(--gold); }
 body.classic button.ghost { background: rgba(0, 0, 0, 0.25); }
 body.classic button.danger { background: #5a1f18; background-image: linear-gradient(180deg, #8a3326, #4a1812); }
-body.classic .segmented { border-color: #0b1630; border-radius: 3px; }
-body.classic .segmented button { background: #20242e; color: var(--stone-light); border-radius: 0; }
-body.classic .segmented button[aria-checked="true"] { background: #1e3566 url("../img/theme/blockButton.jpg") center / 100% 100%; color: #fff; }
 body.classic input[type="text"], body.classic input[type="password"], body.classic input[type="number"],
 body.classic input[type="search"], body.classic select {
   font-family: "EB Garamond", Georgia, serif;

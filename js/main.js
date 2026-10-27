@@ -1977,13 +1977,11 @@ let paintedItems = null; // the same, for items by name
 // Reads storage listings (see storage.js) while you're next to storage.
 const storageReader = new StorageReader();
 let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
-// Two switches, kept in step: Pixel | Painted in the top bar, and a menu in
-// Settings (shown instead on phones).
+// The Art style menu in Settings.
 function setArt(style) {
   artStyle = style;
   storage('set', 'dusk.art', style);
   $('art-style').value = style;
-  for (const b of document.querySelectorAll('#art-toggle [data-art]')) b.setAttribute('aria-checked', String(b.dataset.art === style));
   applyArt();
 }
 $('art-style').addEventListener('change', (e) => setArt(e.target.value));
@@ -1991,21 +1989,11 @@ $('art-style').addEventListener('change', (e) => setArt(e.target.value));
 function setLook(look) {
   document.body.classList.toggle('classic', look === 'classic');
   storage('set', 'dusk.look', look);
-  for (const b of document.querySelectorAll('#look-toggle [data-look]')) b.setAttribute('aria-checked', String(b.dataset.look === look));
   $('look-style').value = look;
 }
 $('look-style').addEventListener('change', (e) => setLook(e.target.value));
 setLook(storage('get', 'dusk.look') === 'modern' ? 'modern' : 'classic');
-$('look-toggle').addEventListener('click', (e) => {
-  const b = e.target.closest('[data-look]');
-  if (b) setLook(b.dataset.look);
-});
-$('art-toggle').addEventListener('click', (e) => {
-  const b = e.target.closest('[data-art]');
-  if (b) setArt(b.dataset.art);
-});
 $('art-style').value = artStyle;
-for (const b of document.querySelectorAll('#art-toggle [data-art]')) b.setAttribute('aria-checked', String(b.dataset.art === artStyle));
 
 // Other players' gear (Painted style): asked for as they come into view,
 // and again every so often while they're visible.
