@@ -1,0 +1,4 @@
+# Reviewed 2026-10-27: the example beta key from server/betagate.py docstring, never issued
+10ec2b3bdad0f64ad8b97b795456b1d5d7a603ff:server/dusk_bridge.py:generic-api-key:33
+10ec2b3bdad0f64ad8b97b795456b1d5d7a603ff:test/beta.test.mjs:generic-api-key:35
+10ec2b3bdad0f64ad8b97b795456b1d5d7a603ff:test/beta.test.mjs:generic-api-key:43
