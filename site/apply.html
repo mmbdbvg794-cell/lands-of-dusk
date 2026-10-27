@@ -393,6 +393,14 @@
   .discord-btn svg { width: 22px; height: 22px; fill: currentColor; flex: none; }
   .discord-btn:hover { transform: translateY(-1px); filter: brightness(1.15); }
   .discord-btn:active { transform: translateY(1px); }
+
+  /* --- One-line privacy note at the foot of the page --- */
+  .site-note {
+    margin: 28px 0 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--stone-light);
+  }
 </style>
 </head>
 <body>
@@ -428,8 +436,6 @@
           <li><a href="/web/faq.html">FAQ</a></li>
           <li><a href="/play/forum.html">Forum</a></li>
           <li><a href="/web/credits.html">Credits</a></li>
-          <li><a href="/web/rules.html">Rules &amp; Privacy</a></li>
-          <li><a href="mailto:duskadmins@gmail.com" onclick="navigator.clipboard.writeText('duskadmins@gmail.com');this.nextElementSibling.style.display='block';setTimeout(()=>{this.nextElementSibling.style.display='none'},3000)">Report a Bug</a><div style="display:none;font-size:12px;color:var(--stone-light);margin-top:4px;">Email copied: duskadmins@gmail.com</div></li>
         </ul>
       </div>
     </div>
@@ -479,6 +485,7 @@
       </div>
     </div>
   </div>
+  <p class="site-note">Nothing we collect is ever sold or shared.</p>
 </div>
 <script>
   async function refreshStatus() {

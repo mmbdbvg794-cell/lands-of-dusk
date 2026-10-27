@@ -761,6 +761,11 @@ commands that touch live.
   2026-10-27 at the owner's request: server code updates aren't public; game
   updates go in the home page News (news.json). Page and nav links gone;
   before: backups/web-noupdates-20261027-152000 (updates.html.removed).
+- Rules & Privacy page and the Report a Bug mail link taken off the website
+  2026-10-27 (bugs are reported in the game): tools/server/privacy_note.py.
+  Every page (and forum.html) has a small foot line instead: "Nothing we
+  collect is ever sold or shared." Keep that true. Before:
+  backups/web-noprivacy-20261027-153042 (rules.html.removed).
 
 ## 2026-10-07 night: lizardman tutorial (installed 18:15; live after the restart)
 
