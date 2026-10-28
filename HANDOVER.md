@@ -2819,7 +2819,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   (fred, goober, poop, testelf, testhuman, testings, testingsand, testss,
   testsss, testy): moved out 2026-10-28 to backups/empty-users-*, names free.
 
-## 2026-10-28 16:35: class trials ended at once in the browser (fixed; built, live after the next restart)
+## 2026-10-28 16:35: class trials ended at once in the browser (LIVE, restart 16:37; classes before in backups/classes-20261028-163734)
 
 - Found by the owner (Freyan, elf, Sentinel Aeris): each trial's kit
   vanished within ~5 s. The browser asks "class tiers" whenever the class
