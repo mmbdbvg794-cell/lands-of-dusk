@@ -9,6 +9,14 @@
  * login (Player.loadRace), so PlayerPatch calls afterRace at the end of
  * loadRace, before anyone sees them, and the female image goes on there.
  *
+ * A character left at the race question until the connection times out
+ * (or drops) came out of loadRace with no race and went into the world
+ * anyway, outside any tutorial, and was saved like that; choosing a race
+ * at a later login never moves anyone. So afterRace ends that login
+ * instead (Player.run's own "Error at run() start" closes it without
+ * saving), and a new character's still empty users file goes too, so the
+ * name can be made again.
+ *
  *   sex                       "Sex: male" | "Sex: female" | "Sex: unset"
  *                             (the browser client asks after logging in
  *                             and offers the choice when it's unset)
@@ -43,6 +51,10 @@ public class Sex {
 
     // At login, once the race has set the image.
     public static void afterRace(Player p) {
+        if (p.strRace == null || p.strRace.isEmpty()) {
+            forgetUnfinished(p);
+            throw new IllegalStateException("no race chosen for " + p.strName + ", so not let in");
+        }
         try {
             if (p.hasCondition("female")) p.intImage = femaleImage(p.intImage);
         } catch (Exception e) {
@@ -52,6 +64,21 @@ public class Sex {
         Talk.classicTip(p);
         // And anyone without a class is asked to choose (server/Classes.java).
         Classes.atLogin(p);
+    }
+
+    // A new character's users file (and its backup) while still empty.
+    static void forgetUnfinished(Player p) {
+        try {
+            if (p.rafFile != null) p.rafFile.close();
+            if (p.rafBackup != null) p.rafBackup.close();
+            String name = p.strName.toLowerCase();
+            for (String f : new String[] { "users/" + name, "users/" + name + ".backup" }) {
+                File file = new File(f);
+                if (file.exists() && file.length() == 0) file.delete();
+            }
+        } catch (Exception e) {
+            Log.logError(e, "Sex.forgetUnfinished for " + p.strName, false);
+        }
     }
 
     public static String command(LivingThing who, DuskEngine engine, String line) {

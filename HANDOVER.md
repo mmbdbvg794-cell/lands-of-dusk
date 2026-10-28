@@ -2799,3 +2799,22 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   dusk-web restarted; backup ~/DuskRPG/backups/forum.py.20261028-*.
 - Not covered: script input answers to NPC questions (Script "input"), god
   file uploads. Login names go through isValidName.
+
+## 2026-10-28 13:50: no entering the world without a race (LIVE, restart 13:50; classes before in backups/classes-20261028-135043)
+
+- Found by the owner: Freya (new elf) left at the race question for 30
+  minutes; the read timed out, loadRace caught it and the engine let her in
+  raceless at the default spot (she ended up at 17,17, the old world).
+  Choosing elf at the next login set the race and bind but never moved her
+  (the engine only moves characters still on 1,1), so outside any tutorial
+  box she was made to pick a class.
+- server/Sex.java afterRace: no race -> any still-empty users file (and
+  .backup) is deleted and it throws; Player.run's "Error at run() start"
+  closes the connection without saving. Tested on scratch: dropped at the
+  race prompt (not let in, no file left), then the same name made again as
+  an elf (415,1307, no class asked).
+- Freya reset by hand while offline (backups/freya-reset-20261028-135132):
+  at 415,1307, base stats, no skills, class flags, kit or sword.
+- users/ still has ten empty files from creations abandoned before this
+  (fred, goober, poop, testelf, testhuman, testings, testingsand, testss,
+  testsss, testy): those names can't log in until the files are removed.
