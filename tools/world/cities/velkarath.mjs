@@ -17,11 +17,11 @@ const RACE_ONLY = { kind: 'race', flag: 'darkelf', speaker: 'A voice in the dark
 // coordinates: the stair up, the square you arrive on).
 const STAIRS = [
   { name: 'west', mouth: [391, 1236], front: [392, 1236], stair: [9, 60], arrive: [10, 60],
-    up: ' A path runs north from the stair to Aelindor Landing and its ships.', below: 'The west stair: up to the surface beside Aelindor and its ships. Velkarath is east, along the tunnel.' },
+    up: ' A path runs north from the stair to Aelindor Landing and its ships.' },
   { name: 'south', mouth: [686, 1484], front: [686, 1485], stair: [80, 130], arrive: [80, 129],
-    up: '', below: 'The south stair: up to the wild southern hills. Velkarath is north, along the tunnel.' },
+    up: '' },
   { name: 'east', mouth: [1489, 1407], front: [1488, 1407], stair: [162, 72], arrive: [161, 72],
-    up: ' Eastreach lies a long walk east.', below: 'The east stair: up to the hills, a long walk west of Eastreach. Velkarath is west, along the tunnel.' },
+    up: ' Eastreach lies a long walk east.' },
 ];
 const ORIGIN = [1260, 850];
 
@@ -393,10 +393,10 @@ export default {
       p.farTile(s.mouth[0], s.mouth[1], 'u');
       p.farWalk(s.mouth[0], s.mouth[1], RACE_ONLY);
       p.farAction(s.mouth[0], s.mouth[1], [{ when: { kind: 'always', value: '' }, speaker: '', says: 'You descend a long, winding stair into the dark...', effects: [{ kind: 'teleport', x: ORIGIN[0] + ax, y: ORIGIN[1] + ay }] }]);
-      // Which stair this is, and the way to the city, beside where you arrive.
+      // No sign where you arrive (the user, 2026-10-28: no signs at
+      // Velkarath's entrances, unless one warns people off).
       const [gx, gy] = s.name === 'south' ? [ax + 1, ay - 1] : [ax + Math.sign(ax - sx), ay + 1];
       p.set(gx, gy, 'k');
-      p.sign('Velkarath', s.below, gx, gy);
     }
 
     // ---- the city ----
@@ -512,13 +512,8 @@ export default {
     p.oval(118, 46, 5, 3, 'L');
     for (const [x, y] of [[49, 44], [122, 56], [50, 62], [121, 88], [66, 92], [104, 92], [70, 40], [100, 40]]) if (p.at(x, y) === 'k') p.set(x, y, 'c');
 
-    // Guards where the tunnels come in, and a sign at each saying where its
-    // stair comes out (play-test 6: nothing said how to reach the surface).
-    for (const [x, y, text] of [
-      [49, 64, 'The west stair, at the end of this tunnel: up beside Aelindor, whose ships sail from Aelindor Landing.'],
-      [87, 94, 'The south stair, at the end of this tunnel: up to the wild southern hills.'],
-      [125, 71, 'The east stair, at the end of this tunnel: up into the hills. Eastreach is a long walk east.'],
-    ]) p.sign('Signpost', text, x, y);
+    // Guards where the tunnels come in; their Surface answer says where each
+    // stair comes out (play-test 6). No signposts (the user, 2026-10-28).
     for (const [x, y] of [[49, 65], [86, 95], [125, 72]]) p.set(x, y, 'k');
     p.npc({ name: 'Dark Elf Guard', look: null, x: 49, y: 65, dlg: GUARD });
     p.prop('Dark Elf Guard', 86, 95);

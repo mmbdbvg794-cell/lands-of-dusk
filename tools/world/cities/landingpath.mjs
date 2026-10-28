@@ -18,7 +18,6 @@ const at = ([x, y]) => [x - O[0], y - O[1]];
 // sand, a square clear of the trees where it can be. It starts where the
 // stair's cobbled clearing ends (the cobbles lead up to it).
 export const ROUTE = [[393, 1222], [393, 1200], [412, 1200], [412, 1193], [431, 1193], [431, 1184], [441, 1184], [441, 1185], [444, 1185]];
-const SIGN = [394, 1235];
 
 export default {
   name: 'The Landing Path',
@@ -29,6 +28,7 @@ export default {
   mayBuild: (t) => t === 36 || t === 37 || t === 1 || t === 38,
   build(p) {
     p.path(ROUTE.map(at), '.');
-    p.sign('To Aelindor Landing', 'Follow the path north, then north-east round the trees: Aelindor Landing and its ships. Velkarath is down the stair.', ...at(SIGN));
+    // No sign by the stair (the user, 2026-10-28: no signs at Velkarath's
+    // entrances, unless one warns people off).
   },
 };
