@@ -2829,7 +2829,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   with testclient/dusk-bot passed). Tested on scratch with dusk-bot:
   try ranger + "class tiers" + 6 s, kit and skill still on.
 
-## 2026-10-28 17:05: trial keepers speak up at the hand-in (built + tested on scratch; live after install, talk files, props and a restart)
+## 2026-10-28 17:05: trial keepers speak up at the hand-in (LIVE 18:13: backups talk-keepers-*, props-keepers-20261028-181301, classes-20261028-181309)
 
 - The owner's call: the keeper beside the trainer, prompting once the straw
   stuffing is handed over. classtrials.mjs: Aeris (51,11 = 459,1301),
