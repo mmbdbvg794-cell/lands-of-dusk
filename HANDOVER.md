@@ -2852,3 +2852,22 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - Scratch: all four hand-ins (Thandril/Aeris ranger, Sergeant/Maddock not
   now, Zeerith/Zhaun fighter, Kreeth/Ssiv fighter) prompted and the trial
   started; talking to Aeris directly still works.
+
+## 2026-10-28 evening: signs, pickers, journal, minimap, quest counts (all LIVE)
+
+- No signs at Velkarath's entrances (the user: only warnings allowed): the
+  stair-arrival signs, tunnel signposts and the sign by the west stair
+  (tools/server/remove_velk_signs.py, backup velk-signs-*; plans changed).
+- Class and male/female pickers in the Classic look (stone frame, cards).
+- Journal: folding sections Quests / Bounties / Lore (from the Bounty: and
+  Tale: title prefixes, js/social.js journalSections); finished quests are
+  one-line title cards; a kill step's "(n of m)" is a progress bar.
+- Minimap: creatures in view (entity type 4) as red dots. Pets probably too.
+- Quest kill counts: "...: n of m." lines also on the Combat tab; kills
+  made on a quest's earlier steps count up to the goal and finish the kill
+  step when it's reached (Quests.counted/before/ready). Tested on scratch.
+- A bring step can be taken early (early: true, a quest-editor box): The
+  Waking Stones' heartstone is (Faelwen merged with merge_quests.mjs,
+  backup faelwen-early-*). Faelwen moved to 463,1206, clear of the tree at
+  467,1207 (tools/server/move_prop.py; tools/golive_quest_counts.sh ran
+  23:48, classes-20261028-234839).
