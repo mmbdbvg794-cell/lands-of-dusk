@@ -8,7 +8,7 @@
 // UNDERGROUND): no weather, always dim. Only dark elves may take the
 // stairs down (gods walk anywhere).
 
-import { classGate, trialYard } from './classtrials.mjs';
+import { classGate, keeperPrompt, trialYard } from './classtrials.mjs';
 
 const RACE_ONLY = { kind: 'race', flag: 'darkelf', speaker: 'A voice in the dark', verb: 'whispers', says: 'Only the Drow walk the Underdark. Turn back, surface-dweller.' };
 
@@ -244,11 +244,11 @@ const BLADEMISTRESS = {
   stages: [
     ifFlag('drowTut5', 'Go. The Provisioner is through the south door.'),
     ifFlag('drowTut4', 'Well? Cut the stuffing out of a training dummy and bring it to me. (Stand right beside one, not diagonally, then click it and choose Attack.)', [
-      { label: 'Here it is', reply: 'Clean work. Every kill earns you experience: Weaponmaster Dral, in the Pit east of the Fire Well, turns it into strength and skill. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut4'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')] },
+      { label: 'Here it is', reply: 'Clean work. Every kill earns you experience: Weaponmaster Dral, in the Pit east of the Fire Well, turns it into strength and skill. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut4'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')], next: keeperPrompt('darkelf') },
     ]),
     // Dressed and a dummy beaten before speaking to her: straight to the hand-in.
     { ...ifFlag('drowTut3', 'You did not wait to be told. Good. Show me the stuffing.', [
-      { label: 'Here it is', reply: 'Clean work. Every kill earns you experience: Weaponmaster Dral, in the Pit east of the Fire Well, turns it into strength and skill. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut3'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')] },
+      { label: 'Here it is', reply: 'Clean work. Every kill earns you experience: Weaponmaster Dral, in the Pit east of the Fire Well, turns it into strength and skill. The Provisioner is through the south door: you will need food and water in the city.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('drowTut3'), jflag('drowTut5', 'The Blademistress sent me through the south door to the Provisioner, for water and a mushroom.')], next: keeperPrompt('darkelf') },
     ]), also: { kind: 'item', value: 'straw stuffing' } },
     ifFlag('drowTut3', 'Put on what Quave gave you (in your Backpack, press Wear beside each). Then we fight.', [
       { label: 'I am ready', reply: 'Then strike a training dummy, and bring me its stuffing. (Stand beside one, click it and choose Attack.)', effects: [unflag('drowTut3'), jflag('drowTut4', 'The Blademistress wants the stuffing of a training dummy. Time to fight.')] },

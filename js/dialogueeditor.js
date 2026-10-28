@@ -54,10 +54,14 @@ export class DialogueEditor {
     const d = this.dlg, p = this.pretend, who = this.name ?? 'They';
     const again = () => this.render();
     const say = (line) => this.tryLog.push(line);
-    const ask = (node) => {
+    // A follow-up question can be someone else's (its speaker), and so are
+    // the answers to it.
+    const ask = (node, by = who) => {
+      const speaker = String(node.speaker ?? '').trim() || by;
+      this.tryWho = speaker;
       const said = [node.says, ...(node.lines ?? [])].filter((x) => String(x ?? '').trim());
       const line = said.length ? said[Math.floor(Math.random() * said.length)] : '';
-      if (line || node.answers?.length) say(bySex(`${who} ${node.verb === 'acts' ? '' : `${node.verb ?? 'says'}: `}${line}${said.length > 1 ? `   (one of ${said.length} lines)` : ''}`, p.sex));
+      if (line || node.answers?.length) say(bySex(`${speaker} ${node.verb === 'acts' ? '' : `${node.verb ?? 'says'}: `}${line}${said.length > 1 ? `   (one of ${said.length} lines)` : ''}`, p.sex));
       this.tryNode = node.answers?.some((a) => String(a.label ?? '').trim()) ? node : null;
     };
     const talk = () => {
@@ -78,9 +82,10 @@ export class DialogueEditor {
     });
     const answers = (this.tryNode?.answers ?? []).filter((a) => String(a.label ?? '').trim()).map((a) => button(a.label, () => {
       say(`> ${a.label}`);
-      const r = tryAnswer(a, p, who);
+      const by = this.tryWho ?? who;
+      const r = tryAnswer(a, p, by);
       r.lines.forEach(say);
-      if (r.next) ask(r.next); else this.tryNode = null;
+      if (r.next) ask(r.next, by); else this.tryNode = null;
       again();
     }, 'de-small'));
     return h('section', { className: 'de-stage de-try' },
@@ -239,6 +244,7 @@ export class DialogueEditor {
             h('span', { className: 'de-label-text', textContent: 'Then' }),
             select(VERBS, a.next.verb ?? 'says', (v) => { a.next.verb = v; }),
             area(a.next.says, 'A follow-up question', (v) => { a.next.says = v; }),
+            input(a.next.speaker ?? '', 'Said by (empty: this NPC)', (v) => { if (v.trim()) a.next.speaker = v.trim(); else delete a.next.speaker; }),
             button('✕', () => { delete a.next; again(); }, 'ghost de-x')),
           h('div', { className: 'de-answers' }, ...renderAnswers(a.next, depth + 1)),
           h('div', { className: 'de-row' }, button('+ Answer button', () => { a.next.answers.push({ label: '', reply: '', effects: [] }); again(); }, 'de-small')))

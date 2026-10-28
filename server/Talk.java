@@ -245,6 +245,12 @@ public class Talk {
     public static String answer(Player p, String line) {
         try {
             if (p == null || line == null) return line;
+            // After each answer the script checks the player is still there
+            // and the client says "notdead": a follow-up question in the
+            // same script read that as its answer and gave up at once. It's
+            // a no-op as a command, so skip it and read the real answer.
+            while (line != null && line.trim().equalsIgnoreCase("notdead")) line = p.bfrSocketIn.readLine();
+            if (line == null) return null;
             String key = p.strName.toLowerCase();
             String[] choices = asked.remove(key);
             Long at = askedAt.remove(key);

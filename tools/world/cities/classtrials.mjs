@@ -3,6 +3,9 @@
 //
 // Each yard gets a trial keeper: pick a class and you are one, start, kit
 // and spells, until you leave the yard (or pick another, or say enough).
+// The keeper stands two squares from the yard's trainer, and speaks up as
+// soon as the straw stuffing is handed in (keeperPrompt, a follow-up the
+// trainer's hand-in answers carry); keepers don't shout at passers-by.
 // Each tutorial's end stones (done and skipped) first ask anyone without a
 // class to choose one ("class pick" opens the picker; once chosen, the
 // server runs the stone again and it lets them through).
@@ -26,9 +29,11 @@ export const classGate = (flag, says) => ({
 
 // A keeper's conversation: a greeting, then one answer per class.
 // healer: the race's praying class ([id, label, how to heal]).
-function keeperTalk({ greet, fighter, ranger, healer, paladin, how, enough, shout }) {
+function keeperTalk({ greet, fighter, ranger, healer, paladin, how, enough, prompt, notNow }) {
   return {
-    shouts: [shout],
+    prompt,
+    notNow,
+    shouts: [],
     stages: [{
       when: { kind: 'always', value: '' },
       says: greet,
@@ -53,7 +58,8 @@ export const KEEPERS = {
     name: 'Veteran Maddock', look: 'Guard', x: 138, y: 376,
     desc: 'Veteran Maddock, who has marched beside every kind of soldier there is.',
     dlg: keeperTalk({
-      shout: 'Recruit! Try a calling before you go.',
+      prompt: 'Good work, recruit. Before you go, try a calling here in the yard?',
+      notNow: 'Then on to the Quartermaster. I\'ll be here.',
       greet: 'Every kind of soldier has stood in this yard. Want to try one on?',
       fighter: 'Steel and stamina. Go and hit a dummy.',
       ranger: 'A bow and quick feet. Shoot from a few steps back.',
@@ -64,10 +70,11 @@ export const KEEPERS = {
     }),
   },
   elf: {
-    name: 'Sentinel Aeris', look: 'Elf', x: 54, y: 13,
+    name: 'Sentinel Aeris', look: 'Elf', x: 51, y: 11,
     desc: 'Sentinel Aeris, who has taught every calling of the wood.',
     dlg: keeperTalk({
-      shout: 'Little one! Try a calling before you go.',
+      prompt: 'Well struck, little one. Before you go, try a calling here in the glade?',
+      notNow: 'Then on to Merrin. I am here if you change your mind.',
       greet: 'Every calling of the wood has practised in this glade. Will you try one?',
       fighter: 'Blade and endurance. Strike a dummy.',
       ranger: 'Bow and swiftness. Shoot from a few steps back.',
@@ -78,10 +85,11 @@ export const KEEPERS = {
     }),
   },
   darkelf: {
-    name: 'Weapons-Keeper Zhaun', look: 'Dark Elf Man', x: 52, y: 106,
+    name: 'Weapons-Keeper Zhaun', look: 'Dark Elf Man', x: 49, y: 105,
     desc: 'Weapons-Keeper Zhaun, who has seen every kind of killer come out of this pit.',
     dlg: keeperTalk({
-      shout: 'Hatchling! Try a calling before you go.',
+      prompt: 'Not bad, hatchling. Before you go, try a calling here in the pit?',
+      notNow: 'Then on to the Provisioner. I\'ll be here.',
       greet: 'Every kind of killer the House breeds was made in this pit. Try one.',
       fighter: 'Steel. Cut a dummy open.',
       ranger: 'The bow. Shoot from a few steps back.',
@@ -92,10 +100,11 @@ export const KEEPERS = {
     }),
   },
   lizardman: {
-    name: 'Old Ssiv', look: 'lizardfolk', x: 54, y: 13,
+    name: 'Old Ssiv', look: 'lizardfolk', x: 51, y: 11,
     desc: 'Old Ssiv, grey-scaled, who has seen every kind of brood-guard hatch.',
     dlg: keeperTalk({
-      shout: 'Hatchling! Try a calling before you go.',
+      prompt: 'Hsss, good. Before you go, try a calling here?',
+      notNow: 'Then on to Mossa. I\'ll be here, hss.',
       greet: 'Every kind of brood-guard has hunted on this ground. Try one, hss?',
       fighter: 'Claw and steel. Tear into a dummy.',
       ranger: 'The bow. Shoot from a few steps back.',
@@ -110,5 +119,20 @@ export const KEEPERS = {
 // The keeper in a plan's yard.
 export function trialYard(p, race) {
   const k = KEEPERS[race];
-  p.npc({ name: k.name, look: k.look, desc: k.desc, x: k.x, y: k.y, dlg: k.dlg });
+  const { prompt, notNow, ...dlg } = k.dlg;
+  p.npc({ name: k.name, look: k.look, desc: k.desc, x: k.x, y: k.y, dlg });
+}
+
+// The keeper speaking up after the trainer takes the straw stuffing: a
+// follow-up for the hand-in answer, said by the keeper, with the keeper's
+// classes to try (its answers, but "Not now" for "Enough"). keeperDlg is
+// the keeper's own dialogue (live's, when there is one).
+export function keeperPrompt(race, keeperDlg = KEEPERS[race].dlg) {
+  const k = KEEPERS[race];
+  const tries = (keeperDlg.stages?.[0]?.answers ?? []).filter((a) => a.label !== 'Enough');
+  return {
+    speaker: k.name,
+    says: k.dlg.prompt,
+    answers: [...structuredClone(tries), { label: 'Not now', reply: k.dlg.notNow, effects: [] }],
+  };
 }

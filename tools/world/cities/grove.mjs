@@ -10,7 +10,7 @@
 // they come back to. Existing elves aren't affected.
 
 import { BASE_PROPS } from './aelindor.mjs';
-import { classGate, trialYard } from './classtrials.mjs';
+import { classGate, keeperPrompt, trialYard } from './classtrials.mjs';
 
 const ORIGIN = [408, 1290];
 const TUT = 'From Seedling to Sentinel...';
@@ -53,11 +53,11 @@ const RANGER = {
   stages: [
     ifFlag('elfTut5', 'Off you go. Provisioner Merrin is through the trees to the south.'),
     ifFlag('elfTut4', 'Well? Take the stuffing from a training dummy and bring it to me. (Stand right beside one, not diagonally, then click it and choose Attack.)', [
-      { label: 'Here it is', reply: 'Neatly done. Each fight and each task earns you experience: trainers turn it into strength and skill. Provisioner Merrin is through the trees to the south: no one should walk the wood hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('elfTut4'), jflag('elfTut5', 'Ranger Thandril sent me south to Provisioner Merrin, for water and an apple.')] },
+      { label: 'Here it is', reply: 'Neatly done. Each fight and each task earns you experience: trainers turn it into strength and skill. Provisioner Merrin is through the trees to the south: no one should walk the wood hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('elfTut4'), jflag('elfTut5', 'Ranger Thandril sent me south to Provisioner Merrin, for water and an apple.')], next: keeperPrompt('elf') },
     ]),
     // Dressed and a dummy beaten before speaking to him: straight to the hand-in.
     { ...ifFlag('elfTut3', 'You have been busy: dressed, and a dummy already beaten. Let me see that stuffing.', [
-      { label: 'Here it is', reply: 'Neatly done. Each fight and each task earns you experience: trainers turn it into strength and skill. Provisioner Merrin is through the trees to the south: no one should walk the wood hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('elfTut3'), jflag('elfTut5', 'Ranger Thandril sent me south to Provisioner Merrin, for water and an apple.')] },
+      { label: 'Here it is', reply: 'Neatly done. Each fight and each task earns you experience: trainers turn it into strength and skill. Provisioner Merrin is through the trees to the south: no one should walk the wood hungry.', needs: { kind: 'item', value: 'straw stuffing' }, effects: [{ kind: 'take', item: 'straw stuffing' }, unflag('elfTut3'), jflag('elfTut5', 'Ranger Thandril sent me south to Provisioner Merrin, for water and an apple.')], next: keeperPrompt('elf') },
     ]), also: { kind: 'item', value: 'straw stuffing' } },
     ifFlag('elfTut3', 'First, put on what Ysolde gave you (in your Backpack, press Wear beside each). Then we practise.', [
       { label: 'I am ready', reply: 'Then strike a training dummy, and bring me its stuffing. (Stand beside one, click it and choose Attack.)', effects: [unflag('elfTut3'), jflag('elfTut4', 'Ranger Thandril wants the stuffing of a training dummy. Time to practise.')] },

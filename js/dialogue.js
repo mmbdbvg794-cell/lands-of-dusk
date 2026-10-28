@@ -17,7 +17,9 @@
 // class picker at a tutorial's end, trying a class in its yard, stopping:
 // server/Classes.java). An answer can also
 // have needs: { kind: 'gold'|'item'|'flag', value } (said to be missing
-// otherwise) and next: a follow-up question { says, answers } of its own.
+// otherwise) and next: a follow-up question { says, answers } of its own,
+// which can name another NPC as its `speaker` (it and what follows it are
+// said by them: a trainer's hand-in, then the yard's keeper asking).
 // A stage can also have `also` (a second condition, both must hold) and
 // `lines` (other things to say instead of `says`, one picked at random).
 // An answer with `once: { flag, minutes, says }` works once per player
@@ -193,6 +195,7 @@ const spoken = (who, verb, words) => `${who} ${verbOf(verb)}: ${words}`;
 // A question: what's said, then its answers (each of which can ask a
 // follow-up question), at depth `depth` (0 for a stage's own question).
 function question(out, who, node, pad, depth) {
+  who = text(node.speaker) || who;
   const said = [node.says, ...(node.lines ?? [])].map(text).filter(Boolean);
   if (said.length < 2) return ask(out, who, node, said[0] ?? '', pad, depth);
   // One of them at random. The script language's number variables don't

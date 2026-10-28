@@ -2828,3 +2828,27 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   no longer ends one. The classic client never sends it (why scratch tests
   with testclient/dusk-bot passed). Tested on scratch with dusk-bot:
   try ranger + "class tiers" + 6 s, kit and skill still on.
+
+## 2026-10-28 17:05: trial keepers speak up at the hand-in (built + tested on scratch; live after install, talk files, props and a restart)
+
+- The owner's call: the keeper beside the trainer, prompting once the straw
+  stuffing is handed over. classtrials.mjs: Aeris (51,11 = 459,1301),
+  Zhaun (49,105 = 1309,955), Ssiv (51,11 = 1897,1001), each 2 east of
+  their trainer; Maddock stays (138,376, already in the Sergeant's room).
+  Keepers' shouts gone (they called to anyone within 4 squares, any step).
+  keeperPrompt(race): a follow-up on each trainer's two hand-in answers,
+  said by the keeper, the keeper's classes plus "Not now".
+- js/dialogue.js: a follow-up question can name its own `speaker` (it and
+  its answers' replies are theirs); the God tab's editor has "Said by" on
+  follow-ups and its Try it shows them. Test in test/dialogue.test.mjs.
+- Live: tools/server/keeper_prompts.mjs <dir of fetched talk files> (the
+  live scripts were checked identical to toScript of their .dlg first),
+  tools/server/move_keepers.py (props; then restart, no god "save").
+- server/Talk.answer skips "notdead": the old Java client (and dusk-bot)
+  answers every stillThere ping, so a follow-up question in the same
+  script read "notdead" as its answer and said "Hm?" at once. The browser
+  holds notdead back while a question waits, so it wasn't hit there; 45
+  live dialogues have follow-ups (all the bounty boards among them).
+- Scratch: all four hand-ins (Thandril/Aeris ranger, Sergeant/Maddock not
+  now, Zeerith/Zhaun fighter, Kreeth/Ssiv fighter) prompted and the trial
+  started; talking to Aeris directly still works.

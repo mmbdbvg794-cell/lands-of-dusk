@@ -1,7 +1,7 @@
 // Run with: node test/dialogue.test.mjs
 import assert from 'node:assert/strict';
 import { toTileScript, tileFlagsOf, tileSaveCommand, parseTileReply, newRule, newWalk, canMoveExpr, blockedText } from '../js/dialogue.js';
-import { newDialogue, toScript, toGreet, flagsOf, cleanFlag, cleanLabel, saveCommand, loadCommand, parseDialogueReply, toBase64, fromBase64 } from '../js/dialogue.js';
+import { newDialogue, tidyDialogue, toScript, toGreet, flagsOf, cleanFlag, cleanLabel, saveCommand, loadCommand, parseDialogueReply, toBase64, fromBase64 } from '../js/dialogue.js';
 
 // The wolf-pelt quest: four stages, first that fits wins.
 const wolves = {
@@ -391,4 +391,20 @@ console.log('ok - sex words');
   assert.match(script, /order trigger "class end"/);
   assert.doesNotMatch(script, /class try "?\n/);
   console.log('ok - class effects');
+}
+// A follow-up question said by someone else: a trainer's hand-in, then the
+// yard's keeper asks, and answers to it are the keeper's too.
+{
+  const handIn = { stages: [{ when: { kind: 'flag', value: 'tut4' }, says: 'Got it?', answers: [
+    { label: 'Here it is', reply: 'Neatly done.', effects: [], next: { speaker: 'Sentinel Aeris', says: 'Try a calling?', answers: [
+      { label: 'Ranger', reply: 'Bow and swiftness.', effects: [{ kind: 'class', what: 'try', id: 'ranger' }] },
+    ] } },
+  ] }] };
+  const script = toScript('Ranger Thandril', handIn);
+  assert.match(script, /chat trigger "Ranger Thandril says: Neatly done\."/);
+  assert.match(script, /chat trigger "Sentinel Aeris says: Try a calling\? \(ranger\)"/);
+  assert.match(script, /chat trigger "Sentinel Aeris says: Bow and swiftness\."/);
+  assert.match(script, /Sentinel Aeris says: Hm\? Talk to me again/);
+  assert.equal(tidyDialogue(handIn).stages[0].answers[0].next.speaker, 'Sentinel Aeris', 'kept when tidied');
+  console.log('ok - follow-up speaker');
 }
