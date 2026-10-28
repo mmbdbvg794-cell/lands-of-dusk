@@ -1665,6 +1665,8 @@ function handle(msg) {
     minimap.setCentre(msg.x, msg.y);
     worldMap.setPlayer(msg.x, msg.y);
   }
+  // Creatures (type 4) as dots on the minimap.
+  minimap.setCreatures([...world.entities.values()].filter((e) => e.type === 4).map((e) => [e.x, e.y]));
   if (targetId !== -1 && (msg.op === OP.ENTITY || msg.op === OP.REMOVE_ENTITY || msg.op === OP.MAP)) updateTarget();
   // A player coming into view: what are they wearing?
   if (msg.op === OP.ENTITY && msg.type === 0) askWorn(Date.now(), 30000);

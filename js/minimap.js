@@ -1,5 +1,6 @@
 // Draws the explored map (js/explored.js) as a small overview centred on
-// the player, with unexplored ground left dark.
+// the player, with unexplored ground left dark, and the creatures in view
+// as red dots.
 //
 // Each tile is map.gif's own frame shrunk to a few pixels, which averages
 // its colours without reading pixels back (the resource server may not
@@ -22,6 +23,8 @@ export class Minimap {
     this.x = 0;
     this.y = 0;
     this.pending = false;
+    this.creatures = []; // [[x, y]]
+    this.creaturesKey = '';
     new ResizeObserver(() => this.invalidate()).observe(canvas);
   }
 
@@ -40,6 +43,15 @@ export class Minimap {
   setCentre(x, y) {
     this.x = x;
     this.y = y;
+    this.invalidate();
+  }
+
+  // The creatures to dot: [[x, y]] (the server only sends those in view).
+  setCreatures(list) {
+    const key = list.map(([x, y]) => `${x},${y}`).join(';');
+    if (key === this.creaturesKey) return;
+    this.creatures = list;
+    this.creaturesKey = key;
     this.invalidate();
   }
 
@@ -98,6 +110,21 @@ export class Minimap {
         const b = this.bakedChunk(cx, cy);
         if (b) ctx.drawImage(b, Math.round(ox + cx * side), Math.round(oy + cy * side), Math.ceil(side), Math.ceil(side));
       }
+    }
+
+    // Creatures: red dots ringed in black, under the player's square.
+    const d = Math.max(2 * dpr, s * 0.55);
+    for (const [x, y] of this.creatures) {
+      const cx = ox + (x + 0.5) * s;
+      const cy = oy + (y + 0.5) * s;
+      ctx.beginPath();
+      ctx.arc(cx, cy, d + dpr, 0, Math.PI * 2);
+      ctx.fillStyle = '#000';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(cx, cy, d, 0, Math.PI * 2);
+      ctx.fillStyle = '#e8352b';
+      ctx.fill();
     }
 
     // The player: a bright square with a dark ring so it shows on any ground.
