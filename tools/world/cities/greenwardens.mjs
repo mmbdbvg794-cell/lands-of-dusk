@@ -12,7 +12,7 @@
 //                          its wolves, and the bear at its heart
 //
 // Each needs the one before. Places on the map (absolute):
-//   Ranger Faelwen, on the road north of the gate   466, 1206
+//   Ranger Faelwen, on the road north of the gate   463, 1206
 //   the lake slimers, round the lake's west shore   around 560, 1275
 //   the old shrine                                  around 395, 1250
 //   the withered grove                              around 618, 1178
@@ -89,7 +89,7 @@ const QUESTS = [
   }, [
     ['place', '', { x: SHRINE[0], y: SHRINE[1], radius: 4, what: 'the old shrine', arrive: 'Broken pillars, moss-covered steps, and pedestals standing empty. Their guardians are awake.', journal: 'Find the old shrine on the eastern slopes of the mountains west of Aelindor.' }],
     ['kill', '', { mob: 'shrine gargoyle', count: 4, what: 'shrine gargoyles broken', journal: 'Break 4 shrine gargoyles at the old shrine.' }],
-    ['bring', FAELWEN, { item: 'heartstone', take: true, says: 'Did you find a heartstone?', answer: 'A heartstone', reply: 'Feel how it hums. This was cut by no elf. I must show the Elders.', journal: 'Bring a heartstone to Ranger Faelwen. The shrine gargoyles carry them.' }],
+    ['bring', FAELWEN, { item: 'heartstone', take: true, early: true, says: 'Did you find a heartstone?', answer: 'A heartstone', reply: 'Feel how it hums. This was cut by no elf. I must show the Elders.', journal: 'Bring a heartstone to Ranger Faelwen. The shrine gargoyles carry them.' }],
   ]),
 
   quest('gw_grove', {
@@ -135,7 +135,7 @@ export default {
     for (const [name, stats] of Object.entries(MOBS)) p.file(`defMobs/${name}`, mobFile(stats));
     p.file('defItems/heartstone', itemFile('a fist-sized stone, warm, humming faintly', 7));
 
-    p.npc({ name: FAELWEN, look: 'Elf Woman', desc: 'Ranger Faelwen of the Green Wardens, cloaked in leaf-green, a longbow on her back.', x: 466 - O[0], y: 1206 - O[1], dlg: talk(FAELWEN) });
+    p.npc({ name: FAELWEN, look: 'Elf Woman', desc: 'Ranger Faelwen of the Green Wardens, cloaked in leaf-green, a longbow on her back.', x: 463 - O[0], y: 1206 - O[1], dlg: talk(FAELWEN) }); // clear of the tree at 467,1207 (the user, 2026-10-28)
     p.sign('Green Wardens', 'The Green Wardens. Help for the woods, asked and given.', ...P(468, 1210));
 
     for (const [x, y] of [[534, 1269], [545, 1266], [560, 1276], [575, 1280], [584, 1290], [566, 1272]]) p.mob('lake slimer', 1, ...P(x, y));

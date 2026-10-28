@@ -347,6 +347,9 @@ export class QuestEditor {
           const take = h('input', { type: 'checkbox', checked: !!s.take });
           take.addEventListener('change', () => { s.take = take.checked; });
           rows.push(h('label', { className: 'toggle le-row' }, take, ' They keep it (take it from the player)'));
+          const early = h('input', { type: 'checkbox', checked: !!s.early });
+          early.addEventListener('change', () => { if (early.checked) s.early = true; else delete s.early; });
+          rows.push(h('label', { className: 'toggle le-row' }, early, ' Take it early too (on the kill and journey steps before this)'));
         }
         rows.push(field('They say', s.says, (v) => { s.says = v; }, { long: true, placeholder: s.kind === 'bring' ? 'Is that the pelt?' : 'Joe sent you? Good.' }));
         rows.push(field('Player answers', s.answer, (v) => { s.answer = v; }));

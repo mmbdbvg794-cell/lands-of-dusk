@@ -8,7 +8,8 @@
 //     offer: { says, accept, acceptReply, decline, declineReply },
 //     reminder,                                what the giver says meanwhile
 //     steps: [ { kind: 'talk', npc, says, answer, reply, journal }
-//            | { kind: 'bring', npc, item, take, says, answer, reply, journal }
+//            | { kind: 'bring', npc, item, take, early, says, answer, reply, journal }
+//                (early: taken on the kill and place steps before it too)
 //            | { kind: 'kill', mob, count, what, journal }
 //            | { kind: 'place', x, y, radius, what, arrive, journal } ],
 //     reward: { gold, exp, items: [name], says },
@@ -180,6 +181,15 @@ export function questStagesFor(q, npc) {
     answer.effects.push(...advance(q, i));
     if (last && rewardLine(q)) answer.next = { verb: 'acts', says: rewardLine(q), answers: [] };
     stages.push({ ...tag, when: { kind: 'flag', value: flagStep(q, i) }, says: t(s.says) || (s.kind === 'bring' ? `Have you brought the ${t(s.item)}?` : '...'), answers: [answer] });
+    // Taken early (s.early): on the kills and journeys before it, the
+    // item is enough. They're reminded as usual, with the hand-in to hand.
+    if (s.kind === 'bring' && s.early) {
+      q.steps.slice(0, i).forEach((before, j) => {
+        if (!byServer(before)) return;
+        const early = { ...answer, effects: [{ kind: 'unflag', flag: flagStep(q, j) }, ...answer.effects] };
+        stages.push({ ...tag, when: { kind: 'flag', value: flagStep(q, j) }, says: (isGiver && t(q.reminder)) || t(s.says) || `Have you brought the ${t(s.item)}?`, answers: [early] });
+      });
+    }
   });
   if (isGiver) {
     stages.push({ ...tag, when: { kind: 'flag', value: flagOn(q) }, says: t(q.reminder) || 'How goes it?', answers: [] });

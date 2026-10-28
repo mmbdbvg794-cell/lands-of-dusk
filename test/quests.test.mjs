@@ -232,3 +232,26 @@ console.log('ok - quests');
   assert.deepEqual(again.stages.map((s) => [s.says, s.lines]), d.stages.map((s) => [s.says, s.lines]));
   console.log('ok - chain thank-yous heard');
 }
+
+{
+  // A bring step taken early: on the kill before it, the item is enough.
+  const s = newQuest('stones');
+  Object.assign(s, { title: 'Stones', giver: 'Ranger', reminder: 'Bring me a heartstone.' });
+  s.offer.says = 'Bring me a heartstone.';
+  s.steps.push({ ...newStep('place'), x: 1, y: 2, what: 'the shrine', journal: 'Find the shrine.' });
+  s.steps.push({ ...newStep('kill'), mob: 'gargoyle', count: 4, journal: 'Break 4.' });
+  s.steps.push({ ...newStep('bring', 'Ranger'), item: 'heartstone', says: 'A heartstone?', answer: 'A heartstone', journal: 'Bring it.' });
+  const plain = questStagesFor(s, 'Ranger').map((st) => st.when.value);
+  assert.deepEqual(plain, ['stones_done', 'stones_3', 'stones_on', 'stones_done'], 'not early: just the step');
+  s.steps[2].early = true;
+  const st = questStagesFor(s, 'Ranger');
+  assert.deepEqual(st.map((x) => x.when.value), ['stones_done', 'stones_3', 'stones_1', 'stones_2', 'stones_on', 'stones_done']);
+  const e = st[3];
+  assert.equal(e.says, 'Bring me a heartstone.', 'the reminder, with the hand-in');
+  assert.deepEqual(e.answers[0].needs, { kind: 'item', value: 'heartstone' });
+  assert.deepEqual(e.answers[0].effects.slice(0, 2), [{ kind: 'unflag', flag: 'stones_2' }, { kind: 'take', item: 'heartstone' }]);
+  assert.ok(e.answers[0].effects.some((f) => f.kind === 'flag' && f.flag === 'stones_done'), 'finishes the quest');
+  const merged = mergeQuest({ stages: [] }, s, 'Ranger');
+  assert.ok(toScript('Ranger', merged).includes('if hasCondition trigger stones_2'));
+  console.log('ok - bring taken early');
+}
