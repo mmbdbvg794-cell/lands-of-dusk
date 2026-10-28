@@ -2815,6 +2815,6 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   an elf (415,1307, no class asked).
 - Freya reset by hand while offline (backups/freya-reset-20261028-135132):
   at 415,1307, base stats, no skills, class flags, kit or sword.
-- users/ still has ten empty files from creations abandoned before this
+- users/ had ten empty files from creations abandoned before this
   (fred, goober, poop, testelf, testhuman, testings, testingsand, testss,
-  testsss, testy): those names can't log in until the files are removed.
+  testsss, testy): moved out 2026-10-28 to backups/empty-users-*, names free.
