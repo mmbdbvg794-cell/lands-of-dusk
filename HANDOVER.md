@@ -2777,3 +2777,25 @@ then a restart (signs and props are read at start-up; flan was online, so
 My memory directory (`~/.claude/projects/-root-dusk-browser-client/memory/`)
 has session-state, server-source, tile-walkability, duskserver-access and
 future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not served).
+
+## 2026-10-28: slur filter (forum LIVE; game built, install + restart pending)
+
+- server/Words.java: the owner's list in ~/DuskRPG/conf/badwords (one word
+  a line; "word" = whole word + plurals in chat, "*word" = anywhere, even
+  spaced out). Re-read whenever the file changes. Look-alikes (1 i, 3 e,
+  @ a, $ s...), accents and repeated letters undone before matching.
+- Commands.parseCommand calls Words.check first (patch.py), before even
+  commands/ scripts: a line with a listed word is never sent ("That
+  language isn't allowed here." to the sender only), logged in
+  ~/DuskRPG/logs/language.log, online gods told. 3 in 10 minutes = 30
+  minutes' nochannel (not for gods). A nochanneled player can't "'" say
+  any more either (the engine let them).
+- LivingThing.isValidName -> Words.validName (LivingThingPatch): new
+  character and pet names with any listed word anywhere get the usual
+  "Not a valid name"; existing characters still log in.
+  tools/server/badword_names.py lists existing names that match (read-only).
+- forum.py: titles and posts with a listed word refused and logged the same
+  way (Words class there; keep it matching Words.java). Deployed 13:13,
+  dusk-web restarted; backup ~/DuskRPG/backups/forum.py.20261028-*.
+- Not covered: script input answers to NPC questions (Script "input"), god
+  file uploads. Login names go through isValidName.

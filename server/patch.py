@@ -1,7 +1,8 @@
 """Patches the CFR decompile of the live server's Commands and DuskServer
 classes so they compile again, and hooks in Storage (server/Storage.java):
 
-  Commands.parseCommand   hands each command to Classes.gate and
+  Commands.parseCommand   hands each line to Words.check (slurs) before
+                          anything else, then each command to Classes.gate and
                           Classes.command (server/Classes.java), then
                           Storage.command, then
                           Talk.command (server/Talk.java) and
@@ -106,6 +107,17 @@ patch('Commands.java', [
     }''', '''            return Talk.unknown(livingThing, (String)object);
         }
     }''', 1),
+    # Slurs (server/Words.java): every line is checked first, before even
+    # commands/ scripts; a listed word stops it.
+    ('''    public static String parseCommand(LivingThing livingThing, DuskEngine duskEngine, String object) throws Exception {
+        try {
+''', '''    public static String parseCommand(LivingThing livingThing, DuskEngine duskEngine, String object) throws Exception {
+        String wordsReply = Words.check(livingThing, duskEngine, (String)object);
+        if (wordsReply != null) {
+            return wordsReply;
+        }
+        try {
+''', 1),
     # The hook: storage commands before the built-in ones (after any
     # commands/ script of the same name, which runs first as before).
     ('''        catch (Exception exception) {

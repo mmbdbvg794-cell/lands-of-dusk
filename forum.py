@@ -20,6 +20,10 @@ can't post with a player's cookie) and a signed-in player.
     POST delete {post}                  your own post (gods: any; a topic's
                                         first post takes the topic with it)
     POST mod {topic, action, board?}    gods: pin, unpin, lock, unlock, move
+
+Titles and posts with a word from the game's slur list (conf/badwords) are
+refused and logged in logs/language.log, matched as server/Words.java does
+(keep them alike).
 """
 import hashlib
 import json
@@ -29,6 +33,7 @@ import secrets
 import sqlite3
 import threading
 import time
+import unicodedata
 
 TOPICS_PER_PAGE = 25
 POSTS_PER_PAGE = 20
@@ -46,6 +51,84 @@ BOARDS = [
     ("help", "Help & Bug Reports", "Stuck, confused, or found something broken? Ask here.", 0),
     ("tavern", "The Tavern", "Off-topic: everything else.", 0),
 ]
+
+BLOCKED = "That language isn't allowed here."
+LEET = str.maketrans("01!|34@5$7+89", "oiiieaassttbg")
+
+
+class Words:
+    """conf/badwords: "word" whole words (and plurals), "*word" anywhere;
+    read again whenever the file changes."""
+
+    def __init__(self, game_dir):
+        self.path = os.path.join(game_dir, "conf", "badwords")
+        self.log_path = os.path.join(game_dir, "logs", "language.log")
+        self.at = None
+        self.whole, self.anywhere = [], []
+
+    def load(self):
+        try:
+            at = os.path.getmtime(self.path)
+        except OSError:
+            at = 0
+        if at == self.at:
+            return
+        whole, anywhere = [], []
+        if at:
+            with open(self.path, encoding="utf-8", errors="replace") as f:
+                for line in f:
+                    line = line.strip().lower()
+                    if not line or line.startswith("#"):
+                        continue
+                    word = re.sub(r"[^a-z]", "", line)
+                    if word:
+                        body = "".join(c + "+" for c in word)
+                        if line.startswith("*"):
+                            anywhere.append(re.compile(body))
+                        else:
+                            whole.append(re.compile(body + "(s|es|z)?"))
+        self.whole, self.anywhere, self.at = whole, anywhere, at
+
+    @staticmethod
+    def forms(text):
+        plain = "".join(c for c in unicodedata.normalize("NFD", text.lower()) if unicodedata.category(c) != "Mn")
+        leet = "".join(c if "a" <= c <= "z" else (c.translate(LEET) if c in "01!|34@5$7+89" else " ") for c in plain)
+        spaced = "".join(c if "a" <= c <= "z" else " " for c in plain)
+        return leet, spaced
+
+    @staticmethod
+    def tokens(form):
+        out, run = [], ""
+        for t in form.split():
+            if len(t) == 1:
+                run += t
+                continue
+            if run:
+                out.append(run)
+                run = ""
+            out.append(t)
+        if run:
+            out.append(run)
+        return out
+
+    def blocked(self, text):
+        self.load()
+        for form in self.forms(text):
+            if any(p.fullmatch(t) for t in self.tokens(form) for p in self.whole):
+                return True
+            squashed = form.replace(" ", "")
+            if any(p.search(squashed) for p in self.anywhere):
+                return True
+        return False
+
+    def log(self, name, text):
+        try:
+            os.makedirs(os.path.dirname(self.log_path), exist_ok=True)
+            with open(self.log_path, "a", encoding="utf-8") as f:
+                f.write(time.strftime("%Y-%m-%d %H:%M:%S") + f" {name} (forum): " + text.replace("\n", " ")[:300] + "\n")
+        except OSError:
+            pass
+
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS boards (id INTEGER PRIMARY KEY, slug TEXT UNIQUE, title TEXT, description TEXT, sort INTEGER, gods_only INTEGER DEFAULT 0);
@@ -66,6 +149,7 @@ class Forum:
         self.lock = threading.Lock()
         self.fails = {}  # name -> [count, until]
         self.last_post = {}  # name -> time
+        self.words = Words(game_dir)
         with self.db() as db:
             db.executescript(SCHEMA)
             for i, (slug, title, desc, gods) in enumerate(BOARDS):
@@ -280,13 +364,15 @@ class Forum:
             self.last_post[me["name"].lower()] = now
         return None
 
-    @staticmethod
-    def clean_body(data):
+    def clean_body(self, data, me=None, title=""):
         body = str(data.get("body", "")).replace("\r", "").strip()
         if not body:
             return None, "Write something first."
         if len(body) > MAX_BODY:
             return None, f"That's too long ({MAX_BODY} characters at most)."
+        if self.words.blocked(title + "\n" + body):
+            self.words.log((me or {}).get("name", "?"), (title + " | " if title else "") + body)
+            return None, BLOCKED
         return body, None
 
     def new_topic(self, me, data):
@@ -295,7 +381,7 @@ class Forum:
             return 400, {"error": "Give the topic a title."}
         if len(title) > MAX_TITLE:
             return 400, {"error": f"The title is too long ({MAX_TITLE} characters at most)."}
-        body, err = self.clean_body(data)
+        body, err = self.clean_body(data, me, title)
         if err:
             return 400, {"error": err}
         with self.db() as db:
@@ -315,7 +401,7 @@ class Forum:
         return 200, {"topic": tid}
 
     def reply(self, me, data):
-        body, err = self.clean_body(data)
+        body, err = self.clean_body(data, me)
         if err:
             return 400, {"error": err}
         with self.db() as db:
@@ -347,7 +433,7 @@ class Forum:
         p, err = self.own_post(me, int(data.get("post", 0) or 0))
         if err:
             return err
-        body, err = self.clean_body(data)
+        body, err = self.clean_body(data, me)
         if err:
             return 400, {"error": err}
         with self.db() as db:

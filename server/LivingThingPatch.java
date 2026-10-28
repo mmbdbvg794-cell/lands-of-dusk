@@ -22,6 +22,9 @@
  * And in moveTo, a fighter that moved no longer flees for want of a foe
  * in its own vctEntities (only players keep one): BattleFix.sees.
  *
+ * And isValidName(name) becomes "return Words.validName(name)": the same
+ * letters-only rule, and no listed slur in a new character's or pet's name.
+ *
  * Part of the browser client project (dusk-browser-client/server).
  */
 import java.nio.file.Files;
@@ -106,9 +109,24 @@ public class LivingThingPatch {
             sees++;
         }
         if (sees != 2) throw new Exception("expected 2 this.vctEntities.contains(foe) in moveTo, found " + sees);
+        // isValidName(String) becomes "return Words.validName(name)" (the
+        // engine's letters-only rule is kept there, with the slur list).
+        MethodNode valid = null;
+        for (MethodNode m : cls.methods) if (m.name.equals("isValidName") && m.desc.equals("(Ljava/lang/String;)Z")) valid = m;
+        if (valid == null) throw new Exception("no isValidName(String) in " + args[0]);
+        for (AbstractInsnNode n : valid.instructions.toArray())
+            if (n instanceof MethodInsnNode && ((MethodInsnNode) n).owner.equals("Words")) throw new Exception("isValidName already patched; not patching again");
+        valid.instructions.clear();
+        valid.tryCatchBlocks.clear();
+        if (valid.localVariables != null) valid.localVariables.clear();
+        valid.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        valid.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "Words", "validName", "(Ljava/lang/String;)Z", false));
+        valid.instructions.add(new jdk.internal.org.objectweb.asm.tree.InsnNode(Opcodes.IRETURN));
+        valid.maxStack = 1;
+        valid.maxLocals = 1;
         ClassWriter w = new ClassWriter(0);
         cls.accept(w);
         Files.write(Paths.get(args[1]), w.toByteArray());
-        System.out.println("Patched the use message, armour adding up and creatures stepping in a fight in " + args[1]);
+        System.out.println("Patched the use message, armour adding up, creatures stepping in a fight and name checks in " + args[1]);
     }
 }
