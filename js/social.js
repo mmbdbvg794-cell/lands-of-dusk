@@ -53,7 +53,12 @@ export class JournalReader extends ListReader {
   constructor() {
     super('Journal', (s) => {
       const p = s.split('|');
-      return p.length >= 3 ? { title: p[0], text: p[1], done: p[2] === '1' } : null;
+      if (p.length < 3) return null;
+      // A kill step's count, put on the end by the server: "... (2 of 4)".
+      const m = /\s*\((\d+) of (\d+)\)$/.exec(p[1]);
+      const e = { title: p[0], text: m ? p[1].slice(0, m.index) : p[1], done: p[2] === '1' };
+      if (m) e.count = { n: Number(m[1]), of: Number(m[2]) };
+      return e;
     });
   }
 

@@ -29,7 +29,9 @@
  * splitExp1/splitExp2 here (BattlePatch.java), so every player on the
  * winning side who holds a kill step's flag counts it. Counts are kept in
  * the "questkills" file (player|flag|count); at the goal the step's flag
- * gives way to the next one, whose journal line says what's next.
+ * gives way to the next one, whose journal line says what's next. Kills
+ * made on an earlier step of the same quest count too, up to the goal, and
+ * finish the step as soon as it's reached.
  *
  * Places: every 2 seconds, an online player who holds a place step's flag
  * and stands within its radius (squares either way) of x,y is told the
@@ -256,13 +258,13 @@ public class Quests {
         List<Place> all;
         synchronized (Quests.class) {
             load();
-            if (places.isEmpty()) return;
             all = new ArrayList<Place>(places.values());
         }
         List<Object> players;
         synchronized (engine.vctSockets) {
             players = new ArrayList<Object>(engine.vctSockets);
         }
+        ready(players);
         for (Object o : players) {
             if (!(o instanceof Player)) continue;
             Player p = (Player) o;
@@ -331,29 +333,80 @@ public class Quests {
         List<String> said = new ArrayList<String>();
         synchronized (Quests.class) {
             for (Goal g : goals.values()) {
-                if (!g.mob.equalsIgnoreCase(mob) || !p.hasCondition(g.flag)) continue;
+                if (!g.mob.equalsIgnoreCase(mob)) continue;
+                boolean on = p.hasCondition(g.flag);
+                // Before the step (the user, 2026-10-28: gargoyles broken on
+                // the way to the shrine never counted): kept for it, up to
+                // the goal; reaching the step with enough finishes it
+                // (ready(), every 2 seconds).
+                if (!on && !before(p, g)) continue;
                 String key = p.strName.toLowerCase() + "|" + g.flag.toLowerCase();
-                int n = (counts.containsKey(key) ? counts.get(key) : 0) + 1;
-                if (n >= g.count) {
+                int had = counts.containsKey(key) ? counts.get(key) : 0;
+                if (!on && had >= g.count) continue;
+                int n = had + 1;
+                if (on && n >= g.count) {
                     counts.remove(key);
                     done.add(g);
                     said.add(cap(g.what) + ": " + g.count + " of " + g.count + ". Done!");
                 } else {
                     counts.put(key, n);
-                    said.add(cap(g.what) + ": " + n + " of " + g.count + ".");
+                    said.add(cap(g.what) + ": " + n + " of " + g.count + "." + (!on && n >= g.count ? " Enough, when you get to it." : ""));
                 }
             }
             if (!said.isEmpty()) saveCounts();
         }
         for (String s : said) p.chatMessage(s + "\n");
-        for (Goal g : done) {
-            if (g.quest != null && g.quest.startsWith("bt_")) Achievements.bounty(p); // a bounty job done
-            p.removeCondition(g.flag);
-            if (g.next.length() > 0) {
-                Condition c = p.engGame.getCondition(g.next);
-                if (c != null) p.addCondition(c);
+        for (Goal g : done) finish(p, g);
+    }
+
+    // Is the player on a step of g's quest before g's ("<quest>_<n>")?
+    static boolean before(Player p, Goal g) {
+        int u = g.flag.lastIndexOf('_');
+        if (u < 0) return false;
+        int k;
+        try {
+            k = Integer.parseInt(g.flag.substring(u + 1));
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        String stem = g.flag.substring(0, u + 1);
+        for (int j = 1; j < k; j++) if (p.hasCondition(stem + j)) return true;
+        return false;
+    }
+
+    // A kill step done: its flag gives way to the next.
+    static void finish(Player p, Goal g) {
+        if (g.quest != null && g.quest.startsWith("bt_")) Achievements.bounty(p); // a bounty job done
+        p.removeCondition(g.flag);
+        if (g.next.length() > 0) {
+            Condition c = p.engGame.getCondition(g.next);
+            if (c != null) p.addCondition(c);
+        }
+        p.chatMessage("Your journal has been updated.\n");
+    }
+
+    // Online players who've reached a kill step with enough kills already
+    // (made before it, see counted()).
+    static void ready(List<Object> players) {
+        for (Object o : players) {
+            if (!(o instanceof Player)) continue;
+            Player p = (Player) o;
+            if (p.strName == null) continue;
+            List<Goal> done = new ArrayList<Goal>();
+            synchronized (Quests.class) {
+                for (Goal g : goals.values()) {
+                    String key = p.strName.toLowerCase() + "|" + g.flag.toLowerCase();
+                    Integer n = counts.get(key);
+                    if (n == null || n < g.count || !p.hasCondition(g.flag)) continue;
+                    counts.remove(key);
+                    done.add(g);
+                }
+                if (!done.isEmpty()) saveCounts();
             }
-            p.chatMessage("Your journal has been updated.\n");
+            for (Goal g : done) {
+                p.chatMessage(cap(g.what) + ": " + g.count + " of " + g.count + ". Done!\n");
+                finish(p, g);
+            }
         }
     }
 

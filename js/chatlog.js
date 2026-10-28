@@ -18,6 +18,10 @@ const UNTABBED = [
   /^.+ is out of range\.$/,
   /^Players who are not in clans cannot fight other players\.$/,
 ];
+// A quest's kill count (server/Quests.java): "Shrine gargoyles broken: 2
+// of 4." and "...: 4 of 4. Done!", and the journal line after; they come
+// mid-fight, so they show on the Combat tab as well as General.
+const QUEST_COUNT = /^.+: \d+ of \d+\.( Done!)?$|^Your journal has been updated\.$/;
 const HIT = /^(.+?) did (\d+) to (.+)$/;
 const DODGE = /^(.+?) dodged (.+)'s attack$/;
 
@@ -26,13 +30,13 @@ export function chatKind(text) {
   if (/^\S+ tells you:|^You tell \S+:/.test(text.trim())) return 'whisper';
   if (/^\t\S/.test(text)) return 'combat';
   const t = text.trim();
-  if (UNTABBED.some((re) => re.test(t))) return 'combat';
+  if (UNTABBED.some((re) => re.test(t)) || QUEST_COUNT.test(t)) return 'combat';
   return 'general';
 }
 
 // Lines that matter wherever you're looking: your death, a win, loot.
 export function alsoGeneral(text) {
-  return /^\t?(You have died|You have won the battle)\.?$/.test(text.trim()) || /^You got an? /.test(text.trim());
+  return /^\t?(You have died|You have won the battle)\.?$/.test(text.trim()) || /^You got an? /.test(text.trim()) || QUEST_COUNT.test(text.trim());
 }
 
 // The tally: kills, damage dealt and taken, dodges, exp and gold, since

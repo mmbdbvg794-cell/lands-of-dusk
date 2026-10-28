@@ -76,6 +76,13 @@ export class SocialUI {
         const li = el('li', 'q-open');
         li.append(el('div', 'q-title', q.title));
         if (q.text) li.append(el('p', 'q-text', q.text));
+        if (q.count) {
+          const bar = el('div', 'q-count');
+          bar.style.setProperty('--pct', `${Math.min(100, (100 * q.count.n) / Math.max(1, q.count.of))}%`);
+          bar.append(el('span', 'q-count-bar'), el('span', 'q-count-n', `${q.count.n} / ${q.count.of}`));
+          bar.setAttribute('aria-label', `${q.count.n} of ${q.count.of}`);
+          li.append(bar);
+        }
         list.append(li);
       }
       for (const q of sec.done) {

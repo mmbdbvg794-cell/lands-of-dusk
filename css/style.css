@@ -1571,6 +1571,9 @@ dialog::backdrop { background: #000a; }
 .journal li.tale .q-badge { background: #5a4a8a; }
 .journal li.tale .q-text { font-style: italic; }
 .journal .q-text { margin: 4px 0 0; color: var(--muted); }
+.journal .q-count { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.journal .q-count-bar { flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--accent) var(--pct), rgba(255, 255, 255, 0.08) var(--pct)); }
+.journal .q-count-n { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
 /* Finished: one line, its title, opened to read. */
 .j-list li.q-done { padding: 5px 10px; opacity: 0.8; }
 .j-list li.q-done summary { cursor: pointer; list-style: none; }

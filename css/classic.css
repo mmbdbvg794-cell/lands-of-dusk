@@ -396,6 +396,8 @@ body.classic .journal li.q-done .q-name { font-family: "EB Garamond", Georgia, s
 body.classic .journal .q-text { color: var(--ink-soft); font-size: 15px; }
 body.classic .journal .q-badge { background: #4a6a3a; color: #f6ecd2; font-family: "EB Garamond", Georgia, serif; }
 body.classic .journal li.tale .q-badge { background: #5a3f6e; }
+body.classic .journal .q-count-bar { height: 9px; border-radius: 2px; border: 1px solid #8a6a3a; background: linear-gradient(90deg, var(--ink-red) var(--pct), #d6c08e var(--pct)); }
+body.classic .journal .q-count-n { font-family: "Cinzel", serif; color: var(--ink-red); }
 body.classic .trade-gold { color: var(--ink-soft); }
 body.classic #output .line.k-whisper { color: #e0b8f5; }
 body.classic .skill-what { color: var(--ink-soft); font-size: 13px; font-style: italic; }

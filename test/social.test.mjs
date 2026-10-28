@@ -14,6 +14,8 @@ assert.deepEqual(j.feed('Journal: end 3'), { done: [
   { title: 'Wolves', text: 'Martha thanked you.', done: true },
 ], hide: true });
 assert.equal(j.feed('flan: Journal: hi'), null);
+j.feed('Journal: Stones|Break 4 shrine gargoyles. (2 of 4)|0');
+assert.deepEqual(j.feed('Journal: end 1').done, [{ title: 'Stones', text: 'Break 4 shrine gargoyles.', done: false, count: { n: 2, of: 4 } }], 'the count taken off the text');
 assert.deepEqual(mergeQuests([]), []);
 assert.deepEqual(mergeQuests([{ title: 'T', text: 'step 1', done: false }, { title: 'T', text: 'step 3', done: false }]), [{ title: 'T', text: 'step 3', done: false }], 'the latest step');
 assert.deepEqual(mergeQuests([{ title: 'T', text: 'done', done: true }, { title: 'T', text: 'later', done: false }]), [{ title: 'T', text: 'done', done: true }], 'done wins');

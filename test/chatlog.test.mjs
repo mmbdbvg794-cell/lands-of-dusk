@@ -4,6 +4,10 @@ import { chatKind, alsoGeneral, CombatTally } from '../js/chatlog.js';
 
 assert.equal(chatKind('\tflan did 5 to rat, flan did 3 to rat.'), 'combat');
 assert.equal(chatKind('\trat dodged flan\'s attack.'), 'combat');
+assert.equal(chatKind('Shrine gargoyles broken: 2 of 4.'), 'combat', 'a quest count');
+assert.ok(alsoGeneral('Shrine gargoyles broken: 4 of 4. Done!'), 'and in General too');
+assert.ok(alsoGeneral('Your journal has been updated.'));
+assert.equal(chatKind('flan: we need 2 of them'), 'general');
 assert.equal(chatKind('\trat is killed.'), 'combat');
 assert.equal(chatKind('You get 4 exp.'), 'combat');
 assert.equal(chatKind('You have lost 3gp'), 'combat');
