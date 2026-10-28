@@ -2778,7 +2778,7 @@ My memory directory (`~/.claude/projects/-root-dusk-browser-client/memory/`)
 has session-state, server-source, tile-walkability, duskserver-access and
 future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not served).
 
-## 2026-10-28: slur filter (forum LIVE; game built, install + restart pending)
+## 2026-10-28: slur filter (LIVE: game installed + restarted 13:27, classes before in backups/classes-20261028-132727)
 
 - server/Words.java: the owner's list in ~/DuskRPG/conf/badwords (one word
   a line; "word" = whole word + plurals in chat, "*word" = anywhere, even
