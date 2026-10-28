@@ -861,7 +861,9 @@ public class Classes {
             endTrial(p, engine, "You put the " + nameFor(now, who) + "'s ways aside: you are yourself again.");
             return "";
         }
-        if (trying) {
+        // Choosing ends a trial first; "tiers" only asks (the browser asks
+        // whenever the class changes, so it ended every trial at once).
+        if (trying && !arg.equals("tiers")) {
             endTrial(p, engine, null);
             now = null;
         }

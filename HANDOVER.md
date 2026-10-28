@@ -2818,3 +2818,13 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - users/ had ten empty files from creations abandoned before this
   (fred, goober, poop, testelf, testhuman, testings, testingsand, testss,
   testsss, testy): moved out 2026-10-28 to backups/empty-users-*, names free.
+
+## 2026-10-28 16:35: class trials ended at once in the browser (fixed; built, live after the next restart)
+
+- Found by the owner (Freyan, elf, Sentinel Aeris): each trial's kit
+  vanished within ~5 s. The browser asks "class tiers" whenever the class
+  changes (js/main.js classAnswer), and Classes.command ended any trial
+  before every subcommand but pick/try/end. "tiers" only asks now, so it
+  no longer ends one. The classic client never sends it (why scratch tests
+  with testclient/dusk-bot passed). Tested on scratch with dusk-bot:
+  try ranger + "class tiers" + 6 s, kit and skill still on.
