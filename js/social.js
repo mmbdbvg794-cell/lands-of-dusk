@@ -75,6 +75,28 @@ export function mergeQuests(entries) {
   return [...all.filter((e) => !e.done), ...all.filter((e) => e.done)];
 }
 
+// The Journal's sections, from the titles: "Bounty: Lake Slimers" (the
+// bounty boards' monster hunts), "Tale: The Sundering" (lore, tools/world/
+// cities/lore.mjs) and the rest, the quests. Each is [{ id, name, open,
+// done }], quests with the prefix taken off the title, in the order given;
+// sections with nothing in them are left out.
+export const JOURNAL_SECTIONS = [
+  { id: 'quests', name: 'Quests', prefix: '' },
+  { id: 'bounties', name: 'Bounties', prefix: 'Bounty: ' },
+  { id: 'lore', name: 'Lore', prefix: 'Tale: ' },
+];
+export function journalSections(quests) {
+  const sections = JOURNAL_SECTIONS.map(({ id, name }) => ({ id, name, open: [], done: [] }));
+  for (const q of quests) {
+    const i = JOURNAL_SECTIONS.findIndex((s) => s.prefix && q.title.startsWith(s.prefix));
+    const title = i < 0 ? q.title : q.title.slice(JOURNAL_SECTIONS[i].prefix.length);
+    const into = sections[Math.max(0, i)];
+    // A tale is something learnt, never "in progress".
+    (q.done || into.id === 'lore' ? into.done : into.open).push({ ...q, title });
+  }
+  return sections.filter((s) => s.open.length || s.done.length);
+}
+
 // Gods: every entry, [{ flag, title, text, done }].
 export class JournalDefReader extends ListReader {
   constructor() {

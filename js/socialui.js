@@ -3,7 +3,7 @@
 // them in and turns their buttons into commands.
 
 import {
-  JOURNAL, FRIENDS, friendAdd, friendRemove, tradeOffer, tradeBack, tradeGold, whisperStart,
+  JOURNAL, journalSections, FRIENDS, friendAdd, friendRemove, tradeOffer, tradeBack, tradeGold, whisperStart,
 } from './social.js';
 
 export class SocialUI {
@@ -17,6 +17,8 @@ export class SocialUI {
     this.friendNames = new Set();
     this.trade = null; // the table, while trading
     this.journal = null;
+    // Finished quests opened to read, kept when the journal is redrawn.
+    this.journalRead = new Set();
 
     this.$('friend-form').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -55,21 +57,49 @@ export class SocialUI {
     this.quiet(JOURNAL);
   }
 
+  // Sections (Quests, Bounties, Lore) that fold shut, remembered here; in
+  // each, quests in progress in full, then the finished ones as just their
+  // titles, opened to read.
   setJournal(quests) {
     this.journal = quests;
-    const list = this.$('journal-list');
-    list.replaceChildren(...quests.map((q) => {
-      const li = document.createElement('li');
-      // Tales (tools/world/cities/lore.mjs) are pieces of the story, not quests.
-      const tale = q.title.startsWith('Tale: ');
-      li.className = tale ? 'done tale' : q.done ? 'done' : '';
-      const head = document.createElement('div');
-      head.className = 'q-title';
-      head.append(tale ? q.title.slice(6) : q.title, Object.assign(document.createElement('span'), { className: 'q-badge', textContent: tale ? 'Lore' : q.done ? 'Done' : 'In progress' }));
-      li.append(head);
-      if (q.text) li.append(Object.assign(document.createElement('p'), { className: 'q-text', textContent: q.text }));
-      return li;
-    }));
+    const folded = new Set(stored('dusk.journal.folded'));
+    const el = (tag, className, text) => Object.assign(document.createElement(tag), className ? { className } : {}, text != null ? { textContent: text } : {});
+    const sections = journalSections(quests).map((sec) => {
+      const box = el('details', 'j-section');
+      box.dataset.section = sec.id;
+      box.open = !folded.has(sec.id);
+      const head = el('summary', 'j-head');
+      const counts = [sec.open.length && `${sec.open.length} in progress`, sec.done.length && (sec.id === 'lore' ? `${sec.done.length} learnt` : `${sec.done.length} done`)].filter(Boolean).join(' · ');
+      head.append(el('span', 'j-name', sec.name), el('span', 'j-count', counts));
+      const list = el('ul', 'j-list');
+      for (const q of sec.open) {
+        const li = el('li', 'q-open');
+        li.append(el('div', 'q-title', q.title));
+        if (q.text) li.append(el('p', 'q-text', q.text));
+        list.append(li);
+      }
+      for (const q of sec.done) {
+        const key = `${sec.id}|${q.title}`;
+        const li = el('li', sec.id === 'lore' ? 'q-done tale' : 'q-done');
+        const card = el('details');
+        card.open = this.journalRead.has(key);
+        card.addEventListener('toggle', () => (card.open ? this.journalRead.add(key) : this.journalRead.delete(key)));
+        const title = el('summary', 'q-title');
+        title.append(el('span', 'q-name', q.title), el('span', 'q-badge', sec.id === 'lore' ? 'Lore' : 'Done'));
+        card.append(title);
+        if (q.text) card.append(el('p', 'q-text', q.text));
+        li.append(card);
+        list.append(li);
+      }
+      box.append(head, list);
+      box.addEventListener('toggle', () => {
+        const now = new Set(stored('dusk.journal.folded'));
+        if (box.open) now.delete(sec.id); else now.add(sec.id);
+        stored('dusk.journal.folded', [...now]);
+      });
+      return box;
+    });
+    this.$('journal-list').replaceChildren(...sections);
     this.$('journal-empty').hidden = quests.length > 0;
   }
 
@@ -177,3 +207,13 @@ export class SocialUI {
 }
 
 export { whisperStart };
+
+// A remembered list in this browser (none when storage is blocked); with
+// a value, saves it.
+function stored(key, value) {
+  try {
+    if (value !== undefined) { localStorage.setItem(key, JSON.stringify(value)); return value; }
+    const v = JSON.parse(localStorage.getItem(key) ?? '[]');
+    return Array.isArray(v) ? v : [];
+  } catch { return []; }
+}

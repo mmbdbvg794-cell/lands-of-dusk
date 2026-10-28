@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {
   JournalReader, JournalDefReader, NotesReader, TradeReader, parseFriends, parseMarkers, parseWhisper,
-  journalSet, noteAdd, tradeGold, mergeQuests,
+  journalSet, noteAdd, tradeGold, mergeQuests, journalSections,
 } from '../js/social.js';
 
 const j = new JournalReader();
@@ -17,6 +17,19 @@ assert.equal(j.feed('flan: Journal: hi'), null);
 assert.deepEqual(mergeQuests([]), []);
 assert.deepEqual(mergeQuests([{ title: 'T', text: 'step 1', done: false }, { title: 'T', text: 'step 3', done: false }]), [{ title: 'T', text: 'step 3', done: false }], 'the latest step');
 assert.deepEqual(mergeQuests([{ title: 'T', text: 'done', done: true }, { title: 'T', text: 'later', done: false }]), [{ title: 'T', text: 'done', done: true }], 'done wins');
+
+assert.deepEqual(journalSections([]), []);
+assert.deepEqual(journalSections([
+  { title: 'Friend of Aelindor', text: 'Named a friend.', done: true },
+  { title: 'Tale: The Sundering', text: 'The elves sing...', done: true },
+  { title: 'Bounty: Lake Slimers', text: 'Kill 5 slimers.', done: false },
+  { title: 'The Coast Road', text: 'Go east.', done: false },
+]), [
+  { id: 'quests', name: 'Quests', open: [{ title: 'The Coast Road', text: 'Go east.', done: false }], done: [{ title: 'Friend of Aelindor', text: 'Named a friend.', done: true }] },
+  { id: 'bounties', name: 'Bounties', open: [{ title: 'Lake Slimers', text: 'Kill 5 slimers.', done: false }], done: [] },
+  { id: 'lore', name: 'Lore', open: [], done: [{ title: 'The Sundering', text: 'The elves sing...', done: true }] },
+], 'sorted into sections, prefixes off');
+assert.equal(journalSections([{ title: 'Tale: X', text: '', done: false }])[0].done.length, 1, 'a tale is never in progress');
 
 const d = new JournalDefReader();
 d.feed('JournalDef: wolfquest|Wolves|Kill 5 wolves.|0');

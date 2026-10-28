@@ -385,11 +385,16 @@ body.classic .store-size { color: var(--ink-soft); }
 body.classic .item-details { background: #efe2c2aa; border-left-color: var(--ink-red); font-size: 14px; color: var(--ink); }
 body.classic .item-details .muted, body.classic .item-details .item-desc { color: var(--ink-soft); }
 body.classic .rows li.open { background: #efe2c266; }
-body.classic .journal li { background: #efe2c2aa; border-color: #b08a5a; color: var(--ink); }
+body.classic .j-list li { background: #efe2c2aa; border-color: #b08a5a; border-radius: 3px; color: var(--ink); }
+body.classic .j-list li.q-done { background: #efe2c255; }
+body.classic .j-section > summary { border-bottom: 3px double #b08a5a; margin-bottom: 4px; }
+body.classic .j-section > summary::before { color: var(--ink-red); }
+body.classic .j-name { font-family: "Cinzel", serif; font-size: 14px; color: var(--ink-red); }
+body.classic .j-count { font-style: italic; color: var(--ink-soft); }
 body.classic .journal .q-title { font-family: "Cinzel", serif; color: var(--ink-red); }
+body.classic .journal li.q-done .q-name { font-family: "EB Garamond", Georgia, serif; font-size: 15px; color: var(--ink); }
 body.classic .journal .q-text { color: var(--ink-soft); font-size: 15px; }
-body.classic .journal .q-badge { background: var(--ink-red); color: #f6ecd2; font-family: "EB Garamond", Georgia, serif; }
-body.classic .journal li.done .q-badge { background: #4a6a3a; }
+body.classic .journal .q-badge { background: #4a6a3a; color: #f6ecd2; font-family: "EB Garamond", Georgia, serif; }
 body.classic .journal li.tale .q-badge { background: #5a3f6e; }
 body.classic .trade-gold { color: var(--ink-soft); }
 body.classic #output .line.k-whisper { color: #e0b8f5; }
