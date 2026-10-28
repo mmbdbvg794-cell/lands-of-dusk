@@ -396,13 +396,46 @@ body.classic #output .line.k-whisper { color: #e0b8f5; }
 body.classic .skill-what { color: var(--ink-soft); font-size: 13px; font-style: italic; }
 body.classic .school-skill { background: linear-gradient(90deg, rgba(122,46,20,0.35) var(--pct, 0%), rgba(122,46,20,0.08) var(--pct, 0%)); }
 
-/* The class picker's cards: stone, not the blue block, so the words read. */
-body.classic .class-pick {
-  background: linear-gradient(180deg, #2e2f33, #232427);
-  border: 1px solid #45464a;
+/* The class and male/female pickers: framed like the login card, on solid
+   stone (the classic panel colour lets the login screen show through). */
+body.classic #class-dialog,
+body.classic #sex-dialog {
+  border: 16px solid transparent;
+  border-image: url("../img/theme/bgframe.jpg") 40 fill / 16px stretch;
+  border-radius: 0;
+  background: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+body.classic #class-dialog h2,
+body.classic #sex-dialog h2 {
+  padding-bottom: 6px;
+  text-align: center;
+  border-bottom: 1px solid rgba(203, 178, 106, 0.35);
+}
+body.classic #class-dialog .dialog-sub,
+body.classic #sex-dialog .dialog-sub { font-size: 14px; color: var(--parchment); text-shadow: 0 1px 2px #000; }
+/* Its cards: stone set into the frame, not the blue block, so the words
+   read; the symbols sit in wells like the hotbar's slots. */
+body.classic .class-pick,
+body.classic .sex-pick {
+  background: linear-gradient(180deg, rgba(46, 47, 51, 0.92), rgba(28, 28, 31, 0.92));
+  border: 1px solid #5a5b60;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 1px 3px rgba(0, 0, 0, 0.6);
   color: var(--parchment);
 }
-body.classic .class-pick:hover:not(:disabled) { border-color: var(--gold); }
+body.classic .class-pick:hover:not(:disabled),
+body.classic .class-pick:focus-visible,
+body.classic .sex-pick:hover:not(:disabled),
+body.classic .sex-pick:focus-visible { border-color: var(--gold); filter: none; box-shadow: inset 0 0 0 1px rgba(203, 178, 106, 0.35), 0 1px 3px rgba(0, 0, 0, 0.6); }
+body.classic .sex-pick { font-size: 15px; color: var(--gold-bright); }
+body.classic .class-icon,
+body.classic .sex-pick canvas {
+  border: 1px solid #5a5b60;
+  border-radius: 2px;
+  background: radial-gradient(circle, var(--class-bg, transparent), transparent 75%), rgba(10, 10, 12, 0.75);
+  box-shadow: inset 0 0 10px #000;
+}
 body.classic .class-words strong { font-family: "Cinzel", serif; color: var(--gold-bright); }
 body.classic .class-words span { font-family: Georgia, "Times New Roman", serif; font-size: 13px; letter-spacing: 0; color: var(--stone-light); }
 body.classic [role="tab"].icon-tab { padding: 7px 7px 5px; }
