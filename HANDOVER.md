@@ -2919,3 +2919,18 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
     other stories in the game" (every chain, the world bosses, the
     hill-people barrow hook) and "All open threads".
 - Nothing in game changed.
+
+## 2026-10-29 19:23: water barrels and waterskins (LIVE)
+
+- A Water Barrel (a named barrel prop that narrates) beside each bounty
+  board (8 towns) and by Last Water's spring. Its "Drink" answer cures
+  thirst for 3 hours and fills every waterskin carried.
+- Waterskins hold three drinks: full, half-full, nearly empty, empty
+  (each drink's script swaps to the next; the empty one has no use).
+  Full ones cost 25 gold, in the 24 shops that sell water
+  (tools/server/add_waterskins.py, backup merchants-waterskins-*).
+- New talk effects: "drink" and "fill" (js/dialogue.js; the editor lists
+  them). Painted waterskin icon (tools/paintart/items.js).
+- tools/world/cities/waterbarrels.mjs; tools/golive_waterbarrels.sh ran
+  19:23 (tested on scratch first with botcheck).
+
