@@ -2882,3 +2882,12 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   near the walls, 4 sand worms further out. Rumours only, no quests.
 - Installed with tools/golive_lastwater.sh (backup city-last-water-*).
   Tested on scratch first (shop, talk, bedroll).
+
+## 2026-10-29 02:03: signs are names only (LIVE)
+
+- The user: signs show only the place's name; no prices, services,
+  who-to-see or how-to, except in tutorials. Direction signposts removed.
+  Warnings and story inscriptions keep their words; old-world signs only
+  lost price/service notes. tools/server/signs_names_only.py (120 changes:
+  91 renamed, 16 removed with their labels; backup signs-names-*), and
+  the city plans say the same. Directions and prices live in NPC talk.
