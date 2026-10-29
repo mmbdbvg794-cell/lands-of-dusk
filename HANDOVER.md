@@ -1,8 +1,25 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-21 16:50 UTC. Everything below is live
+State as of 2026-10-29 UTC. Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
-(The newest work is at the end, before "Open / ideas".)
+The newest work is at the end of the file; "Open / ideas" sits before
+the 2026-10-28 sections.
+
+**Start here (2026-10-29):** everything built is live, with no staged
+installs waiting for a restart. Commits since 6de0e47 are not pushed yet
+(push only when the user says "push it"; see the memory note on the GitHub
+remote). Rules learnt the hard way:
+- install and restart together;
+- never edit an online player's file (check who.json);
+- no god "save" between an install and the restart;
+- signs show names only;
+- NPC lines are short;
+- hidden places get rumours, not signposts.
+
+LORE.md is the lore bible. It opens with the rules for writers and ends
+with every open thread, ready to hand to Claude on the web. Lore made
+there comes back as proposals (decision S onward) for flan to decide, and
+then gets built here.
 
 ## What this is
 
@@ -2755,8 +2772,8 @@ then a restart (signs and props are read at start-up; flan was online, so
   unbuilt spells if wanted (haste needs a Battle patch; turn undead an
   undead flag on monsters; spider swarm an all-foes hit; shadow step a
   "nearby room").
-- Lore next: Morvane "coming himself" (after Homecoming); Kraghul and the Horde in
-  the dunes; Morvane's journal pages as boss drops.
+- Lore next: see LORE.md "All open threads" (Morvane coming himself,
+  Kraghul, the schools' stories, the duergar, the desert's deep sand...).
 - Play-test feedback: world boss strength (1,100-1,400 HP; tune in the God
   tab's Monsters… or the defMobs files), bounty rewards, quest chains, and
   now the doubled monster numbers.
@@ -2891,3 +2908,14 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   lost price/service notes. tools/server/signs_names_only.py (120 changes:
   91 renamed, 16 removed with their labels; backup signs-names-*), and
   the city plans say the same. Directions and prices live in NPC talk.
+
+## 2026-10-29: lore bible ready for Claude on the web
+
+- LORE.md now:
+  - opens with "Read this first": what's fixed and what's open, the house
+    rules (short lines, mysteries, names-only signs, secrets), what a quest
+    can be, and the races, tutorials, classes and schools;
+  - adds "The map at a glance", "The southern desert and Last Water", "The
+    other stories in the game" (every chain, the world bosses, the
+    hill-people barrow hook) and "All open threads".
+- Nothing in game changed.

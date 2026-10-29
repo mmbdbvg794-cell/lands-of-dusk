@@ -5,6 +5,69 @@ this whole: each place tells its own piece, from its own side (see "Where
 the pieces are" below). Keep new quests, NPCs and items consistent with it,
 and add to it here first.
 
+## Read this first (for anyone writing more lore)
+
+The Lands of Dusk is a small online RPG: a top-down tile world on the old
+DuskRPG engine, played in a browser. **flan** owns the game and decides
+canon. This file is complete on its own: it is everything decided so far.
+Last brought up to date 2026-10-29.
+
+**What is fixed and what isn't.** Anything marked BUILT or IN GAME is live:
+players have read it, and changing it means rewriting quests. Anything
+marked "lore only" or listed under open threads can still move. Decisions
+are lettered A to R; a new idea is a *proposal* for decision S onward,
+saying what players see and what stays secret, until flan agrees.
+
+**House rules for writing.** These hold in the live game; they aren't
+suggestions.
+
+1. **Short NPC lines.** A one-line greeting, then topics the player picks
+   ("This place?", "The desert?"), each answered in a sentence or two. Never
+   one long speech.
+2. **Keep the mysteries.** Hidden places get rumours at most: no signposts,
+   no maps, no directions. Nobody knows everything; each people tells its
+   own side, and some of it is wrong (the surface elves on the Sundering,
+   Faelith on the wind).
+3. **Signs show names only:** "Last Water", "The Silver Leaf". A warning
+   ("Turn back.") or an old inscription may say more. Prices, directions and
+   how-to belong in NPC talk. Tutorials are the only exception.
+4. **Nothing out of the world:** no modern words and no builders' jokes
+   (decision H).
+5. **The old world is emptying, not burning** (decision D).
+6. **Check names** against the list under "Where the pieces are" before
+   adding a person (decision E fixed old clashes).
+7. **Secrets stay secret.** Decision C, and the crown's power in K, are
+   never said in the game. Hints are allowed.
+
+**What a quest can be.** Quests are made in the game's quest wizard, as
+steps of four kinds: *kill* N of a monster, *go to* a place, *talk to* an
+NPC, and *bring* an item. Each sets flags. Rewards are gold, experience and
+items, and sometimes an achievement. NPCs can appear or vanish by flag, and
+their lines can change after a quest. Every story is told in each player's
+own world: one player's rift is closed while another's is still open.
+Write new stories in that shape.
+
+**Who players are.** The races are human, elf, dark elf (drow) and
+lizardfolk. Each race begins in its own tutorial:
+
+| Race | Tutorial | Where |
+|---|---|---|
+| Human | *From Refugee to Soldier...* | Westsea, in the old world (decision I) |
+| Elf | *From Seedling to Sentinel...* | the Grove of Waking, by Aelindor |
+| Dark elf | *From Hatchling to Drow...* | Velkarath |
+| Lizardfolk | *From Hatchling to Brood-Guard...* | the Hatching Pools, on the east isle |
+
+The classes are Fighter, Mage, Cleric, Ranger, Paladin, and Priest or
+Priestess (drow only). Three schools teach their members only:
+
+- **the Mage Guild**, in a tower on the isle off Eastreach (no ferry goes
+  there yet);
+- **The Circle**, nature lore, in a grove deep in the wood east of
+  Aelindor;
+- **the Drow Priesthood**, in the Temple of the Spider Queen in Velkarath.
+
+None of the schools has its invitation story yet.
+
 ## The fall of Zilen (the old world)
 
 - The old world is the kingdom of **Zilen**: the City of Light (its
@@ -318,3 +381,138 @@ Decided by flan.
   Homecoming.) She will not sit on the throne; Lord Steward Halvard keeps
   governing, and she keeps him honest. Her uncle signs his letters "M.",
   as she signs hers "E.": she learned it from him.
+
+## The map at a glance
+
+Two lands with a sea between them.
+
+**The old world (Zilen), in the west.**
+
+- **The City of Light** still holds. King Zilen's graveyard is at its
+  north-west corner.
+- **Midnight**, with the Izaru mine under it.
+- **Riverside** and **Southfield**.
+- **Westsea Harbour**, where the ships left from.
+- **The east field.** Beyond its tree line is the **Frozen Reach**.
+- **The toxic swamp** in the west.
+- **A walled enclave in the far south.** The Champions' Gauntlet and the
+  Fire Orb vault are there.
+- **Firetown**, on its island in the southern sea.
+
+The way to Midnight and the Izaru mine is kept a mystery on purpose: only
+Old Sailor Wick's tale hints at it.
+
+**The new lands, in the east.**
+
+- **Kingshaven**, on the west coast. **Greystone Mine** is in the hills to
+  its north. The King's Watch post, the barrow valley and the Duelling Ring
+  are to its east.
+- **Aelindor**, the elven city, in the south.
+  - The Moonwell is at its heart, and Aelindor Landing is the pier to its
+    north.
+  - The shrine of the waking stones is on the mountains to its west.
+  - The withered grove is far to its east, and The Circle's wood lies
+    between them.
+- **Velkarath**, below the ground. Three cave stairs come up on surface
+  mountains, and only drow may take them.
+- **Ssarakh**, the lizardfolk's Mire City, on the swamp isles.
+- **Eastreach**, a ferry port on the eastern continent. The Dry Ones' dunes
+  are to its north, where Kraghul raids.
+- **The southern desert**, wide and mostly empty, with **Last Water** at
+  its spring.
+
+**Ferries.** Ships run between Westsea, Aelindor Landing, Eastreach,
+Kingshaven and Ssarakh.
+
+## The southern desert and Last Water (BUILT 2026-10-29: rumours only)
+
+- **Last Water** is a walled outpost round a spring in the southern
+  desert: the last water before the deep sand. Caravans fill their skins
+  there.
+  - **Wellkeeper Amsel** keeps the spring clean, and nobody owns it ("Water's
+    free. Trouble isn't.").
+  - **Ssuli the Trader** is a lizardfolk who left the crowded mire for the
+    quiet of the sand.
+  - A guard keeps the gate, and travellers sleep in a rest tent.
+- The desert itself:
+  - Coyotes come near the walls at dusk.
+  - Further out are sand worms.
+  - "Further than that, nobody comes back to say."
+- Drow come in out of the west now and then, paying in silver, and don't
+  say where from. (One of Velkarath's cave stairs opens at the desert's
+  western edge. No one at Last Water knows that.)
+- **Open, on purpose:** what lies in the deep sand. Nothing is decided.
+  Any story here starts as a proposal, and the outpost should keep only
+  rumours until flan picks one.
+
+## The other stories in the game
+
+These are smaller chains, mostly local, with no tie to the main story
+unless one is shown. Every chain is three quests for every race unless it
+says otherwise.
+
+| Chain | Where | What happens |
+|---|---|---|
+| *The Green Wardens* | Aelindor, from Ranger Faelwen | *Foul Water*: slimers at the lake. *The Waking Stones*: the shrine's gargoyles wake, and a heartstone (decision Q). *The Withered Grove*: the blight, its wolves, the bear at its heart. Leads into *The Grey Beneath*. |
+| *The Deep Patrol* | Velkarath (drow only), from Jhaelra | Cave slimes; the lost patrol, killed by duergar; the young **ember dragon** in the Ember Hollow. |
+| *The Izaru Deeps* | Midnight, from Foreman Dask | Rock slimes; miners taken by stalkers; the **stone dragon** woken in the deep chamber. |
+| *The Frozen Reach* | the east field, from Reeve Osric | White wolves; frost bears past the trees; the **frost dragon** in its lair. |
+| *The Zilen Legacy* | the City of Light, from Tombkeeper Aldous | Grave robbers; *The King's Crown* (decision C's hint); the defiled crypt of the king's guard. |
+| *The King's Watch* | Kingshaven, from Sergeant Wexley | Stray hounds; thieves on the coast road; the dead walking at an old barrow in the hills. |
+| *The Eastreach Frontier* | Eastreach, from Warden Marr (four quests) | Lizards at the supplies; the dark lookout; Old Tamsin's poultice; the Sand Kings' camp (the Dry Ones). |
+| *The Old Drift* | Greystone Mine | See "Greystone Mine". |
+| *The Neon Rose* | the old world's toxic swamp | A hermit's glowing rose; Herbalist Linnet weaves it into a gas mask. |
+| *The Fire Orb* | the far-south enclave | A vault, its guards, a sleeping potion. |
+| *The Champions' Gauntlet* | the far-south enclave (once per character) | Ten rooms, ten champions, the Champion's Blade. |
+| Bounty boards | eight towns | One repeatable kill job a day. |
+
+The three wyrms, ember, stone and frost, are decision B's young dragons.
+
+**World bosses** rise every few hours at their lairs and are fought by
+groups:
+
+- **Ursok the Dread Bear**, in the hills north-east of Kingshaven;
+- **Fenris the Great Wolf**, in the woods east of Aelindor;
+- **Kraghul the Warlord**, in the northern dunes above Eastreach;
+- **Morvane the Skeleton King**, in the old world's east field.
+
+Kraghul and Morvane appear as bosses before their stories end. Treat these
+as echoes of them, not the final fight. Their stories are still open.
+
+The barrow in the hills is a hook nobody has used. Its sign reads: "Here
+lie the kings of the hill people. Let them sleep." Who the hill people
+were has never been decided.
+
+## All open threads (where to build next)
+
+Gathered from the sections above. The ones near the top are what flan has
+said comes next.
+
+1. **Morvane "comes himself"** (his letter's threat, decisions K and N). He
+   wants the crown, which is still on King Zilen's brow in the City of
+   Light, and the chair in Kingshaven. flan's idea: pages of Morvane's
+   journal as boss drops.
+2. **Kraghul and the Horde** in the dunes above Eastreach (decision L).
+   - He is stranded and wants a gate opened.
+   - His Breaker is dead and his door is pinned, so he knows someone is in
+     his way.
+   - The southern gate needs whole warden stone to be truly shut. The only
+     whole stone left is the Brood Stone, "and it stays" (Ithrae).
+3. **The schools' stories:**
+   - the Mage Guild's and The Circle's invitations;
+   - the Drow Priesthood and the Spider Queen (decision O; so far only
+     Priestess Ilvra hints at her, to drow);
+   - a hidden order whose quests would set flags called "forbidden_lore",
+     "archmage_quest" and "archdruid_quest". It has no name or lore yet.
+4. **The duergar:**
+   - where they come from;
+   - why they came back after twenty years;
+   - whether the Grey Delve reaches Velkarath's caverns.
+5. **The elder dragons** (decision B): where they are, and what they make of
+   the young wyrms.
+6. **The other five gates.** Seven were sealed. Two are known: Firetown's
+   (now closed) and the southern gate (pinned).
+7. **The southern desert's deep sand** (open; rumours only so far).
+8. **The hill people** of the barrow.
+9. **King Aldric's fate.** Deliberately undecided (decision M): build
+   nothing that answers it.
