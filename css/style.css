@@ -571,7 +571,8 @@ body.playing #map-wrap { display: flex; }
 }
 
 /* Stats */
-#stats-body { padding: 0 12px; }
+#stats-body { padding: 4px 12px; display: grid; gap: 4px; }
+.skill-section > summary { border-bottom: 1px solid var(--border); }
 .stat-section + .stat-section { margin-top: 10px; }
 .stat-section h4 {
   margin: 4px 0 4px;

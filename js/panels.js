@@ -5,7 +5,7 @@
 
 import { tierTag } from './classes.js';
 import { slotForType, command } from './player.js';
-import { parseStats, playerConditions } from './stats.js';
+import { parseStats, playerConditions, skillSections } from './stats.js';
 import { buyCommand, sellCommand, wareLabel } from './shop.js';
 import { describeItem } from './iteminfo.js';
 import { putCommand, takeCommand, groupContents, BOX_BUY, BOX_UPGRADE, boxPut, boxTake } from './storage.js';
@@ -306,21 +306,39 @@ export class Panels {
       .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
     this.$('#stats-empty').hidden = skills.length > 0;
     this.$('#stats-empty').textContent = has ? 'No skills yet: train them at a trainer.' : 'No skills yet.';
-    this.$('#stats-body').replaceChildren(...skills.map((sk) => {
-      const row = document.createElement('div');
-      row.className = 'skill-row';
-      const bar = document.createElement('span');
-      bar.className = 'skill-bar';
-      bar.style.setProperty('--pct', `${Math.max(0, Math.min(100, sk.value))}%`);
-      const name = text('span', 'skill-name', sk.name);
-      const what = SKILL_WORDS[sk.name.toLowerCase()];
-      if (what) name.append(text('span', 'skill-what', what));
-      // Your class's own, or another class's (js/classes.js).
-      const tag = tierTag(this.classTiers, sk.name);
-      if (tag) { const t = text('span', `class-tag ${tag.kind}`, tag.text); t.title = tag.title; name.append(t); }
-      row.append(name, bar, text('span', 'skill-value', String(sk.value)));
-      return row;
+    // In sections (Combat, Magic, ...) that fold shut, remembered here.
+    const folded = new Set(storedList('dusk.skills.folded'));
+    this.$('#stats-body').replaceChildren(...skillSections(skills).map((sec) => {
+      const box = document.createElement('details');
+      box.className = 'j-section skill-section';
+      box.dataset.section = sec.id;
+      box.open = !folded.has(sec.id);
+      const head = document.createElement('summary');
+      head.append(text('span', 'j-name', sec.name), text('span', 'j-count', String(sec.skills.length)));
+      box.append(head, ...sec.skills.map((sk) => this.skillRow(sk)));
+      box.addEventListener('toggle', () => {
+        const now = new Set(storedList('dusk.skills.folded'));
+        if (box.open) now.delete(sec.id); else now.add(sec.id);
+        storedList('dusk.skills.folded', [...now]);
+      });
+      return box;
     }));
+  }
+
+  skillRow(sk) {
+    const row = document.createElement('div');
+    row.className = 'skill-row';
+    const bar = document.createElement('span');
+    bar.className = 'skill-bar';
+    bar.style.setProperty('--pct', `${Math.max(0, Math.min(100, sk.value))}%`);
+    const name = text('span', 'skill-name', sk.name);
+    const what = SKILL_WORDS[sk.name.toLowerCase()];
+    if (what) name.append(text('span', 'skill-what', what));
+    // Your class's own, or another class's (js/classes.js).
+    const tag = tierTag(this.classTiers, sk.name);
+    if (tag) { const t = text('span', `class-tag ${tag.kind}`, tag.text); t.title = tag.title; name.append(t); }
+    row.append(name, bar, text('span', 'skill-value', String(sk.value)));
+    return row;
   }
 
   // The short version under the HP/MP bars: attributes, the combat
@@ -641,6 +659,16 @@ function tradeButton(label, trade, name) {
 }
 
 // What each skill does, shown under its name on the Skills tab.
+// A remembered list in this browser (none when storage is blocked); with
+// a value, saves it.
+function storedList(key, value) {
+  try {
+    if (value !== undefined) { localStorage.setItem(key, JSON.stringify(value)); return value; }
+    const v = JSON.parse(localStorage.getItem(key) ?? '[]');
+    return Array.isArray(v) ? v : [];
+  } catch { return []; }
+}
+
 const SKILL_WORDS = {
   dodge: 'A chance to dodge attacks',
   'double attack': 'A chance of a second attack each round',

@@ -49,3 +49,23 @@ const PLAYER_CONDITIONS = { hunger: 'Hungry', thirst: 'Thirsty' };
 export function playerConditions(names) {
   return names.map((n) => PLAYER_CONDITIONS[n.trim().toLowerCase()]).filter(Boolean);
 }
+
+// The Skills tab's sections, in order: each skill by name (any case);
+// anything not listed goes under Other.
+export const SKILL_SECTIONS = [
+  { id: 'combat', name: 'Combat', skills: ['dodge', 'double attack', 'triple attack', 'quadruple attack', 'archery'] },
+  { id: 'magic', name: 'Magic', skills: ['spell power', 'mana tap', 'life tap'] },
+  { id: 'recovery', name: 'Recovery', skills: ['regeneration', 'mana regen'] },
+  { id: 'crafting', name: 'Crafting and Gathering', skills: ['mining', 'herbalism', 'woodcutting', 'smithing', 'alchemy', 'fletching'] },
+  { id: 'utility', name: 'Utility', skills: ['lock picking', 'armor identification'] },
+  { id: 'other', name: 'Other', skills: [] },
+];
+
+// Skills ({name, value}) sorted into SKILL_SECTIONS, keeping their order;
+// empty sections are left out.
+export function skillSections(skills) {
+  const home = new Map(SKILL_SECTIONS.flatMap((sec) => sec.skills.map((n) => [n, sec.id])));
+  return SKILL_SECTIONS
+    .map((sec) => ({ id: sec.id, name: sec.name, skills: skills.filter((sk) => (home.get(sk.name.trim().toLowerCase()) ?? 'other') === sec.id) }))
+    .filter((sec) => sec.skills.length);
+}

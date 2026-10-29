@@ -47,3 +47,21 @@ assert.deepEqual(playerConditions(['thief', 'visitedSlots', 'thirst', 'nohunger'
 assert.deepEqual(playerConditions([]), []);
 console.log('ok - player conditions');
 
+
+// The Skills tab's sections.
+{
+  const { skillSections } = await import('../js/stats.js');
+  const secs = skillSections([
+    { name: 'Herbalism', value: 15 }, { name: 'Dodge', value: 12 }, { name: 'Lock Picking', value: 5 },
+    { name: 'Regeneration', value: 4 }, { name: 'Double Attack', value: 2 }, { name: 'Juggling', value: 1 },
+  ]);
+  assert.deepEqual(secs.map((s) => [s.id, s.skills.map((k) => k.name)]), [
+    ['combat', ['Dodge', 'Double Attack']],
+    ['recovery', ['Regeneration']],
+    ['crafting', ['Herbalism']],
+    ['utility', ['Lock Picking']],
+    ['other', ['Juggling']],
+  ]);
+  assert.deepEqual(skillSections([]), []);
+  console.log('ok - skill sections');
+}
