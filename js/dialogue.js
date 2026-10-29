@@ -148,9 +148,25 @@ function effect(e, pad) {
     // trigger bindlocx" stores 0 on this server, so the server sets it
     // (server/Skills.java): bindnow lets the order through, once.
     case 'bind': return Number.isFinite(Number(e.x)) && Number.isFinite(Number(e.y)) && e.x !== '' && e.y !== '' ? `${pad}addCondition trigger bindnow\n${pad}order trigger "bindat ${Math.floor(Number(e.x))} ${Math.floor(Number(e.y))}"` : null;
+    // A drink (a water barrel): not thirsty for 3 hours, as water gives.
+    case 'drink': return `${pad}addconditionwithduration trigger nothirst ${THIRST_TICKS}`;
+    // Every waterskin not full made full again (a water barrel). The script
+    // language has no loops: FILL_EACH of each kind at a time.
+    case 'fill': return WATERSKINS.slice(1).flatMap((name) => Array.from({ length: FILL_EACH }, () => [
+      `${pad}if hasItem trigger "${name}"`,
+      `${pad}\tremoveItem trigger "${name}"`,
+      `${pad}\tgiveitem trigger "${WATERSKINS[0]}"`,
+      `${pad}end`,
+    ].join('\n'))).join('\n');
     default: return null;
   }
 }
+
+// Waterskins, full to empty: each drink makes one the next
+// (tools/world/cities/waterbarrels.mjs), and a barrel fills them.
+export const WATERSKINS = ['full waterskin', 'half-full waterskin', 'nearly empty waterskin', 'empty waterskin'];
+const FILL_EACH = 4;
+export const THIRST_TICKS = 10800;
 
 // A stage's condition, with its second one if it has one ("and" comes
 // first in the script language).
@@ -513,6 +529,8 @@ export function tryAnswer(a, p, who) {
     if (e.kind === 'takegold' && n > 0) { p.gold = Math.max(0, p.gold - n); lines.push(`(-${n} gold)`); }
     if (e.kind === 'exp' && n > 0) lines.push(`(+${n} experience)`);
     if (e.kind === 'heal') lines.push('(HP and MP restored)');
+    if (e.kind === 'drink') lines.push('(not thirsty)');
+    if (e.kind === 'fill') lines.push('(waterskins filled)');
     if (e.kind === 'rent') lines.push(e.what === 'info' ? '(says which house you rent)' : '(rents a house on Lantern Row)');
     if (e.kind === 'class') lines.push(e.what === 'pick' ? '(opens the class picker)' : e.what === 'end' ? '(stops trying a class)' : `(tries the ${text(e.id)} class)`);
     if (e.kind === 'teleport') lines.push(`(sent to ${e.x}, ${e.y})`);

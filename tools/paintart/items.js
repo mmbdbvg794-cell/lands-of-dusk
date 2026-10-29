@@ -369,6 +369,18 @@ function bag(ctx, n) {
   ctx.restore();
 }
 
+// A leather waterskin with a wooden stopper: full ones round, empty ones
+// slack and flat.
+function waterskin(ctx, n) {
+  const full = /^empty/.test(n) ? 0.45 : /nearly/.test(n) ? 0.65 : /half/.test(n) ? 0.82 : 1;
+  const top = 96 - 38 * full;
+  shadow(ctx, 26, 7);
+  fill(ctx, () => { ctx.beginPath(); ctx.moveTo(CX - 6, top); ctx.bezierCurveTo(CX - 30, top + 4, CX - 32, 96, CX, 95); ctx.bezierCurveTo(CX + 32, 96, CX + 30, top + 4, CX + 6, top); ctx.closePath(); }, '#8a5a32', [CX - 30, top, CX + 30, 95]);
+  fill(ctx, rr(ctx, CX - 5, top - 12, 10, 13, 2), '#6a4020', [CX - 5, top - 12, CX + 5, top + 1], 1.5);
+  fill(ctx, rr(ctx, CX - 4, top - 18, 8, 7, 2), '#c8a060', [CX - 4, top - 18, CX + 4, top - 11], 1);
+  ctx.strokeStyle = '#3a2410'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(CX - 18, top + 12); ctx.quadraticCurveTo(CX, top + 18, CX + 18, top + 12); ctx.stroke();
+}
+
 function box(ctx, n) {
   const c = /crystal/.test(n) ? '#9ad8f0' : /shifty/.test(n) ? '#2e9a64' : '#8a5a30';
   shadow(ctx, 28, 7);
@@ -1200,6 +1212,7 @@ const BY_NAME = [
   [/bones/, bones],
   [/^skull$/, skull],
   [/fairy dust|dust/, dust],
+  [/waterskin/, waterskin],
   [/bag|pouch|sack|purse/, bag],
   [/chest$/, chest],
   [/quiver/, quiver],
