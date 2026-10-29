@@ -2871,3 +2871,14 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   backup faelwen-early-*). Faelwen moved to 463,1206, clear of the tree at
   467,1207 (tools/server/move_prop.py; tools/golive_quest_counts.sh ran
   23:48, classes-20261028-234839).
+
+## 2026-10-29 00:49: Last Water, the oasis outpost (LIVE)
+
+- tools/world/cities/lastwater.mjs round flan's map note "Oaisis"
+  (784,1523): walled spring (770-800 x 1513-1540, the pond itself left as
+  the map had it), Wellkeeper Amsel, Ssuli's stall (water, apple,
+  sandwich, ale, healing potion), rest tent with bedrolls (10 gold,
+  defMoveActions 776/778/782/784_1537), gate guards, a sign; 6 coyotes
+  near the walls, 4 sand worms further out. Rumours only, no quests.
+- Installed with tools/golive_lastwater.sh (backup city-last-water-*).
+  Tested on scratch first (shop, talk, bedroll).
