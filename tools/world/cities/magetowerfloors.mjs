@@ -60,7 +60,7 @@ export default {
       p.set(10, y, 'i');
       p.prop('candlestick stand', 1, y + 9);
       p.prop('candlestick stand', 13, y + 9);
-      p.sign(`${f.name}`, `The Mage Guild: ${f.name}, the ${ORDINAL[k]} floor.${k < FLOORS.length - 1 ? ` The stairs up are for ${FLOORS[k + 1].rank}s and above.` : ''}`, 7, y + 1);
+      p.sign(`${f.name}`, f.name.replace(/^the /, 'The '), 7, y + 1);
       // Up: the next floor's rank.
       if (k < FLOORS.length - 1) {
         const next = FLOORS[k + 1];

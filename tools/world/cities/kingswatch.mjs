@@ -139,18 +139,12 @@ export default {
     // The Watch post outside the east gate.
     p.building(...P(1499, 340), 7, 5, { doors: [['s', 3]] });
     p.npc({ name: WEXLEY, look: 'Guard', desc: 'Sergeant Wexley of the King\'s Watch, grey at the temples, a notched sword at her hip.', x: 1502 - O[0], y: 342 - O[1], dlg: talk(WEXLEY) });
-    p.sign('Watch Post', 'The King\'s Watch. Volunteers, see Sergeant Wexley.', ...P(1504, 346));
+    p.sign('Watch Post', 'The King\'s Watch', ...P(1504, 346));
 
-    // The Watch post is behind the houses north of the east road: a
-    // signpost on the road at the lane to it (play-test 5 walked past).
-    p.sign('Signpost', 'North, up the lane: the Watch post. Sergeant Wexley takes on volunteers.', ...P(1496, 357));
+    // (No signposts to the Watch post or the meadow: signs are names only,
+    // the user, 2026-10-29. The east gate guard and townsfolk point the way.)
 
-    // Stray hounds in the meadow north of the farms, and signposts outside
-    // the north gate and at the foot of the lane up to it (the 2026-10-19
-    // play-test: nobody could find them; play-test 5: "Hilda's farm" was
-    // nowhere, only a townsperson called Hilda).
-    p.sign('Signpost', 'West along the road: the farms. Stray hounds have been seen in the meadow north of them: up the lane beside Farmer Hollin\'s, the last farm.', ...P(1435, 318));
-    p.sign('Signpost', 'North, up the lane: the meadow. Mind the stray hounds.', ...P(1399, 300));
+    // Stray hounds in the meadow north of the farms.
     for (const [x, y] of [[1420, 282], [1424, 286], [1427, 280], [1419, 289], [1421, 291], [1422, 279]]) p.mob('stray hound', 1, ...P(x, y));
 
     // The thieves on the wooded point.

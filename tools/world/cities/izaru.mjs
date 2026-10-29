@@ -166,7 +166,7 @@ export default {
     p.prop('pickaxe', ...M(377, 308));
     p.prop('campfire', ...M(380, 307));
     p.prop('barrel', ...M(371, 308));
-    p.sign('Upper Workings', 'Izaru Mine. Mind your head, mind your feet, mind the slimes.', ...M(352, 287));
+    p.sign('Upper Workings', 'Izaru Mine', ...M(352, 287));
 
     for (const q of QUESTS) p.quest(q);
   },

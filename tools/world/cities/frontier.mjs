@@ -148,12 +148,12 @@ export default {
     p.building(...P(1662, 1293), 9, 7, { doors: [['e', 3]] });
     p.prop('chair', ...P(1664, 1295));
     p.npc({ name: MARR, look: 'Villager Woman', desc: 'Warden Isolde Marr, sun-browned and sharp-eyed, keeper of the settlement.', x: 1666 - O[0], y: 1296 - O[1], dlg: talk(MARR) });
-    p.sign('Warden\'s Post', 'The Warden\'s Post. New settlers, see Warden Marr.', ...P(1672, 1298));
+    p.sign('Warden\'s Post', 'The Warden\'s Post', ...P(1672, 1298));
 
     // The old lookout: a tumbledown ring of stone on the ridge's north spur.
     p.building(...P(1612, 1339), 5, 5, { wall: 'S', floor: 'k', doors: [['n', 2]] });
     for (const [x, y] of [[1616, 1340], [1612, 1342], [1615, 1343]]) p.set(...P(x, y), 'k');
-    p.sign('Old Lookout', 'The Eastreach lookout. The fire is cold.', ...P(1614, 1338));
+    p.sign('Old Lookout', 'The Old Lookout', ...P(1614, 1338));
 
     // Scout Kell's camp at the edge of the woods, and the wild dogs.
     p.fill(...P(1572, 1356), 5, 5, 'e');
@@ -163,7 +163,7 @@ export default {
     // Old Tamsin's cabin, east of the stream, door to the north.
     p.building(...P(1576, 1384), 6, 5, { doors: [['n', 2]] });
     p.npc({ name: TAMSIN, look: 'hermit', desc: 'Old Tamsin, bent as a willow root, smelling of herbs.', x: 1579 - O[0], y: 1386 - O[1], dlg: talk(TAMSIN) });
-    p.sign('Tamsin\'s Cabin', 'Old Tamsin. Herbs and remedies. Knock first.', ...P(1580, 1383));
+    p.sign('Tamsin\'s Cabin', 'Tamsin\'s Cabin', ...P(1580, 1383));
     // The marsh south of it.
     for (const [x, y] of [[1576, 1394], [1580, 1395], [1584, 1394], [1578, 1398], [1582, 1398], [1586, 1397], [1580, 1400]]) p.mob('slimer', 1, ...P(x, y));
 

@@ -84,7 +84,7 @@ export default {
     p.path([A(1515, 338), A(1515, 340)]);
     for (const [x, y] of [[1510, 323], [1520, 323], [1510, 333], [1520, 333]]) p.prop('brazier', ...A(x, y));
     p.npc({ name: 'Ringmaster Corvin', look: 'Guard', desc: 'Ringmaster Corvin, broad and scarred, a whistle on a cord round his neck.', x: 1513 - O[0], y: 337 - O[1], dlg: RINGMASTER });
-    p.sign('Duelling Ring', 'The Duelling Ring. Stand on the sand with your opponent and type: duel <name>. Nobody loses anything.', ...A(1517, 337));
+    p.sign('Duelling Ring', 'The Duelling Ring', ...A(1517, 337));
     // The flags Duel.java and conf/onDeath use.
     p.file('defConditions/dueling', 'nodisplay\n.\n');
     p.file('defConditions/duellost', 'nodisplay\n.\n');

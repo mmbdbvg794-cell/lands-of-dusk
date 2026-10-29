@@ -240,7 +240,7 @@ export default {
     // The way in: a door in the grey cliff, and a sign beside it.
     p.farTile(...DOOR, '<');
     p.farAction(...DOOR, go('You push through the heavy door into Greystone Mine.', IN[0], IN[1]));
-    p.sign('Greystone Mine', 'Greystone Mine. Picks sold inside. Mind the carts.', ...M(OUTSIDE[0], OUTSIDE[1] - 1));
+    p.sign('Greystone Mine', 'Greystone Mine', ...M(OUTSIDE[0], OUTSIDE[1] - 1));
 
     // The mine: rock all round, then the halls dug out.
     p.fill(0, 0, 110, 90, 'R');
@@ -256,13 +256,12 @@ export default {
     p.merchant(...M(855, 225), ['mining pick', 'smithing hammer', 'water', 'apple'], 'Pickwright\'s Tools');
     p.prop('pickaxe', ...M(852, 222));
     p.prop('barrel', ...M(852, 228));
-    p.sign('Pickwright\'s Tools', 'Pickwright\'s: picks, hammers, water.', ...M(862, 223));
+    p.sign('Pickwright\'s Tools', 'Pickwright\'s Tools', ...M(862, 223));
 
     // The hall: the overseer, lamps, a cart of ore.
     p.npc({ name: OVERSEER, look: 'Villager Man', desc: 'Overseer Garrick, a ledger under one arm and rock dust in his beard.', x: 875 - O[0], y: 223 - O[1], dlg: talk(OVERSEER) });
     p.prop('barrel', ...M(877, 229));
     p.prop('pickaxe', ...M(866, 229));
-    p.sign('Entry Hall', 'East: the gallery (bronze, iron). South: the lower workings (iron, coal) and the deep seam (mithril).', ...M(873, 224));
 
     // East gallery.
     p.fill(...M(880, 224), 6, 3, 'e');
@@ -281,12 +280,12 @@ export default {
     p.prop('chair', ...M(866, 250));
     p.prop('forge', ...M(876, 243));
     p.prop('anvil', ...M(878, 243));
-    p.sign('Lower Workings', 'Lower Workings. Forge and anvil free to all. The deep seam is east and down.', ...M(871, 241));
+    p.sign('Lower Workings', 'The Lower Workings', ...M(871, 241));
 
     // The deep seam: dark stone, mithril.
     p.fill(...M(892, 251), 6, 3, 'k');
     p.oval(...M(896, 249), 23, 19, 'k');
-    p.sign('The Deep Seam', 'The Deep Seam. Mithril, for those who can break it.', ...M(898, 252));
+    p.sign('The Deep Seam', 'The Deep Seam', ...M(898, 252));
 
     // Lamps on the walls: torch squares in the rock round each hall.
     for (const [x, y] of [[866, 218], [876, 218], [863, 225], [893, 211], [906, 212], [886, 222], [914, 225], [867, 239], [884, 240], [861, 249], [892, 248], [903, 249], [912, 252], [898, 266]]) {
@@ -352,7 +351,7 @@ export default {
     p.prop('chair', ...M(874, 207));
     p.prop('chair', ...M(876, 208));
     p.prop('barrel', ...M(880, 209));
-    p.sign('Bunkhouse', 'Bunkhouse. Hot food at Dagna\'s table.', ...M(872, 215));
+    p.sign('Bunkhouse', 'The Bunkhouse', ...M(872, 215));
 
     // The sump: down a wet tunnel from the lower workings' south-west end,
     // with black pools in it. Tunnel crawlers.

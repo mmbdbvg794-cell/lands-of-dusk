@@ -21,6 +21,6 @@ export default {
     p.fill(...at(1689, 1302), 7, 3, '=');
     clearMooring(p, 'eastreach');
     p.npc({ name: 'Captain Brann', look: 'Villager Man', desc: 'Captain Brann, weathered as an old sail.', x: 1695 - O[0], y: 1303 - O[1], dlg: captain('eastreach', 'Ships west to Westsea Harbour and Aelindor Landing!') });
-    p.sign('Eastreach', 'Eastreach. Ships sail from here to Westsea Harbour, Aelindor Landing, Kingshaven and the Mire City of Ssarakh.', ...at(1688, 1305));
+    p.sign('Eastreach', 'Eastreach', ...at(1688, 1305));
   },
 };

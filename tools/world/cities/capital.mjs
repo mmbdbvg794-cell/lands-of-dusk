@@ -40,15 +40,6 @@ const talk = (text, answers = [], shouts = []) => ({ shouts, stages: [always(tex
 const ask = (label, reply) => ({ label, reply, effects: [] });
 const bye = ask('Farewell', 'Go well.');
 
-// Signposts round the plaza: text, x, y.
-const SIGNPOSTS = [
-  ['North: keep, cathedral, north gate. East: bounty board, bank, east gate. South: market, south gate, harbour. West: Lantern Row, west gate.', 1441, 351],
-  ['North: the north gate and the farms. West: the Royal Keep. East: the Cathedral. South: the Grand Plaza.', 1433, 340],
-  ['West: the west gate and landing. North: Lantern Row. South: the Market Square. East: the Grand Plaza.', 1413, 356],
-  ['East: the east gate, Sergeant Wexley\'s post just outside. North: the Cathedral. South: the Warriors\' Guild. West: the Grand Plaza.', 1459, 360],
-  ['South: the south gate and the harbour. West: the Market Square. East: the Warriors\' Guild. North: the Grand Plaza.', 1438, 375],
-];
-
 const DIRECTIONS = 'The keep is north-west, the cathedral north-east, and the Grand Plaza where the avenues cross. The harbour is through the south gate.';
 
 // Lord Steward Halvard governs in Princess Elowen's name, beside her empty
@@ -218,7 +209,7 @@ export default {
     for (const [x, y] of [[1426, 349], [1446, 349], [1426, 367], [1446, 367]]) PR('Flower Box', x, y);
     PR('statue', 1436, 349);
     PR('newsboard', 1434, 347);
-    SIGN('Grand Plaza', `The Grand Plaza of ${NAME}. The keep is north-west, the cathedral north-east, the harbour through the south gate.`, 1438, 347);
+    SIGN('Grand Plaza', 'The Grand Plaza', 1438, 347);
 
     // ---- the royal keep (north-west) ----
     F(1392, 324, 43, 13, ','); // its courtyard garden
@@ -231,7 +222,7 @@ export default {
     PR('Guard', 1415, 328);
     for (const x of [1400, 1405, 1420, 1425]) PR('candlestick stand', x, 333);
     PR('plants', 1397, 326); PR('plants', 1428, 326);
-    SIGN('The Royal Keep', `The Royal Keep of ${NAME}. The Lord Steward governs here in the princess's name.`, 1414, 337);
+    SIGN('The Royal Keep', 'The Royal Keep', 1414, 337);
     PR('well', 1394, 326); PR('Flower Box', 1394, 334); PR('Flower Box', 1432, 334);
 
     // ---- the Cathedral of Light (north-east) ----
@@ -243,7 +234,7 @@ export default {
     NPC({ name: 'High Priestess Maren', look: 'Woman', desc: 'High Priestess Maren, in white and gold.', x: 1460, y: 328,
       dlg: talk('The Light keeps all who ask. Come to the altar before me hurt or weary, give five gold, and the Light will heal you.', [ask('Tell me of the Light', 'It burned in the old world before the cities, and it burns here. Some say the elves\' Moonwell is its sister.'), bye], ['Peace be on you, child.']) });
     ACT(1460, 329, BLESSING);
-    SIGN('Cathedral of Light', 'The Cathedral of Light. A blessing heals for a donation: kneel at the altar.', 1461, 337);
+    SIGN('Cathedral of Light', 'The Cathedral of Light', 1461, 337);
 
     // ---- shops: a counter, its keeper behind it, its shop square in front ----
     const shop = ({ x, y, w = 9, h = 7, door = 's', sign, text, who, wares, extra }) => {
@@ -265,24 +256,24 @@ export default {
       if (extra) extra(cx);
     };
     // North of the plaza: the shop row along the east-west side street.
-    shop({ x: 1413, y: 340, door: 's', sign: 'Hammer and Anvil', text: 'Hammer and Anvil: blades and axes.', wares: WARES.weapons,
+    shop({ x: 1413, y: 340, door: 's', sign: 'Hammer and Anvil', text: 'Hammer and Anvil', wares: WARES.weapons,
       who: { name: 'Brann the Smith', look: 'Villager Man', desc: 'Brann the smith, arms like oak boughs.', dlg: SHOP('Steel for sale! Good steel!', 'Swords and axes, forged here. Stand at my counter and open the Shop tab.', [ask('Anything special?', 'The crystal sword: brittle-looking, but it bites. For a price.')]) } });
-    shop({ x: 1423, y: 340, door: 's', sign: 'The Iron Shell', text: 'The Iron Shell: armour for every purse.', wares: WARES.armour,
+    shop({ x: 1423, y: 340, door: 's', sign: 'The Iron Shell', text: 'The Iron Shell', wares: WARES.armour,
       who: { name: 'Gerda the Armourer', look: 'Villager Woman', desc: 'Gerda the armourer, a hammer at her belt.', dlg: SHOP('Armour! Leather and bronze!', 'Leather for the road, bronze for the fight. Stand at my counter and see the Shop tab.') } });
-    shop({ x: 1440, y: 340, door: 's', sign: 'Royal Armoury', text: 'The Royal Armoury: silver, gold and plate.', wares: WARES.royal,
+    shop({ x: 1440, y: 340, door: 's', sign: 'Royal Armoury', text: 'The Royal Armoury', wares: WARES.royal,
       who: { name: 'Armsmaster Doyle', look: 'Guard', desc: 'Armsmaster Doyle, keeper of the Royal Armoury.', dlg: SHOP('', 'Silver, gold and plate, fit for the Royal Guard. Stand at the counter and open the Shop tab, if your purse is deep.') } });
-    shop({ x: 1450, y: 340, door: 's', sign: 'Fletcher\'s', text: 'The Fletcher\'s: bows and arrows.', wares: WARES.bows,
+    shop({ x: 1450, y: 340, door: 's', sign: 'Fletcher\'s', text: 'The Fletcher\'s', wares: WARES.bows,
       who: { name: 'Wynn the Fletcher', look: 'Villager', desc: 'Wynn the fletcher, feathers in her hair.', dlg: SHOP('Bows! Crossbows! Arrows by the quiver!', 'Bows and arrows, straight and true. Stand at my counter and look in the Shop tab.') } });
     // South of the plaza: alchemy, jewels, magic, the general store, the tailor.
-    shop({ x: 1438, y: 368, door: 'n', sign: 'The Bubbling Flask', text: 'The Bubbling Flask: potions and herbs.', wares: WARES.potions,
+    shop({ x: 1438, y: 368, door: 'n', sign: 'The Bubbling Flask', text: 'The Bubbling Flask', wares: WARES.potions,
       who: { name: 'Alchemist Pell', look: 'hermit', desc: 'Pell the alchemist, eyebrows singed.', dlg: SHOP('Potions! Cures for what ails you!', 'Potions for every hurt, and herbs to make your own. Stand at my counter and open the Shop tab.', [PELL_REJUVENATION]) } });
-    shop({ x: 1448, y: 368, door: 'n', sign: 'Gems of the Crown', text: 'Gems of the Crown: jewels and charms.', wares: WARES.jewels,
+    shop({ x: 1448, y: 368, door: 'n', sign: 'Gems of the Crown', text: 'Gems of the Crown', wares: WARES.jewels,
       who: { name: 'Jeweller Ansel', look: 'Villager Man', desc: 'Ansel the jeweller, a loupe in one eye.', dlg: SHOP('', 'Opals, rubies, and the rarer stones from the far shores. Stand at my counter and see the Shop tab.', [ask('Topaz?', 'Wurm-country stone. Summoners swear by it.')]) } });
-    shop({ x: 1413, y: 368, door: 'n', sign: 'Tome and Wand', text: 'Tome and Wand: books, robes and the arcane.', wares: WARES.magic,
+    shop({ x: 1413, y: 368, door: 'n', sign: 'Tome and Wand', text: 'Tome and Wand', wares: WARES.magic,
       who: { name: 'Magister Oswin', look: 'hermit', desc: 'Magister Oswin, robed in faded blue.', dlg: SHOP('', 'Books of spells, robes that hold a charm. Stand at my counter and open the Shop tab.') } });
-    shop({ x: 1424, y: 368, door: 'n', sign: 'Cobb\'s Provisions', text: 'Cobb\'s Provisions: food, bags and tools.', wares: WARES.general,
+    shop({ x: 1424, y: 368, door: 'n', sign: 'Cobb\'s Provisions', text: 'Cobb\'s Provisions', wares: WARES.general,
       who: { name: 'Cobb the Grocer', look: 'cook', desc: 'Cobb the grocer, apron dusted with flour.', dlg: SHOP('Provisions! Everything for the road!', 'Food, water, bags and tools. Stand at my counter and see the Shop tab.') } });
-    shop({ x: 1413, y: 360, door: 'n', sign: 'Needle and Thread', text: 'Needle and Thread: clothes and leather.', wares: WARES.tailor,
+    shop({ x: 1413, y: 360, door: 'n', sign: 'Needle and Thread', text: 'Needle and Thread', wares: WARES.tailor,
       who: { name: 'Corra the Tailor', look: 'Woman', desc: 'Corra the tailor, pins in her sleeve.', dlg: SHOP('', 'Shirts, vests and cloaks, made to last. Stand at my counter and open the Shop tab.') } });
 
     // ---- the bank (east of the plaza) ----
@@ -297,7 +288,7 @@ export default {
     p.file('talk/Royal Teller.greet', 'The Royal Bank of Kingshaven.\nYour gold is safe with the crown.\n');
     PR('statue', 1451, 349); PR('plants', 1451, 354);
     p.dropProp('statue', ...A(1451, 348));
-    SIGN('Royal Bank', 'The Royal Bank: your gold and your deposit box, the same as at every bank.', 1449, 348);
+    SIGN('Royal Bank', 'The Royal Bank', 1449, 348);
 
     // ---- the market (south-west of the plaza) ----
     F(1412, 379, 23, 15, 'o');
@@ -313,7 +304,7 @@ export default {
     stall(1418, 389, { name: 'Herb Wife Agna', look: 'hermit', desc: 'Agna, bundles of herbs drying on her stall.', line: 'Herbs and simples. Stand in front of my stall and look in the Shop tab.' }, ['lavender', 'mandrake', 'mushroom', 'minor potion', 'tiny potion'], 'Herbs! Simples!');
     stall(1426, 389, { name: 'Cloth Seller Rhea', look: 'Woman', desc: 'Rhea, bolts of cloth piled high.', line: 'Cloth for every season. Stand in front of my stall and open the Shop tab.' }, ['cloth shirt', 'sash', 'leather cap', 'leather belt'], '');
     PR('well', 1433, 386);
-    SIGN('Market Square', 'The Market Square: food, cloth, herbs and bargains.', 1413, 380);
+    SIGN('Market Square', 'The Market Square', 1413, 380);
 
     // ---- inns: a counter, beds to sleep in for a few coins ----
     const inn = ({ x, y, w, h, door, name, text, keeper, price }) => {
@@ -333,11 +324,11 @@ export default {
       for (const [tx, ty] of [[x + 2, y + Math.floor(h / 2)], [x + 4, y + Math.floor(h / 2)]]) PR('chair', tx, ty);
       SIGN(name, text, x + dx + 1, top ? y + h : y - 1);
     };
-    inn({ x: 1441, y: 379, w: 18, h: 9, door: ['s', 9], name: 'the Crown and Anchor', text: 'The Crown and Anchor: food, drink and beds (20 gold a night). Walk onto a bed to sleep.', price: 20,
+    inn({ x: 1441, y: 379, w: 18, h: 9, door: ['s', 9], name: 'the Crown and Anchor', text: 'The Crown and Anchor', price: 20,
       keeper: { name: 'Innkeeper Hobb', look: 'innkeeper', desc: 'Hobb, keeper of the Crown and Anchor.', dlg: SHOP('Beds and suppers at the Crown and Anchor!', 'Welcome, welcome! Food and drink at the counter, Shop tab; and a bed\'s twenty gold, just walk onto one.') } });
-    inn({ x: 1462, y: 340, w: 18, h: 9, door: ['s', 9], name: 'the Wayfarer\'s Rest', text: 'The Wayfarer\'s Rest: beds for travellers (15 gold a night). Walk onto a bed to sleep.', price: 15,
+    inn({ x: 1462, y: 340, w: 18, h: 9, door: ['s', 9], name: 'the Wayfarer\'s Rest', text: 'The Wayfarer\'s Rest', price: 15,
       keeper: { name: 'Innkeeper Sela', look: 'Villager Woman', desc: 'Sela, keeper of the Wayfarer\'s Rest.', dlg: SHOP('Rest your feet at the Wayfarer\'s!', 'Come from the east road? You look it. Food at the counter, and a bed\'s fifteen gold: walk onto one.') } });
-    inn({ x: 1392, y: 360, w: 17, h: 9, door: ['n', 8], name: 'the Gilded Griffin', text: 'The Gilded Griffin: the finest beds in Kingshaven (40 gold a night). Walk onto a bed to sleep.', price: 40,
+    inn({ x: 1392, y: 360, w: 17, h: 9, door: ['n', 8], name: 'the Gilded Griffin', text: 'The Gilded Griffin', price: 40,
       keeper: { name: 'Innkeeper Lucan', look: 'innkeeper', desc: 'Lucan, the Griffin\'s elegant host.', dlg: SHOP('', 'The Griffin has the softest beds in the city, forty gold the night. Supper at the counter: open the Shop tab.') } });
 
     // ---- taverns ----
@@ -352,14 +343,14 @@ export default {
       patrons.forEach((who, i) => NPC({ ...who, x: x + 5 + i * 3, y: top ? y + h - 3 : y + 2 }));
       SIGN(name, text, x + Math.floor(w / 2) + 1, top ? y + h : y - 1);
     };
-    tavern({ x: 1413, y: 348, w: 10, h: 8, door: ['e', 4], name: 'The Rusty Tankard', text: 'The Rusty Tankard: ale and talk.',
+    tavern({ x: 1413, y: 348, w: 10, h: 8, door: ['e', 4], name: 'The Rusty Tankard', text: 'The Rusty Tankard',
       keeper: { name: 'Bartender Gus', look: 'Bar Tender', desc: 'Gus, wiping a tankard that will never be clean.', dlg: SHOP('Ale! Cold ale!', 'What\'ll it be? Stand at the bar and open the Shop tab.', [ask('Heard anything?', 'Fellow in the corner swears he\'s been to the Underdark. Buy him an ale and he\'ll tell you twice.')]) },
       patrons: [{ name: 'Old Sailor Wick', look: 'hermit', desc: 'Wick, an old sailor with one ear.', dlg: talk('I sailed with the Seahawk when she was new. Now she\'s a ferry. Now I\'m a drunk. We all come down in the world.', [
         // A rumour of Midnight (through the hollow tree in the old world), no more: it stays a thing to find.
         { label: 'Any tales?', reply: 'Tales? Buy me one more and... no? Fine. Back in the old country there was a tree, an old one, hollow. My grandfather swore a whole city lay on the other side of it, where it\'s always night. Through the tree, mind, not under it. He drank more than I do.' },
         { label: 'Farewell', reply: 'Mind the eels.' },
       ]) }] });
-    tavern({ x: 1392, y: 379, w: 17, h: 8, door: ['n', 8], name: 'The Drunken Dragon', text: 'The Drunken Dragon: the best ale and the worst songs.',
+    tavern({ x: 1392, y: 379, w: 17, h: 8, door: ['n', 8], name: 'The Drunken Dragon', text: 'The Drunken Dragon',
       keeper: { name: 'Bartender Maud', look: 'Villager Woman', desc: 'Maud, who has thrown out bigger than you.', dlg: SHOP('Ale and song at the Dragon!', 'Ale\'s at the bar: open the Shop tab. Sing if you must. Fight and you\'re out.') },
       patrons: [{ name: 'Minstrel Fenwick', look: 'Villager', desc: 'Fenwick the minstrel, lute out of tune.', dlg: talk('Oh, the king had a crown and the crown had a king... no, wait. How does it go?') }, { name: 'Dockhand Bolt', look: 'Villager Man', desc: 'Bolt, a dockhand off his shift.', dlg: talk('Unloaded forty crates of eels today. Forty! Pour me another.') }] });
 
@@ -372,17 +363,17 @@ export default {
     NPC({ name: 'Drillmaster Hask', look: 'Drill Sergeant', desc: 'Drillmaster Hask, voice like a gravel pit.', x: 1471, y: 362, dlg: SHOP('Lift those feet!', 'Strength, speed, toughness: I teach them all. Stand on the mark in front of me and open the Shop tab to train.') });
     MER(1471, 364, WARES.train);
     for (const [x, y] of [[1465, 368], [1469, 371], [1473, 368], [1477, 371]]) p.mob('training dummy', 1, ...A(x, y));
-    SIGN('Barracks', 'The Barracks of the City Watch, and its training yard.', 1472, 360);
+    SIGN('Barracks', 'The Barracks', 1472, 360);
 
     // ---- the guild halls ----
     B(1450, 360, 9, 7, { doors: [['n', 4]] });
     NPC({ name: 'Guildmaster Ingrid', look: 'Woman', desc: 'Ingrid of the Mages\' Guild, ink on her fingers.', x: 1454, y: 364, dlg: talk('The Mages\' Guild. We study what others fear. The Tome and Wand on the plaza sells our books.') });
     PR('candlestick stand', 1452, 362); PR('candlestick stand', 1456, 362);
-    SIGN('Mages\' Guild', 'The Mages\' Guild of Kingshaven.', 1455, 359);
+    SIGN('Mages\' Guild', 'The Mages\' Guild', 1455, 359);
     B(1462, 379, 13, 7, { wall: 'B', doors: [['n', 6]] });
     NPC({ name: 'Guildmaster Torvald', look: 'Villager Man', desc: 'Torvald of the Warriors\' Guild, a greatsword on his back.', x: 1468, y: 383, dlg: talk('The Warriors\' Guild. Strength is earned, never bought... though Hask at the barracks will sell you some.') });
     PR('sword', 1464, 384); PR('sword', 1472, 384);
-    SIGN('Warriors\' Guild', 'The Warriors\' Guild of Kingshaven.', 1469, 378);
+    SIGN('Warriors\' Guild', 'The Warriors\' Guild', 1469, 378);
 
     // ---- Lantern Row: houses to rent (server/Housing.java) ----
     // Two rows of five small houses along a lane, west of the plaza, the
@@ -412,7 +403,7 @@ export default {
           bye,
         ])],
       } });
-    SIGN('Lantern Row', 'Lantern Row: houses to let, by the week. See Landlord Crake.', 1409, 347);
+    SIGN('Lantern Row', 'Lantern Row', 1409, 347);
     p.file('housing', `#Lantern Row's houses (server/Housing.java): id|door x|door y|price|days\n${HOUSES.map((h) => `${h.id}|${h.x}|${h.y}|300|7`).join('\n')}\n`);
     for (const h of HOUSES) p.journalLine(`house_${h.id}`, 'A House on Lantern Row', `I rent house ${h.id} on Lantern Row in Kingshaven (its door is at ${h.x}, ${h.y}). Landlord Crake renews it.`);
 
@@ -454,15 +445,13 @@ export default {
     guard(1438, 395, 'Through this gate: ferries, fish and the Salty Mermaid. The ferries leave from the longest pier.');
     guard(1391, 356);
     guard(1482, 356, undefined, [ask('Watch post', 'Sergeant Wexley\'s post, just outside this gate: north of the road, behind the first houses. She takes on volunteers.')]);
-    const welcome = `${NAME}, the capital. Welcome, traveller.`;
+    const welcome = NAME;
     SIGN(NAME, welcome, 1439, 319);
     SIGN(NAME, welcome, 1434, 398);
     SIGN(NAME, welcome, 1387, 361);
     SIGN(NAME, welcome, 1486, 356);
-    // Signposts where the avenues meet the streets round the plaza, and by
-    // the arrival square (play-test 5: nothing said which way the gates
-    // were). tools/server/fix_kingshaven_signs.py put these on live.
-    for (const [text, x, y] of SIGNPOSTS) SIGN('Signpost', text, x, y);
+    // (No signposts round the plaza: signs are names only, the user,
+    // 2026-10-29; the gate guards give directions.)
 
     // ---- the harbour (outside the south gate) ----
     // The quay along the shore, planked over the beach.
@@ -474,7 +463,7 @@ export default {
     // its captain at the end, ships berthing either side.
     F(1413, 402, 3, 17, '=');
     NPC({ name: 'Captain Rowan', look: 'Villager Man', desc: 'Captain Rowan, the harbour\'s ferry captain, salt-white beard.', x: 1413, y: 417, dlg: captain('kingshaven', 'Ferries to Westsea Harbour and Eastreach! Twenty gold!') });
-    SIGN('Kingshaven Ferry', 'The Kingshaven ferry pier. The Royal Swan sails to Westsea Harbour, the Gannet to Eastreach: buy a ticket from Captain Rowan and wait at the pier\'s end.', 1416, 403);
+    SIGN('Kingshaven Ferry', 'The Kingshaven Ferry', 1416, 403);
     F(1450, 404, 3, 9, '=');
     // Warehouses and the harbour's buildings, east of the gate.
     B(1440, 398, 7, 5, { doors: [['w', 2]] }); PR('Box', 1442, 399); PR('goods', 1444, 400); PR('junk', 1442, 401);
@@ -482,7 +471,7 @@ export default {
     NPC({ name: 'Harbourmaster Quint', look: 'Villager Man', desc: 'Quint the harbourmaster, a ledger under his arm.', x: 1464, y: 401,
       dlg: talk('Every ship here pays the crown its due. The ferries use the longest pier, west along the quay. Captain Rowan sells tickets at its end.', [ask('What\'s down the shore?', 'The fishing quarter. Smells of fish because it is fish.'), bye]) });
     PR('sales list', 1462, 399);
-    SIGN('Harbourmaster', 'The Harbourmaster of Kingshaven.', 1459, 402);
+    SIGN('Harbourmaster', 'The Harbourmaster', 1459, 402);
     // The Salty Mermaid, a dockside tavern.
     B(1469, 398, 12, 8, { doors: [['w', 4]] });
     F(1471, 400, 1, 4, '#');

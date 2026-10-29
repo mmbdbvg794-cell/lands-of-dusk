@@ -35,8 +35,7 @@ export default {
     p.fill(...at(94, 356), 3, 6, '=');
     clearMooring(p, 'westsea');
     p.npc({ name: 'Captain Hale', look: 'Villager Man', desc: 'Captain Hale, salt in his beard and a pipe in his teeth.', ...xy(at(95, 361)), dlg: captain('westsea', 'Ships to the new lands! Aelindor Landing and Eastreach!') });
-    p.sign('Westsea Harbour', 'Westsea Harbour. Ships sail from here to the lands across the sea.', ...at(93, 354));
-    p.sign('To Westsea Harbour', 'South through the forest to Westsea Harbour.', ...at(105, 214));
+    p.sign('Westsea Harbour', 'Westsea Harbour', ...at(93, 354));
     p.set(...at(105, 214), ',');
     clearOldDeck(p);
   },

@@ -136,7 +136,7 @@ export default {
     p.file('defItems/heartstone', itemFile('a fist-sized stone, warm, humming faintly', 7));
 
     p.npc({ name: FAELWEN, look: 'Elf Woman', desc: 'Ranger Faelwen of the Green Wardens, cloaked in leaf-green, a longbow on her back.', x: 463 - O[0], y: 1206 - O[1], dlg: talk(FAELWEN) }); // clear of the tree at 467,1207 (the user, 2026-10-28)
-    p.sign('Green Wardens', 'The Green Wardens. Help for the woods, asked and given.', ...P(468, 1210));
+    p.sign('Green Wardens', 'The Green Wardens', ...P(468, 1210));
 
     for (const [x, y] of [[534, 1269], [545, 1266], [560, 1276], [575, 1280], [584, 1290], [566, 1272]]) p.mob('lake slimer', 1, ...P(x, y));
     for (const [x, y] of [[391, 1254], [399, 1245], [388, 1256], [394, 1258], [400, 1253]]) p.mob('shrine gargoyle', 1, ...P(x, y));

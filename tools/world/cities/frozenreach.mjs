@@ -142,7 +142,7 @@ export default {
     p.file('defItems/frost pelt', itemFile('a frost bear\'s pelt, white and stiff with cold', 7));
 
     p.npc({ name: REEVE, look: 'Villager Man', desc: 'Reeve Osric, sun-browned and sharp-eyed, a shepherd\'s crook in hand.', x: 530 - O[0], y: 14 - O[1], dlg: talk(REEVE) });
-    p.sign('Southfield', 'Southfield village. Visitors welcome; wolves not.', ...P(527, 16));
+    p.sign('Southfield', 'Southfield', ...P(527, 16));
 
     // White wolves at the field's south end.
     for (const [x, y] of [[650, 203], [656, 207], [662, 201], [668, 206], [653, 210], [660, 212]]) p.mob('frost wolf', 1, ...P(x, y));

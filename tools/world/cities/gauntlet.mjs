@@ -131,7 +131,7 @@ export default {
     p.file('defMoveActions/18_978', CLERK);
     // The hall's one way in from the town: only for who came by the rooms.
     p.farWalk(6, 988, { kind: 'flag', flag: 'gauntlet_hall', speaker: '', verb: 'says', says: 'The way into the Champions\' Hall is barred from this side. Its champions are fought in order, from the gauntlet\'s door by the town\'s east wall.' });
-    p.sign('Champions\' Gauntlet', 'The Champions\' Gauntlet: ten champions, ten doors. Step east to enter.', 36 - 6, 965 - 965);
+    p.sign('Champions\' Gauntlet', 'The Champions\' Gauntlet', 36 - 6, 965 - 965);
     p.journalLine('gauntlet_on', TITLE, 'Ten champions guard ten doors in the far-south town, each holding the key to the next. Beat them all and claim the prize from the village vault.');
     p.journalLine('Champion', TITLE, 'I beat all ten champions and the village named me its Champion. The Champion\'s Blade is mine.', true);
     p.journalLine('gauntlet_hall', TITLE, 'I reached the Champions\' Hall. One champion left, then the village vault.');

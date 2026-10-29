@@ -418,7 +418,7 @@ export default {
     p.npc({ name: 'Matron Xalyth', look: 'Dark Elf Matron', desc: 'Matron Xalyth, mistress of Velkarath.', x: 85, y: 45, dlg: MATRON });
     p.prop('candlestick stand', 76, 44); p.prop('candlestick stand', 94, 44);
     p.prop('Dark Elf Guard', 83, 55); p.prop('Dark Elf Guard', 87, 55);
-    p.sign('Palace of House Xalyth', 'The Palace of House Xalyth. Enter on your knees.', 88, 56);
+    p.sign('Palace of House Xalyth', 'The Palace of House Xalyth', 88, 56);
 
     // The Temple of the Spider Queen (north-east): fire and crystal.
     p.building(100, 44, 15, 11, { wall: 's', floor: 'M', doors: [['s', 7]] });
@@ -436,7 +436,7 @@ export default {
     p.prop('chair', 62, 54); p.prop('chair', 64, 54); p.prop('chair', 62, 56); p.prop('chair', 64, 56);
     p.prop('bed', 54, 55); p.prop('bed', 54, 57);
     p.fill(59, 59, 1, 8, 'e');
-    p.sign('The Black Lantern', 'The Black Lantern: mushroom ale and a place to sleep.', 60, 60);
+    p.sign('The Black Lantern', 'The Black Lantern', 60, 60);
 
     // Shops on the south side of the main street, keepers behind counters.
     const store = (x, sign, text, who, wares) => {
@@ -447,9 +447,9 @@ export default {
       p.set(x + 5, 70, 'e'); p.set(x + 5, 71, 'e');
       p.sign(sign, text, x + 6, 71);
     };
-    store(52, 'Szinra\'s Alchemy', 'Szinra\'s Alchemy: potions and deep-cave fungus.',
+    store(52, 'Szinra\'s Alchemy', 'Szinra\'s Alchemy',
       { name: 'Szinra', look: 'Dark Elf Woman', desc: 'Szinra the alchemist, fingers stained green.', dlg: ALCHEMIST }, WARES.alchemy);
-    store(66, 'Ryld\'s Blades', 'Ryld\'s Blades: crossbows and blades.',
+    store(66, 'Ryld\'s Blades', 'Ryld\'s Blades',
       { name: 'Ryld', look: 'Dark Elf Man', desc: 'Ryld the weaponsmith, testing an edge with his thumb.', dlg: SMITH }, WARES.smith);
 
     // The bank (south-east of the plaza).
@@ -457,14 +457,14 @@ export default {
     p.fill(93, 77, 11, 1, 's'); // the counter, wall to wall (the back room was a dead end)
     p.npc({ name: 'Dark Elf Teller', look: null, x: 98, y: 78 });
     p.set(98, 70, 'e'); p.set(98, 71, 'e'); p.set(98, 72, 'e'); p.set(98, 73, 'e');
-    p.sign('Bank of Velkarath', 'The Bank of Velkarath: your gold and your deposit box, the same as at every bank.', 99, 72);
+    p.sign('Bank of Velkarath', 'The Bank of Velkarath', 99, 72);
 
     // The training pit (east).
     p.fill(108, 72, 13, 9, 'e');
     p.npc({ name: 'Weaponmaster Dral', look: 'Dark Elf Man', desc: 'Weaponmaster Dral, scarred and patient.', x: 114, y: 73, dlg: TRAINER });
     p.merchant(114, 75, WARES.train);
     p.mob('training dummy', 1, 110, 79); p.mob('training dummy', 1, 118, 79);
-    p.sign('The Pit', 'The Pit. Talk to Weaponmaster Dral to train.', 115, 71);
+    p.sign('The Pit', 'The Pit', 115, 71);
 
     // Homes along the south street.
     const home = (x, who) => {
@@ -484,7 +484,7 @@ export default {
     for (const [x, y] of [[114, 58], [116, 58], [114, 61], [116, 61]]) p.prop('bunk', x, y);
     p.prop('chest', 121, 61);
     p.fill(118, 63, 1, 4, 'e');
-    p.sign('Barracks', 'The barracks of the city guard.', 119, 64);
+    p.sign('Barracks', 'The Barracks', 119, 64);
 
     // The Fungus Gardens (south): patches anyone may gather from.
     p.fill(62, 90, 19, 8, 'k');
@@ -492,7 +492,7 @@ export default {
     for (const y of [94, 96]) for (let x = 64; x <= 78; x += 2) p.prop('mushroom patch', x, y);
     p.npc({ name: 'Fungus-Tender Ilphra', look: 'Dark Elf Woman', desc: 'Ilphra, who tends the Fungus Gardens.', x: 72, y: 91, dlg: GARDENER });
     p.merchant(72, 92, WARES.garden);
-    p.sign('The Fungus Gardens', 'The Fungus Gardens. Gather with a sickle: Ilphra sells them.', 80, 91);
+    p.sign('The Fungus Gardens', 'The Fungus Gardens', 80, 91);
 
     // The Night Market (south-east of the gardens): two stalls and shoppers.
     p.fill(89, 90, 23, 8, 'k');
@@ -503,7 +503,7 @@ export default {
     };
     stall(92, { name: 'Weaver Zilvra', look: 'Dark Elf Woman', desc: 'Zilvra the weaver, a spool of black silk on her wrist.', dlg: WEAVER }, WARES.weaver);
     stall(101, { name: 'Cook Rhylla', look: 'Dark Elf Woman', desc: 'Rhylla, turning skewers over a bed of coals.', dlg: COOK }, WARES.cook);
-    p.sign('The Night Market', 'The Night Market: leather and silk, and hot food.', 89, 91);
+    p.sign('The Night Market', 'The Night Market', 89, 91);
     for (const [name, x, y] of [['barrel', 90, 96], ['barrel', 91, 96], ['goods', 106, 92], ['food', 107, 92], ['brazier', 104, 95],
       ['Dark Elf Woman', 96, 95], ['Dark Elf Man', 99, 96], ['Dark Elf Man', 108, 94]]) p.prop(name, x, y);
 

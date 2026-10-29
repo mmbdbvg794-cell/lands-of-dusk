@@ -217,7 +217,7 @@ export default {
     c.prop('Flower Box', 15, 10); c.prop('Flower Box', 15, 16);
     c.prop('candlestick stand', 29, 10); c.prop('candlestick stand', 29, 16);
     c.prop('chair', 18, 11); c.prop('chair', 18, 15);
-    c.sign('Elder\'s Hall', 'The Elder\'s Hall. All are welcome to speak with Elder Faelar.', 32, 12);
+    c.sign('Elder\'s Hall', 'The Elder\'s Hall', 32, 12);
 
     // The Moon Shrine (north-east): pale stone, marble, a crystal altar.
     c.building(36, 9, 15, 9, { wall: 'S', floor: 'l', doors: [['w', 4]] });
@@ -226,7 +226,7 @@ export default {
     c.path([[34, 13], [35, 13]]);
     c.npc({ name: 'Priestess Ilsevel', look: 'Elf Priestess', desc: 'Priestess Ilsevel, keeper of the Moonwell.', x: 45, y: 13, dlg: PRIESTESS });
     c.prop('plants', 37, 10); c.prop('plants', 37, 16); c.prop('plants', 49, 10); c.prop('plants', 49, 16);
-    c.sign('Moon Shrine', 'The Moon Shrine. Speak softly.', 34, 12);
+    c.sign('Moon Shrine', 'The Moon Shrine', 34, 12);
 
     // The Silver Leaf inn (west of the plaza), its counter at the back.
     c.building(5, 18, 16, 8, { doors: [['s', 8]] });
@@ -237,7 +237,7 @@ export default {
     c.prop('couch', 7, 23);
     c.prop('bed', 19, 19); c.prop('bed', 19, 21);
     c.path([[13, 26], [13, 26]]);
-    c.sign('The Silver Leaf', 'The Silver Leaf: food, drink and a fire.', 12, 26);
+    c.sign('The Silver Leaf', 'The Silver Leaf', 12, 26);
 
     // The bank (east of the plaza).
     c.building(45, 18, 14, 8, { doors: [['s', 6]] });
@@ -245,7 +245,7 @@ export default {
     c.npc({ name: 'Elven Teller', look: null, x: 51, y: 19 });
     c.prop('plants', 46, 24); c.prop('plants', 57, 24);
     c.path([[51, 26], [51, 26]]);
-    c.sign('Bank of Aelindor', 'The Bank of Aelindor: your gold and your deposit box, the same as at every bank.', 52, 26);
+    c.sign('Bank of Aelindor', 'The Bank of Aelindor', 52, 26);
 
     // Shops south-west and south-east of the plaza, each with its keeper
     // behind a counter and the shop square in front of it.
@@ -258,11 +258,11 @@ export default {
       c.sign(sign, text, x + 5, 28);
       if (plants) { c.prop('plants', x + 1, 30); c.prop('plants', x + 7, 30); }
     };
-    store(5, 'Caelum\'s Bows', 'Caelum\'s Bows: bows, arrows and elven mail.',
+    store(5, 'Caelum\'s Bows', 'Caelum\'s Bows',
       { name: 'Caelum', look: 'Elf', desc: 'Caelum the bowyer, a half-strung bow in his hands.', dlg: BOWYER }, WARES.bows);
-    store(14, 'Sylwen\'s Cloth and Leather', 'Sylwen\'s: cloth and leather, cut to fit.',
+    store(14, 'Sylwen\'s Cloth and Leather', 'Sylwen\'s Cloth and Leather',
       { name: 'Sylwen', look: 'Elf Woman', desc: 'Sylwen the tailor, needle in hand.', dlg: TAILOR }, WARES.cloth);
-    store(43, 'Miriel\'s Herbs', 'Miriel\'s Herbs: potions and herbs.',
+    store(43, 'Miriel\'s Herbs', 'Miriel\'s Herbs',
       { name: 'Miriel', look: 'Elf Woman', desc: 'Miriel the herbalist, smelling of lavender.', dlg: HERBALIST }, WARES.herbs, true);
 
     // The training glade (south-east).
@@ -271,7 +271,7 @@ export default {
     c.npc({ name: 'Master Aerendyl', look: 'Elf', desc: 'Master Aerendyl, who has taught the sword and the spell for three hundred years.', x: 56, y: 30, dlg: TRAINER });
     c.merchant(56, 32, WARES.train);
     c.mob('training dummy', 1, 54, 35); c.mob('training dummy', 1, 59, 35);
-    c.sign('Training Glade', 'The Training Glade. Talk to Master Aerendyl to train.', 57, 28);
+    c.sign('Training Glade', 'The Training Glade', 57, 28);
 
     // Only elves, and friends of Aelindor (the Elder's quest done), may
     // stand at a counter or the training stone to buy (gods walk anywhere).
@@ -314,22 +314,22 @@ export default {
     const noDarkElves = { kind: 'norace', flag: 'darkelf', speaker: 'Elf Guard', verb: 'shouts', says: 'Halt! No dark elf passes the gates of Aelindor. Turn back to your caves.' };
     for (const x of [32, 33, 34]) { p.walk(CITY.x + x, CITY.y + 1, noDarkElves); p.walk(CITY.x + x, CITY.y + 52, noDarkElves); }
     for (const y of [26, 27, 28]) { p.walk(CITY.x + 1, CITY.y + y, noDarkElves); p.walk(CITY.x + 64, CITY.y + y, noDarkElves); }
-    const welcome = 'Aelindor, city of the elves. Be welcome under the trees.';
-    c.sign('Aelindor', `${welcome} North along the road: Aelindor Landing, and the ships.`, 34, -1);
+    const welcome = 'Aelindor';
+    c.sign('Aelindor', welcome, 34, -1);
     c.sign('Aelindor', welcome, 32, 54);
     c.sign('Aelindor', welcome, -1, 26);
     c.sign('Aelindor', welcome, 66, 28);
 
     // The road north to the lake shore, and short roads out of the other gates.
     p.path([[CITY.x + 33, CITY.y - 1], [CITY.x + 33, 14], [21, 14], [21, 8]]);
-    // A signpost where it turns west (play-test 4 walked on north into the trees).
-    p.sign('Aelindor Landing', 'Aelindor Landing, west along the road: ships to Westsea Harbour and Eastreach. Aelindor is back south.', CITY.x + 34, 13);
+    // (No signpost where it turns west: signs are names only, the user,
+    // 2026-10-29; the Elf Guard says the north road goes to the Landing.)
     p.fill(17, 6, 9, 2, '_');
     // Aelindor Landing: a pier into the inlet (which is open sea) and a
     // ferry captain (ferry.mjs); the ferry docks off its end.
     p.fill(18, 0, 3, 5, '=');
     p.npc({ name: 'Captain Liriel', look: 'Elf', desc: 'Captain Liriel, an elf who prefers the sea to the trees.', x: 19, y: 0, dlg: captain('landing', 'Ships to Westsea Harbour and Eastreach! Twenty gold!') });
-    p.sign('Aelindor Landing', 'Aelindor Landing. Ships to Westsea Harbour and Eastreach. Aelindor is south along the road.', 22, 6);
+    p.sign('Aelindor Landing', 'Aelindor Landing', 22, 6);
     clearMooring(p, 'landing');
     c.path([[33, 54], [33, 60]]);
     c.path([[-1, 27], [-12, 27]]);

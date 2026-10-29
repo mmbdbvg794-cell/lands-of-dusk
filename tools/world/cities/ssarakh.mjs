@@ -84,7 +84,7 @@ export default {
     B(1688, 920, 15, 11, { wall: 'W', floor: 'P', doors: [['s', 7]] });
     NPC({ name: 'Chieftain Hesska', look: 'lizardfolk', desc: 'Chieftain Hesska, old and broad, her crest faded to the grey of river stone.', x: 1695, y: 924,
       dlg: dawnward('Chieftain Hesska', HESSKA) });
-    SIGN('Hall of the Brood', 'The Hall of the Brood. Chieftain Hesska hears all who come in peace.', 1697, 932);
+    SIGN('Hall of the Brood', 'The Hall of the Brood', 1697, 932);
 
     // The Shaman's hut: training.
     B(1708, 928, 9, 8, { wall: '#', floor: 'P', doors: [['s', 4]] });
@@ -92,13 +92,13 @@ export default {
     MER(1712, 931, WARES.train);
     NPC({ name: 'Shaman Ithrae', look: 'lizardfolk', desc: 'Shaman Ithrae, hung with bones and river shells, eyes like wet stones.', x: 1714, y: 930,
       dlg: firetown('Shaman Ithrae', dawnward('Shaman Ithrae', teller('The mire teaches, if you sit still long enough. Stand at my mat and I will teach you faster, for a price in what you have learned. Or sit, and ask what the brood remembers.', ['brood', 'dryones', 'wyrms'], 'Patience, warm-blood.'))) });
-    SIGN('Shaman', 'The Shaman\'s hut. Training, for those with the patience of reeds.', 1713, 937);
+    SIGN('Shaman', 'The Shaman\'s Hut', 1713, 937);
 
     // The Mire Bank.
     B(1674, 932, 9, 7, { wall: 'W', floor: 'P', doors: [['e', 3]] });
     WALK([[1683, 935], [1683, 940]]);
     NPC({ name: 'Mire Teller', x: 1677, y: 935 });
-    SIGN('Mire Bank', 'The Mire Bank. Deposit boxes, kept dry.', 1684, 934);
+    SIGN('Mire Bank', 'The Mire Bank', 1684, 934);
 
     // The Basking Rock, a tavern.
     B(1672, 945, 11, 8, { wall: '#', floor: 'P', doors: [['e', 3]] });
@@ -108,7 +108,7 @@ export default {
     MER(1679, 948, WARES.food);
     NPC({ name: 'Innkeeper Gesh', look: 'lizardfolk', desc: 'Innkeeper Gesh, tail curled round a barrel, grinning with a great many teeth.', x: 1678, y: 947,
       dlg: say('Sit, sit. Warm stones by the fire, cold drink in the jar. The Basking Rock never closes; we sleep in shifts.') });
-    SIGN('The Basking Rock', 'The Basking Rock. Food, drink and a warm stone.', 1684, 949);
+    SIGN('The Basking Rock', 'The Basking Rock', 1684, 949);
 
     // The market, on the plaza.
     MER(1690, 938, WARES.food);
@@ -119,12 +119,9 @@ export default {
       dlg: dawnward('Trader Kossk', say('Buy, buy! Blades from the mainland, leathers from the hunters, potions from the shaman\'s own pot. Stand at a stall to see.')) });
 
     // The Brood Stone at the plaza's heart, and braziers for the night.
-    SIGN('Brood Stone', 'The Brood Stone of Ssarakh. Here the brood returns: those who fall in the mire wake here.', HEART[0], HEART[1] - 2);
+    SIGN('Brood Stone', 'The Brood Stone of Ssarakh', HEART[0], HEART[1] - 2);
     for (const [x, y] of [[1688, 936], [1702, 936], [1688, 946], [1702, 946]]) PR('brazier', x, y);
-    // Signposts on the plaza: the way to the harbour and to the Shaman.
-    SIGN('Signpost', 'South: the harbour. The Marsh Wren sails from the pier to Eastreach; tickets from Captain Sskarr.', 1689, 948);
-    SIGN('Signpost', 'East: the Shaman\'s hut, for training, and the marsh where the bog slimes are.', 1704, 940);
-    SIGN('Ssarakh', 'Ssarakh, the Mire City of the lizardfolk. All who come in peace are welcome.', 1691, 960);
+    SIGN('Ssarakh', 'Ssarakh', 1691, 960);
 
     // A few stilt huts along the streets.
     for (const [x, y, side] of [[1668, 935, 's'], [1712, 944, 'n'], [1718, 944, 'n'], [1670, 954, 'n'], [1696, 952, 'w']]) {
@@ -139,7 +136,7 @@ export default {
     // The harbour: Captain Sskarr sells passage to Eastreach.
     NPC({ name: 'Captain Sskarr', look: 'lizardfolk', desc: 'Captain Sskarr, salt-crusted scales and a sailor\'s squint.', x: 1689, y: 989,
       dlg: captain('mire', 'The Marsh Wren sails for Eastreach! Passage at the pier!') });
-    SIGN('Harbour', 'Ssarakh harbour. The Marsh Wren to Eastreach; tickets from Captain Sskarr.', 1691, 988);
+    SIGN('Harbour', 'Ssarakh Harbour', 1691, 988);
 
     // (New lizardmen start in the Hatching Pools, hatchery.mjs, which bring them here.)
   },

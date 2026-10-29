@@ -102,7 +102,7 @@ export default {
     // Guards at the gates.
     p.npc({ name: GUARD, look: 'Guard', desc: 'A guard of Last Water, face wrapped against the sand.', x: 772 - O[0], y: 1532 - O[1], dlg: GUARD_DLG });
     p.prop(GUARD, ...at(798, 1532));
-    p.sign('Last Water', `Last Water. Shade, water, and a bed (${BED_PRICE} gold). Keep the peace.`, ...at(768, 1532));
+    p.sign('Last Water', 'Last Water', ...at(768, 1532));
 
     // Coyotes near the walls; sand worms out in the deep sand.
     for (const [x, y] of [[752, 1518], [755, 1548], [812, 1510], [815, 1546], [790, 1555], [764, 1500]]) p.mob('Coyote', 1, ...at(x, y));
