@@ -94,7 +94,7 @@ const WARES = {
   weapons: ['dagger', 'short sword', 'broad sword', 'long sword', 'iron sword', 'bronze sword', 'war axe', 'heavy axe', 'expert sword', 'burn blade', 'crystal sword'],
   armour: ['leather cap', 'leather jerkin', 'leather sleeves', 'leather leggings', 'leather gloves', 'leather belt', 'bronze helmet', 'bronze suit', 'bronze sleeves', 'bronze leggings', 'bronze gloves', 'bronze belt', 'leather shield'],
   royal: ['silver helmet', 'silver suit', 'silver sleeves', 'silver leggings', 'silver gloves', 'silver belt', 'gold helmet', 'gold suit', 'gold sleeves', 'gold leggings', 'gold gloves', 'gold belt', 'platinum suit', 'steel plate mail', 'bronze shield', 'iron shield'],
-  bows: ['cheap bow', 'wooden crossbow', 'arrow', 'quiver', 'celestial arrow'],
+  bows: ['cheap bow', 'wooden crossbow'],
   potions: ['minor healing potion', 'minor mana potion', 'mana potion', 'healing potion', 'anti-curse potion', 'strong healing potion', 'strong mana potion', 'rejuvenation potion', 'lavender', 'mandrake', 'mushroom'],
   jewels: ['opal', 'ruby', 'topaz', 'aquamarine', 'chaotic amulet', 'pyramid studded necklace', 'goggles', 'crystal lens'],
   magic: ['spell book', 'book', 'wizards cloak', 'wizards gauntlets', 'minor mana potion', 'mana potion', 'crystal lens'],
@@ -263,7 +263,7 @@ export default {
     shop({ x: 1440, y: 340, door: 's', sign: 'Royal Armoury', text: 'The Royal Armoury', wares: WARES.royal,
       who: { name: 'Armsmaster Doyle', look: 'Guard', desc: 'Armsmaster Doyle, keeper of the Royal Armoury.', dlg: SHOP('', 'Silver, gold and plate, fit for the Royal Guard. Stand at the counter and open the Shop tab, if your purse is deep.') } });
     shop({ x: 1450, y: 340, door: 's', sign: 'Fletcher\'s', text: 'The Fletcher\'s', wares: WARES.bows,
-      who: { name: 'Wynn the Fletcher', look: 'Villager', desc: 'Wynn the fletcher, feathers in her hair.', dlg: SHOP('Bows! Crossbows! Arrows by the quiver!', 'Bows and arrows, straight and true. Stand at my counter and look in the Shop tab.') } });
+      who: { name: 'Wynn the Fletcher', look: 'Villager', desc: 'Wynn the fletcher, feathers in her hair.', dlg: SHOP('Bows! Crossbows! Straight and true!', 'Bows, straight and true. Stand at my counter and look in the Shop tab.') } });
     // South of the plaza: alchemy, jewels, magic, the general store, the tailor.
     shop({ x: 1438, y: 368, door: 'n', sign: 'The Bubbling Flask', text: 'The Bubbling Flask', wares: WARES.potions,
       who: { name: 'Alchemist Pell', look: 'hermit', desc: 'Pell the alchemist, eyebrows singed.', dlg: SHOP('Potions! Cures for what ails you!', 'Potions for every hurt, and herbs to make your own. Stand at my counter and open the Shop tab.', [PELL_REJUVENATION]) } });

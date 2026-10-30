@@ -123,7 +123,7 @@ const INNKEEPER = shop(
 );
 const BOWYER = shop(
   ['Elven bows! The finest under the trees!'],
-  'Bows of yew and arrows fletched with owl feathers. Stand at my counter and look in the Shop tab.',
+  'Bows of yew, strung for elven hands. Stand at my counter and look in the Shop tab.',
   [{ label: 'Elven mail?', reply: 'Woven by my sister, link by link. Light as a shirt and it turns a blade. It is on my shelf, if you have the gold.' }],
 );
 const TAILOR = shop(
@@ -161,7 +161,7 @@ export const BASE_PROPS = {
 
 const WARES = {
   inn: ['water', 'ale', 'sandwich', 'apple'],
-  bows: ['cheap bow', 'arrow', 'quiver', 'redwood sword', 'quarter staff', 'elven chain mail'],
+  bows: ['cheap bow', 'redwood sword', 'quarter staff', 'elven chain mail'],
   cloth: ['cloth shirt', 'leather cap', 'leather jerkin', 'leather sleeves', 'leather gloves', 'leather leggings', 'leather belt', 'wizards cloak'],
   herbs: ['minor healing potion', 'minor mana potion', 'mana potion', 'strong healing potion', 'healing potion', 'strong mana potion', 'lavender', 'mandrake', 'wolfsbane', 'mushroom', 'apple'],
   train: ['train:Strength', 'train:Intelligence', 'train:Dexterity', 'train:Constitution', 'train:Wisdom', 'train:HP', 'train:MP', 'train:Dodge', 'train:Regeneration', 'train:Mana Regen', 'train:Spell Power'],

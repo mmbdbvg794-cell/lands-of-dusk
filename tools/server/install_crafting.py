@@ -147,7 +147,6 @@ alchemy|50|brewed blue potion|1 brewed red potion, 1 brewed green potion, 1 azea
 alchemy|70|moonpetal elixir|2 moonpetal, 1 brewed blue potion
 anvil|0|woodcutter's axe|2 bronze bar
 fletching|0|quarter staff|2 oak log
-fletching|0|quiver|1 oak log
 fletching|5|cheap bow|3 oak log
 fletching|15|ash staff|3 ash log
 fletching|20|ash longbow|4 ash log
