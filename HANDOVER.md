@@ -2953,7 +2953,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   Caelum's lines no longer mention arrows (backup arrows-20261030-133829).
   Arrows already in packs stay and sell. Help text: "staves and bows".
 
-## 2026-10-30: Saelin's Armoury (BUILT, tested on scratch; golive pending)
+## 2026-10-30 13:55: Saelin's Armoury, Caelum's new bows (LIVE)
 
 - Caelum's Bows (Aelindor, 449,1252) sells just bows (cheap bow,
   fletching knife). His armour and blades (elven chain mail, leafsilver
@@ -2963,3 +2963,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   Aelindor only). His "Elven mail?" answer points to her.
 - tools/world/cities/aelindorarmoury.mjs, tools/server/split_caelum.py;
   go live with tools/golive_saelin.sh.
+- Caelum also sells two new bows (tools/server/caelum_bows.py): elven bow
+  (mod 240, reach 5, DEX 15, 784 gp) and moonwood longbow (mod 350, reach
+  6, DEX 30, 2,500 gp), below the made-only elderwood bow. golive_saelin.sh
+  ran 13:55 (backups caelum-*, caelum-bows-*, city-saelin's-armoury-*).
