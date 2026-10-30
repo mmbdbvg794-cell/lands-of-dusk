@@ -2934,3 +2934,13 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - tools/world/cities/waterbarrels.mjs; tools/golive_waterbarrels.sh ran
   19:23 (tested on scratch first with botcheck).
 
+
+## 2026-10-30 04:01: the withered grove's arrival, kills kept shown (LIVE)
+
+- Freyan's The Withered Grove sat on "find the grove" with 4 of 4 wolves
+  kept for the next step: the wolves come out to meet you, so the fight
+  happened outside the 5-square arrival box. The grove (gw_grove_1 and
+  sg_return_1, 618,1178) now counts from 8 squares; the journal shows kills
+  kept for a later step ("(blighted wolves slain: 4 of 4 already)",
+  Quests.ahead). Tested on scratch; tools/golive_grove_radius.sh ran
+  04:01 (backups grove-radius/, classes-*).
