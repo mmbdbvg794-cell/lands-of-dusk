@@ -2944,3 +2944,22 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   kept for a later step ("(blighted wolves slain: 4 of 4 already)",
   Quests.ahead). Tested on scratch; tools/golive_grove_radius.sh ran
   04:01 (backups grove-radius/, classes-*).
+
+## 2026-10-30 13:38: arrows and quivers removed (LIVE)
+
+- Bows never needed them; the old "arrow" command needed an item called
+  "bow". tools/server/remove_arrows.py: out of the three shops, the quiver
+  fletching recipe gone, commands/arrow into the backup, Wynn's and
+  Caelum's lines no longer mention arrows (backup arrows-20261030-133829).
+  Arrows already in packs stay and sell. Help text: "staves and bows".
+
+## 2026-10-30: Saelin's Armoury (BUILT, tested on scratch; golive pending)
+
+- Caelum's Bows (Aelindor, 449,1252) sells just bows (cheap bow,
+  fletching knife). His armour and blades (elven chain mail, leafsilver
+  x5, redwood sword, ash and quarter staves, woodcutter's axe) move to his
+  sister Saelin's stall on the meadow west of the south avenue (counter
+  466-468,1255; Saelin 467,1256; shop square 467,1254, elves and friends of
+  Aelindor only). His "Elven mail?" answer points to her.
+- tools/world/cities/aelindorarmoury.mjs, tools/server/split_caelum.py;
+  go live with tools/golive_saelin.sh.
