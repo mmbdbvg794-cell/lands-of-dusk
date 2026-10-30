@@ -163,7 +163,7 @@ const WARES = {
   inn: ['water', 'ale', 'sandwich', 'apple'],
   // Just bows (the user, 2026-10-30): armour and blades are at Saelin's
   // stall (aelindorarmoury.mjs).
-  bows: ['cheap bow', 'fletching knife'],
+  bows: ['cheap bow', 'elven bow', 'moonwood longbow', 'fletching knife'],
   cloth: ['cloth shirt', 'leather cap', 'leather jerkin', 'leather sleeves', 'leather gloves', 'leather leggings', 'leather belt', 'wizards cloak'],
   herbs: ['minor healing potion', 'minor mana potion', 'mana potion', 'strong healing potion', 'healing potion', 'strong mana potion', 'lavender', 'mandrake', 'wolfsbane', 'mushroom', 'apple'],
   train: ['train:Strength', 'train:Intelligence', 'train:Dexterity', 'train:Constitution', 'train:Wisdom', 'train:HP', 'train:MP', 'train:Dodge', 'train:Regeneration', 'train:Mana Regen', 'train:Spell Power'],

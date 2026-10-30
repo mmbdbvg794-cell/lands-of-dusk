@@ -1,5 +1,6 @@
 #!/bin/sh
-# Saelin's Armoury in Aelindor, and Caelum's Bows down to bows
+# Saelin's Armoury in Aelindor, and Caelum's Bows down to bows, with two
+# new ones (tools/server/caelum_bows.py)
 # (tools/world/cities/aelindorarmoury.mjs, tools/server/split_caelum.py;
 # HANDOVER 2026-10-30). Run from this machine:
 #   sh tools/golive_saelin.sh
@@ -21,7 +22,9 @@ scp -q "$T/out/bundle.json" duskserver:/tmp/armoury.json
 scp -q tools/world/install_city.py duskserver:/tmp/install_city.py
 ssh duskserver 'python3 /tmp/install_city.py ~/DuskRPG /tmp/armoury.json'
 ssh duskserver 'python3 - ~/DuskRPG --apply' < tools/server/split_caelum.py
+ssh duskserver 'python3 - ~/DuskRPG --apply' < tools/server/caelum_bows.py
 ssh root@192.168.7.28 'pct exec 303 -- systemctl restart duskserver'
 sleep 10
 ssh root@192.168.7.28 'pct exec 303 -- journalctl -u duskserver --since -20s --no-pager' | grep -E 'Started Server|rror|xception' || true
-echo "Live: Saelin's Armoury open, Caelum sells bows; the game restarted."
+sh tools/deploy.sh | tail -1
+echo "Live: Saelin's Armoury open, Caelum sells bows (two new); the game restarted, the client deployed."
