@@ -414,9 +414,35 @@ public class Quests {
     static synchronized String progress(LivingThing who, String flag) {
         load();
         Goal g = goals.get(flag.toLowerCase());
-        if (g == null) return null;
+        if (g == null) return ahead(who, flag);
         Integer n = counts.get(who.strName.toLowerCase() + "|" + flag.toLowerCase());
         return (n == null ? 0 : n) + " of " + g.count;
+    }
+
+    // On a step before a kill step, the kills already kept for it
+    // (counted()): "blighted wolves slain: 4 of 4 already", so the journal
+    // shows them (the user, 2026-10-30: Freyan's wolves were counted while
+    // the journal still said "find the grove"). Null when there are none.
+    static synchronized String ahead(LivingThing who, String flag) {
+        int u = flag.lastIndexOf('_');
+        if (u < 0) return null;
+        int k;
+        try {
+            k = Integer.parseInt(flag.substring(u + 1));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        String stem = flag.substring(0, u + 1).toLowerCase();
+        StringBuilder b = new StringBuilder();
+        for (int j = k + 1; j <= k + 10; j++) {
+            Goal g = goals.get(stem + j);
+            if (g == null) continue;
+            Integer n = counts.get(who.strName.toLowerCase() + "|" + stem + j);
+            if (n == null || n == 0) continue;
+            if (b.length() > 0) b.append("; ");
+            b.append(g.what).append(": ").append(n).append(" of ").append(g.count).append(" already");
+        }
+        return b.length() == 0 ? null : b.toString();
     }
 
     static String cap(String s) {

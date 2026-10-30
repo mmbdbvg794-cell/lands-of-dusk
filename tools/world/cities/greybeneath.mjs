@@ -88,7 +88,7 @@ export const QUESTS = [
     reward: { gold: 150, exp: 500, items: [], says: '' },
     after: 'The grey is under our roots. I don\'t like it.',
   }, [
-    ['place', '', { x: GROVE[0], y: GROVE[1], radius: 5, what: 'the withered grove', arrive: 'The grey has come back, worse. It runs along the roots, out from the grove\'s heart, and the ground is warm.', journal: 'Go back to the withered grove far east of Aelindor.' }],
+    ['place', '', { x: GROVE[0], y: GROVE[1], radius: 8, what: 'the withered grove', arrive: 'The grey has come back, worse. It runs along the roots, out from the grove\'s heart, and the ground is warm.', journal: 'Go back to the withered grove far east of Aelindor.' }],
     ['kill', '', { mob: 'blighted wolf', count: 5, what: 'blighted wolves slain', journal: 'Kill 5 blighted wolves in the grove.' }],
     ['bring', FAELWEN, { item: ROOT, take: false, says: 'Did you find the worst of it?', answer: 'A grey root', reply: 'Warm. Roots aren\'t warm. It isn\'t spreading through the soil. It\'s coming up. Faelith should see this.', journal: 'Dig a root from the grove\'s heart and bring it to Ranger Faelwen.' }],
     ['bring', FAELITH, { item: ROOT, take: true, says: 'Faelwen sent you? Show me.', answer: 'The grove\'s root', reply: 'Ash and old iron, from below. Not the wind, then. I was wrong, and I am too old to enjoy it.', journal: 'Take the grey root to Loremistress Faelith, by the Moonwell.' }],

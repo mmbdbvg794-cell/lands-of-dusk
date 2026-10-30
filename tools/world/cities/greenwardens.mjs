@@ -108,7 +108,7 @@ const QUESTS = [
     reward: { gold: 200, exp: 450, items: ['elven chain mail'], says: 'Elven chain mail, woven in the Moonwell\'s light. Few outside the city ever wear it.' },
     after: 'The grove is greening again. The Green Wardens count you one of their own.',
   }, [
-    ['place', '', { x: GROVE[0], y: GROVE[1], radius: 5, what: 'the withered grove', arrive: 'The leaves here are grey and curling, the bark split and weeping. The blight is strongest here.', journal: 'Find the withered grove in the woods far east of Aelindor.' }],
+    ['place', '', { x: GROVE[0], y: GROVE[1], radius: 8, what: 'the withered grove', arrive: 'The leaves here are grey and curling, the bark split and weeping. The blight is strongest here.', journal: 'Find the withered grove in the woods far east of Aelindor.' }],
     ['kill', '', { mob: 'blighted wolf', count: 4, what: 'blighted wolves slain', journal: 'Kill 4 blighted wolves in the withered grove.' }],
     ['kill', '', { mob: 'blighted bear', count: 1, what: 'the blighted bear', journal: 'Kill the blighted bear at the heart of the withered grove.' }],
     ['talk', FAELWEN, { says: 'I felt the woods breathe out. Was it you?', answer: 'The blight is ended', reply: 'Then the grove will heal. The Wardens will not forget this.', journal: 'Tell Ranger Faelwen the blight is ended.' }],
