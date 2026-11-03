@@ -1976,6 +1976,7 @@ let pixelSheets = null;
 let paintedSheets = null;
 let paintedNamed = null; // { sheet, index } once loaded, false if unavailable
 let paintedItems = null; // the same, for items by name
+let renderedLooks = null; // look -> SpriteSheet, the 3D-rendered test figures (dusk.rendered)
 // Reads storage listings (see storage.js) while you're next to storage.
 const storageReader = new StorageReader();
 let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
@@ -2070,6 +2071,16 @@ async function applyArt() {
     renderer.named = null;
     renderer.items = null;
   }
+  // Test (localStorage dusk.rendered = 1): 3D-rendered figures from
+  // art/rendered/look<N>.png, one 8-frame strip per players.gif look, used
+  // in place of the painted/pixel figure wherever one exists.
+  if (storage('get', 'dusk.rendered') && renderedLooks === null) {
+    const strips = await Promise.all(LOOKS.map((_, i) => loadSheet(`art/rendered/look${i}.png`).catch(() => null)));
+    renderedLooks = new Map();
+    strips.forEach((sheet, i) => { if (sheet) renderedLooks.set(i, sheet); });
+    if (renderedLooks.size) sysLine(`Rendered figures on for looks ${[...renderedLooks.keys()].join(', ')}.`);
+  }
+  renderer.rendered = renderedLooks?.size ? renderedLooks : null;
   dressSelf();
   // Which tiles are snow, for snow instead of rain (measured once, from
   // the painted tiles: the game's own picture is on another server, which

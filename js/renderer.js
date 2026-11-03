@@ -55,6 +55,7 @@ export class Renderer {
     // Other players' gear (Painted style), by entity ID, from "worn".
     this.others = new Map();
     this.outfits = new Map(); // "image gear" -> strip, the figures painted so far
+    this.rendered = null; // look -> SpriteSheet of 3D-rendered figures (test, js/main.js)
     this.cell = 0;
     this.pending = false;
     new ResizeObserver(() => this.resize()).observe(box);
@@ -243,6 +244,9 @@ export class Renderer {
       const byName = (art && art === this.named && world.walking(e, now) ? art.index.get(`${key} walk`) : undefined) ?? art?.index.get(key);
       if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
+      // Test: 3D-rendered figures (art/rendered/lookN.png) in place of the
+      // painted ones, for the looks that have one. Gear isn't drawn on them.
+      else if (e.type === 0 && this.rendered?.has(e.image)) this.rendered.get(e.image).draw(ctx, step, px, py, c);
       else if (e === self) this.drawDressed(e.image, step, px, py, c, this.gear);
       else if (dressing && e.type === 0 && this.others.has(e.id)) this.drawDressed(e.image, step, px, py, c, this.others.get(e.id));
       else players?.draw(ctx, e.image * 8 + step, px, py, c);
