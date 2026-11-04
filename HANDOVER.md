@@ -3009,7 +3009,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   tests passed). Fixed in bc5ddc5 with wrapped timers, and the test now
   stands in a setTimeout that minds its `this`.
 
-## 2026-11-04: bounty boards in a grid, shown as "Bounty Board"
+## 2026-11-04 16:58: bounty boards in a grid, shown as "Bounty Board" (LIVE)
 
 - Kingshaven's Barrow Skeleton notice stood in the Royal Bank's doorway
   (1449,352) and its sign inside the bank. Every board's three posters and
@@ -3022,4 +3022,4 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   real names stay on the server (quest givers, talk scripts, commands).
 - Live move: tools/server/bounty_grid.py (checks every square is walkable
   and free; dry run: 32 moves); go live with tools/golive_bounty_grid.sh
-  (move, restart, deploy).
+  (move, restart, deploy); ran 16:58 (backup bounty-grid-20261104-165818).
