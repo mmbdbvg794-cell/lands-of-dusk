@@ -1985,6 +1985,7 @@ let paintedSheets = null;
 let paintedNamed = null; // { sheet, index } once loaded, false if unavailable
 let paintedItems = null; // the same, for items by name
 let renderedLooks = null; // look -> SpriteSheet, the 3D-rendered test figures (dusk.rendered)
+let renderedLayers = null; // "look-layer" -> SpriteSheet, their gear layers (art/rendered/layers.json)
 // Reads storage listings (see storage.js) while you're next to storage.
 const storageReader = new StorageReader();
 let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
@@ -2088,7 +2089,19 @@ async function applyArt() {
     strips.forEach((sheet, i) => { if (sheet) renderedLooks.set(i, sheet); });
     if (renderedLooks.size) sysLine(`Rendered figures on for looks ${[...renderedLooks.keys()].join(', ')}.`);
   }
+  // Gear layers for the rendered figures, listed in art/rendered/layers.json:
+  // { "<look>": ["torso", "helm", "weapon", "torso-robe", ...] } -> look<N>-<name>.png
+  if (renderedLooks?.size && renderedLayers === null) {
+    renderedLayers = new Map();
+    const list = await fetch('art/rendered/layers.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+    await Promise.all(Object.entries(list).flatMap(([look, names]) => names.map(async (name) => {
+      const sheet = await loadSheet(`art/rendered/look${look}-${name}.png`).catch(() => null);
+      if (sheet) renderedLayers.set(`${look}-${name}`, sheet);
+    })));
+    if (renderedLayers.size) sysLine(`Rendered gear layers: ${[...renderedLayers.keys()].join(', ')}.`);
+  }
   renderer.rendered = renderedLooks?.size ? renderedLooks : null;
+  renderer.renderedLayers = renderedLayers?.size ? renderedLayers : null;
   dressSelf();
   // Which tiles are snow, for snow instead of rain (measured once, from
   // the painted tiles: the game's own picture is on another server, which

@@ -56,6 +56,8 @@ export class Renderer {
     this.others = new Map();
     this.outfits = new Map(); // "image gear" -> strip, the figures painted so far
     this.rendered = null; // look -> SpriteSheet of 3D-rendered figures (test, js/main.js)
+    this.renderedLayers = null; // "look-slot[-kind]" -> SpriteSheet of a gear layer, rendered white
+    this.tints = new Map(); // gear layer SpriteSheet -> Map(colour -> tinted SpriteSheet)
     this.cell = 0;
     this.pending = false;
     new ResizeObserver(() => this.resize()).observe(box);
@@ -301,21 +303,42 @@ export class Renderer {
     this.ctx.drawImage(strip, step * OUT, 0, OUT, OUT, px, py, c, c);
   }
 
-  // A 3D-rendered figure (test, art/rendered/lookN.png). Strips of 8 frames
-  // are the classic standing/walking pair per direction. Longer strips hold,
-  // per direction (n, s, w, e): standing, then a walk cycle covering two tiles
-  // (left step, right step), played in time with the slide between tiles.
   drawRendered(e, step, px, py, c, now) {
     const sheet = this.rendered.get(e.image);
-    const per = Math.floor(sheet.count / 4); // frames per direction
-    if (per <= 2) { sheet.draw(this.ctx, step, px, py, c); return; }
-    const base = (step >> 1) * per; // step is dir*2 (+1 while walking)
-    const p = e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1;
-    if (p >= 1) { sheet.draw(this.ctx, base, px, py, c); return; } // standing
-    const n = per - 1;
-    // Alternate tiles take the other half of the stride, so the legs alternate.
-    const phase = ((((e.x + e.y) % 2) + 2) % 2 + p) / 2;
-    sheet.draw(this.ctx, base + 1 + Math.min(n - 1, Math.floor(phase * n)), px, py, c);
+    const n = renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
+    sheet.draw(this.ctx, n, px, py, c);
+    // Worn gear (Painted style): white layers rendered on the same body, tinted
+    // with each item's colour and stacked in front-to-back order for the facing.
+    if (!this.renderedLayers) return;
+    const gear = e === this.world.self() ? this.gear : this.others.get(e.id);
+    for (const { sheet: layer, colour } of renderedGearLayers(this.renderedLayers, e.image, gear, step >> 1)) {
+      this.tinted(layer, colour).draw(this.ctx, n, px, py, c);
+    }
+  }
+
+  // A white gear layer multiplied by a colour (alpha kept), made once per colour.
+  tinted(sheet, colour) {
+    if (!colour || typeof document === 'undefined') return sheet;
+    let byColour = this.tints.get(sheet);
+    if (!byColour) { byColour = new Map(); this.tints.set(sheet, byColour); }
+    let out = byColour.get(colour);
+    if (!out) {
+      const cv = document.createElement('canvas');
+      cv.width = sheet.img.naturalWidth ?? sheet.img.width;
+      cv.height = sheet.img.naturalHeight ?? sheet.img.height;
+      const g = cv.getContext('2d');
+      g.drawImage(sheet.img, 0, 0);
+      g.globalCompositeOperation = 'multiply';
+      g.fillStyle = colour;
+      g.fillRect(0, 0, cv.width, cv.height);
+      g.globalCompositeOperation = 'destination-in';
+      g.drawImage(sheet.img, 0, 0);
+      cv.naturalWidth = cv.width; // SpriteSheet reads an image's natural size
+      cv.naturalHeight = cv.height;
+      out = new sheet.constructor(cv, sheet.size);
+      byColour.set(colour, out);
+    }
+    return out;
   }
 
   setOtherGear(id, gear) {
@@ -528,3 +551,36 @@ function drawClaw(ctx, cx, cy, c, { t, dx, dy }) {
 }
 
 export const SWINGS = { slash: drawSwing, stab: drawStab, chop: drawChop, claw: drawClaw };
+
+// The frame of a 3D-rendered figure strip to draw. Strips of 8 frames are the
+// classic standing/walking pair per direction; longer ones hold, per direction
+// (n, s, w, e), standing then a walk cycle over two tiles, played in time with
+// the slide (`progress` 0..1, 1 = arrived). Alternate tiles take the other half
+// of the stride, so the legs alternate.
+export function renderedFrame(count, step, e, progress) {
+  const per = Math.floor(count / 4);
+  if (per <= 2) return step;
+  const base = (step >> 1) * per;
+  if (progress >= 1) return base;
+  const n = per - 1;
+  const phase = ((((e.x + e.y) % 2) + 2) % 2 + progress) / 2;
+  return base + 1 + Math.min(n - 1, Math.floor(phase * n));
+}
+
+// Which rendered gear layers to draw over a figure, in order, for what it wears
+// (gear.js) and the way it faces (0 n, 1 s, 2 w, 3 e). A layer is found as
+// "<look>-<slot>-<kind>" (e.g. 0-torso-robe), else "<look>-<slot>" for any kind.
+// The weapon is in the right hand: behind the body facing north or west.
+export function renderedGearLayers(layers, look, gear, dir) {
+  if (!gear || !layers) return [];
+  const pick = (slot, item, colour) => {
+    if (!item) return null;
+    const sheet = layers.get(`${look}-${slot}-${item.kind}`) ?? layers.get(`${look}-${slot}`);
+    return sheet ? { sheet, colour } : null;
+  };
+  const torso = pick('torso', gear.torso, gear.torso?.colour);
+  const helm = pick('helm', gear.helm, gear.helm?.colour);
+  const weapon = pick('weapon', gear.weapon, gear.weapon?.colour);
+  const order = dir === 0 || dir === 2 ? [weapon, torso, helm] : [torso, helm, weapon];
+  return order.filter(Boolean);
+}
