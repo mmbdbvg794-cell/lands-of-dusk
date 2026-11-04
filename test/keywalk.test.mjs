@@ -81,4 +81,21 @@ function harness(stepResult = () => true) {
   assert.equal(pending(), 0);
 }
 
+
+// The default timers work when called as methods, as a browser's setTimeout
+// doesn't ("Illegal invocation"): stand one in that checks `this`.
+{
+  const real = globalThis.setTimeout;
+  globalThis.setTimeout = function (fn, ms) {
+    if (this !== undefined && this !== globalThis) throw new TypeError('Illegal invocation');
+    return real(fn, ms);
+  };
+  const steps = [];
+  const kw = new KeyWalker((dir) => { steps.push(dir); return true; }, { repeatMs: 1 });
+  try { kw.press('e'); } finally { globalThis.setTimeout = real; }
+  assert.deepEqual(steps, ['e']);
+  assert.notEqual(kw.timer, null);
+  kw.stop();
+}
+
 console.log('keywalk tests passed');

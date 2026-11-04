@@ -10,7 +10,10 @@ export const KEY_REPEAT_MS = 260; // as the on-screen arrows (DPAD_REPEAT_MS)
 
 export class KeyWalker {
   // step(dir): take one step ('n', 's', 'w', 'e'); returns false to stop.
-  constructor(step, { repeatMs = KEY_REPEAT_MS, setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
+  // The timers are wrapped: a browser's setTimeout called as this.setTimer()
+  // throws "Illegal invocation" (it must be called on window), so only the
+  // first step was ever taken.
+  constructor(step, { repeatMs = KEY_REPEAT_MS, setTimer = (fn, ms) => setTimeout(fn, ms), clearTimer = (id) => clearTimeout(id) } = {}) {
     this.step = step;
     this.repeatMs = repeatMs;
     this.setTimer = setTimer;
