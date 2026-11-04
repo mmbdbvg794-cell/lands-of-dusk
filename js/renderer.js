@@ -246,7 +246,7 @@ export class Renderer {
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
       // Test: 3D-rendered figures (art/rendered/lookN.png) in place of the
       // painted ones, for the looks that have one. Gear isn't drawn on them.
-      else if (e.type === 0 && this.rendered?.has(e.image)) this.rendered.get(e.image).draw(ctx, step, px, py, c);
+      else if (e.type === 0 && this.rendered?.has(e.image)) this.drawRendered(e, step, px, py, c, now);
       else if (e === self) this.drawDressed(e.image, step, px, py, c, this.gear);
       else if (dressing && e.type === 0 && this.others.has(e.id)) this.drawDressed(e.image, step, px, py, c, this.others.get(e.id));
       else players?.draw(ctx, e.image * 8 + step, px, py, c);
@@ -299,6 +299,23 @@ export class Renderer {
     this.ctx.imageSmoothingEnabled = true;
     this.ctx.imageSmoothingQuality = 'high';
     this.ctx.drawImage(strip, step * OUT, 0, OUT, OUT, px, py, c, c);
+  }
+
+  // A 3D-rendered figure (test, art/rendered/lookN.png). Strips of 8 frames
+  // are the classic standing/walking pair per direction. Longer strips hold,
+  // per direction (n, s, w, e): standing, then a walk cycle covering two tiles
+  // (left step, right step), played in time with the slide between tiles.
+  drawRendered(e, step, px, py, c, now) {
+    const sheet = this.rendered.get(e.image);
+    const per = Math.floor(sheet.count / 4); // frames per direction
+    if (per <= 2) { sheet.draw(this.ctx, step, px, py, c); return; }
+    const base = (step >> 1) * per; // step is dir*2 (+1 while walking)
+    const p = e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1;
+    if (p >= 1) { sheet.draw(this.ctx, base, px, py, c); return; } // standing
+    const n = per - 1;
+    // Alternate tiles take the other half of the stride, so the legs alternate.
+    const phase = ((((e.x + e.y) % 2) + 2) % 2 + p) / 2;
+    sheet.draw(this.ctx, base + 1 + Math.min(n - 1, Math.floor(phase * n)), px, py, c);
   }
 
   setOtherGear(id, gear) {
