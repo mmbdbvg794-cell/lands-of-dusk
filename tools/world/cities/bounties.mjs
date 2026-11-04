@@ -19,48 +19,52 @@ const TIERS = [
   { gold: 180, exp: 350, label: 'Only for the strongest.' },
 ];
 
-// Each board: `at`, where the sign stands (just east of where the posters
-// first stood, in a row: `at` is the first of them), `posts`, where the
-// three posters stand now (spread out, so their names don't run into each
-// other), and its jobs: [monster, how many, poster name,
-// where they are (for the offer and Journal), a reward override].
+// Each board: `at`, where the first poster first stood (the three stood in
+// a row, the sign just east), `posts` and `sign`, where they stand now: a
+// two-by-two grid with a square between rows and two between columns (the
+// user, 2026-11-04: "Bounty Board" labels side by side ran together), easy
+// top left, middling top right, hard bottom left, the sign bottom right.
+// The client shows every poster as "Bounty Board" (js/world.js
+// displayNames); looking or talking tells which. Its jobs: [monster, how
+// many, poster name, where they are (for the offer and Journal), a reward
+// override]. tools/server/bounty_grid.py moved the live ones.
 const BOARDS = [
-  { id: 'kh', town: 'Kingshaven', at: [1449, 352], posts: [[1443,  352],  [1446,  352],  [1449,  352]], jobs: [
+  { id: 'kh', town: 'Kingshaven', at: [1449, 352], posts: [[1440, 351], [1443, 351], [1440, 353]], sign: [1443, 353], jobs: [
     ['stray hound', 6, 'Stray Hound Bounty', 'in the meadow up the lane beside Farmer Hollin\'s, the last farm west of the north gate'],
     ['highway thief', 5, 'Highway Thief Bounty', 'on the wooded point south-east of the city'],
     ['barrow skeleton', 4, 'Barrow Skeleton Bounty', 'in the hidden valley in the hills north-east'],
   ] },
-  { id: 'ae', town: 'Aelindor', at: [478, 1227], posts: [[472,  1227],  [475,  1227],  [478,  1227]], jobs: [
+  { id: 'ae', town: 'Aelindor', at: [478, 1227], posts: [[474, 1226], [477, 1226], [474, 1228]], sign: [477, 1228], jobs: [
     ['lake slimer', 6, 'Lake Slimer Bounty', 'on the lake shore east of the city'],
     ['shrine gargoyle', 5, 'Shrine Gargoyle Bounty', 'at the shrines on the western mountains\' slopes'],
     ['blighted wolf', 4, 'Blighted Wolf Bounty', 'in the withered grove far to the east'],
   ] },
-  { id: 'vk', town: 'Velkarath', at: [1344, 907], posts: [[1338,  907],  [1341,  907],  [1344,  907]], jobs: [
+  { id: 'vk', town: 'Velkarath', at: [1344, 907], posts: [[1338, 906], [1341, 906], [1338, 908]], sign: [1341, 908], jobs: [
     ['cave slime', 6, 'Cave Slime Bounty', 'in the north-east cavern, up the temple\'s east side'],
     ['duergar soldier', 5, 'Duergar Bounty', 'at the mouth of the north-west cavern, round behind the Black Lantern'],
     ['magma slime', 4, 'Magma Slime Bounty', 'in the Ember Hollow, south down the Pit\'s east side'],
   ] },
-  { id: 'er', town: 'Eastreach', at: [1675, 1305], posts: [[1669,  1305],  [1672,  1305],  [1675,  1305]], jobs: [
+  { id: 'er', town: 'Eastreach', at: [1675, 1305], posts: [[1669, 1304], [1672, 1304], [1669, 1306]], sign: [1672, 1306], jobs: [
     ['Lizard', 8, 'Lizard Bounty', 'in the scrub round the town'],
     ['black dog', 8, 'Black Dog Bounty', 'on the plains round the town'],
     ['Lizard Axeman', 2, 'Lizard Axeman Bounty', 'in the Sand Kings\' country', { gold: 220, exp: 450 }],
   ] },
-  { id: 'cl', town: 'the City of Light', at: [104, 153], posts: [[101,  153],  [104,  153],  [110,  153]], jobs: [
+  { id: 'cl', town: 'the City of Light', at: [104, 153], posts: [[100, 153], [103, 153], [100, 155]], sign: [103, 155], jobs: [
     ['grave thief', 6, 'Grave Thief Bounty', 'in the glade west of the south road'],
     ['robber guard', 5, 'Robber Guard Bounty', 'round the ruined tower east of the south road'],
     ['crypt skeleton', 4, 'Crypt Skeleton Bounty', 'in the crypt under the robbers\' glade'],
   ] },
-  { id: 'mn', town: 'Midnight', at: [444, 83], posts: [[438,  83],  [441,  83],  [444,  83]], jobs: [
+  { id: 'mn', town: 'Midnight', at: [444, 83], posts: [[435, 82], [438, 82], [435, 84]], sign: [438, 84], jobs: [
     ['rock slime', 6, 'Rock Slime Bounty', 'in the upper workings of the Izaru mine'],
     ['mine stalker', 5, 'Mine Stalker Bounty', 'round the old miners\' camp in the Izaru mine'],
     ['cinder slime', 4, 'Cinder Slime Bounty', 'in the deep chamber of the Izaru mine'],
   ] },
-  { id: 'sf', town: 'Southfield', at: [535, 16], posts: [[529,  16],  [532,  16],  [535,  16]], jobs: [
+  { id: 'sf', town: 'Southfield', at: [535, 16], posts: [[530, 16], [533, 16], [530, 18]], sign: [533, 18], jobs: [
     ['frost wolf', 6, 'Frost Wolf Bounty', 'at the south end of the field'],
     ['frost bear', 5, 'Frost Bear Bounty', 'in the frozen land beyond the trees'],
     ['ice skeleton', 4, 'Ice Skeleton Bounty', 'round the dragon\'s lair in the frozen land'],
   ] },
-  { id: 'ss', town: 'Ssarakh', at: [1692, 946], posts: [[1692,  946],  [1698,  946],  [1701,  946]], jobs: [
+  { id: 'ss', town: 'Ssarakh', at: [1692, 946], posts: [[1696, 945], [1699, 945], [1696, 947]], sign: [1699, 947], jobs: [
     ['bog slime', 6, 'Bog Slime Bounty', "in the marsh east and north-east of the city, past the Shaman's hut"],
     ['swamp serpent', 5, 'Swamp Serpent Bounty', 'out in the mire beyond the city'],
     ['dry one raider', 4, 'Dry One Raider Bounty', 'deep in the isles, where the Dry Ones raid', { gold: 240, exp: 500 }],
@@ -127,7 +131,7 @@ export default {
         p.npc({ name: poster, look: LOOK, desc: `A bounty notice on ${b.town}'s bounty board: ${job[1]} ${plural(job[0], job[1])} wanted.`, x: px, y: py, dlg });
         p.quest(quest);
       });
-      p.sign('Bounty Board', `${b.town.replace(/^the /, '')} Bounty Board`, x + 3, y);
+      p.sign('Bounty Board', `${b.town.replace(/^the /, '')} Bounty Board`, ...(b.sign ?? [x + 3, y]));
     }
   },
 };

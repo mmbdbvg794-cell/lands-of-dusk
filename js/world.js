@@ -52,6 +52,8 @@ const DODGE_RE = /^(.+?) dodged (.+)'s attack$/;
 
 // Entity names can carry flag prefixes ("<sleeping>wolf"); combat text uses
 // the bare name.
+const BOUNTY_NOTICE = /^(<[^>]*>)*[A-Z][\w' ]* Bounty$/;
+
 export function bareName(name) {
   return name.replace(/^(<[^>]*>)+/, '');
 }
@@ -394,6 +396,9 @@ export class World {
   // Display names as Dusk.java's getDisplayName() shows them: the first
   // entity with a given name (scanning columns left to right, each top to
   // bottom) is plain "rat", later ones are "1.rat", "2.rat", ...
+  // Bounty notices ("Barrow Skeleton Bounty", tools/world/cities/
+  // bounties.mjs) all show as "Bounty Board": looking or talking tells
+  // which. Their own names stay for the server (quests, typed commands).
   displayNames() {
     const order = [...this.entities.values()].sort((a, b) => a.x - b.x || a.y - b.y);
     const seen = new Map();
@@ -402,7 +407,7 @@ export class World {
       const key = e.name.toLowerCase();
       const n = seen.get(key) ?? 0;
       seen.set(key, n + 1);
-      names.set(e.id, n === 0 ? e.name : `${n}.${e.name}`);
+      names.set(e.id, e.type === 3 && BOUNTY_NOTICE.test(e.name) ? 'Bounty Board' : n === 0 ? e.name : `${n}.${e.name}`);
     }
     return names;
   }

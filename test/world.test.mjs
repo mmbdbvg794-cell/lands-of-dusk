@@ -35,6 +35,16 @@ assert.equal(names.get(2), 'rat');
 assert.equal(names.get(1), '1.rat');
 assert.equal(names.get(3), 'flan');
 
+// Bounty notices (props) all show as "Bounty Board".
+{
+  const b = new World();
+  b.apply(ent(7, 'Barrow Skeleton Bounty', 0, 0, { type: 3 }));
+  b.apply(ent(8, 'Stray Hound Bounty', 1, 0, { type: 3 }));
+  const shown = b.displayNames();
+  assert.equal(shown.get(7), 'Bounty Board');
+  assert.equal(shown.get(8), 'Bounty Board');
+}
+
 // Movement: players turn to face the way they moved; walking out of view
 // drops the entity and reports it.
 w.apply({ op: OP.MOVE_WEST, id: 3 });
