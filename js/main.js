@@ -51,6 +51,7 @@ import { Player } from './player.js';
 import { OP, opName } from './protocol.js';
 import { Renderer, swingStyleFor } from './renderer.js';
 import { loadSheets, loadSheet, SpriteSheet } from './sprites.js';
+import { KeyWalker } from './keywalk.js';
 import { describeRaces } from './races.js';
 import { describeWho } from './who.js';
 import { QuestEditor } from './questeditor.js';
@@ -1445,9 +1446,15 @@ document.addEventListener('keydown', (e) => {
   const dir = typing || inOtherField ? null : ARROWS[e.key] ?? (inInput ? null : WASD[e.key.toLowerCase()]);
   if (dir && canAct()) {
     e.preventDefault();
-    walk(dir);
+    keyWalker.press(dir, e.repeat);
   }
 });
+const keyWalker = new KeyWalker((dir) => canAct() && walk(dir));
+document.addEventListener('keyup', (e) => {
+  const dir = ARROWS[e.key] ?? WASD[e.key.toLowerCase()];
+  if (dir) keyWalker.release(dir);
+});
+window.addEventListener('blur', () => keyWalker.stop());
 
 // One step, from the keys or the on-screen arrows.
 function walk(dir) {
@@ -1456,9 +1463,10 @@ function walk(dir) {
     $('speech').classList.remove('nudge');
     void $('speech').offsetWidth;
     $('speech').classList.add('nudge');
-    return;
+    return false;
   }
   conn.send(dir);
+  return true;
 }
 
 // The on-screen arrows: a press takes a step, and holding keeps walking,
