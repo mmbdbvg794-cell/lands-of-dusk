@@ -1,14 +1,15 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-10-29 UTC. Everything below is live
+State as of 2026-11-04 UTC. Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
 The newest work is at the end of the file; "Open / ideas" sits before
 the 2026-10-28 sections.
 
-**Start here (2026-10-29):** everything built is live, with no staged
-installs waiting for a restart. Commits since 6de0e47 are not pushed yet
-(push only when the user says "push it"; see the memory note on the GitHub
-remote). Rules learnt the hard way:
+**Start here (2026-11-04):** everything built is live, with no staged
+installs waiting for a restart, and pushed to GitHub (last 4374caa; push
+only when the user says "push it", after a gitleaks scan of the new
+commits). The newest work is a test of 3D-rendered player figures, off
+unless localStorage `dusk.rendered` is set (2026-11-03/04 at the end). Rules learnt the hard way:
 - install and restart together;
 - never edit an online player's file (check who.json);
 - no god "save" between an install and the restart;
@@ -2967,3 +2968,43 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   (mod 240, reach 5, DEX 15, 784 gp) and moonwood longbow (mod 350, reach
   6, DEX 30, 2,500 gp), below the made-only elderwood bow. golive_saelin.sh
   ran 13:55 (backups caelum-*, caelum-bows-*, city-saelin's-armoury-*).
+
+## 2026-11-03/04: 3D-rendered player figures, a test (client, deployed)
+
+- Off for everyone unless the browser has localStorage `dusk.rendered` =
+  1 (`localStorage.setItem('dusk.rendered','1')`, reload; removeItem to
+  undo). Then players whose look has a strip are drawn from
+  art/rendered/look<N>.png instead of the painted/pixel figure, and the
+  chat says which looks are on.
+- The art is rendered elsewhere (Claude on the web; the render script,
+  dusk_sprite_render.py, came in /root/phase1_gear.zip) and is **not in the
+  repo**: it is only on duskserver in ~/dusk-browser-client/art/rendered/.
+  deploy.sh neither copies nor deletes that folder, so new strips go
+  straight there with scp and show on reload.
+- Strips: 8 frames = the classic stand/walk pair per direction (n, s, w,
+  e); longer = per direction, standing then a walk cycle over two tiles,
+  in time with the slide, legs alternating on alternate tiles
+  (renderedFrame in js/renderer.js). Now: look0 (human) and look2 (drow),
+  5184x144 = 36 frames, 9 per direction.
+- Gear (Phase 1, 4374caa): art/rendered/layers.json lists white layers per
+  look, `{ "0": ["torso", "helm", "weapon"] }` -> look0-torso.png etc.
+  (a "<slot>-<kind>" layer, e.g. torso-robe, wins over the plain slot).
+  Each is tinted with the item's gear.js colour (cached per colour) and
+  stacked over the body; the weapon goes behind facing north or west
+  (renderedGearLayers). Painted style only: the renderer knows worn gear
+  only there. Tests: test/renderedlayers.test.mjs.
+- Commits c24d81a, 20a92d8, 4374caa.
+
+## 2026-11-04: held movement keys walk evenly (client, deployed)
+
+- js/keywalk.js (KeyWalker): the first key press steps at once, then a
+  step every 260 ms (as the on-screen arrows) while a movement key is
+  held; the keyboard's own repeat is ignored (it paused about half a
+  second on every new key, so turning stalled). A second key held turns on
+  the same beat; letting go, the window losing focus, or a step that can't
+  be taken (not connected, an NPC waiting for an answer: walk() returns
+  false) stops it. Tests: test/keywalk.test.mjs.
+- First cut (6fbc1a8) took one step only: it called the browser's
+  setTimeout as a method ("Illegal invocation"; node doesn't mind, so the
+  tests passed). Fixed in bc5ddc5 with wrapped timers, and the test now
+  stands in a setTimeout that minds its `this`.
