@@ -22,6 +22,15 @@ assert.deepEqual(names(renderedGearLayers(layers, 0, gear, 3)), ['robe:#3a4aa0',
 assert.deepEqual(names(renderedGearLayers(layers, 0, gear, 0)), ['weapon:#b8773a', 'robe:#3a4aa0', 'helm:#a4acb6'], 'facing north: weapon behind');
 assert.deepEqual(names(renderedGearLayers(layers, 0, gear, 2)), ['weapon:#b8773a', 'robe:#3a4aa0', 'helm:#a4acb6'], 'facing west: weapon behind');
 assert.deepEqual(names(renderedGearLayers(layers, 0, { torso: { kind: 'plate', colour: '#a4acb6' } }, 1)), ['torso:#a4acb6'], 'no plate layer: falls back to the generic torso');
+// Leggings: plate -> legs-plate, anything else -> legs-cloth; drawn under the torso.
+const withLegs = new Map([...layers, ['0-legs-plate', L('greaves')], ['0-legs-cloth', L('pants')]]);
+assert.deepEqual(names(renderedGearLayers(withLegs, 0, { ...gear, legs: { colour: '#a4acb6', plate: true } }, 1)),
+  ['greaves:#a4acb6', 'robe:#3a4aa0', 'helm:#a4acb6', 'weapon:#b8773a'], 'plate leggings under the torso');
+assert.deepEqual(names(renderedGearLayers(withLegs, 0, { legs: { colour: '#6a4a2a', plate: false } }, 0)),
+  ['pants:#6a4a2a'], 'leather/cloth leggings');
+assert.deepEqual(names(renderedGearLayers(withLegs, 0, { ...gear, legs: { colour: '#a4acb6', plate: true } }, 2)),
+  ['weapon:#b8773a', 'greaves:#a4acb6', 'robe:#3a4aa0', 'helm:#a4acb6'], 'facing west: weapon behind, then legs');
+assert.deepEqual(renderedGearLayers(layers, 0, { legs: { colour: '#a4acb6', plate: true } }, 1), [], 'no legs layer rendered yet: nothing drawn');
 assert.deepEqual(renderedGearLayers(layers, 2, gear, 1), [], 'a look without layers draws none');
 assert.deepEqual(renderedGearLayers(layers, 0, null, 1), [], 'no gear known: body only');
 assert.deepEqual(renderedGearLayers(layers, 0, {}, 1), [], 'nothing worn: body only');

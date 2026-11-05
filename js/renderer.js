@@ -578,9 +578,11 @@ export function renderedGearLayers(layers, look, gear, dir) {
     const sheet = layers.get(`${look}-${slot}-${item.kind}`) ?? layers.get(`${look}-${slot}`);
     return sheet ? { sheet, colour } : null;
   };
+  // Leggings (gear.js: { colour, plate }): "legs-plate" greaves or "legs-cloth" trousers, under the torso.
+  const legs = pick('legs', gear.legs && { kind: gear.legs.plate ? 'plate' : 'cloth' }, gear.legs?.colour);
   const torso = pick('torso', gear.torso, gear.torso?.colour);
   const helm = pick('helm', gear.helm, gear.helm?.colour);
   const weapon = pick('weapon', gear.weapon, gear.weapon?.colour);
-  const order = dir === 0 || dir === 2 ? [weapon, torso, helm] : [torso, helm, weapon];
+  const order = dir === 0 || dir === 2 ? [weapon, legs, torso, helm] : [legs, torso, helm, weapon];
   return order.filter(Boolean);
 }
