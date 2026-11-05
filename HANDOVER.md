@@ -3027,7 +3027,8 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 
 ## 2026-11-04/05: test gear for the rendered figures
 
-- testhuman (human, look 0) and flan (drow, look 2) carry one weapon of
+- testhuman (human, look 0), flan (drow, look 2) and elrond (elf, look 1)
+  carry one weapon of
   each gear.js kind and one torso armour of each kind, to see the renders:
   wooden crossbow, cheap bow, spear, ash staff, pickaxe (pick), bronze
   shovel, executioner axe, serpent claw, fireball (orb), curved dagger,
@@ -3037,7 +3038,8 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - Both had DEX raised to 15 (crossbow, spear, chain mail need it; the user
   asked for flan's); testhuman's INT too (ash staff). Edited offline, file
   and .backup; backups testhuman-weapons-*, testhuman-torso-*,
-  flan-testgear-20261105-195506.
+  flan-testgear-20261105-195506, elrond-testgear-20261105-211539 (elrond:
+  DEX and INT to 15). There is no look1.png yet, so elves still draw painted.
 - who.json lags a logout by up to ~30 s: flan's file was saved before
   who.json dropped them. Wait for it to update before editing.
 - Only look 0 has gear layers (layers.json `{ "0": ["torso", "helm",
