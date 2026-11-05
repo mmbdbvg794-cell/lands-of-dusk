@@ -1,15 +1,16 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-11-04 UTC. Everything below is live
+State as of 2026-11-05 UTC. Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
 The newest work is at the end of the file; "Open / ideas" sits before
 the 2026-10-28 sections.
 
-**Start here (2026-11-04):** everything built is live, with no staged
-installs waiting for a restart, and pushed to GitHub (last 4374caa; push
-only when the user says "push it", after a gitleaks scan of the new
-commits). The newest work is a test of 3D-rendered player figures, off
-unless localStorage `dusk.rendered` is set (2026-11-03/04 at the end). Rules learnt the hard way:
+**Start here (2026-11-05):** everything built is live, with no staged
+installs waiting for a restart, and pushed to GitHub (push only when the
+user says "push it", after a gitleaks scan of the new commits). The newest
+work is a test of 3D-rendered player figures, off unless localStorage
+`dusk.rendered` is set, with testhuman (human) and flan (drow) carrying
+test gear for it (2026-11-03/05 at the end). Rules learnt the hard way:
 - install and restart together;
 - never edit an online player's file (check who.json);
 - no god "save" between an install and the restart;
@@ -3023,3 +3024,25 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - Live move: tools/server/bounty_grid.py (checks every square is walkable
   and free; dry run: 32 moves); go live with tools/golive_bounty_grid.sh
   (move, restart, deploy); ran 16:58 (backup bounty-grid-20261104-165818).
+
+## 2026-11-04/05: test gear for the rendered figures
+
+- testhuman (human, look 0) and flan (drow, look 2) carry one weapon of
+  each gear.js kind and one torso armour of each kind, to see the renders:
+  wooden crossbow, cheap bow, spear, ash staff, pickaxe (pick), bronze
+  shovel, executioner axe, serpent claw, fireball (orb), curved dagger,
+  iron sword; wizards cloak (cape), heavenly garb (robe), elven chain mail,
+  leather vest, pelt (hide), bronze breastplate (plate), cloth shirt. No
+  item in the game is a hammer/mace/club, so that kind can't be shown.
+- Both had DEX raised to 15 (crossbow, spear, chain mail need it; the user
+  asked for flan's); testhuman's INT too (ash staff). Edited offline, file
+  and .backup; backups testhuman-weapons-*, testhuman-torso-*,
+  flan-testgear-20261105-195506.
+- who.json lags a logout by up to ~30 s: flan's file was saved before
+  who.json dropped them. Wait for it to update before editing.
+- Only look 0 has gear layers (layers.json `{ "0": ["torso", "helm",
+  "weapon"] }`), one shape each, so every weapon/torso draws the same
+  shape, tinted. Per-kind shapes are looked up as look<N>-<slot>-<kind>.png
+  (e.g. look0-weapon-bow, look0-torso-robe; add "weapon-bow" etc. to
+  layers.json). Drow (look 2) gets gear once look2-*.png layers are
+  uploaded and "2" is added to layers.json.
