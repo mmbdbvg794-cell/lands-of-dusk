@@ -3048,3 +3048,12 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   (e.g. look0-weapon-bow, look0-torso-robe; add "weapon-bow" etc. to
   layers.json). Drow (look 2) gets gear once look2-*.png layers are
   uploaded and "2" is added to layers.json.
+
+## 2026-11-10: test gear for testlizard / testlizardfemale
+
+- Same kit as testfemalelf (11 weapons, 7 torsos, leggings) plus leather
+  leggings; DEX/STR/INT raised to 15. Script (scratchpad, copied to
+  duskserver /tmp/give_testgear.py `<names> [--apply]`) skips anyone in
+  who.json and backs up to backups/<name>-testgear-<ts>.
+- testlizard done 15:51 (backup testlizard-testgear-20261110-155104).
+  testlizardfemale was online; a wait loop applies it after logout.
