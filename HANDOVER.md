@@ -3056,7 +3056,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   duskserver /tmp/give_testgear.py `<names> [--apply]`) skips anyone in
   who.json and backs up to backups/<name>-testgear-<ts>.
 - testlizard done 15:51 (backup testlizard-testgear-20261110-155104).
-  testlizardfemale was online; a wait loop applies it after logout.
+  testlizardfemale done 2026-11-10 19:23 after she logged out.
 
 ## 2026-11-10: rendered figures by default in Painted (client, deployed)
 
