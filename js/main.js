@@ -1984,7 +1984,7 @@ let pixelSheets = null;
 let paintedSheets = null;
 let paintedNamed = null; // { sheet, index } once loaded, false if unavailable
 let paintedItems = null; // the same, for items by name
-let renderedLooks = null; // look -> SpriteSheet, the 3D-rendered test figures (dusk.rendered)
+let renderedLooks = null; // look -> SpriteSheet, the 3D-rendered figures (Painted style)
 let renderedLayers = null; // "look-layer" -> SpriteSheet, their gear layers (art/rendered/layers.json)
 // Reads storage listings (see storage.js) while you're next to storage.
 const storageReader = new StorageReader();
@@ -2080,14 +2080,15 @@ async function applyArt() {
     renderer.named = null;
     renderer.items = null;
   }
-  // Test (localStorage dusk.rendered = 1): 3D-rendered figures from
-  // art/rendered/look<N>.png, one 8-frame strip per players.gif look, used
-  // in place of the painted/pixel figure wherever one exists.
-  if (storage('get', 'dusk.rendered') && renderedLooks === null) {
+  // 3D-rendered figures from art/rendered/look<N>.png (one strip per
+  // players.gif look) stand in for the painted ones in the Painted style only,
+  // for every look that has one; Pixel keeps the server's own figures.
+  // (localStorage dusk.rendered = '0' turns them off.)
+  const wantRendered = artStyle === 'painted' && storage('get', 'dusk.rendered') !== '0';
+  if (wantRendered && renderedLooks === null) {
     const strips = await Promise.all(LOOKS.map((_, i) => loadSheet(`art/rendered/look${i}.png`).catch(() => null)));
     renderedLooks = new Map();
     strips.forEach((sheet, i) => { if (sheet) renderedLooks.set(i, sheet); });
-    if (renderedLooks.size) sysLine(`Rendered figures on for looks ${[...renderedLooks.keys()].join(', ')}.`);
   }
   // Gear layers for the rendered figures, listed in art/rendered/layers.json:
   // { "<look>": ["torso", "helm", "weapon", "torso-robe", ...] } -> look<N>-<name>.png
@@ -2098,10 +2099,9 @@ async function applyArt() {
       const sheet = await loadSheet(`art/rendered/look${look}-${name}.png`).catch(() => null);
       if (sheet) renderedLayers.set(`${look}-${name}`, sheet);
     })));
-    if (renderedLayers.size) sysLine(`Rendered gear layers: ${[...renderedLayers.keys()].join(', ')}.`);
   }
-  renderer.rendered = renderedLooks?.size ? renderedLooks : null;
-  renderer.renderedLayers = renderedLayers?.size ? renderedLayers : null;
+  renderer.rendered = wantRendered && renderedLooks?.size ? renderedLooks : null;
+  renderer.renderedLayers = wantRendered && renderedLayers?.size ? renderedLayers : null;
   dressSelf();
   // Which tiles are snow, for snow instead of rain (measured once, from
   // the painted tiles: the game's own picture is on another server, which
