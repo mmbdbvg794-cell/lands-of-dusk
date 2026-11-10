@@ -3057,3 +3057,11 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   who.json and backs up to backups/<name>-testgear-<ts>.
 - testlizard done 15:51 (backup testlizard-testgear-20261110-155104).
   testlizardfemale was online; a wait loop applies it after logout.
+
+## 2026-11-10: rendered figures by default in Painted (client, deployed)
+
+- Painted style draws art/rendered/look<N>.png (and its layers.json gear)
+  for every look that has one, for everyone; Pixel always draws the
+  server's own figures. localStorage `dusk.rendered` = '0' turns them off.
+  The two "Rendered ... on" chat lines were dropped (test diagnostics).
+  Commit 89f8733.
