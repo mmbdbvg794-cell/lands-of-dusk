@@ -3065,3 +3065,12 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   server's own figures. localStorage `dusk.rendered` = '0' turns them off.
   The two "Rendered ... on" chat lines were dropped (test diagnostics).
   Commit 89f8733.
+
+## 2026-11-11: people NPCs as rendered figures (client, deployed)
+
+- Painted style: NPCs (type 4) whose name js/npcoutfits.js npcOutfit()
+  maps to an outfit (guards/knights, wizards, hunters, thieves, bar staff,
+  townsfolk; women by name -> look 8, else look 0) draw as the rendered
+  body plus tinted look<N>-npc-*.png / gear layers (renderer drawNpc,
+  facing from the last step, kept in npcFacings). null -> painted art.
+  Pixel unchanged. Tests: test/npcoutfits.test.mjs.

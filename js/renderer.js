@@ -15,6 +15,7 @@ import { outdoorShare } from './atmosphere.js';
 import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
+import { npcOutfit, npcLayersFor, npcFacing } from './npcoutfits.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
 
@@ -56,6 +57,7 @@ export class Renderer {
     this.others = new Map();
     this.outfits = new Map(); // "image gear" -> strip, the figures painted so far
     this.rendered = null; // look -> SpriteSheet of 3D-rendered figures (Painted style, js/main.js)
+    this.npcFacings = new Map(); // NPC id -> last facing (0 n, 1 s, 2 w, 3 e)
     this.renderedLayers = null; // "look-slot[-kind]" -> SpriteSheet of a gear layer, rendered white
     this.tints = new Map(); // gear layer SpriteSheet -> Map(colour -> tinted SpriteSheet)
     this.cell = 0;
@@ -244,7 +246,11 @@ export class Renderer {
       // Creatures painted by name step with a walking frame of their own
       // ("<name> walk", tools/paintart/bestiary.js), as players do.
       const byName = (art && art === this.named && world.walking(e, now) ? art.index.get(`${key} walk`) : undefined) ?? art?.index.get(key);
-      if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
+      // People NPCs as 3D-rendered figures in their clothes (js/npcoutfits.js), Painted style only
+      // (this.rendered/renderedLayers are null in Pixel).
+      const outfit = e.type === 4 && this.rendered && this.renderedLayers ? npcOutfit(bareName(e.name)) : null;
+      if (outfit && this.rendered.has(outfit.look)) this.drawNpc(e, outfit, px, py, c, now);
+      else if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
       // 3D-rendered figures (art/rendered/lookN.png, Painted style only) in
       // place of the painted ones, for the looks that have one, with their
@@ -302,6 +308,21 @@ export class Renderer {
     this.ctx.imageSmoothingEnabled = true;
     this.ctx.imageSmoothingQuality = 'high';
     this.ctx.drawImage(strip, step * OUT, 0, OUT, OUT, px, py, c, c);
+  }
+
+  // A people NPC: a rendered body plus its outfit's clothing layers, tinted, facing the
+  // way it last stepped and walking in time with its slide.
+  drawNpc(e, outfit, px, py, c, now) {
+    const dir = npcFacing(e, this.npcFacings.get(e.id) ?? 1);
+    this.npcFacings.set(e.id, dir);
+    const step = dir * 2 + (this.world.walking(e, now) ? 1 : 0);
+    const sheet = this.rendered.get(outfit.look);
+    const n = renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
+    sheet.draw(this.ctx, n, px, py, c);
+    for (const [name, colour] of npcLayersFor(outfit, dir)) {
+      const layer = this.renderedLayers.get(`${outfit.look}-${name}`);
+      if (layer) this.tinted(layer, colour).draw(this.ctx, n, px, py, c);
+    }
   }
 
   drawRendered(e, step, px, py, c, now) {
