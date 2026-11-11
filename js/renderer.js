@@ -248,7 +248,7 @@ export class Renderer {
       const byName = (art && art === this.named && world.walking(e, now) ? art.index.get(`${key} walk`) : undefined) ?? art?.index.get(key);
       // People NPCs as 3D-rendered figures in their clothes (js/npcoutfits.js), Painted style only
       // (this.rendered/renderedLayers are null in Pixel).
-      const outfit = e.type === 4 && this.rendered && this.renderedLayers ? npcOutfit(bareName(e.name)) : null;
+      const outfit = this.rendered && this.renderedLayers && this.isPersonNpc(e) ? npcOutfit(bareName(e.name)) : null;
       if (outfit && this.rendered.has(outfit.look)) this.drawNpc(e, outfit, px, py, c, now);
       else if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
@@ -308,6 +308,17 @@ export class Renderer {
     this.ctx.imageSmoothingEnabled = true;
     this.ctx.imageSmoothingQuality = 'high';
     this.ctx.drawImage(strip, step * OUT, 0, OUT, OUT, px, py, c, c);
+  }
+
+  // Whether an entity is an NPC that could be a person: a mob (4), a merchant (2),
+  // or a prop (3) the client already counts as a person (people.json or one who
+  // talks), never a notice, stone or statue.
+  isPersonNpc(e) {
+    if (e.type === 4 || e.type === 2) return true;
+    if (e.type !== 3) return false;
+    const name = bareName(e.name).toLowerCase();
+    if (/bounty|stone|statue|board/.test(name)) return false;
+    return this.propPeople.has(name) || this.talkers.has(name);
   }
 
   // A people NPC: a rendered body plus its outfit's clothing layers, tinted, facing the
