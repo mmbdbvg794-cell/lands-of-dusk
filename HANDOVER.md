@@ -3054,8 +3054,8 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 ## 2026-11-10: test gear for testlizard / testlizardfemale
 
 - Same kit as testfemalelf (11 weapons, 7 torsos, leggings) plus leather
-  leggings; DEX/STR/INT raised to 15. Script (scratchpad, copied to
-  duskserver /tmp/give_testgear.py `<names> [--apply]`) skips anyone in
+  leggings; DEX/STR/INT raised to 15. Script tools/server/give_testgear.py
+  (scp to duskserver, `python3 give_testgear.py <names> [--apply]`) skips anyone in
   who.json and backs up to backups/<name>-testgear-<ts>.
 - testlizard done 15:51 (backup testlizard-testgear-20261110-155104).
   testlizardfemale done 2026-11-10 19:23 after she logged out.
