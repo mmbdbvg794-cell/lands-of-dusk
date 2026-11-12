@@ -19,6 +19,8 @@ const LEATHER = ['#6a4a2a', '#5a3a20', '#3a2a1a', '#7a5a3a'];
 const ROBES = ['#3a4a8a', '#5a2a6a', '#7a2a2a', '#2a5a4a', '#3a3a40'];
 const GREENS = ['#4f6b3a', '#5a6a4a', '#6a5a3a'];
 const APRON = '#d8d0b8';
+// Contrasting trims: ochre, cream, dark brown, madder, indigo, black.
+const TRIMS = ['#c8a040', '#d8d0b8', '#3a2a1a', '#7a2a2a', '#3a4a6a', '#2a2a2a'];
 const WOOD = '#74502c';
 const STEEL = '#c8ccd4';
 // [name pattern, armour colour, trim/cloak colour] as tools/paintart/bestiary.js.
@@ -32,6 +34,19 @@ const ARMOURS = [
   [/guard|warden|soldier/, '#8a8e98', '#c8b060'],
 ];
 
+// A hex colour lighter (f > 1, toward white) or darker (f < 1).
+export function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => Math.round(f >= 1 ? v + (255 - v) * (f - 1) : v * f));
+  return `#${ch.map((v) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('')}`;
+}
+
+// The trim colour for a player's piece of gear: metal edges polished brighter, cloth and
+// leather edges darker.
+export function trimColour(hex, metal) {
+  return hex ? shade(hex, metal ? 1.45 : 0.55) : hex;
+}
+
 export function npcOutfit(name) {
   const n = String(name ?? '').toLowerCase();
   if (!n) return null;
@@ -40,15 +55,19 @@ export function npcOutfit(name) {
   const pick = (list, key) => list[Math.floor(hash(`${n}|${key}`) * list.length)];
   const chance = (key, p) => hash(`${n}|${key}`) < p;
   const layers = [];
-  const wear = (layer, colour) => layers.push([layer, colour]);
+  // A piece and, if given, its trim (edges, hems, plate bands) in a second colour, drawn right after it.
+  const wear = (layer, colour, trim) => {
+    layers.push([layer, colour]);
+    if (trim) layers.push([`${layer}-trim`, trim]);
+  };
 
   if (/skeleton|stalfos|king's-man|grey herald|duergar|thrumgar|ash-sworn/.test(n)) return null;
 
   if (/knight|guard|warden|soldier|gladiator|warlord/.test(n)) {
     const [, metal, trim] = ARMOURS.find(([re]) => re.test(n)) ?? [null, '#8a8e98', '#c8b060'];
-    wear('legs-plate', metal);
-    wear('torso-plate', metal);
-    if (chance('cloak', /knight|warlord/.test(n) ? 0.6 : 0.2)) wear('npc-cloak', trim);
+    wear('legs-plate', metal, trim);
+    wear('torso-plate', metal, trim);
+    if (chance('cloak', /knight|warlord/.test(n) ? 0.6 : 0.2)) wear('npc-cloak', trim, shade(trim, 0.6));
     if (!/gladiator/.test(n)) wear('helm', metal);
     wear(/gladiator/.test(n) ? 'weapon-spear' : 'weapon-sword', STEEL);
     return { look, layers };
@@ -62,11 +81,12 @@ export function npcOutfit(name) {
     return { look, layers };
   }
   if (/hunter/.test(n)) {
-    wear('npc-boots', pick(LEATHER, 'boots'));
+    const leather = pick(LEATHER, 'boots');
+    wear('npc-boots', leather, shade(leather, 0.6));
     wear('legs-cloth', pick(LEATHER, 'legs'));
-    wear('npc-tunic', pick(GREENS, 'tunic'));
+    wear('npc-tunic', pick(GREENS, 'tunic'), leather);
     wear('npc-belt', pick(LEATHER, 'belt'));
-    if (chance('hood', 0.5)) wear('npc-hood', pick(GREENS, 'hood'));
+    if (chance('hood', 0.5)) wear('npc-hood', pick(GREENS, 'hood'), leather);
     wear('weapon-bow', WOOD);
     return { look, layers };
   }
@@ -83,38 +103,38 @@ export function npcOutfit(name) {
   if (/bartender|cashier|innkeeper|cook|baker|barmaid/.test(n)) {
     wear('npc-boots', pick(LEATHER, 'boots'));
     if (female) {
-      wear('npc-dress', pick(CLOTH, 'dress'));
+      wear('npc-dress', pick(CLOTH, 'dress'), pick(TRIMS, 'dresstrim'));
     } else {
       wear('legs-cloth', pick(CLOTH, 'legs'));
-      wear('npc-tunic', pick(CLOTH, 'tunic'));
-      wear('npc-vest', pick(CLOTH, 'vest'));
+      wear('npc-tunic', pick(CLOTH, 'tunic'), pick(TRIMS, 'tunictrim'));
+      wear('npc-vest', pick(CLOTH, 'vest'), pick(TRIMS, 'vesttrim'));
     }
-    wear('npc-apron', APRON);
+    wear('npc-apron', APRON, pick(TRIMS, 'aprontrim'));
     return { look, layers };
   }
   if (/townfolk|townsfolk|villager|peasant|farmer|merchant|invader|stalker|bob|zack|andy|kenny|cecil|boss|bigbum|grinder|clone/.test(n)) {
     if (female) {
       if (chance('boots', 0.5)) wear('npc-boots', pick(LEATHER, 'boots'));
       if (chance('dress', 0.6)) {
-        wear('npc-dress', pick(CLOTH, 'dress'));
+        wear('npc-dress', pick(CLOTH, 'dress'), chance('dresstrim', 0.6) && pick(TRIMS, 'dresstrim'));
       } else {
-        wear('npc-skirt', pick(CLOTH, 'skirt'));
-        wear('npc-tunic', pick(CLOTH, 'tunic'));
+        wear('npc-skirt', pick(CLOTH, 'skirt'), chance('skirttrim', 0.5) && pick(TRIMS, 'skirttrim'));
+        wear('npc-tunic', pick(CLOTH, 'tunic'), chance('tunictrim', 0.5) && pick(TRIMS, 'tunictrim'));
       }
       if (chance('apron', 0.3)) wear('npc-apron', APRON);
       if (chance('belt', 0.3)) wear('npc-belt', pick(LEATHER, 'belt'));
       if (chance('cloak', 0.1)) wear('npc-cloak', pick(CLOTH, 'cloak'));
       if (chance('hood', 0.15)) wear('npc-hood', pick(CLOTH, 'hood'));
-      else if (chance('hat', 0.1)) wear('npc-hat', pick(CLOTH, 'hat'));
+      else if (chance('hat', 0.1)) { const h = pick(CLOTH, 'hat'); wear('npc-hat', h, shade(h, 0.7)); }
     } else {
       if (chance('boots', 0.85)) wear('npc-boots', pick(LEATHER, 'boots'));
       wear('legs-cloth', pick(CLOTH, 'legs'));
-      wear('npc-tunic', pick(CLOTH, 'tunic'));
-      if (chance('vest', 0.25)) wear('npc-vest', pick(CLOTH, 'vest'));
+      wear('npc-tunic', pick(CLOTH, 'tunic'), chance('tunictrim', 0.6) && pick(TRIMS, 'tunictrim'));
+      if (chance('vest', 0.25)) wear('npc-vest', pick(CLOTH, 'vest'), chance('vesttrim', 0.5) && pick(TRIMS, 'vesttrim'));
       if (chance('belt', 0.5)) wear('npc-belt', pick(LEATHER, 'belt'));
       if (chance('cloak', 0.15)) wear('npc-cloak', pick(CLOTH, 'cloak'));
       if (chance('hood', 0.1)) wear('npc-hood', pick(CLOTH, 'hood'));
-      else if (chance('hat', 0.2)) wear('npc-hat', pick(CLOTH, 'hat'));
+      else if (chance('hat', 0.2)) { const h = pick(CLOTH, 'hat'); wear('npc-hat', h, shade(h, 0.7)); }
     }
     return { look, layers };
   }
@@ -126,9 +146,11 @@ export function npcOutfit(name) {
 // is in the right hand: behind the body facing north or west, as for players.
 export function npcLayersFor(outfit, dir) {
   const back = dir === 0;
-  const cloak = outfit.layers.filter(([l]) => l === 'npc-cloak');
-  const weapon = outfit.layers.filter(([l]) => l.startsWith('weapon'));
-  const rest = outfit.layers.filter(([l]) => l !== 'npc-cloak' && !l.startsWith('weapon'));
+  const isCloak = ([l]) => l.startsWith('npc-cloak');
+  const isWeapon = ([l]) => l.startsWith('weapon');
+  const cloak = outfit.layers.filter(isCloak);
+  const weapon = outfit.layers.filter(isWeapon);
+  const rest = outfit.layers.filter((x) => !isCloak(x) && !isWeapon(x));
   const before = [...(dir === 0 || dir === 2 ? weapon : []), ...(back ? [] : cloak)];
   const after = [...(back ? cloak : []), ...(dir === 0 || dir === 2 ? [] : weapon)];
   return [...before, ...rest, ...after];

@@ -35,4 +35,16 @@ assert.deepEqual(renderedGearLayers(layers, 2, gear, 1), [], 'a look without lay
 assert.deepEqual(renderedGearLayers(layers, 0, null, 1), [], 'no gear known: body only');
 assert.deepEqual(renderedGearLayers(layers, 0, {}, 1), [], 'nothing worn: body only');
 
+// Trims: a piece's "-trim" layer right after it, metal brighter, cloth darker.
+import('../js/npcoutfits.js').then(({ trimColour }) => {
+  const withTrim = new Map([...layers, ['0-torso-plate', L('plate')], ['0-torso-plate-trim', L('plate trim')], ['0-torso-trim', L('torso trim')]]);
+  assert.deepEqual(names(renderedGearLayers(withTrim, 0, { torso: { kind: 'plate', colour: '#a4acb6' } }, 1)),
+    ['plate:#a4acb6', `plate trim:${trimColour('#a4acb6', true)}`], 'plate and its brighter trim');
+  assert.deepEqual(names(renderedGearLayers(withTrim, 0, { torso: { kind: 'robe', colour: '#3a4aa0' } }, 1)),
+    ['robe:#3a4aa0'], 'a kind with its own layer but no trim: no trim');
+  assert.deepEqual(names(renderedGearLayers(withTrim, 0, { torso: { kind: 'cloth', colour: '#6a4a2a' } }, 1)),
+    ['torso:#6a4a2a', `torso trim:${trimColour('#6a4a2a', false)}`], 'generic torso with a trim: darker');
+  console.log('rendered layer trim tests passed');
+});
+
 console.log('rendered layer tests passed');

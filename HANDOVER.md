@@ -3075,3 +3075,12 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   body plus tinted look<N>-npc-*.png / gear layers (renderer drawNpc,
   facing from the last step, kept in npcFacings). null -> painted art.
   Pixel unchanged. Tests: test/npcoutfits.test.mjs.
+
+## 2026-11-12: two-tone gear and NPC clothing (client, deployed)
+
+- Optional trim layers art/rendered/look<N>-<layer>-trim.png (listed in
+  layers.json) draw right after their piece in a second colour. Players:
+  renderedGearLayers adds "<key>-trim", coloured trimColour (metal = plate/
+  chain torso, plate legs, helm, weapon: shade 1.45; else 0.55). NPCs:
+  npcoutfits.js wear(layer, colour, trim). Tests in npcoutfits and
+  renderedlayers tests.

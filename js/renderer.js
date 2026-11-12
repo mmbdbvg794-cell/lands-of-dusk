@@ -15,7 +15,7 @@ import { outdoorShare } from './atmosphere.js';
 import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
-import { npcOutfit, npcLayersFor, npcFacing } from './npcoutfits.js';
+import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
 
@@ -606,16 +606,22 @@ export function renderedFrame(count, step, e, progress) {
 // The weapon is in the right hand: behind the body facing north or west.
 export function renderedGearLayers(layers, look, gear, dir) {
   if (!gear || !layers) return [];
-  const pick = (slot, item, colour) => {
-    if (!item) return null;
-    const sheet = layers.get(`${look}-${slot}-${item.kind}`) ?? layers.get(`${look}-${slot}`);
-    return sheet ? { sheet, colour } : null;
+  // A piece's layer, then its trim layer ("<key>-trim": edges, hems, plate bands) if there is
+  // one, tinted a second colour (js/npcoutfits.js trimColour).
+  const pick = (slot, item, colour, metal) => {
+    if (!item) return [];
+    const exact = `${look}-${slot}-${item.kind}`;
+    const key = layers.has(exact) ? exact : `${look}-${slot}`;
+    const sheet = layers.get(key);
+    if (!sheet) return [];
+    const trim = layers.get(`${key}-trim`);
+    return trim ? [{ sheet, colour }, { sheet: trim, colour: trimColour(colour, metal) }] : [{ sheet, colour }];
   };
   // Leggings (gear.js: { colour, plate }): "legs-plate" greaves or "legs-cloth" trousers, under the torso.
-  const legs = pick('legs', gear.legs && { kind: gear.legs.plate ? 'plate' : 'cloth' }, gear.legs?.colour);
-  const torso = pick('torso', gear.torso, gear.torso?.colour);
-  const helm = pick('helm', gear.helm, gear.helm?.colour);
-  const weapon = pick('weapon', gear.weapon, gear.weapon?.colour);
+  const legs = pick('legs', gear.legs && { kind: gear.legs.plate ? 'plate' : 'cloth' }, gear.legs?.colour, !!gear.legs?.plate);
+  const torso = pick('torso', gear.torso, gear.torso?.colour, /plate|chain/.test(gear.torso?.kind ?? ''));
+  const helm = pick('helm', gear.helm, gear.helm?.colour, true);
+  const weapon = pick('weapon', gear.weapon, gear.weapon?.colour, true);
   const order = dir === 0 || dir === 2 ? [weapon, legs, torso, helm] : [legs, torso, helm, weapon];
-  return order.filter(Boolean);
+  return order.flat();
 }

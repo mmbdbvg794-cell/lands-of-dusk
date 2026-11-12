@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { npcOutfit, npcLayersFor, npcFacing } from '../js/npcoutfits.js';
+import { npcOutfit, npcLayersFor, npcFacing, shade, trimColour } from '../js/npcoutfits.js';
 
 const names = (o) => o.layers.map(([l]) => l);
 
@@ -46,5 +46,23 @@ assert.deepEqual(npcLayersFor(o, 2).map(([l]) => l), ['weapon-sword', 'npc-cloak
 assert.equal(npcFacing({ x: 5, y: 5, anim: { fx: 5, fy: 6 } }), 0, 'stepped north');
 assert.equal(npcFacing({ x: 4, y: 5, anim: { fx: 5, fy: 5 } }), 2, 'stepped west');
 assert.equal(npcFacing({ x: 5, y: 5, anim: null }, 3), 3, 'standing: keeps its last facing');
+
+// Trims: right after their piece, in a second colour.
+const g = npcOutfit('kingshaven guard');
+const iPlate = names(g).indexOf('torso-plate');
+assert.equal(names(g)[iPlate + 1], 'torso-plate-trim', 'plate trim follows the plate');
+assert.equal(g.layers[iPlate + 1][1], '#c8b060', 'guard: gold trim');
+assert.ok(!names(npcOutfit('townfolk 1')).includes(undefined), 'no empty layers');
+for (let i = 0; i < 40; i++) {
+  const o = npcOutfit(`townfolk ${i}`);
+  for (const [l, c] of o.layers) assert.match(c, /^#[0-9a-f]{6}$/, `${l} has a colour`);
+  for (const [k, [l]] of o.layers.entries()) if (l.endsWith('-trim')) assert.equal(o.layers[k - 1][0], l.slice(0, -5), 'trim right after its piece');
+}
+const caped = { look: 0, layers: [['torso-plate', 'a'], ['torso-plate-trim', 'b'], ['npc-cloak', 'c'], ['npc-cloak-trim', 'd']] };
+assert.deepEqual(npcLayersFor(caped, 1).map(([l]) => l), ['npc-cloak', 'npc-cloak-trim', 'torso-plate', 'torso-plate-trim'], 'cloak and its trim together');
+assert.equal(shade('#808080', 0.5), '#404040');
+assert.equal(shade('#808080', 2), '#ffffff');
+assert.equal(trimColour('#a4acb6', true), shade('#a4acb6', 1.45), 'metal: brighter edges');
+assert.equal(trimColour('#6a4a2a', false), shade('#6a4a2a', 0.55), 'leather: darker edges');
 
 console.log('npc outfit tests passed');
