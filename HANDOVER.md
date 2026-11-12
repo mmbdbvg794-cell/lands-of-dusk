@@ -1,16 +1,18 @@
 # Handover: the Dusk browser client and server work
 
-State as of 2026-11-05 UTC. Everything below is live
+State as of 2026-11-12 UTC. Everything below is live
 unless it says otherwise; the repo is committed (last: see git log).
 The newest work is at the end of the file; "Open / ideas" sits before
 the 2026-10-28 sections.
 
-**Start here (2026-11-05):** everything built is live, with no staged
-installs waiting for a restart, and pushed to GitHub (push only when the
-user says "push it", after a gitleaks scan of the new commits). The newest
-work is a test of 3D-rendered player figures, off unless localStorage
-`dusk.rendered` is set, with testhuman (human) and flan (drow) carrying
-test gear for it (2026-11-03/05 at the end). Rules learnt the hard way:
+**Start here (2026-11-12):** everything built is live, with no staged
+installs waiting for a restart, and pushed to GitHub (6b8f11d; push only
+when the user says "push it", after a gitleaks scan of the new commits).
+The newest work is 3D-rendered figures in the Painted style, on for
+everyone by default (Pixel keeps the server's figures): players with gear
+layers, people NPCs in name-chosen outfits, and two-tone trim layers
+(2026-11-03 to 11-12 at the end). The art is made elsewhere and lives only
+on duskserver in art/rendered/ (not in the repo). Rules learnt the hard way:
 - install and restart together;
 - never edit an online player's file (check who.json);
 - no god "save" between an install and the restart;
@@ -3075,6 +3077,16 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   body plus tinted look<N>-npc-*.png / gear layers (renderer drawNpc,
   facing from the last step, kept in npcFacings). null -> painted art.
   Pixel unchanged. Tests: test/npcoutfits.test.mjs.
+- First cut drew only mobs (type 4), so the user saw no change in town:
+  villagers, bar staff, gate guards are props (3) and shops merchants (2).
+- Checked in headless Chrome on scratch: botcheck now stands at 528,14
+  (the village with the Villagers, a Merchant, Reeve Osric). For that
+  test the client is served locally from a folder of symlinks to the repo
+  plus art/rendered copied from duskserver (it isn't in the repo);
+  chromium_headless_shell-1243 works with playwright-core.
+- Not handled: named people (Captain Brann, Elder Faelar, Reeve Osric ...)
+  get no outfit and keep painted art; elf and dark-elf NPCs get the human
+  bodies (look 0/8), not their own race's. Offered, not asked for yet.
 
 ## 2026-11-12: two-tone gear and NPC clothing (client, deployed)
 
@@ -3084,3 +3096,6 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   chain torso, plate legs, helm, weapon: shade 1.45; else 0.55). NPCs:
   npcoutfits.js wear(layer, colour, trim). Tests in npcoutfits and
   renderedlayers tests.
+- Trims exist for looks 0 (13) and 8 (16); helms, weapons, robes and the
+  man's cloth torso have none and stay one colour. Not looked at in a
+  browser yet. Pushed 2026-11-12 (a2e3117..6b8f11d).
