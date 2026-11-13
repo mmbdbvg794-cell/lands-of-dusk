@@ -65,4 +65,15 @@ assert.equal(shade('#808080', 2), '#ffffff');
 assert.equal(trimColour('#a4acb6', true), shade('#a4acb6', 1.45), 'metal: brighter edges');
 assert.equal(trimColour('#6a4a2a', false), shade('#6a4a2a', 0.55), 'leather: darker edges');
 
+// The peasant pieces turn up among townsfolk: men in shirts, trousers and shoes, women in bodices.
+const men = Array.from({ length: 60 }, (_, i) => names(npcOutfit(`townfolk man ${i}`)));
+const women = Array.from({ length: 60 }, (_, i) => names(npcOutfit(`townfolk woman ${i}`)));
+for (const l of ['npc-shirt', 'npc-trousers', 'npc-shoes', 'npc-tunic', 'legs-cloth', 'npc-boots']) assert.ok(men.some((m) => m.includes(l)), `some men wear ${l}`);
+assert.ok(women.some((w) => w.includes('npc-shirt')), 'some women wear a bodice');
+for (const m of men) {
+  assert.ok(!(m.includes('npc-shirt') && m.includes('npc-tunic')), 'never a shirt and a tunic');
+  assert.ok(!(m.includes('npc-trousers') && m.includes('legs-cloth')), 'never two pairs of legs');
+  assert.ok(!(m.includes('npc-shoes') && m.includes('npc-boots')), 'never shoes and boots');
+}
+
 console.log('npc outfit tests passed');

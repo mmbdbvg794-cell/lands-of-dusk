@@ -119,7 +119,9 @@ export function npcOutfit(name) {
         wear('npc-dress', pick(CLOTH, 'dress'), chance('dresstrim', 0.6) && pick(TRIMS, 'dresstrim'));
       } else {
         wear('npc-skirt', pick(CLOTH, 'skirt'), chance('skirttrim', 0.5) && pick(TRIMS, 'skirttrim'));
-        wear('npc-tunic', pick(CLOTH, 'tunic'), chance('tunictrim', 0.5) && pick(TRIMS, 'tunictrim'));
+        // a laced bodice (npc-shirt on the women's body) or a tunic
+        const top = chance('bodice', 0.5) ? 'npc-shirt' : 'npc-tunic';
+        wear(top, pick(CLOTH, 'tunic'), chance('tunictrim', 0.5) && pick(TRIMS, 'tunictrim'));
       }
       if (chance('apron', 0.3)) wear('npc-apron', APRON);
       if (chance('belt', 0.3)) wear('npc-belt', pick(LEATHER, 'belt'));
@@ -127,9 +129,10 @@ export function npcOutfit(name) {
       if (chance('hood', 0.15)) wear('npc-hood', pick(CLOTH, 'hood'));
       else if (chance('hat', 0.1)) { const h = pick(CLOTH, 'hat'); wear('npc-hat', h, shade(h, 0.7)); }
     } else {
-      if (chance('boots', 0.85)) wear('npc-boots', pick(LEATHER, 'boots'));
-      wear('legs-cloth', pick(CLOTH, 'legs'));
-      wear('npc-tunic', pick(CLOTH, 'tunic'), chance('tunictrim', 0.6) && pick(TRIMS, 'tunictrim'));
+      if (chance('boots', 0.85)) wear(chance('shoes', 0.4) ? 'npc-shoes' : 'npc-boots', pick(LEATHER, 'boots'));
+      // baggy peasant trousers or plain hose; a shirt or a tunic
+      wear(chance('trousers', 0.5) ? 'npc-trousers' : 'legs-cloth', pick(CLOTH, 'legs'));
+      wear(chance('shirt', 0.4) ? 'npc-shirt' : 'npc-tunic', pick(CLOTH, 'tunic'), chance('tunictrim', 0.6) && pick(TRIMS, 'tunictrim'));
       if (chance('vest', 0.25)) wear('npc-vest', pick(CLOTH, 'vest'), chance('vesttrim', 0.5) && pick(TRIMS, 'vesttrim'));
       if (chance('belt', 0.5)) wear('npc-belt', pick(LEATHER, 'belt'));
       if (chance('cloak', 0.15)) wear('npc-cloak', pick(CLOTH, 'cloak'));
