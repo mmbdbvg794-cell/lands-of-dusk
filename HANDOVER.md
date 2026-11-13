@@ -3100,12 +3100,12 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   man's cloth torso have none and stay one colour. Not looked at in a
   browser yet. Pushed 2026-11-12 (a2e3117..6b8f11d).
 
-## 2026-11-13: peasant pieces for townsfolk (committed, NOT deployed)
+## 2026-11-13: peasant pieces for townsfolk (client, deployed)
 
 - npcoutfits.js townsfolk: men npc-shoes (40% of booted), npc-trousers
   (50%, else legs-cloth), npc-shirt (40%, else npc-tunic); women in a skirt
   get npc-shirt as a bodice (50%). Tests added.
 - Held back: look<N>-npc-shirt/-trousers/-shoes(-trim).png were not on
   duskserver nor in layers.json (checked 2026-11-13), and a missing layer
-  draws nothing (bare legs/torso). Deploy once they're uploaded and listed
-  in layers.json (the client loads only what that file lists).
+  draws nothing (bare legs/torso). The user uploaded them 15:38 (48 files,
+  all looks, listed in layers.json); deployed after.
