@@ -3110,7 +3110,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   draws nothing (bare legs/torso). The user uploaded them 15:38 (48 files,
   all looks, listed in layers.json); deployed after.
 
-## 2026-11-13: Wayfarer's Rest door (map + sign written, restart pending)
+## 2026-11-13 15:47: Wayfarer's Rest door (LIVE, restart from host)
 
 - Kingshaven's Wayfarer's Rest (1462-1479 x 340-348) had its door in the
   south wall at 1471,348, against the barracks' north wall (y 349): no
@@ -3118,4 +3118,4 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   wall 1471,340 (street, y 337-339), walled the old one, moved the sign
   1472,349 -> 1472,339 (backup backups/wayfarer-door-20261113-154556).
   capital.mjs: inn() takes `layout` so the door moved without the room
-  changing (door ['n', 9], layout 's'). Needs a restart to show.
+  changing (door ['n', 9], layout 's'). Restarted 15:47.
