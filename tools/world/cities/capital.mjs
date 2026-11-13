@@ -307,10 +307,12 @@ export default {
     SIGN('Market Square', 'The Market Square', 1413, 380);
 
     // ---- inns: a counter, beds to sleep in for a few coins ----
-    const inn = ({ x, y, w, h, door, name, text, keeper, price }) => {
+    // `layout` ('s' or 'n', default the door's side) sets where the counter and beds go,
+    // so a door can move without rearranging the room.
+    const inn = ({ x, y, w, h, door, layout, name, text, keeper, price }) => {
       const dx = Math.floor(w / 2);
       B(x, y, w, h, { doors: [door] });
-      const top = door[0] === 's';
+      const top = (layout ?? door[0]) === 's';
       const cy = top ? y + 2 : y + h - 3;
       F(x + 2, cy, 5, 1, '#');
       NPC({ ...keeper, x: x + 4, y: top ? y + 1 : y + h - 2 });
@@ -322,11 +324,13 @@ export default {
         ACT(bx, by + (top ? -1 : 1), innBed(name, price));
       }
       for (const [tx, ty] of [[x + 2, y + Math.floor(h / 2)], [x + 4, y + Math.floor(h / 2)]]) PR('chair', tx, ty);
-      SIGN(name, text, x + dx + 1, top ? y + h : y - 1);
+      SIGN(name, text, x + dx + 1, door[0] === 's' ? y + h : y - 1);
     };
     inn({ x: 1441, y: 379, w: 18, h: 9, door: ['s', 9], name: 'the Crown and Anchor', text: 'The Crown and Anchor', price: 20,
       keeper: { name: 'Innkeeper Hobb', look: 'innkeeper', desc: 'Hobb, keeper of the Crown and Anchor.', dlg: SHOP('Beds and suppers at the Crown and Anchor!', 'Welcome, welcome! Food and drink at the counter, Shop tab; and a bed\'s twenty gold, just walk onto one.') } });
-    inn({ x: 1462, y: 340, w: 18, h: 9, door: ['s', 9], name: 'the Wayfarer\'s Rest', text: 'The Wayfarer\'s Rest', price: 15,
+    // Door on the street (north): the barracks' north wall (y 349) backs onto its south wall
+    // (tools/server/fix_wayfarer_door.py moved it on the live map, 2026-11-13).
+    inn({ x: 1462, y: 340, w: 18, h: 9, door: ['n', 9], layout: 's', name: 'the Wayfarer\'s Rest', text: 'The Wayfarer\'s Rest', price: 15,
       keeper: { name: 'Innkeeper Sela', look: 'Villager Woman', desc: 'Sela, keeper of the Wayfarer\'s Rest.', dlg: SHOP('Rest your feet at the Wayfarer\'s!', 'Come from the east road? You look it. Food at the counter, and a bed\'s fifteen gold: walk onto one.') } });
     inn({ x: 1392, y: 360, w: 17, h: 9, door: ['n', 8], name: 'the Gilded Griffin', text: 'The Gilded Griffin', price: 40,
       keeper: { name: 'Innkeeper Lucan', look: 'innkeeper', desc: 'Lucan, the Griffin\'s elegant host.', dlg: SHOP('', 'The Griffin has the softest beds in the city, forty gold the night. Supper at the counter: open the Shop tab.') } });
