@@ -11,7 +11,8 @@ assert.ok(new Set(crowd).size >= 4, 'townsfolk vary');
 // Families.
 const guard = npcOutfit('kingshaven guard');
 assert.equal(guard.look, 0);
-for (const l of ['legs-plate', 'torso-plate', 'helm', 'weapon-sword']) assert.ok(names(guard).includes(l), `guard wears ${l}`);
+for (const l of ['legs-cloth', 'npc-boots', 'torso-chain', 'helm']) assert.ok(names(guard).includes(l), `guard wears ${l}`);
+for (const l of ['legs-plate', 'torso-plate', 'helm', 'weapon-sword']) assert.ok(names(npcOutfit('kingshaven knight')).includes(l), `knight wears ${l}`);
 assert.ok(names(npcOutfit('gladiator')).includes('weapon-spear'), 'gladiator: spear');
 assert.ok(!names(npcOutfit('gladiator')).includes('helm'), 'gladiator: bare-headed');
 assert.equal(npcOutfit('dark knight').layers.find(([l]) => l === 'torso-plate')[1], '#2a2830', 'dark knight: dark armour');
@@ -48,10 +49,13 @@ assert.equal(npcFacing({ x: 4, y: 5, anim: { fx: 5, fy: 5 } }), 2, 'stepped west
 assert.equal(npcFacing({ x: 5, y: 5, anim: null }, 3), 3, 'standing: keeps its last facing');
 
 // Trims: right after their piece, in a second colour.
-const g = npcOutfit('kingshaven guard');
+const g = npcOutfit('kingshaven knight');
 const iPlate = names(g).indexOf('torso-plate');
 assert.equal(names(g)[iPlate + 1], 'torso-plate-trim', 'plate trim follows the plate');
-assert.equal(g.layers[iPlate + 1][1], '#c8b060', 'guard: gold trim');
+assert.notEqual(g.layers[iPlate + 1][1], '#c8b060', 'plain plate: steel trim, not gold');
+const gm = npcOutfit('kingshaven guard');
+const iMail = names(gm).indexOf('torso-chain');
+assert.equal(names(gm)[iMail + 1], 'torso-chain-trim', 'mail trim follows the mail');
 assert.ok(!names(npcOutfit('townfolk 1')).includes(undefined), 'no empty layers');
 for (let i = 0; i < 40; i++) {
   const o = npcOutfit(`townfolk ${i}`);
@@ -75,5 +79,16 @@ for (const m of men) {
   assert.ok(!(m.includes('npc-trousers') && m.includes('legs-cloth')), 'never two pairs of legs');
   assert.ok(!(m.includes('npc-shoes') && m.includes('npc-boots')), 'never shoes and boots');
 }
+
+// Guards wear mail, not plate; boots always go on over the trousers.
+const gate = names(npcOutfit('Gate Guard'));
+assert.ok(gate.includes('torso-chain') && !gate.includes('torso-plate'), 'guards wear mail');
+for (const who of ['Gate Guard', 'hunter Bob', 'townfolk man 3', 'Innkeeper Sela', 'Bartender Gus']) {
+  const ls = names(npcOutfit(who));
+  const legs = ls.findIndex((l) => l.startsWith('legs-') || l === 'npc-trousers');
+  const boots = ls.findIndex((l) => l === 'npc-boots' || l === 'npc-shoes');
+  if (legs >= 0 && boots >= 0) assert.ok(boots > legs, `${who}: boots drawn over the trousers`);
+}
+assert.ok(names(npcOutfit('Sir Knight')).includes('torso-plate'), 'knights keep plate');
 
 console.log('npc outfit tests passed');

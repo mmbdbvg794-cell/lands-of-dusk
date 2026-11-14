@@ -31,7 +31,6 @@ const ARMOURS = [
   [/hell/, '#6a1410', '#f08030'],
   [/forest/, '#3a5a2a', '#a08a50'],
   [/gladiator/, '#a8743a', '#f0d080'],
-  [/guard|warden|soldier/, '#8a8e98', '#c8b060'],
 ];
 
 // A hex colour lighter (f > 1, toward white) or darker (f < 1).
@@ -47,7 +46,22 @@ export function trimColour(hex, metal) {
   return hex ? shade(hex, metal ? 1.45 : 0.55) : hex;
 }
 
+// Boots and shoes go on over the trousers (their tops would otherwise poke out either side of
+// the leg), and under everything else; each trim stays right after its piece.
+function layerRank(layer) {
+  const base = layer.replace(/-trim$/, '');
+  if (base.startsWith('legs-') || base === 'npc-trousers') return 0;
+  if (base === 'npc-boots' || base === 'npc-shoes') return 1;
+  return 2;
+}
+
 export function npcOutfit(name) {
+  const outfit = dressNpc(name);
+  if (outfit) outfit.layers = outfit.layers.map((l, i) => [l, i]).sort((a, b) => layerRank(a[0][0]) - layerRank(b[0][0]) || a[1] - b[1]).map(([l]) => l);
+  return outfit;
+}
+
+function dressNpc(name) {
   const n = String(name ?? '').toLowerCase();
   if (!n) return null;
   const female = FEMALE.test(n);
@@ -63,8 +77,19 @@ export function npcOutfit(name) {
 
   if (/skeleton|stalfos|king's-man|grey herald|duergar|thrumgar|ash-sworn/.test(n)) return null;
 
-  if (/knight|guard|warden|soldier|gladiator|warlord/.test(n)) {
-    const [, metal, trim] = ARMOURS.find(([re]) => re.test(n)) ?? [null, '#8a8e98', '#c8b060'];
+  if (/guard|warden|soldier/.test(n) && !/knight|warlord|gladiator/.test(n)) {
+    // town guards: a mail coat with a leather border over plain trousers and boots, and a helm
+    const leather = pick(LEATHER, 'boots');
+    wear('legs-cloth', pick(['#3a3a40', '#4a3a2a', '#2e3440'], 'legs'));
+    wear('npc-boots', leather);
+    wear('torso-chain', '#8a8e98', shade(leather, 0.7));
+    wear('helm', '#8a8e98');
+    wear(chance('spear', 0.4) ? 'weapon-spear' : 'weapon-sword', STEEL);
+    return { look, layers };
+  }
+  if (/knight|gladiator|warlord/.test(n)) {
+    // plate: named armours keep their colours; plain steel gets brighter steel edges, not gold
+    const [, metal, trim] = ARMOURS.find(([re]) => re.test(n)) ?? [null, '#8a8e98', shade('#8a8e98', 1.35)];
     wear('legs-plate', metal, trim);
     wear('torso-plate', metal, trim);
     if (chance('cloak', /knight|warlord/.test(n) ? 0.6 : 0.2)) wear('npc-cloak', trim, shade(trim, 0.6));

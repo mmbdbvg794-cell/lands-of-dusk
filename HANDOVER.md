@@ -3119,3 +3119,13 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   1472,349 -> 1472,339 (backup backups/wayfarer-door-20261113-154556).
   capital.mjs: inn() takes `layout` so the door moved without the room
   changing (door ['n', 9], layout 's'). Restarted 15:47.
+
+## 2026-11-14: boots over trousers, guards in mail (client, deployed)
+
+- npcOutfit now wraps dressNpc and sorts layers by layerRank: legs and
+  trousers first, then boots/shoes, then the rest (trims stay after their
+  piece; stable otherwise).
+- Guards/wardens/soldiers (not knights/warlords/gladiators): legs-cloth,
+  boots, torso-chain (#8a8e98, leather-dark trim), helm, sword or spear
+  (40%). Knights etc. keep plate; plain plate's trim is shade(steel,1.35),
+  not gold (the guard ARMOURS entry is gone).
