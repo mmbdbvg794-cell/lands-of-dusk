@@ -80,7 +80,8 @@ function dressNpc(name) {
   if (/guard|warden|soldier/.test(n) && !/knight|warlord|gladiator/.test(n)) {
     // town guards: a mail coat with a leather border over plain trousers and boots, and a helm
     const leather = pick(LEATHER, 'boots');
-    wear('legs-cloth', pick(['#26262a', '#2e3440', '#1e2a22'], 'legs'));   // dark: brown vanished on wooden floors
+    // breeches, not the wide generated trousers (which flare into cones); dark so they don't vanish on wooden floors
+    wear('npc-trousers', pick(['#26262a', '#2e3440', '#1e2a22'], 'legs'));
     wear('npc-boots', leather);
     wear('torso-chain', '#8a8e98', shade(leather, 0.7));
     wear('helm', '#8a8e98');

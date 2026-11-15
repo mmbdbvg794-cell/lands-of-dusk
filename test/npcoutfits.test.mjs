@@ -11,7 +11,7 @@ assert.ok(new Set(crowd).size >= 4, 'townsfolk vary');
 // Families.
 const guard = npcOutfit('kingshaven guard');
 assert.equal(guard.look, 0);
-for (const l of ['legs-cloth', 'npc-boots', 'torso-chain', 'helm']) assert.ok(names(guard).includes(l), `guard wears ${l}`);
+for (const l of ['npc-trousers', 'npc-boots', 'torso-chain', 'helm']) assert.ok(names(guard).includes(l), `guard wears ${l}`);
 for (const l of ['legs-plate', 'torso-plate', 'helm', 'weapon-sword']) assert.ok(names(npcOutfit('kingshaven knight')).includes(l), `knight wears ${l}`);
 assert.ok(names(npcOutfit('gladiator')).includes('weapon-spear'), 'gladiator: spear');
 assert.ok(!names(npcOutfit('gladiator')).includes('helm'), 'gladiator: bare-headed');
