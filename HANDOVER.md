@@ -3125,7 +3125,8 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - npcOutfit now wraps dressNpc and sorts layers by layerRank: legs and
   trousers first, then boots/shoes, then the rest (trims stay after their
   piece; stable otherwise).
-- Guards/wardens/soldiers (not knights/warlords/gladiators): legs-cloth,
+- Guards/wardens/soldiers (not knights/warlords/gladiators): dark legs-cloth
+  (charcoal, slate, dark green; brown vanished on wooden floors, 11-15),
   boots, torso-chain (#8a8e98, leather-dark trim), helm, sword or spear
   (40%). Knights etc. keep plate; plain plate's trim is shade(steel,1.35),
   not gold (the guard ARMOURS entry is gone).
