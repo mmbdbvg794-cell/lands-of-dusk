@@ -87,6 +87,16 @@ export function helmKind(n) {
   return 'helm';
 }
 
+// Footwear and hoods (Painted style's rendered figures draw them as boots, shoes and a
+// hood). The engine has no feet slot: boots and sandals are worn on the legs ("air
+// boots", "sandals of the giants"), hoods on the skull, so they're told apart by name.
+export function footwearKind(n) {
+  if (/\b(jack)?boots?\b/.test(n)) return 'boots';
+  if (/\b(shoes?|sandals?|slippers?|moccasins?)\b/.test(n)) return 'shoes';
+  return null;
+}
+export const isHood = (n) => /\b(hood|cowl)s?\b/.test(n);
+
 // Magic weapons glow; the colour is the blade's own.
 const GLOWS = /fire|flame|burn|hell|ice|crystal|lightning|energy|light|solar|holy|god|chaos|dark|soul|excalibur|masamune|emerald|nova|orb/;
 
@@ -100,14 +110,18 @@ export function gearFromEquipment(equipment = {}) {
   const t = name('torso');
   if (t) gear.torso = { kind: torsoKind(t), colour: material(t) };
   const h = name('skull');
-  if (h) gear.helm = { kind: helmKind(h), colour: material(h) };
+  if (h && isHood(h)) gear.hood = { colour: material(h) };
+  else if (h) gear.helm = { kind: helmKind(h), colour: material(h) };
   const a = name('arms');
   if (a) {
     if (/shield|field|crest/.test(a)) gear.shield = { colour: material(a) };
     else gear.sleeves = material(a);
   }
   const l = name('legs');
-  if (l) gear.legs = { colour: material(l), plate: !/leather|pants|cloth/.test(l) };
+  if (l && footwearKind(l)) gear.feet = { kind: footwearKind(l), colour: material(l) };
+  else if (l) gear.legs = { colour: material(l), plate: !/leather|pants|cloth/.test(l) };
+  const f = name('feet'); // (no such slot today; ready if the engine gets one)
+  if (f && footwearKind(f)) gear.feet = { kind: footwearKind(f), colour: material(f) };
   const g = name('hands');
   if (g) gear.hands = material(g);
   const b = name('waist');

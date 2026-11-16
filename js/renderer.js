@@ -620,8 +620,13 @@ export function renderedGearLayers(layers, look, gear, dir) {
   // Leggings (gear.js: { colour, plate }): "legs-plate" greaves or "legs-cloth" trousers, under the torso.
   const legs = pick('legs', gear.legs && { kind: gear.legs.plate ? 'plate' : 'cloth' }, gear.legs?.colour, !!gear.legs?.plate);
   const torso = pick('torso', gear.torso, gear.torso?.colour, /plate|chain/.test(gear.torso?.kind ?? ''));
+  // Boots/shoes (gear.js feet: { kind, colour }) over the trousers (their tops would otherwise
+  // poke out beside the leg) and under the torso; a hood under any helm. The layers are the
+  // NPC ones (look<N>-npc-boots/-shoes/-hood), drawn on players the same way.
+  const feet = pick('npc', gear.feet, gear.feet?.colour, false);
+  const hood = pick('npc', gear.hood && { kind: 'hood' }, gear.hood?.colour, false);
   const helm = pick('helm', gear.helm, gear.helm?.colour, true);
   const weapon = pick('weapon', gear.weapon, gear.weapon?.colour, true);
-  const order = dir === 0 || dir === 2 ? [weapon, legs, torso, helm] : [legs, torso, helm, weapon];
+  const order = dir === 0 || dir === 2 ? [weapon, legs, feet, torso, hood, helm] : [legs, feet, torso, hood, helm, weapon];
   return order.flat();
 }

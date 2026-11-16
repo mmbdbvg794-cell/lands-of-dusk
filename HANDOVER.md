@@ -3131,3 +3131,18 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   boots, torso-chain (#8a8e98, leather-dark trim), helm, sword or spear
   (40%). Knights etc. keep plate; plain plate's trim is shade(steel,1.35),
   not gold (the guard ARMOURS entry is gone).
+
+## 2026-11-16: players wear boots, shoes, hoods (client, deployed)
+
+- Client only: the engine has 9 slots (Equipment.java: wield arms legs
+  torso waist neck skull eyes hands), no feet. Footwear is worn on the legs
+  (defItems "air boots", "sandals of the giants": kind legs), hoods on the
+  skull (no hood/cowl item exists yet). gear.js footwearKind/isHood turn a
+  legs/skull item into gear.feet {kind boots|shoes} / gear.hood instead of
+  legs/helm (a 'feet' slot is read too if the engine ever gets one).
+- renderedGearLayers draws look<N>-npc-boots/-shoes/-hood (+ -trim, cloth
+  trim colour): legs, feet, torso, hood, helm; weapon as before.
+  figure.js (painted figure) falls back to the old look (feet colour on the
+  legs, a hood as a cap). Tests: renderedlayers.test.mjs.
+- No item defs changed. A real feet slot would mean an Equipment patch,
+  the save format, opcode 7 (9 slots), the client's slot lists: not done.

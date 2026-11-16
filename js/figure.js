@@ -314,11 +314,11 @@ export function paintPerson(ctx, look, dir, walking, gear = {}) {
   const cape = gear.torso?.kind === 'cape' ? gear.torso.colour : null;
   const top = armour?.colour ?? look.top;
   const sleeves = gear.sleeves ?? top;
-  const legs = gear.legs?.colour ?? look.legs;
+  const legs = gear.legs?.colour ?? gear.feet?.colour ?? look.legs;
   const trim = gear.belt ?? (armour ? shade(armour.colour, 0.7) : look.trim);
   const hand = gear.hands ?? look.skin;
   const plated = look.style === 'armour' || armour?.kind === 'plate' || armour?.kind === 'chain';
-  const helm = gear.helm ?? (look.helm ? { kind: look.horns ? 'horned' : 'helm', colour: look.helm } : null);
+  const helm = gear.helm ?? (gear.hood ? { kind: 'cap', colour: gear.hood.colour } : null) ?? (look.helm ? { kind: look.horns ? 'horned' : 'helm', colour: look.helm } : null);
   const bodyW = (side ? 26 : 36) - (look.slim ? 4 : 0);
   const bx = cx - bodyW / 2;
   const capePath = () => {

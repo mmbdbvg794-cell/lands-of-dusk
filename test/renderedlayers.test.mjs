@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { renderedFrame, renderedGearLayers } from '../js/renderer.js';
+import { gearFromEquipment } from '../js/gear.js';
 
 // Frames: 36-frame strips = 9 per direction (standing + 8-frame walk cycle).
 assert.equal(renderedFrame(36, 2, { x: 4, y: 4 }, 1), 9, 'standing, facing south');
@@ -46,5 +47,25 @@ import('../js/npcoutfits.js').then(({ trimColour }) => {
     ['torso:#6a4a2a', `torso trim:${trimColour('#6a4a2a', false)}`], 'generic torso with a trim: darker');
   console.log('rendered layer trim tests passed');
 });
+
+// Boots, shoes and hoods on players (the NPC layers): boots over the trousers and under the
+// torso; a hood under a helm; nothing for what's only in the backpack.
+const wardrobe = new Map([...layers, ['0-legs-cloth', L('pants')], ['0-npc-boots', L('boots')], ['0-npc-boots-trim', L('boots trim')],
+  ['0-npc-shoes', L('shoes')], ['0-npc-hood', L('hood')]]);
+const kit = (equipment, dir = 1) => renderedGearLayers(wardrobe, 0, gearFromEquipment(equipment), dir).map((l) => l.sheet.name);
+// The engine has no feet slot: boots are worn on the legs. (A 'feet' slot is read too, if one appears.)
+assert.deepEqual(kit({ legs: { name: 'leather boots' } }), ['boots', 'boots trim'], 'leather boots worn on the legs: boots, no trousers');
+assert.deepEqual(kit({ legs: { name: 'leather pants' }, feet: { name: 'leather boots' }, torso: { name: 'iron suit' } }),
+  ['pants', 'boots', 'boots trim', 'torso'], 'boots after the legs, before the torso');
+assert.deepEqual(kit({ legs: { name: 'sandals of the giants' } }), ['shoes'], 'sandals: shoes');
+assert.deepEqual(kit({ legs: { name: 'Air_Boots' } }), ['boots', 'boots trim'], 'case and underscores');
+assert.deepEqual(kit({ skull: { name: 'grey hood' } }), ['hood'], 'a hood on the head');
+assert.deepEqual(kit({ skull: { name: 'leather cap' } }), ['helm'], 'a cap is still a helm');
+assert.deepEqual(names(renderedGearLayers(wardrobe, 0, { hood: { colour: '#808080' }, helm: { kind: 'helm', colour: '#a4acb6' } }, 1)),
+  ['hood:#808080', 'helm:#a4acb6'], 'hood under the helm');
+assert.deepEqual(kit({ legs: { name: 'leather boots' }, skull: { name: 'grey hood' }, wield: { name: 'iron sword' } }, 0),
+  ['weapon', 'boots', 'boots trim', 'hood'], 'facing north: weapon behind');
+assert.deepEqual(kit({}), [], 'boots only in the backpack: nothing drawn');
+assert.equal(gearFromEquipment({ legs: { name: 'leather boots' } }).legs, undefined, 'boots are not trousers');
 
 console.log('rendered layer tests passed');
