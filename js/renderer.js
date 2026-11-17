@@ -16,7 +16,8 @@ import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
-import { creatureSheetFor, creatureFallback, hovers, hoverMs } from './creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir } from './creatures.js';
+import { layoutLabels } from './labels.js';
 import { loadSheet } from './sprites.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
@@ -60,6 +61,9 @@ export class Renderer {
     this.outfits = new Map(); // "image gear" -> strip, the figures painted so far
     this.rendered = null; // look -> SpriteSheet of 3D-rendered figures (Painted style, js/main.js)
     this.npcFacings = new Map(); // NPC id -> last facing (0 n, 1 s, 2 w, 3 e)
+    this.creatureSides = new Map(); // creature id -> last side shown (2 w, 3 e), for side-on creatures
+    this.labelWidths = new Map(); // label text -> width at the current font
+    this.labelFont = '';
     this.creatures = null; // creature -> SpriteSheet of art/rendered/mob-<creature>.png, loaded lazily (Painted style, js/main.js)
     this.renderedLayers = null; // "look-slot[-kind]" -> SpriteSheet of a gear layer, rendered white
     this.tints = new Map(); // gear layer SpriteSheet -> Map(colour -> tinted SpriteSheet)
@@ -273,16 +277,28 @@ export class Renderer {
       if (names && !e.hideName && (kind === 'object' ? this.showObjectNames : kind === 'npc' ? this.showNpcNames : this.showNames)) {
         // Java: black copy one pixel left, then white, baseline on the
         // tile's bottom edge.
-        labels.push([names.get(e.id) ?? e.name, px, py]);
+        labels.push([names.get(e.id) ?? e.name, px, py, e === me]);
       }
     }
     // Names last, over everything (trees included).
     const nudge = Math.max(1, Math.round(c / 36));
-    for (const [label, px, py] of labels) {
-      ctx.fillStyle = '#000';
-      ctx.fillText(label, px - nudge, py + c - nudge);
-      ctx.fillStyle = '#fff';
-      ctx.fillText(label, px, py + c - nudge);
+    // Painted style: labels that would overprint each other are stacked apart, and
+    // same-named neighbours share one ("black dog x3") (js/labels.js). Pixel as Java.
+    const placed = dressing && labels.length > 1 ? this.layoutNameLabels(labels, c, nudge, fontPx) : null;
+    if (placed) {
+      for (const { text, x, y } of placed) {
+        ctx.fillStyle = '#000';
+        ctx.fillText(text, x - nudge, y);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(text, x, y);
+      }
+    } else {
+      for (const [label, px, py] of labels) {
+        ctx.fillStyle = '#000';
+        ctx.fillText(label, px - nudge, py + c - nudge);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(label, px, py + c - nudge);
+      }
     }
 
     this.drawEffects(where, now, c, toPx(cam.x, cam.y), toPx);
@@ -344,6 +360,24 @@ export class Renderer {
     }
   }
 
+  // The on-screen labels laid out apart (js/labels.js); widths measured once per text and font.
+  layoutNameLabels(labels, c, nudge, fontPx) {
+    const font = this.ctx.font;
+    if (font !== this.labelFont) { this.labelWidths.clear(); this.labelFont = font; }
+    const measure = (t) => {
+      let w = this.labelWidths.get(t);
+      if (w === undefined) { w = this.ctx.measureText(t).width; this.labelWidths.set(t, w); }
+      return w;
+    };
+    const W = this.canvas.width, H = this.canvas.height;
+    const input = [];
+    for (const [text, px, py, self] of labels) {
+      if (px + c < 0 || py + c < 0 || px > W || py > H + c) continue; // off screen
+      input.push({ text, x: px, y: py + c - nudge, cx: px + measure(text) / 2, self });
+    }
+    return layoutLabels(input, measure, Math.round(fontPx * 1.15));
+  }
+
   // A creature's strip, loading it the first time it's asked for (null until it has, and
   // for good if it fails, so the old picture stays).
   creatureSheet(name) {
@@ -361,8 +395,11 @@ export class Renderer {
 
   // A rendered creature: facing the way it last stepped, walking in time with its slide.
   drawCreature(e, sheet, creature, px, py, c, now) {
-    const dir = npcFacing(e, this.npcFacings.get(e.id) ?? 1);
-    this.npcFacings.set(e.id, dir);
+    const facing = npcFacing(e, this.npcFacings.get(e.id) ?? 1);
+    this.npcFacings.set(e.id, facing);
+    // side-on creatures (snakes) show their last side instead of N/S
+    const dir = sideDir(creature, facing, this.creatureSides.get(e.id));
+    if (dir === 2 || dir === 3) this.creatureSides.set(e.id, dir);
     const walking = this.world.walking(e, now);
     const step = dir * 2 + (walking ? 1 : 0);
     const n = !walking && hovers(creature) ? hoverFrame(sheet.count, dir, now, hoverMs(creature)) : renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);

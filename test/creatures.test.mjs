@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { creatureSheetFor, creatureFallback, hovers, hoverMs } from '../js/creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir } from '../js/creatures.js';
+import { renderedFrame } from '../js/renderer.js';
 
 const want = {
   rat: ['rat', 'Rats', 'ratling', 'Sewer Rat', 'giant rat'],
@@ -56,4 +57,11 @@ assert.equal(creatureSheetFor('Redwood Slime'), 'slime', 'whole words: Redwood i
 assert.equal(creatureFallback('slime_red'), 'slime', 'a coloured slime falls back to green');
 assert.equal(creatureFallback('slime'), null);
 assert.equal(creatureFallback('bat'), null);
+// Snakes side-on only: facing N or S they draw their W or E row; a wolf facing N still draws N.
+const row = (creature, dir, last) => Math.floor(renderedFrame(36, sideDir(creature, dir, last) * 2, { x: 0, y: 0 }, 1) / 9);
+assert.ok([2, 3].includes(row('snake', 0)), 'snake facing N: a side row');
+assert.equal(row('snake', 1), 3, 'snake facing S: E by default');
+assert.equal(row('snake', 0, 2), 2, 'snake keeps its last side');
+assert.equal(row('snake', 2), 2, 'snake facing W: W');
+assert.equal(row('wolf', 0), 0, 'wolf facing N: N');
 console.log('creature tests passed');

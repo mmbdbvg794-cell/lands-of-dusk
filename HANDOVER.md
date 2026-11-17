@@ -3166,3 +3166,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - 2026-11-17: cinder -> red slime, rock -> grey slime; snakes (swamp serpent) also animate standing still (`hovers`, 110 ms a frame).
 - 2026-11-17 20:34 (LIVE, restart from host): `defMobs/swamp serpent` given `faction snake` (new, neutral) so serpents wander. Backup `backups/snake-faction-20261117-203439`. Serpents are fearless (bravery 3.0): once the faction holds a grudge they come at you.
 - 2026-11-17: wolves (wolf, wolf_great/frost/blight/black), hound, coyote, dinosaur strips/mappings; "dog" now = hound, pug words still = dog; wolf_* falls back to wolf while loading/missing. 950 of 3910 spawns now draw rendered creatures (522 from this change).
+
+## 2026-11-17: side-on snakes, name labels kept apart (client, deployed)
+- `SIDE_ONLY` / `sideDir` (js/creatures.js): snakes facing N/S draw their last side row (W/E, default E); `renderer.creatureSides` remembers it.
+- js/labels.js `layoutLabels` (Painted only; Pixel draws labels as Java): same-named neighbours merge to "name xN" centred over them; overlapping labels move to the nearest free spot up/down, max 3 lines; own name keeps its spot and is drawn last. Off-screen labels skipped; widths cached per text+font (`renderer.labelWidths`).

@@ -70,3 +70,11 @@ export function hovers(creature) {
 export function hoverMs(creature) {
   return FLIERS.get(creature) ?? 90;
 }
+
+// Creatures only ever seen side-on: facing N or S they show their last side (W or E),
+// default E (a raised snake seen head-on is just a tall tube). 0 n, 1 s, 2 w, 3 e.
+export const SIDE_ONLY = new Set(['snake']);
+export function sideDir(creature, dir, lastSide = 3) {
+  if (!SIDE_ONLY.has(creature) || dir === 2 || dir === 3) return dir;
+  return lastSide === 2 ? 2 : 3;
+}
