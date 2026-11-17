@@ -8,7 +8,7 @@
 // The server's god commands (Commands.adminCommands), all acting on the
 // square you stand on:
 //   <item name              an item on the ground
-//   <mob name lev: N        a mob (level optional)
+//   <mob name lev: N        a mob (N 0 = its own level; without lev: an item of the name wins)
 //   <prop name              a prop from defProps
 //   <sign text              a sign
 //   <merchant [name]        a merchant (then "madd"/"mremove" its wares)
@@ -54,7 +54,9 @@ export function search(names, query, limit = 200) {
 
 export const place = {
   item: (name) => `<${name}`,
-  mob: (name, level) => (Number(level) > 0 ? `<${name} lev: ${Math.floor(Number(level))}` : `<${name}`),
+  // Always with a level: "<name" alone finds an item of that name first ("dragon" is a
+  // statue). "lev: 0" makes it a mob at its own level (the server sets only levels > 0).
+  mob: (name, level) => `<${name} lev: ${Number(level) > 0 ? Math.floor(Number(level)) : 0}`,
   prop: (name) => `<prop ${name}`,
   // A prop that looks like `base` but has a name of its own (server/Props.java).
   namedProp: (base, name, desc = '') => `nameprop ${base}|${name.replace(/\|/g, ' ')}${desc ? `|${desc.replace(/\|/g, ' ')}` : ''}`,

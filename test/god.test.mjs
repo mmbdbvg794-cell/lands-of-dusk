@@ -20,8 +20,9 @@ assert.deepEqual(search(['a', 'b', 'c'], '', 2), ['a', 'b']);
 
 assert.equal(place.item('red potion'), '<red potion');
 assert.equal(place.mob('Cave Dragon', 3), '<Cave Dragon lev: 3');
-assert.equal(place.mob('rat', ''), '<rat');
-assert.equal(place.mob('rat', 0), '<rat');
+assert.equal(place.mob('rat', ''), '<rat lev: 0');
+assert.equal(place.mob('rat', 0), '<rat lev: 0');
+assert.equal(place.mob('dragon'), '<dragon lev: 0', 'always a level, so the dragon statue item is not placed instead');
 assert.equal(place.prop('Armor Shop'), '<prop Armor Shop');
 assert.equal(place.sign('Welcome!'), '<sign Welcome!');
 assert.equal(place.merchant(''), '<merchant');

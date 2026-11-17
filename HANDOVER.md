@@ -3155,3 +3155,6 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - Painted style only: mobs (type 4) whose name maps to a creature (`js/creatures.js`, `creatureSheetFor`, whole words) draw `art/rendered/mob-<creature>.png` (player-figure strip layout, no layers), loaded lazily via `renderer.creatureSheet`, facing/walk as NPCs (`npcFacing`, `renderedFrame`). Not loaded / failed → old picture. Checked before people outfits, so "guard dog" is a dog.
 - Strips on the server: rat spider snake frog wasp cow horse pig sheep dog llama. The dog picture is a pug: only pug, puppy, pup, lapdog, mutt map to it (2026-11-17); in the world today only the swamp serpent matches (Puppy is defined but not placed).
 - 2026-11-17: + skeleton, slime, bat, dragon (not "Dragon Knight"), mushroom strips/mappings. Placed matches: skeletons (barrow/crypt/ice skeleton, Skeleton knight, ...), slimes and blobs, Bat, dragons (dragon, ember/frost/stone dragon). No mushroom mobs yet.
+
+## 2026-11-17: god panel always sends a mob level (client, deployed)
+- `<name` finds an item of that name before a mob ("dragon" is a statue item), so `place.mob` now always sends `<name lev: N`, with `lev: 0` meaning the mob's own level (server sets level only if > 0). Typing by hand: `<dragon lev: 0`.
