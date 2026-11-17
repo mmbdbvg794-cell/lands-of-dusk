@@ -3146,3 +3146,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   legs, a hood as a cap). Tests: renderedlayers.test.mjs.
 - No item defs changed. A real feet slot would mean an Equipment patch,
   the save format, opcode 7 (9 slots), the client's slot lists: not done.
+
+## 2026-11-17 01:45: flan's leather test set (LIVE)
+- `tools/server/give_items.py <name>[,..] "<item>".. [--apply]` puts items in a backpack (users/ file and .backup); skips anyone online and anything already carried or worn.
+- flan got leather jerkin, pants, leggings, cap, helmet, sleeves, gloves, belt, shield (already wore the vest). Backup: `backups/flan-items-20261117-014538`.
