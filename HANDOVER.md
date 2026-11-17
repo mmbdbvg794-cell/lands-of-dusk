@@ -3158,3 +3158,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 
 ## 2026-11-17: god panel always sends a mob level (client, deployed)
 - `<name` finds an item of that name before a mob ("dragon" is a statue item), so `place.mob` now always sends `<name lev: N`, with `lev: 0` meaning the mob's own level (server sets level only if > 0). Typing by hand: `<dragon lev: 0`.
+
+## 2026-11-17 19:14: bats move and flap (LIVE, restart from host)
+- Server: creatures with no faction never move (vis-src/Creatures.java). `defMobs/Bat` had none; added `faction bat` (new neutral faction, no file until the game saves one). Backup `backups/bat-faction-20261117-191347`. ~60 other mobs still have no faction (swamp serpent, bog slime, black dog, stray hound, Cave Dragon, ...) and stand still by design.
+- Client: `hovers(creature)` in js/creatures.js (just bat); a standing flier plays its walk cycle on the clock (`hoverFrame`, HOVER_MS 90) and keeps the canvas redrawing while one is in view.

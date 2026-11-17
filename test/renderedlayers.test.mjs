@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
-import { renderedFrame, renderedGearLayers } from '../js/renderer.js';
+import { renderedFrame, renderedGearLayers, hoverFrame, HOVER_MS } from '../js/renderer.js';
+
+// A hovering flier (36-frame strip): only its facing's walk frames, never the standing one, and it changes over time.
+for (let t = 0; t < 20; t++) { const n = hoverFrame(36, 2, t * HOVER_MS); if (n < 19 || n > 26) throw new Error(`hover frame ${n}`); }
+if (hoverFrame(36, 1, 0) === hoverFrame(36, 1, HOVER_MS)) throw new Error('hover frames advance');
 import { gearFromEquipment } from '../js/gear.js';
 
 // Frames: 36-frame strips = 9 per direction (standing + 8-frame walk cycle).

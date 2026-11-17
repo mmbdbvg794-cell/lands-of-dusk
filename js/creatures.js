@@ -29,3 +29,9 @@ export function creatureSheetFor(name) {
   for (const [creature, re] of CREATURES) if (re.test(n)) return creature;
   return null;
 }
+
+// Creatures that fly: they keep flapping when they aren't going anywhere.
+const FLIERS = new Set(['bat']);
+export function hovers(creature) {
+  return FLIERS.has(creature);
+}

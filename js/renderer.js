@@ -16,7 +16,7 @@ import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
-import { creatureSheetFor } from './creatures.js';
+import { creatureSheetFor, hovers } from './creatures.js';
 import { loadSheet } from './sprites.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
@@ -106,6 +106,7 @@ export class Renderer {
     if (this.canvas.width !== this.cell * n) return this.resize();
     const c = this.cell;
     const now = performance.now();
+    this.hovering = false; // set by drawCreature when a flier is in view
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     if (!this.sheets || !world.hasMap) return;
@@ -255,7 +256,7 @@ export class Renderer {
       // (this.creatures is null in Pixel); until a strip loads, or if it fails, the old picture.
       const creature = this.creatures && e.type === 4 ? this.creatureSheet(creatureSheetFor(bareName(e.name))) : null;
       const outfit = !creature && this.rendered && this.renderedLayers && this.isPersonNpc(e) ? npcOutfit(bareName(e.name)) : null;
-      if (creature) this.drawCreature(e, creature, px, py, c, now);
+      if (creature) this.drawCreature(e, creature, creatureSheetFor(bareName(e.name)), px, py, c, now);
       else if (outfit && this.rendered.has(outfit.look)) this.drawNpc(e, outfit, px, py, c, now);
       else if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
@@ -298,7 +299,7 @@ export class Renderer {
       this.weatherState = st; // for js/weather.js (the lighting layer)
       this.onWeather?.(st);
     }
-    if (world.animating(now) || weatherMoving || ships.length || treesFading) this.invalidate();
+    if (world.animating(now) || weatherMoving || ships.length || treesFading || this.hovering) this.invalidate();
   }
 
   // The player's own figure wearing their gear, painted once per change of
@@ -358,11 +359,14 @@ export class Renderer {
   }
 
   // A rendered creature: facing the way it last stepped, walking in time with its slide.
-  drawCreature(e, sheet, px, py, c, now) {
+  drawCreature(e, sheet, creature, px, py, c, now) {
     const dir = npcFacing(e, this.npcFacings.get(e.id) ?? 1);
     this.npcFacings.set(e.id, dir);
-    const step = dir * 2 + (this.world.walking(e, now) ? 1 : 0);
-    sheet.draw(this.ctx, renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1), px, py, c);
+    const walking = this.world.walking(e, now);
+    const step = dir * 2 + (walking ? 1 : 0);
+    const n = !walking && hovers(creature) ? hoverFrame(sheet.count, dir, now) : renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
+    if (!walking && hovers(creature)) this.hovering = true;
+    sheet.draw(this.ctx, n, px, py, c);
   }
 
   drawRendered(e, step, px, py, c, now) {
@@ -619,6 +623,15 @@ export const SWINGS = { slash: drawSwing, stab: drawStab, chop: drawChop, claw: 
 // (n, s, w, e), standing then a walk cycle over two tiles, played in time with
 // the slide (`progress` 0..1, 1 = arrived). Alternate tiles take the other half
 // of the stride, so the legs alternate.
+// A flier standing still (js/creatures.js hovers) keeps beating its wings: its walk
+// cycle for the facing, played on the clock (HOVER_MS a frame).
+export const HOVER_MS = 90;
+export function hoverFrame(count, dir, now) {
+  const per = Math.floor(count / 4);
+  if (per <= 2) return dir * 2;
+  return dir * per + 1 + (Math.floor(now / HOVER_MS) % (per - 1));
+}
+
 export function renderedFrame(count, step, e, progress) {
   const per = Math.floor(count / 4);
   if (per <= 2) return step;
