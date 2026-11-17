@@ -3170,3 +3170,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 ## 2026-11-17: side-on snakes, name labels kept apart (client, deployed)
 - `SIDE_ONLY` / `sideDir` (js/creatures.js): snakes facing N/S draw their last side row (W/E, default E); `renderer.creatureSides` remembers it.
 - js/labels.js `layoutLabels` (Painted only; Pixel draws labels as Java): same-named neighbours merge to "name xN" centred over them; overlapping labels move to the nearest free spot up/down, max 3 lines; own name keeps its spot and is drawn last. Off-screen labels skipped; widths cached per text+font (`renderer.labelWidths`).
+
+## 2026-11-17 23:21: rubble mobs replaced by ore veins (LIVE, restart from host)
+- `tools/server/rubble_to_veins.py`: all 259 rubble spawns (246 squares: the Old World quarry ~180-215,150-180 near Riverside; 4 at ~620,1530; 6 at ~1470,1560) out of `mobs`; a vein prop on each square instead (125 bronze, 72 iron, 30 coal seam, 19 mithril; picked by crc32 of the square). `defMobs/rubble` removed. Backup `backups/rubble-to-veins-20261117-232151` (mobs, props, rubble).
+- The Greystone drift "rubble" is scripted squares, not this mob: untouched. Props don't block walking.
