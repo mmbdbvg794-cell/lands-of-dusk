@@ -27,12 +27,12 @@ const CREATURES = [
 // Slimes come in colours (mob-slime_<colour>.png), picked from a colour or element word
 // in the name; anything else is the green mob-slime.png.
 const SLIME_COLOURS = [
-  ['slime_red', /\b(red|crimson|scarlet|blood|bloody|fire|flame|flaming|magma|lava|ember)\b/],
+  ['slime_red', /\b(red|crimson|scarlet|blood|bloody|fire|flame|flaming|magma|lava|ember|cinder)\b/],
   ['slime_blue', /\b(blue|azure|ice|icy|frost|frozen|water|cold)\b/],
   ['slime_purple', /\b(purple|violet|magenta|arcane|void)\b/],
   ['slime_yellow', /\b(yellow|gold|golden|amber|sulphur|sulfur|lightning|electric|shock)\b/],
   ['slime_black', /\b(black|dark|shadow|tar|pitch|oil|oily)\b/],
-  ['slime_grey', /\b(grey|gray|white|silver|stone|ash|grime|dust)\b/],
+  ['slime_grey', /\b(grey|gray|white|silver|stone|rock|ash|grime|dust)\b/],
 ];
 
 export function creatureSheetFor(name) {
@@ -50,9 +50,9 @@ export function creatureFallback(sheet) {
   return sheet?.startsWith('slime_') ? 'slime' : null;
 }
 
-// Creatures that fly: they keep flapping when they aren't going anywhere.
+// Creatures that keep moving when they aren't going anywhere: fliers flap, snakes slither.
 // The value is ms a frame: a dragon's big wings beat slower than a bat's.
-const FLIERS = new Map([['bat', 90], ['dragon', 130]]);
+const FLIERS = new Map([['bat', 90], ['dragon', 130], ['snake', 110]]);
 export function hovers(creature) {
   return FLIERS.has(creature);
 }

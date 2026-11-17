@@ -26,14 +26,15 @@ for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pi
   assert.equal(creatureSheetFor(n), null, String(n));
 }
 assert.ok(hovers('bat') && hovers('dragon') && !hovers('rat') && !hovers(null), 'bats and dragons flap standing still');
+assert.ok(hovers('snake'), 'snakes slither standing still');
 assert.ok(hoverMs('dragon') > hoverMs('bat'), 'dragon wings beat slower');
 const colours = {
-  slime_red: ['red slime', 'Magma Slime', 'blood ooze', 'fire jelly'],
+  slime_red: ['red slime', 'Magma Slime', 'blood ooze', 'fire jelly', 'cinder slime'],
   slime_blue: ['frost ooze', 'Ice Slime', 'water blob'],
   slime_purple: ['purple slime', 'void ooze', 'Arcane Jelly'],
   slime_yellow: ['yellow slime', 'golden ooze', 'Sulfur Blob', 'lightning gel'],
   slime_black: ['black pudding', 'Tar Slime', 'shadow ooze'],
-  slime_grey: ['grey slime', 'gray ooze', 'Stone Blob', 'ash pudding'],
+  slime_grey: ['grey slime', 'gray ooze', 'Stone Blob', 'ash pudding', 'rock slime'],
 };
 for (const [sheet, names] of Object.entries(colours)) for (const n of names) assert.equal(creatureSheetFor(n), sheet, n);
 assert.equal(creatureSheetFor('dark dragon'), 'dragon', 'colour words only colour slimes');
