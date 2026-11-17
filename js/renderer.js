@@ -16,7 +16,7 @@ import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
-import { creatureSheetFor, hovers, hoverMs } from './creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs } from './creatures.js';
 import { loadSheet } from './sprites.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
@@ -355,7 +355,8 @@ export class Renderer {
         if (sheet) { creatures.set(name, sheet); this.invalidate(); }
       }).catch(() => {});
     }
-    return this.creatures.get(name);
+    // a variant not loaded (yet, or ever): its plain creature (a coloured slime -> green)
+    return this.creatures.get(name) ?? this.creatureSheet(creatureFallback(name));
   }
 
   // A rendered creature: facing the way it last stepped, walking in time with its slide.

@@ -24,10 +24,30 @@ const CREATURES = [
   ['mushroom', /\b(mushrooms?|shrooms?|myconids?|fungus|fungi|fungal|toadstools?|sporelings?)\b/],
 ];
 
+// Slimes come in colours (mob-slime_<colour>.png), picked from a colour or element word
+// in the name; anything else is the green mob-slime.png.
+const SLIME_COLOURS = [
+  ['slime_red', /\b(red|crimson|scarlet|blood|bloody|fire|flame|flaming|magma|lava|ember)\b/],
+  ['slime_blue', /\b(blue|azure|ice|icy|frost|frozen|water|cold)\b/],
+  ['slime_purple', /\b(purple|violet|magenta|arcane|void)\b/],
+  ['slime_yellow', /\b(yellow|gold|golden|amber|sulphur|sulfur|lightning|electric|shock)\b/],
+  ['slime_black', /\b(black|dark|shadow|tar|pitch|oil|oily)\b/],
+  ['slime_grey', /\b(grey|gray|white|silver|stone|ash|grime|dust)\b/],
+];
+
 export function creatureSheetFor(name) {
   const n = String(name ?? '').toLowerCase();
-  for (const [creature, re] of CREATURES) if (re.test(n)) return creature;
+  for (const [creature, re] of CREATURES) {
+    if (!re.test(n)) continue;
+    if (creature === 'slime') return SLIME_COLOURS.find(([, c]) => c.test(n))?.[0] ?? 'slime';
+    return creature;
+  }
   return null;
+}
+
+// The sheet to fall back on while a variant loads or if it fails (the green slime), or null.
+export function creatureFallback(sheet) {
+  return sheet?.startsWith('slime_') ? 'slime' : null;
 }
 
 // Creatures that fly: they keep flapping when they aren't going anywhere.
