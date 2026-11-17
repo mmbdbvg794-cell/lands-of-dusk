@@ -3153,4 +3153,4 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 
 ## 2026-11-17: rendered creatures (client, deployed)
 - Painted style only: mobs (type 4) whose name maps to a creature (`js/creatures.js`, `creatureSheetFor`, whole words) draw `art/rendered/mob-<creature>.png` (player-figure strip layout, no layers), loaded lazily via `renderer.creatureSheet`, facing/walk as NPCs (`npcFacing`, `renderedFrame`). Not loaded / failed → old picture. Checked before people outfits, so "guard dog" is a dog.
-- Strips on the server: rat spider snake frog wasp cow horse pig sheep dog llama. In the world today only dogs/hounds (and dog pets) and the swamp serpent match.
+- Strips on the server: rat spider snake frog wasp cow horse pig sheep dog llama. The dog picture is a pug: only pug, puppy, pup, lapdog, mutt map to it (2026-11-17); in the world today only the swamp serpent matches (Puppy is defined but not placed).

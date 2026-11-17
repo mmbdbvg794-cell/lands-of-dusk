@@ -13,7 +13,8 @@ const CREATURES = [
   ['horse', /\b(horses?|ponies|pony|mares?|stallions?|steeds?)\b/],
   ['pig', /\b(pigs?|hogs?|boars?|swine|sows?)\b/],
   ['sheep', /\b(sheep|ewes?|rams?|lambs?)\b/],
-  ['dog', /\b(dogs?|hounds?|mutts?|pupp(y|ies)|jackals?)\b/],
+  // the dog picture is a pug: small dogs only, not fierce ones (black dogs, hounds, jackals)
+  ['dog', /\b(pugs?|pupp(y|ies)|pups?|lapdogs?|mutts?)\b/],
   ['llama', /\b(llamas?|alpacas?)\b/],
 ];
 

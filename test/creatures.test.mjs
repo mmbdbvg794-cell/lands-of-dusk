@@ -11,13 +11,13 @@ const want = {
   horse: ['horse', 'pony', 'mare', 'Stallion', 'war steed'],
   pig: ['pig', 'hog', 'Wild Boar', 'swine', 'sow'],
   sheep: ['sheep', 'ewe', 'ram', 'lamb'],
-  dog: ['dog', 'Hell Hound', 'mutt', 'puppy', 'jackal'],
+  dog: ['pug', 'stray puppy', 'mutt', 'pup', 'lapdog'],
   llama: ['llama', 'alpaca'],
 };
 for (const [creature, names] of Object.entries(want)) {
   for (const n of names) assert.equal(creatureSheetFor(n), creature, n);
 }
-for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'wolf', '', null]) {
+for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'wolf', 'black dog', 'hound', 'jackal', 'dog', 'mire hound', 'Puppet', '', null]) {
   assert.equal(creatureSheetFor(n), null, String(n));
 }
 console.log('creature tests passed');
