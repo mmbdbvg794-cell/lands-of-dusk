@@ -16,6 +16,8 @@ import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
+import { creatureSheetFor } from './creatures.js';
+import { loadSheet } from './sprites.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
 
@@ -58,6 +60,7 @@ export class Renderer {
     this.outfits = new Map(); // "image gear" -> strip, the figures painted so far
     this.rendered = null; // look -> SpriteSheet of 3D-rendered figures (Painted style, js/main.js)
     this.npcFacings = new Map(); // NPC id -> last facing (0 n, 1 s, 2 w, 3 e)
+    this.creatures = null; // creature -> SpriteSheet of art/rendered/mob-<creature>.png, loaded lazily (Painted style, js/main.js)
     this.renderedLayers = null; // "look-slot[-kind]" -> SpriteSheet of a gear layer, rendered white
     this.tints = new Map(); // gear layer SpriteSheet -> Map(colour -> tinted SpriteSheet)
     this.cell = 0;
@@ -248,8 +251,12 @@ export class Renderer {
       const byName = (art && art === this.named && world.walking(e, now) ? art.index.get(`${key} walk`) : undefined) ?? art?.index.get(key);
       // People NPCs as 3D-rendered figures in their clothes (js/npcoutfits.js), Painted style only
       // (this.rendered/renderedLayers are null in Pixel).
-      const outfit = this.rendered && this.renderedLayers && this.isPersonNpc(e) ? npcOutfit(bareName(e.name)) : null;
-      if (outfit && this.rendered.has(outfit.look)) this.drawNpc(e, outfit, px, py, c, now);
+      // Mobs that are animals the 3D renders cover (js/creatures.js), Painted style only
+      // (this.creatures is null in Pixel); until a strip loads, or if it fails, the old picture.
+      const creature = this.creatures && e.type === 4 ? this.creatureSheet(creatureSheetFor(bareName(e.name))) : null;
+      const outfit = !creature && this.rendered && this.renderedLayers && this.isPersonNpc(e) ? npcOutfit(bareName(e.name)) : null;
+      if (creature) this.drawCreature(e, creature, px, py, c, now);
+      else if (outfit && this.rendered.has(outfit.look)) this.drawNpc(e, outfit, px, py, c, now);
       else if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
       // 3D-rendered figures (art/rendered/lookN.png, Painted style only) in
@@ -334,6 +341,28 @@ export class Renderer {
       const layer = this.renderedLayers.get(`${outfit.look}-${name}`);
       if (layer) this.tinted(layer, colour).draw(this.ctx, n, px, py, c);
     }
+  }
+
+  // A creature's strip, loading it the first time it's asked for (null until it has, and
+  // for good if it fails, so the old picture stays).
+  creatureSheet(name) {
+    if (!name || !this.creatures) return null;
+    if (!this.creatures.has(name)) {
+      const creatures = this.creatures;
+      creatures.set(name, null);
+      loadSheet(`art/rendered/mob-${name}.png`).then((sheet) => {
+        if (sheet) { creatures.set(name, sheet); this.invalidate(); }
+      }).catch(() => {});
+    }
+    return this.creatures.get(name);
+  }
+
+  // A rendered creature: facing the way it last stepped, walking in time with its slide.
+  drawCreature(e, sheet, px, py, c, now) {
+    const dir = npcFacing(e, this.npcFacings.get(e.id) ?? 1);
+    this.npcFacings.set(e.id, dir);
+    const step = dir * 2 + (this.world.walking(e, now) ? 1 : 0);
+    sheet.draw(this.ctx, renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1), px, py, c);
   }
 
   drawRendered(e, step, px, py, c, now) {

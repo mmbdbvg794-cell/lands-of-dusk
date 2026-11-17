@@ -3150,3 +3150,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 ## 2026-11-17 01:45: flan's leather test set (LIVE)
 - `tools/server/give_items.py <name>[,..] "<item>".. [--apply]` puts items in a backpack (users/ file and .backup); skips anyone online and anything already carried or worn.
 - flan got leather jerkin, pants, leggings, cap, helmet, sleeves, gloves, belt, shield (already wore the vest). Backup: `backups/flan-items-20261117-014538`.
+
+## 2026-11-17: rendered creatures (client, deployed)
+- Painted style only: mobs (type 4) whose name maps to a creature (`js/creatures.js`, `creatureSheetFor`, whole words) draw `art/rendered/mob-<creature>.png` (player-figure strip layout, no layers), loaded lazily via `renderer.creatureSheet`, facing/walk as NPCs (`npcFacing`, `renderedFrame`). Not loaded / failed → old picture. Checked before people outfits, so "guard dog" is a dog.
+- Strips on the server: rat spider snake frog wasp cow horse pig sheep dog llama. In the world today only dogs/hounds (and dog pets) and the swamp serpent match.

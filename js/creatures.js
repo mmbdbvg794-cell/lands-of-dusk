@@ -1,0 +1,24 @@
+// Mobs drawn as 3D-rendered creatures in the Painted style: art/rendered/mob-<creature>.png,
+// a strip of 144x144 frames laid out as a player figure's (N, S, W, E; standing then a
+// walk cycle each), no gear layers. Which creature a mob is comes from its name, on whole
+// words, first match wins; anything else keeps its painted (or Pixel) picture.
+
+const CREATURES = [
+  ['rat', /\b(rats?|ratlings?)\b/],
+  ['spider', /\b(spiders?|arachnids?)\b/],
+  ['snake', /\b(snakes?|serpents?|vipers?|adders?|asps?)\b/],
+  ['frog', /\b(frogs?|toads?)\b/],
+  ['wasp', /\b(wasps?|hornets?|bees?)\b/],
+  ['cow', /\b(cows?|bulls?|cattle|ox|oxen)\b/],
+  ['horse', /\b(horses?|ponies|pony|mares?|stallions?|steeds?)\b/],
+  ['pig', /\b(pigs?|hogs?|boars?|swine|sows?)\b/],
+  ['sheep', /\b(sheep|ewes?|rams?|lambs?)\b/],
+  ['dog', /\b(dogs?|hounds?|mutts?|pupp(y|ies)|jackals?)\b/],
+  ['llama', /\b(llamas?|alpacas?)\b/],
+];
+
+export function creatureSheetFor(name) {
+  const n = String(name ?? '').toLowerCase();
+  for (const [creature, re] of CREATURES) if (re.test(n)) return creature;
+  return null;
+}

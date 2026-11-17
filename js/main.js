@@ -1986,6 +1986,7 @@ let paintedNamed = null; // { sheet, index } once loaded, false if unavailable
 let paintedItems = null; // the same, for items by name
 let renderedLooks = null; // look -> SpriteSheet, the 3D-rendered figures (Painted style)
 let renderedLayers = null; // "look-layer" -> SpriteSheet, their gear layers (art/rendered/layers.json)
+const creatureSheets = new Map(); // creature -> SpriteSheet (art/rendered/mob-<creature>.png), filled lazily by the renderer
 // Reads storage listings (see storage.js) while you're next to storage.
 const storageReader = new StorageReader();
 let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
@@ -2102,6 +2103,7 @@ async function applyArt() {
   }
   renderer.rendered = wantRendered && renderedLooks?.size ? renderedLooks : null;
   renderer.renderedLayers = wantRendered && renderedLayers?.size ? renderedLayers : null;
+  renderer.creatures = wantRendered ? creatureSheets : null;
   dressSelf();
   // Which tiles are snow, for snow instead of rain (measured once, from
   // the painted tiles: the game's own picture is on another server, which
