@@ -15,6 +15,15 @@ const CREATURES = [
   ['sheep', /\b(sheep|ewes?|rams?|lambs?)\b/],
   // the dog picture is a pug: small dogs only, not fierce ones (black dogs, hounds, jackals)
   ['dog', /\b(pugs?|pupp(y|ies)|pups?|lapdogs?|mutts?)\b/],
+  // wolves and big dogs, the specific kinds before the plain ones
+  ['wolf_great', /\b(great wolf|fenris|wolf champion)\b/],
+  ['wolf_frost', /\b(frost|ice|snow|winter|white) wol(f|ves)\b/],
+  ['wolf_blight', /\b(blighted|plague|rotting|dire) wol(f|ves)\b/],
+  ['wolf_black', /\b(black dogs?|(black|shadow|dark) wol(f|ves)|gloom hounds?|wardogs?)\b/],
+  ['wolf', /\b(wol(f|ves)|timberwol(f|ves)|wolfies?)\b/],
+  ['hound', /\b(hounds?|white dogs?|dogs?)\b/],
+  ['coyote', /\b(coyotes?|jackals?)\b/],
+  ['dinosaur', /\b(dinosaurs?|dinos?|raptors?|velociraptors?)\b/],
   ['llama', /\b(llamas?|alpacas?)\b/],
   ['skeleton', /\b(skeletons?|skeletal|bones|bonewalkers?|undead warriors?)\b/],
   ['slime', /\b(slimes?|oozes?|jelly|jellies|gels?|blobs?|puddings?)\b/],
@@ -45,9 +54,11 @@ export function creatureSheetFor(name) {
   return null;
 }
 
-// The sheet to fall back on while a variant loads or if it fails (the green slime), or null.
+// The sheet to fall back on while a variant loads or if it fails (the green slime, the grey wolf), or null.
 export function creatureFallback(sheet) {
-  return sheet?.startsWith('slime_') ? 'slime' : null;
+  if (sheet?.startsWith('slime_')) return 'slime';
+  if (sheet?.startsWith('wolf_')) return 'wolf';
+  return null;
 }
 
 // Creatures that keep moving when they aren't going anywhere: fliers flap, snakes slither.

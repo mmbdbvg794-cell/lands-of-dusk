@@ -22,7 +22,21 @@ const want = {
 for (const [creature, names] of Object.entries(want)) {
   for (const n of names) assert.equal(creatureSheetFor(n), creature, n);
 }
-for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'wolf', 'black dog', 'hound', 'jackal', 'dog', 'mire hound', 'Puppet', 'Combat Trainer', 'Battlemage', 'Batista the Cook', 'Dragoon', 'Gelda', 'Dragon Knight', '', null]) {
+const wolves = {
+  wolf_great: ['Fenris the Great Wolf', 'Tree Wolf Champion', 'wolf champion'],
+  wolf_frost: ['frost wolf', 'Snow Wolves', 'white wolf'],
+  wolf_blight: ['blighted wolf', 'plague wolf', 'dire wolf'],
+  wolf_black: ['black dog', 'Black dog', 'gloom hound', 'shadow wolf', 'wardog'],
+  wolf: ['wolf', 'Tree Wolf', 'wolves', 'Timberwolf', 'wolfie', 'Trained wolf'],
+  hound: ['mire hound', 'stray hound', 'Hound', 'white dog', 'dog'],
+  coyote: ['Coyote', 'jackal'],
+  dinosaur: ['dinosaur', 'dino babe', 'velociraptor'],
+  dog: ['pug', 'stray puppy', 'mutt'],
+};
+for (const [sheet, names] of Object.entries(wolves)) for (const n of names) assert.equal(creatureSheetFor(n), sheet, n);
+assert.equal(creatureFallback('wolf_frost'), 'wolf', 'a wolf variant falls back to the grey wolf');
+for (const n of ['Wolfgang the Smith', 'Houndsworth', 'Dogberry', 'Dinosaurus Rex the Bard']) assert.equal(creatureSheetFor(n), null, n);
+for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'Puppet', 'Combat Trainer', 'Battlemage', 'Batista the Cook', 'Dragoon', 'Gelda', 'Dragon Knight', '', null]) {
   assert.equal(creatureSheetFor(n), null, String(n));
 }
 assert.ok(hovers('bat') && hovers('dragon') && !hovers('rat') && !hovers(null), 'bats and dragons flap standing still');
