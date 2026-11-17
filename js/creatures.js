@@ -23,6 +23,7 @@ const CREATURES = [
   ['wolf', /\b(wol(f|ves)|timberwol(f|ves)|wolfies?)\b/],
   ['hound', /\b(hounds?|white dogs?|dogs?)\b/],
   ['coyote', /\b(coyotes?|jackals?)\b/],
+  ['maneater', /\b(man-eaters?|maneaters?|man eaters?)\b/],
   ['dinosaur', /\b(dinosaurs?|dinos?|raptors?|velociraptors?)\b/],
   ['llama', /\b(llamas?|alpacas?)\b/],
   ['skeleton', /\b(skeletons?|skeletal|bones|bonewalkers?|undead warriors?)\b/],

@@ -3174,3 +3174,4 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 ## 2026-11-17 23:21: rubble mobs replaced by ore veins (LIVE, restart from host)
 - `tools/server/rubble_to_veins.py`: all 259 rubble spawns (246 squares: the Old World quarry ~180-215,150-180 near Riverside; 4 at ~620,1530; 6 at ~1470,1560) out of `mobs`; a vein prop on each square instead (125 bronze, 72 iron, 30 coal seam, 19 mithril; picked by crc32 of the square). `defMobs/rubble` removed. Backup `backups/rubble-to-veins-20261117-232151` (mobs, props, rubble).
 - The Greystone drift "rubble" is scripted squares, not this mob: untouched. Props don't block walking.
+- 2026-11-17: `maneater` creature (man-eater/maneater/man eater; strip mob-maneater.png NOT on the server yet at deploy, old picture until it is). Dry ones (dry one raider/digger) dressed by npcOutfit on look 6 (11 if female): hood, torso-hide, legs-cloth, boots in SAND colours; raider spear/sword, digger pick/shovel.

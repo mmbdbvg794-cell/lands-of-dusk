@@ -19,6 +19,8 @@ const LEATHER = ['#6a4a2a', '#5a3a20', '#3a2a1a', '#7a5a3a'];
 const ROBES = ['#3a4a8a', '#5a2a6a', '#7a2a2a', '#2a5a4a', '#3a3a40'];
 const GREENS = ['#4f6b3a', '#5a6a4a', '#6a5a3a'];
 const APRON = '#d8d0b8';
+// Sun-bleached desert colours: sand, ochre, faded brown, bone, dust.
+const SAND = ['#d8c49a', '#c8a060', '#9a7a52', '#e4dcc4', '#b0a088'];
 // Contrasting trims: ochre, cream, dark brown, madder, indigo, black.
 const TRIMS = ['#c8a040', '#d8d0b8', '#3a2a1a', '#7a2a2a', '#3a4a6a', '#2a2a2a'];
 const WOOD = '#74502c';
@@ -77,6 +79,17 @@ function dressNpc(name) {
 
   if (/skeleton|stalfos|king's-man|grey herald|duergar|thrumgar|ash-sworn/.test(n)) return null;
 
+  if (/\bdry ones?\b/.test(n)) {
+    // desert raiders by the lizard-folk swamps: lizardfolk bodies, sun-bleached hood and hides
+    const leather = pick(LEATHER, 'boots');
+    wear('npc-boots', leather);
+    wear('legs-cloth', pick(SAND, 'legs'));
+    wear('torso-hide', pick(SAND, 'hide'), shade(leather, 0.8));
+    wear('npc-hood', pick(SAND, 'hood'), chance('hoodtrim', 0.5) && pick(SAND, 'hoodtrim'));
+    const tools = /digger/.test(n) ? ['weapon-pick', 'weapon-shovel'] : ['weapon-spear', 'weapon-sword'];
+    wear(pick(tools, 'weapon'), /pick|shovel/.test(pick(tools, 'weapon')) ? WOOD : STEEL);
+    return { look: female ? 11 : 6, layers };
+  }
   if (/guard|warden|soldier/.test(n) && !/knight|warlord|gladiator/.test(n)) {
     // town guards: a mail coat with a leather border over plain trousers and boots, and a helm
     const leather = pick(LEATHER, 'boots');

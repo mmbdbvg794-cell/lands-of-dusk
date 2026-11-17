@@ -36,6 +36,10 @@ const wolves = {
 };
 for (const [sheet, names] of Object.entries(wolves)) for (const n of names) assert.equal(creatureSheetFor(n), sheet, n);
 assert.equal(creatureFallback('wolf_frost'), 'wolf', 'a wolf variant falls back to the grey wolf');
+assert.equal(creatureSheetFor('man-eater'), 'maneater');
+assert.equal(creatureSheetFor('Man Eater'), 'maneater');
+assert.equal(creatureSheetFor('maneaters'), 'maneater');
+for (const n of ['Germaneater', 'dry one raider', 'dry one digger']) assert.equal(creatureSheetFor(n), null, n);
 for (const n of ['Wolfgang the Smith', 'Houndsworth', 'Dogberry', 'Dinosaurus Rex the Bard']) assert.equal(creatureSheetFor(n), null, n);
 for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'Puppet', 'Combat Trainer', 'Battlemage', 'Batista the Cook', 'Dragoon', 'Gelda', 'Dragon Knight', '', null]) {
   assert.equal(creatureSheetFor(n), null, String(n));

@@ -91,4 +91,12 @@ for (const who of ['Gate Guard', 'hunter Bob', 'townfolk man 3', 'Innkeeper Sela
 }
 assert.ok(names(npcOutfit('Sir Knight')).includes('torso-plate'), 'knights keep plate');
 
+// Dry ones: desert raiders on lizardfolk bodies; raiders fight, diggers dig.
+for (const [who, tools] of [['dry one raider', ['weapon-spear', 'weapon-sword']], ['dry one digger', ['weapon-pick', 'weapon-shovel']]]) {
+  const o = npcOutfit(who);
+  assert.equal(o.look, 6, `${who}: lizardfolk body`);
+  for (const l of ['npc-hood', 'torso-hide', 'legs-cloth', 'npc-boots']) assert.ok(names(o).includes(l), `${who} wears ${l}`);
+  assert.ok(names(o).some((l) => tools.includes(l)), `${who}: ${tools.join(' or ')}`);
+}
+assert.equal(npcOutfit('dry one woman').look, 11, 'dry one women: look 11');
 console.log('npc outfit tests passed');
