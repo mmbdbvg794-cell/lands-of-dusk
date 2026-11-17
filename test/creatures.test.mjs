@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { creatureSheetFor, hovers } from '../js/creatures.js';
+import { creatureSheetFor, hovers, hoverMs } from '../js/creatures.js';
 
 const want = {
   rat: ['rat', 'Rats', 'ratling', 'Sewer Rat', 'giant rat'],
@@ -25,5 +25,6 @@ for (const [creature, names] of Object.entries(want)) {
 for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'wolf', 'black dog', 'hound', 'jackal', 'dog', 'mire hound', 'Puppet', 'Combat Trainer', 'Battlemage', 'Batista the Cook', 'Dragoon', 'Gelda', 'Dragon Knight', '', null]) {
   assert.equal(creatureSheetFor(n), null, String(n));
 }
-assert.ok(hovers('bat') && !hovers('rat') && !hovers(null), 'bats flap standing still');
+assert.ok(hovers('bat') && hovers('dragon') && !hovers('rat') && !hovers(null), 'bats and dragons flap standing still');
+assert.ok(hoverMs('dragon') > hoverMs('bat'), 'dragon wings beat slower');
 console.log('creature tests passed');

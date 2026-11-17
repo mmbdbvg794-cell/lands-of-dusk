@@ -16,7 +16,7 @@ import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
-import { creatureSheetFor, hovers } from './creatures.js';
+import { creatureSheetFor, hovers, hoverMs } from './creatures.js';
 import { loadSheet } from './sprites.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
@@ -364,7 +364,7 @@ export class Renderer {
     this.npcFacings.set(e.id, dir);
     const walking = this.world.walking(e, now);
     const step = dir * 2 + (walking ? 1 : 0);
-    const n = !walking && hovers(creature) ? hoverFrame(sheet.count, dir, now) : renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
+    const n = !walking && hovers(creature) ? hoverFrame(sheet.count, dir, now, hoverMs(creature)) : renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
     if (!walking && hovers(creature)) this.hovering = true;
     sheet.draw(this.ctx, n, px, py, c);
   }
@@ -626,10 +626,10 @@ export const SWINGS = { slash: drawSwing, stab: drawStab, chop: drawChop, claw: 
 // A flier standing still (js/creatures.js hovers) keeps beating its wings: its walk
 // cycle for the facing, played on the clock (HOVER_MS a frame).
 export const HOVER_MS = 90;
-export function hoverFrame(count, dir, now) {
+export function hoverFrame(count, dir, now, ms = HOVER_MS) {
   const per = Math.floor(count / 4);
   if (per <= 2) return dir * 2;
-  return dir * per + 1 + (Math.floor(now / HOVER_MS) % (per - 1));
+  return dir * per + 1 + (Math.floor(now / ms) % (per - 1));
 }
 
 export function renderedFrame(count, step, e, progress) {

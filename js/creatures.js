@@ -31,7 +31,11 @@ export function creatureSheetFor(name) {
 }
 
 // Creatures that fly: they keep flapping when they aren't going anywhere.
-const FLIERS = new Set(['bat']);
+// The value is ms a frame: a dragon's big wings beat slower than a bat's.
+const FLIERS = new Map([['bat', 90], ['dragon', 130]]);
 export function hovers(creature) {
   return FLIERS.has(creature);
+}
+export function hoverMs(creature) {
+  return FLIERS.get(creature) ?? 90;
 }
