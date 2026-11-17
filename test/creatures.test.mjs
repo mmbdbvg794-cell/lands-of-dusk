@@ -13,11 +13,16 @@ const want = {
   sheep: ['sheep', 'ewe', 'ram', 'lamb'],
   dog: ['pug', 'stray puppy', 'mutt', 'pup', 'lapdog'],
   llama: ['llama', 'alpaca'],
+  skeleton: ['Skeleton Warrior', 'bonewalker', 'undead warrior'],
+  slime: ['green slime', 'Cave Ooze'],
+  bat: ['vampire bat', 'Fruit Bats'],
+  dragon: ['Red Dragon', 'wyvern', 'dragon whelp'],
+  mushroom: ['myconid', 'Toadstool', 'fungal sporeling'],
 };
 for (const [creature, names] of Object.entries(want)) {
   for (const n of names) assert.equal(creatureSheetFor(n), creature, n);
 }
-for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'wolf', 'black dog', 'hound', 'jackal', 'dog', 'mire hound', 'Puppet', '', null]) {
+for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'wolf', 'black dog', 'hound', 'jackal', 'dog', 'mire hound', 'Puppet', 'Combat Trainer', 'Battlemage', 'Batista the Cook', 'Dragoon', 'Gelda', 'Dragon Knight', '', null]) {
   assert.equal(creatureSheetFor(n), null, String(n));
 }
 console.log('creature tests passed');

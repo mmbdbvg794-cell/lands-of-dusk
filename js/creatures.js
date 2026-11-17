@@ -16,6 +16,12 @@ const CREATURES = [
   // the dog picture is a pug: small dogs only, not fierce ones (black dogs, hounds, jackals)
   ['dog', /\b(pugs?|pupp(y|ies)|pups?|lapdogs?|mutts?)\b/],
   ['llama', /\b(llamas?|alpacas?)\b/],
+  ['skeleton', /\b(skeletons?|skeletal|bones|bonewalkers?|undead warriors?)\b/],
+  ['slime', /\b(slimes?|oozes?|jelly|jellies|gels?|blobs?|puddings?)\b/],
+  ['bat', /\b(bats?)\b/],
+  // not "Dragon Knight": a man in dragon armour (js/npcoutfits.js)
+  ['dragon', /\b(dragons?|drakes?|wyrms?|wyverns?|whelps?|dragonlings?|wyrmlings?)\b(?! knight)/],
+  ['mushroom', /\b(mushrooms?|shrooms?|myconids?|fungus|fungi|fungal|toadstools?|sporelings?)\b/],
 ];
 
 export function creatureSheetFor(name) {
