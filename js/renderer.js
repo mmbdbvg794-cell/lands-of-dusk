@@ -16,7 +16,7 @@ import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
-import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir } from './creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox } from './creatures.js';
 import { layoutLabels } from './labels.js';
 import { loadSheet } from './sprites.js';
 
@@ -404,7 +404,8 @@ export class Renderer {
     const step = dir * 2 + (walking ? 1 : 0);
     const n = !walking && hovers(creature) ? hoverFrame(sheet.count, dir, now, hoverMs(creature)) : renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
     if (!walking && hovers(creature)) this.hovering = true;
-    sheet.draw(this.ctx, n, px, py, c);
+    const [x, y, side] = scaledBox(px, py, c, drawScale(creature));
+    sheet.draw(this.ctx, n, x, y, side);
   }
 
   drawRendered(e, step, px, py, c, now) {

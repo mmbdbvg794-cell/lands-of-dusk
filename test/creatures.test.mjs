@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir } from '../js/creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox } from '../js/creatures.js';
 import { renderedFrame } from '../js/renderer.js';
 
 const want = {
@@ -53,6 +53,15 @@ const ghosts = {
 };
 for (const [sheet, names] of Object.entries(ghosts)) for (const n of names) assert.equal(creatureSheetFor(n), sheet, n);
 assert.equal(creatureFallback('ghost_marsh'), 'ghost');
+assert.equal(creatureSheetFor('Mishaven'), 'mishaven');
+assert.equal(creatureSheetFor('mishavens'), 'mishaven');
+assert.equal(creatureSheetFor('Mishavenly'), null);
+assert.equal(drawScale('mishaven'), 1.3, 'mishaven drawn 1.3x');
+assert.equal(drawScale('wolf'), 1, 'wolf drawn 1x');
+// scaled about the bottom centre: same bottom edge and centre, 1.3x the side
+const [bx, by, bs] = scaledBox(100, 200, 40, 1.3);
+assert.ok(Math.abs(bs - 52) < 1e-9 && Math.abs(by + bs - 240) < 1e-9 && Math.abs(bx + bs / 2 - 120) < 1e-9, 'feet stay put');
+assert.deepEqual(scaledBox(100, 200, 40, 1), [100, 200, 40]);
 for (const n of ['Impala', 'Shadewood', 'Shadeassassin', 'shade_assassin', 'Gloomwick', 'Wispa']) assert.equal(creatureSheetFor(n), null, n);
 for (const n of ['Wolfgang the Smith', 'Houndsworth', 'Dogberry', 'Dinosaurus Rex the Bard']) assert.equal(creatureSheetFor(n), null, n);
 for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'Puppet', 'Combat Trainer', 'Battlemage', 'Batista the Cook', 'Dragoon', 'Gelda', 'Dragon Knight', '', null]) {

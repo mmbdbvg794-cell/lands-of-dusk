@@ -38,6 +38,7 @@ const CREATURES = [
   ['ghost_swamp', /\b(swamp|bog) horrors?\b/],
   ['ghost_gloom', /\b(glooms?|banshees?)\b/],
   ['ghost', /\b(ghosts?|specters?|spectres?|spirits?|phantoms?|wraiths?|apparitions?)\b/],
+  ['mishaven', /\b(mishavens?)\b/],
   ['imp', /\b(imps?)\b/],
   ['kobold', /\b(kobolds?)\b/],
 ];
@@ -84,6 +85,17 @@ export function hoverMs(creature) {
 // Creatures only ever seen side-on: facing N or S they show their last side (W or E),
 // default E (a raised snake seen head-on is just a tall tube). 0 n, 1 s, 2 w, 3 e.
 export const SIDE_ONLY = new Set(['snake']);
+// Creatures drawn bigger than a person: their frame scaled about its bottom centre (feet
+// stay put; it grows upward and sideways). 1 for everyone else.
+export const DRAW_SCALE = { mishaven: 1.3 };
+export function drawScale(creature) {
+  return DRAW_SCALE[creature] ?? 1;
+}
+// Where a frame of side `cell` drawn at (px, py) goes at that scale: [x, y, side].
+export function scaledBox(px, py, cell, scale) {
+  const side = cell * scale;
+  return [px - (side - cell) / 2, py - (side - cell), side];
+}
 export function sideDir(creature, dir, lastSide = 3) {
   if (!SIDE_ONLY.has(creature) || dir === 2 || dir === 3) return dir;
   return lastSide === 2 ? 2 : 3;
