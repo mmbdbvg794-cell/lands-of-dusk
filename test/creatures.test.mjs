@@ -40,6 +40,20 @@ assert.equal(creatureSheetFor('man-eater'), 'maneater');
 assert.equal(creatureSheetFor('Man Eater'), 'maneater');
 assert.equal(creatureSheetFor('maneaters'), 'maneater');
 for (const n of ['Germaneater', 'dry one raider', 'dry one digger']) assert.equal(creatureSheetFor(n), null, n);
+const ghosts = {
+  ghost_water: ['Water Shade', 'shade'],
+  ghost_marsh: ['marsh wisp', 'will-o-wisp', 'will o wisp'],
+  ghost_swamp: ['swamp horror', 'bog horror'],
+  ghost_gloom: ['gloom', 'Glooms', 'banshee'],
+  ghost: ['unholy ghost', 'Specter', 'phantom', 'wraith', 'Flame spirit'],
+  wolf_black: ['gloom hound'],
+  dragon: ['Dragon Spirit'],
+  imp: ['Imp', 'imps'],
+  kobold: ['kobold', 'Kobolds'],
+};
+for (const [sheet, names] of Object.entries(ghosts)) for (const n of names) assert.equal(creatureSheetFor(n), sheet, n);
+assert.equal(creatureFallback('ghost_marsh'), 'ghost');
+for (const n of ['Impala', 'Shadewood', 'Shadeassassin', 'shade_assassin', 'Gloomwick', 'Wispa']) assert.equal(creatureSheetFor(n), null, n);
 for (const n of ['Wolfgang the Smith', 'Houndsworth', 'Dogberry', 'Dinosaurus Rex the Bard']) assert.equal(creatureSheetFor(n), null, n);
 for (const n of ['Ratcliffe the Baker', 'Bullseye', 'Rampart Guard', 'Ewen', 'Pigott', 'Asparagus', 'Doge', 'Kingshaven guard', 'Puppet', 'Combat Trainer', 'Battlemage', 'Batista the Cook', 'Dragoon', 'Gelda', 'Dragon Knight', '', null]) {
   assert.equal(creatureSheetFor(n), null, String(n));

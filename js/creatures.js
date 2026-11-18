@@ -32,6 +32,14 @@ const CREATURES = [
   // not "Dragon Knight": a man in dragon armour (js/npcoutfits.js)
   ['dragon', /\b(dragons?|drakes?|wyrms?|wyverns?|whelps?|dragonlings?|wyrmlings?)\b(?! knight)/],
   ['mushroom', /\b(mushrooms?|shrooms?|myconids?|fungus|fungi|fungal|toadstools?|sporelings?)\b/],
+  // the ghost family, after the wolves (a "gloom hound" is a black wolf) and dragons ("Dragon Spirit")
+  ['ghost_water', /\b(water shades?|shades?)\b/],
+  ['ghost_marsh', /\b(marsh wisps?|wisps?|will[ -]o[ -]wisps?)\b/],
+  ['ghost_swamp', /\b(swamp|bog) horrors?\b/],
+  ['ghost_gloom', /\b(glooms?|banshees?)\b/],
+  ['ghost', /\b(ghosts?|specters?|spectres?|spirits?|phantoms?|wraiths?|apparitions?)\b/],
+  ['imp', /\b(imps?)\b/],
+  ['kobold', /\b(kobolds?)\b/],
 ];
 
 // Slimes come in colours (mob-slime_<colour>.png), picked from a colour or element word
@@ -59,6 +67,7 @@ export function creatureSheetFor(name) {
 export function creatureFallback(sheet) {
   if (sheet?.startsWith('slime_')) return 'slime';
   if (sheet?.startsWith('wolf_')) return 'wolf';
+  if (sheet?.startsWith('ghost_')) return 'ghost';
   return null;
 }
 
