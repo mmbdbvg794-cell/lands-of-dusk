@@ -3178,3 +3178,10 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - 2026-11-18: ghost family (ghost, ghost_water/marsh/swamp/gloom; ghost_* falls back to ghost), imp, kobold, after the wolves/dragons so "gloom hound" stays wolf_black and "Dragon Spirit" a dragon. mob-maneater.png now on the server. 1542 of 3651 spawns draw rendered creatures.
 - 2026-11-18: mishaven creature (52 placed, near Riverside/City of Light), drawn 1.3x via `DRAW_SCALE`/`drawScale`/`scaledBox` (js/creatures.js; scaled about the bottom centre). Labels are drawn at the tile's bottom edge over everything, so scaling doesn't hide them.
 - Dwarves: no player dwarf race (defRaces: human 0, elf 1, darkelf 2, lizardman 6; females 8-11). Look 7 (horned helm, beard) is an unused "other character" look. Duergar mobs (soldier 20, delver 5, guard 5, Thrumgar 1; all image 4) get neither npcOutfit nor a creature: they keep the painted bestiary art.
+
+## Duergar on rendered bodies (2026-11-19)
+- `npcOutfit` dresses duergar/Thrumgar on **look 20** (rendered-only grey dwarf body; `DUERGAR_LOOK` in `js/npcoutfits.js`). Its gear layers are `look20-*.png`, copies of look 7's, listed under "20" in `art/rendered/layers.json` (same scheme as look 2 copying look 0).
+- `main.js` loads `look20.png` besides the 12 players.gif looks.
+- Dark iron `IRON #3a4250`; Thrumgar `WARLORD_IRON #262a32` with `DULL_GOLD` trim and a hammer. Soldier: mail + leather trim, plate legs, helm, axe. Guard: plate, helm, axe or spear per name. Delver: soot leather, dark legs, charcoal hood, pick.
+- Look 7/20 have **no `helm` (or `torso`) layer**, so the helm in their outfits is skipped until one is rendered.
+- "Duergar Bounty" (a prop) stays painted: isPersonNpc rejects "bounty" and npcOutfit returns null for it too.

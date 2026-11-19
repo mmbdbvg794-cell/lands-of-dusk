@@ -3,7 +3,8 @@
 // white clothing layers (look<N>-npc-*.png and the gear layers) tinted per NPC.
 // Everything is chosen from the NPC's name, so the same NPC always looks the
 // same. Names that aren't people (animals, skeletons, ...) or people without a
-// fitting body (duergar, ash-sworn) get null and keep their painted art.
+// fitting body (ash-sworn) get null and keep their painted art. Duergar wear dark
+// iron on the rendered-only grey dwarf body, look 20.
 
 function hash(s) {
   let h = 2166136261;
@@ -25,6 +26,11 @@ const SAND = ['#d8c49a', '#c8a060', '#9a7a52', '#e4dcc4', '#b0a088'];
 const TRIMS = ['#c8a040', '#d8d0b8', '#3a2a1a', '#7a2a2a', '#3a4a6a', '#2a2a2a'];
 const WOOD = '#74502c';
 const STEEL = '#c8ccd4';
+// Duergar dark iron: near-black steel with a little blue; Thrumgar's darker and heavier, dull gold trim.
+const IRON = '#3a4250';
+const WARLORD_IRON = '#262a32';
+const DULL_GOLD = '#8a7438';
+export const DUERGAR_LOOK = 20;
 // [name pattern, armour colour, trim/cloak colour] as tools/paintart/bestiary.js.
 const ARMOURS = [
   [/dark|doom|shadow/, '#2a2830', '#8a2a2a'],
@@ -77,7 +83,37 @@ function dressNpc(name) {
     if (trim) layers.push([`${layer}-trim`, trim]);
   };
 
-  if (/skeleton|stalfos|king's-man|grey herald|duergar|thrumgar|ash-sworn/.test(n)) return null;
+  if (/skeleton|stalfos|king's-man|grey herald|ash-sworn/.test(n)) return null;
+
+  if (/duergar|thrumgar/.test(n)) {
+    // grey dwarves (look 20, sharing look 7's gear layers) in dark iron; not the "Duergar Bounty" notice
+    if (/bounty|notice|board/.test(n)) return null;
+    const look = DUERGAR_LOOK;
+    const leather = pick(['#3a2a1a', '#2e2218', '#2a2420'], 'boots');
+    wear('npc-boots', leather);
+    if (/thrumgar|warlord/.test(n)) {
+      wear('legs-plate', WARLORD_IRON, DULL_GOLD);
+      wear('torso-plate', WARLORD_IRON, DULL_GOLD);
+      wear('helm', WARLORD_IRON);
+      wear('weapon-hammer', IRON);
+    } else if (/delver/.test(n)) {
+      wear('legs-cloth', pick(['#26262a', '#2a2622'], 'legs'));
+      wear('torso-leather', pick(['#4a3a2e', '#3e3026'], 'leather'), shade(leather, 0.8));
+      wear('npc-hood', pick(['#2e2e32', '#363438'], 'hood'));
+      wear('weapon-pick', WOOD);
+    } else if (/guard/.test(n)) {
+      wear('legs-plate', IRON, shade(IRON, 1.3));
+      wear('torso-plate', IRON, shade(IRON, 1.3));
+      wear('helm', IRON);
+      wear(chance('spear', 0.5) ? 'weapon-spear' : 'weapon-axe', IRON);
+    } else {
+      wear('legs-plate', IRON, shade(IRON, 1.3));
+      wear('torso-chain', IRON, shade(leather, 0.8));
+      wear('helm', IRON);
+      wear('weapon-axe', IRON);
+    }
+    return { look, layers };
+  }
 
   if (/\bdry ones?\b/.test(n)) {
     // desert raiders by the lizard-folk swamps: lizardfolk bodies, sun-bleached hood and hides

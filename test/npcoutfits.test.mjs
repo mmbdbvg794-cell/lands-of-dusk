@@ -35,7 +35,7 @@ for (let i = 0; i < 40; i++) {
 }
 
 // Not people (or no body for them yet): painted art stays.
-for (const n of ['wolf', 'skeleton knight', 'duergar delver', 'slime', '']) assert.equal(npcOutfit(n), null, n);
+for (const n of ['wolf', 'skeleton knight', 'Duergar Bounty', 'slime', '']) assert.equal(npcOutfit(n), null, n);
 
 // Order: cloak under the rest except facing north; weapon behind facing north/west.
 const o = { look: 0, layers: [['legs-plate', 'a'], ['torso-plate', 'b'], ['npc-cloak', 'c'], ['helm', 'd'], ['weapon-sword', 'e']] };
@@ -99,4 +99,23 @@ for (const [who, tools] of [['dry one raider', ['weapon-spear', 'weapon-sword']]
   assert.ok(names(o).some((l) => tools.includes(l)), `${who}: ${tools.join(' or ')}`);
 }
 assert.equal(npcOutfit('dry one woman').look, 11, 'dry one women: look 11');
+// Duergar: the grey dwarf body (look 20) in dark iron, each with its own weapon family.
+for (const [who, weapons, wears] of [
+  ['duergar soldier', ['weapon-axe'], ['torso-chain', 'legs-plate', 'helm', 'npc-boots']],
+  ['duergar guard', ['weapon-axe', 'weapon-spear'], ['torso-plate', 'legs-plate', 'helm', 'npc-boots']],
+  ['duergar delver', ['weapon-pick'], ['torso-leather', 'legs-cloth', 'npc-hood', 'npc-boots']],
+  ['Thrumgar the Grey Warlord', ['weapon-hammer'], ['torso-plate', 'legs-plate', 'helm']],
+]) {
+  const o = npcOutfit(who);
+  assert.equal(o.look, 20, `${who}: duergar body`);
+  assert.ok(names(o).some((l) => weapons.includes(l)), `${who}: ${weapons.join(' or ')}`);
+  for (const l of wears) assert.ok(names(o).includes(l), `${who} wears ${l}`);
+  assert.ok(names(o).indexOf('npc-boots') > names(o).findIndex((l) => l.startsWith('legs-')), `${who}: boots over the legs`);
+}
+assert.deepEqual(npcOutfit('duergar guard'), npcOutfit('Duergar Guard'), 'a guard keeps the same weapon');
+const thr = npcOutfit('Thrumgar the Grey Warlord');
+const plate = (o) => o.layers.find(([l]) => l === 'legs-plate')[1];
+assert.notEqual(plate(thr), plate(npcOutfit('duergar soldier')), 'Thrumgar: darker iron than his soldiers');
+assert.notEqual(plate(npcOutfit('duergar soldier')), plate(npcOutfit('kingshaven knight')), 'dark iron, not the knights\' steel');
+assert.equal(npcOutfit('kingshaven guard').look, 0, 'human guards keep look 0');
 console.log('npc outfit tests passed');

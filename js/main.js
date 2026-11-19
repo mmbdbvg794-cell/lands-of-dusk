@@ -32,6 +32,7 @@ import { parseWorking, parseRecipe, SmithView, chopCommand } from './crafting.js
 import { TREE_TILES } from './trees.js';
 import { CraftAdmin, parseCraftAdmin } from './craftadmin.js';
 import { LOOKS, paintFigureStrip, OUT as FIGURE_OUT } from './figure.js';
+import { DUERGAR_LOOK } from './npcoutfits.js';
 import { bindWeather, setWeather } from './weather.js';
 import { Ships, parseShip } from './ships.js';
 import { StorageReader, isStorage, lookCommand, lockCommand, isBoxLine, isTeller, TELLER_REACH } from './storage.js';
@@ -2087,9 +2088,11 @@ async function applyArt() {
   // (localStorage dusk.rendered = '0' turns them off.)
   const wantRendered = artStyle === 'painted' && storage('get', 'dusk.rendered') !== '0';
   if (wantRendered && renderedLooks === null) {
-    const strips = await Promise.all(LOOKS.map((_, i) => loadSheet(`art/rendered/look${i}.png`).catch(() => null)));
+    // ...plus the rendered-only bodies with no players.gif look (20: duergar, for NPCs).
+    const looks = [...LOOKS.keys(), DUERGAR_LOOK];
+    const strips = await Promise.all(looks.map((i) => loadSheet(`art/rendered/look${i}.png`).catch(() => null)));
     renderedLooks = new Map();
-    strips.forEach((sheet, i) => { if (sheet) renderedLooks.set(i, sheet); });
+    strips.forEach((sheet, k) => { if (sheet) renderedLooks.set(looks[k], sheet); });
   }
   // Gear layers for the rendered figures, listed in art/rendered/layers.json:
   // { "<look>": ["torso", "helm", "weapon", "torso-robe", ...] } -> look<N>-<name>.png

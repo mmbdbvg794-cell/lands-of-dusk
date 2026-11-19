@@ -1,0 +1,73 @@
+From b414dac9d76c7f34fd61f9fc5c1ee672ae54685c Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 3 Nov 2026 17:31:36 -0500
+Subject: [PATCH] Test toggle: 3D-rendered player figures from
+ art/rendered/lookN.png
+
+With localStorage dusk.rendered = 1, the client loads art/rendered/look<N>.png
+(one 8-frame strip per players.gif look: N stand/walk, S, W, E) and draws
+players of those looks from it, own character included, instead of the
+painted or pixel figure. Gear isn't drawn on rendered figures. Off by default;
+nothing changes for anyone without the flag.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UvXdgYwd8VUZYCr9um66Bo
+---
+ js/main.js     | 11 +++++++++++
+ js/renderer.js |  4 ++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/js/main.js b/js/main.js
+index a79d948..3f9ec83 100644
+--- a/js/main.js
++++ b/js/main.js
+@@ -1976,6 +1976,7 @@ let pixelSheets = null;
+ let paintedSheets = null;
+ let paintedNamed = null; // { sheet, index } once loaded, false if unavailable
+ let paintedItems = null; // the same, for items by name
++let renderedLooks = null; // look -> SpriteSheet, the 3D-rendered test figures (dusk.rendered)
+ // Reads storage listings (see storage.js) while you're next to storage.
+ const storageReader = new StorageReader();
+ let artStyle = storage('get', 'dusk.art') === 'painted' ? 'painted' : 'pixel';
+@@ -2070,6 +2071,16 @@ async function applyArt() {
+     renderer.named = null;
+     renderer.items = null;
+   }
++  // Test (localStorage dusk.rendered = 1): 3D-rendered figures from
++  // art/rendered/look<N>.png, one 8-frame strip per players.gif look, used
++  // in place of the painted/pixel figure wherever one exists.
++  if (storage('get', 'dusk.rendered') && renderedLooks === null) {
++    const strips = await Promise.all(LOOKS.map((_, i) => loadSheet(`art/rendered/look${i}.png`).catch(() => null)));
++    renderedLooks = new Map();
++    strips.forEach((sheet, i) => { if (sheet) renderedLooks.set(i, sheet); });
++    if (renderedLooks.size) sysLine(`Rendered figures on for looks ${[...renderedLooks.keys()].join(', ')}.`);
++  }
++  renderer.rendered = renderedLooks?.size ? renderedLooks : null;
+   dressSelf();
+   // Which tiles are snow, for snow instead of rain (measured once, from
+   // the painted tiles: the game's own picture is on another server, which
+diff --git a/js/renderer.js b/js/renderer.js
+index 95e24b4..624856f 100644
+--- a/js/renderer.js
++++ b/js/renderer.js
+@@ -55,6 +55,7 @@ export class Renderer {
+     // Other players' gear (Painted style), by entity ID, from "worn".
+     this.others = new Map();
+     this.outfits = new Map(); // "image gear" -> strip, the figures painted so far
++    this.rendered = null; // look -> SpriteSheet of 3D-rendered figures (test, js/main.js)
+     this.cell = 0;
+     this.pending = false;
+     new ResizeObserver(() => this.resize()).observe(box);
+@@ -243,6 +244,9 @@ export class Renderer {
+       const byName = (art && art === this.named && world.walking(e, now) ? art.index.get(`${key} walk`) : undefined) ?? art?.index.get(key);
+       if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
+       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
++      // Test: 3D-rendered figures (art/rendered/lookN.png) in place of the
++      // painted ones, for the looks that have one. Gear isn't drawn on them.
++      else if (e.type === 0 && this.rendered?.has(e.image)) this.rendered.get(e.image).draw(ctx, step, px, py, c);
+       else if (e === self) this.drawDressed(e.image, step, px, py, c, this.gear);
+       else if (dressing && e.type === 0 && this.others.has(e.id)) this.drawDressed(e.image, step, px, py, c, this.others.get(e.id));
+       else players?.draw(ctx, e.image * 8 + step, px, py, c);
+-- 
+2.43.0
+

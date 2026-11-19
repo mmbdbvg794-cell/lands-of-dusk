@@ -91,4 +91,5 @@ assert.equal(row('snake', 1), 3, 'snake facing S: E by default');
 assert.equal(row('snake', 0, 2), 2, 'snake keeps its last side');
 assert.equal(row('snake', 2), 2, 'snake facing W: W');
 assert.equal(row('wolf', 0), 0, 'wolf facing N: N');
+for (const n of ['duergar soldier', 'duergar guard', 'duergar delver', 'Thrumgar the Grey Warlord', 'Duergar Bounty']) assert.equal(creatureSheetFor(n), null, `${n}: not a creature`);
 console.log('creature tests passed');
