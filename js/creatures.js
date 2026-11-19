@@ -26,8 +26,8 @@ const CREATURES = [
   ['maneater', /\b(man-eaters?|maneaters?|man eaters?)\b/],
   ['dinosaur', /\b(dinosaurs?|dinos?|raptors?|velociraptors?)\b/],
   ['llama', /\b(llamas?|alpacas?)\b/],
-  ['skeleton', /\b(skeletons?|skeletal|bones|bonewalkers?|undead warriors?)\b/],
-  ['slime', /\b(slimes?|oozes?|jelly|jellies|gels?|blobs?|puddings?)\b/],
+  ['skeleton', /\b(skeletons?|skeletal|bones|bonewalkers?|undead warriors?|stalfos|risen|king's-m[ae]n)\b/],
+  ['slime', /\b(slimes?|slimers?|sludges?|oozes?|jelly|jellies|gels?|blobs?|puddings?)\b/],
   ['bat', /\b(bats?)\b/],
   // not "Dragon Knight": a man in dragon armour (js/npcoutfits.js)
   ['dragon', /\b(dragons?|drakes?|wyrms?|wyverns?|whelps?|dragonlings?|wyrmlings?)\b(?! knight)/],
@@ -41,13 +41,19 @@ const CREATURES = [
   ['mishaven', /\b(mishavens?)\b/],
   ['imp', /\b(imps?)\b/],
   ['kobold', /\b(kobolds?)\b/],
+  ['bug', /\b(bugs?|beetles?|crawlers?|insects?|grubs?)\b/],
+  ['mole', /\b(moles?)\b/],
 ];
+
+// People named after a creature ("Mole Hill Farmer", a rat catcher) stay people (js/npcoutfits.js).
+const PERSON = /\b(farmers?|hunters?|catchers?|keepers?|tenders?|traders?|merchants?|sellers?|herders?|tamers?)\b/;
 
 // Slimes come in colours (mob-slime_<colour>.png), picked from a colour or element word
 // in the name; anything else is the green mob-slime.png.
 const SLIME_COLOURS = [
+  ['slime', /\b(toxic|poison|poisonous|acid|acidic)\b/],
   ['slime_red', /\b(red|crimson|scarlet|blood|bloody|fire|flame|flaming|magma|lava|ember|cinder)\b/],
-  ['slime_blue', /\b(blue|azure|ice|icy|frost|frozen|water|cold)\b/],
+  ['slime_blue', /\b(blue|azure|ice|icy|frost|frozen|water|cold|lake|river|sea)\b/],
   ['slime_purple', /\b(purple|violet|magenta|arcane|void)\b/],
   ['slime_yellow', /\b(yellow|gold|golden|amber|sulphur|sulfur|lightning|electric|shock)\b/],
   ['slime_black', /\b(black|dark|shadow|tar|pitch|oil|oily)\b/],
@@ -56,6 +62,7 @@ const SLIME_COLOURS = [
 
 export function creatureSheetFor(name) {
   const n = String(name ?? '').toLowerCase();
+  if (PERSON.test(n)) return null;
   for (const [creature, re] of CREATURES) {
     if (!re.test(n)) continue;
     if (creature === 'slime') return SLIME_COLOURS.find(([, c]) => c.test(n))?.[0] ?? 'slime';

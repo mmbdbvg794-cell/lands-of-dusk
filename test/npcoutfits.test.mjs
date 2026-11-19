@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { npcOutfit, npcLayersFor, npcFacing, shade, trimColour } from '../js/npcoutfits.js';
+import { npcOutfit, npcLayersFor, npcFacing, shade, trimColour, npcRace, npcFemale, raceAt } from '../js/npcoutfits.js';
+import { creatureSheetFor } from '../js/creatures.js';
 
 const names = (o) => o.layers.map(([l]) => l);
 
@@ -118,4 +119,61 @@ const plate = (o) => o.layers.find(([l]) => l === 'legs-plate')[1];
 assert.notEqual(plate(thr), plate(npcOutfit('duergar soldier')), 'Thrumgar: darker iron than his soldiers');
 assert.notEqual(plate(npcOutfit('duergar soldier')), plate(npcOutfit('kingshaven knight')), 'dark iron, not the knights\' steel');
 assert.equal(npcOutfit('kingshaven guard').look, 0, 'human guards keep look 0');
+// Lizardfolk warriors are people: hides and an axe (or a spear) on the lizardfolk body.
+for (const who of ['Lizard Axeman', 'lizard axewarrior']) {
+  const o = npcOutfit(who);
+  assert.equal(o.look, 6, `${who}: lizardfolk body`);
+  assert.ok(names(o).includes('weapon-axe') && names(o).includes('torso-hide') && names(o).includes('legs-cloth'), `${who}: hide, cloth, axe`);
+  assert.equal(creatureSheetFor(who), null, `${who}: not a creature`);
+}
+assert.ok(names(npcOutfit('lizard guard')).includes('weapon-spear'), 'lizard guard: spear');
+for (const n of ['Lizard', 'mire lizard', 'Stone lizard', 'Bug', 'couch']) assert.equal(npcOutfit(n), null, `${n}: no outfit`);
+assert.equal(npcOutfit('Mole Hill Farmer').look, 0, 'Mole Hill Farmer: still a farmer');
+assert.equal(creatureSheetFor('Mole Hill Farmer'), null, 'Mole Hill Farmer: not a mole');
+
+// Named townsfolk (merchants and people props): race from the look or where they stand, sex from the
+// look or the name, clothes from the job in the name.
+const at = (x, y, look, merchant = false) => ({ x, y, look, merchant });
+assert.equal(raceAt(1340, 914), 'drow');
+assert.equal(raceAt(1440, 352), 'human', 'Kingshaven');
+assert.equal(npcOutfit('Nalfein', at(1339, 913)).look, 2, 'Velkarath man: drow');
+assert.equal(npcOutfit('Sabal', at(1334, 937, 'dark elf woman')).look, 10, 'Velkarath woman: drow');
+assert.equal(npcOutfit('Merchant', at(1331, 925, undefined, true)).look, 2, 'a merchant in Velkarath: drow');
+assert.equal(npcOutfit('Dark Elf Man', at(100, 100)).look, 2, '"Dark Elf" names: drow anywhere');
+assert.equal(npcOutfit('Caelum', at(449, 1254, 'elf')).look, 1, 'Aelindor: elf');
+assert.equal(npcOutfit('Ssuli the Trader', at(1689, 941)).look, 6, 'Ssuli in Ssarakh: lizardfolk');
+assert.equal(npcOutfit('Ssuli the Trader', at(794, 1529, 'lizardfolk')).look, 6, 'Ssuli at Lastwater: lizardfolk by look');
+assert.ok(names(npcOutfit('Ssuli the Trader', at(794, 1529, 'lizardfolk'))).includes('npc-belt'), 'traders: a belt');
+assert.equal(npcOutfit('Cobb the Grocer', at(1440, 352)).look, 0, 'elsewhere: human');
+assert.equal(npcOutfit('Cobb the Grocer', at(5000, 5000)).look, 0, 'unknown place: human');
+assert.ok(names(npcOutfit('Brann the Smith', at(1440, 352))).includes('npc-apron'), 'smith: apron');
+assert.ok(npcFemale('Matron Xalyth'), 'Matron Xalyth: female');
+assert.equal(npcOutfit('Matron Xalyth', at(1345, 895)).look, 10, 'Matron Xalyth: drow woman');
+assert.ok(npcFemale('Herb Wife Agna') && npcFemale('Bertha of Kingshaven') && npcFemale('Smith\'s Widow Orla'), 'female names and titles');
+assert.ok(!npcFemale('Brann the Smith') && !npcFemale('Captain Hale'), 'default male');
+assert.ok(!npcFemale('Kit of Kingshaven', at(0, 0, 'villager man')), 'the look wins over the name');
+assert.equal(npcRace('Herbalist Linnet', at(1440, 352, 'woman')), 'human');
+assert.ok(names(npcOutfit('Smith\'s Widow Orla', at(1440, 352))).includes('npc-hood'), 'widow: cloak and hood, not an apron');
+assert.ok(names(npcOutfit('Captain Hale', at(1440, 352))).includes('torso-chain'), 'captain: guard');
+assert.ok(names(npcOutfit('Ranger Faelwen', at(463, 1206))).includes('weapon-bow'), 'ranger: hunter');
+assert.ok(names(npcOutfit('Priestess Ilvra', at(1370, 899))).includes('weapon-staff'), 'priestess: robe and staff');
+assert.ok(!names(npcOutfit('Archivist Zyrith', at(1340, 914))).some((l) => l.startsWith('weapon')), 'archivist: no staff');
+assert.ok(names(npcOutfit('Old Sailor Wick', at(95, 355))).includes('npc-cloak'), 'old: cloak');
+assert.ok(names(npcOutfit('Dockhand Bolt', at(95, 355))).includes('npc-shirt'), 'dockhand: shirt');
+for (const n of ['couch', 'Water Barrel', 'Unknown', 'training dummy']) assert.equal(npcOutfit(n, at(1440, 352)), null, `${n}: not a person`);
+for (const n of ['Dagna\'s Kitchen', 'Pickwright\'s Tools', 'Saelin\'s Armoury', 'Ssuli\'s Stall']) assert.equal(npcOutfit(n, at(1440, 352, undefined, true)), null, `${n}: a shop sign`);
+assert.equal(npcOutfit('Pell', at(0, 0, 'barrel')), null, 'a prop that looks like a barrel');
+assert.deepEqual(npcOutfit('Old Wenna', at(1440, 352)), npcOutfit('Old Wenna', at(1440, 352)), 'same name, same outfit');
+assert.notEqual(npcOutfit('Some Stranger', at(1440, 352)), null, 'anyone else: townsfolk');
+assert.equal(npcOutfit('Some Stranger'), null, 'mobs get no fallback');
+// Prisoners: human, ragged, barefoot, unarmed, wherever they're held.
+for (const [who, where] of [['prisoner', null], ['prisoner', at(1340, 914)], ['DraNs prisoner', at(729, 699)]]) {
+  const o = npcOutfit(who, where);
+  assert.equal(o.look, 0, `${who}: human`);
+  assert.deepEqual(names(o).sort(), ['npc-shirt', 'npc-trousers'], `${who}: shirt and trousers only`);
+}
+assert.deepEqual(names(npcOutfit('Elowen', at(0, 0, 'prisoner'))).sort(), ['npc-shirt', 'npc-trousers'], 'looks like a prisoner: ragged');
+assert.equal(npcOutfit('Elowen', at(0, 0, 'prisoner')).look, 8, 'Elowen: a woman');
+assert.ok(names(npcOutfit('Ilzt', at(1366, 937, 'dark elf guard'))).includes('torso-chain'), 'looks like a guard: guard');
+assert.ok(names(npcOutfit('Blademistress Zeerith', at(1307, 955, 'dark elf guard'))).includes('helm'), 'blademistress: armed');
 console.log('npc outfit tests passed');

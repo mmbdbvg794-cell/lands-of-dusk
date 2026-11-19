@@ -92,4 +92,14 @@ assert.equal(row('snake', 0, 2), 2, 'snake keeps its last side');
 assert.equal(row('snake', 2), 2, 'snake facing W: W');
 assert.equal(row('wolf', 0), 0, 'wolf facing N: N');
 for (const n of ['duergar soldier', 'duergar guard', 'duergar delver', 'Thrumgar the Grey Warlord', 'Duergar Bounty']) assert.equal(creatureSheetFor(n), null, `${n}: not a creature`);
+// Bugs, moles; slimers and sludge are slimes; stalfos and the risen are skeletons.
+for (const [sheet, ns] of Object.entries({
+  bug: ['Bug', 'bog crawler', 'tunnel crawler', 'giant beetle', 'cave grub', 'insects'],
+  mole: ['Mole', 'mega mole', 'moles'],
+  slime: ['slimer', 'Toxic sludge', 'sludge'],
+  slime_blue: ['lake slimer', 'lake slime'],
+  slime_red: ['red slimer'],
+  skeleton: ['stalfos', "risen king's-man", 'Risen'],
+})) for (const n of ns) assert.equal(creatureSheetFor(n), sheet, n);
+for (const n of ['Lizard Axeman', 'lizard axewarrior', 'Mole Hill Farmer', 'Lizard', 'slimeball']) assert.equal(creatureSheetFor(n), null, n);
 console.log('creature tests passed');

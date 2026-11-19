@@ -3185,3 +3185,13 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - Dark iron `IRON #3a4250`; Thrumgar `WARLORD_IRON #262a32` with `DULL_GOLD` trim and a hammer. Soldier: mail + leather trim, plate legs, helm, axe. Guard: plate, helm, axe or spear per name. Delver: soot leather, dark legs, charcoal hood, pick.
 - Look 7/20 `helm` and `torso` layers added to layers.json 2026-11-19 (backup layers.json.bak-* beside it); 7 and 20 now list the same 48 layers as look 0.
 - "Duergar Bounty" (a prop) stays painted: isPersonNpc rejects "bounty" and npcOutfit returns null for it too.
+
+## Bugs, moles, slimers, stalfos; lizard warriors; named townsfolk (2026-11-19)
+- `creatureSheetFor`: bug (bug/beetle/crawler/insect/grub), mole; slimer/sludge are slimes ("lake" → blue, "toxic" → green); stalfos/risen/king's-man → skeleton. Names with a person word (farmer, hunter, keeper, tender, trader...: `PERSON`) are never creatures. **mob-bug.png / mob-mole.png were not on the server at deploy time**; old art shows until they are.
+- Lizard + axe/warrior/guard/soldier → people on look 6/11 (hide, cloth, axe or spear). Plain lizards stay painted.
+- `npcOutfit(name, where)`: renderer passes `where = { x, y, look (server prop look), merchant }` for merchants and person props (null for mobs).
+  - Race: prop look ("Dark Elf Woman", "lizardfolk", "Elf") → "Dark Elf"/"drow" in the name → `RACE_AREAS` boxes (Velkarath drow; Aelindor/Landing/Grove elf; Ssarakh, Hatching Pools lizard) → human. Bodies 0/8, 1/9, 2/10, 6/11.
+  - Sex: prop look (woman/matron/priestess/girl/lady → F, "man" → M), then `FEMALE` title words, then `FEMALE_NAMES`; default male.
+  - With `where`, unknown names get a job wardrobe (old/widow → cloak+hood; smith/armourer → apron; scout/ranger → hunter; captain/sergeant/...; robe jobs; traders; waterside), a guard/prisoner prop look decides when the name doesn't, else townsfolk.
+  - Not people: couch, dummy, barrel, Unknown, barrel/newsboard looks, and merchants with a possessive name (shop signs: "Dagna's Kitchen").
+  - Prisoners: human, shirt and trousers only.

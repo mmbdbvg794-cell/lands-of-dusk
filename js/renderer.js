@@ -259,7 +259,10 @@ export class Renderer {
       // Mobs that are animals the 3D renders cover (js/creatures.js), Painted style only
       // (this.creatures is null in Pixel); until a strip loads, or if it fails, the old picture.
       const creature = this.creatures && e.type === 4 ? this.creatureSheet(creatureSheetFor(bareName(e.name))) : null;
-      const outfit = !creature && this.rendered && this.renderedLayers && this.isPersonNpc(e) ? npcOutfit(bareName(e.name)) : null;
+      // Merchants and people props also get their race's body for where they stand, and a
+      // wardrobe from the job in their name; mobs only the named wardrobes.
+      const where = e.type === 4 ? null : { x: e.x, y: e.y, look: propLook(this.propLooks, e), merchant: e.type === 2 };
+      const outfit = !creature && this.rendered && this.renderedLayers && this.isPersonNpc(e) ? npcOutfit(bareName(e.name), where) : null;
       if (creature) this.drawCreature(e, creature, creatureSheetFor(bareName(e.name)), px, py, c, now);
       else if (outfit && this.rendered.has(outfit.look)) this.drawNpc(e, outfit, px, py, c, now);
       else if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
