@@ -3197,3 +3197,4 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   - Prisoners: human, shirt and trousers only.
 - Lizards (2026-11-19): `lizard_gator` (alligator/crocodile/croc/gator), `lizard_mire`, `lizard_stone`, `lizard`; fallback lizard_* → lizard. `LIZARD_PEOPLE` (lizardfolk/lizardman, lizard + axe/warrior/guard/soldier/shaman) is never a creature.
 - Children (child/kid/boy/girl/urchin/orphan, whole words): `outfit.scale` 0.75 via `npcScale`, drawn with `scaledBox` in `drawNpc`. Liriel is in `FEMALE_NAMES`.
+- Cats and gargoyles (2026-11-19): `cat` (cat/kitten/kitty/wildcat/alley cat/tabby/housecat/bobcat/lynx), `gargoyle`.

@@ -105,4 +105,7 @@ for (const [n, sheet] of [['Lizard', 'lizard'], ['lizards', 'lizard'], ['newt', 
 assert.equal(creatureFallback('lizard_mire'), 'lizard');
 for (const n of ['lizardman', 'lizardfolk', 'lizard-folk', 'Lizardton', 'lizard shaman', 'lizard soldier', 'lizard guard', 'navigator']) assert.equal(creatureSheetFor(n), null, n);
 for (const n of ['Lizard Axeman', 'lizard axewarrior', 'Mole Hill Farmer', 'slimeball']) assert.equal(creatureSheetFor(n), null, n);
+for (const [n, sheet] of [['cat', 'cat'], ['Kitten', 'cat'], ['alley cat', 'cat'], ['lynx', 'cat'], ['shrine gargoyle', 'gargoyle'], ['gargoyle', 'gargoyle'], ['stone gargoyles', 'gargoyle']]) assert.equal(creatureSheetFor(n), sheet, n);
+assert.notEqual(creatureSheetFor('Catacomb Guard'), 'cat', 'Catacomb Guard');
+for (const n of ['Catherine', 'Cathedral', 'scatter']) assert.equal(creatureSheetFor(n), null, n);
 console.log('creature tests passed');

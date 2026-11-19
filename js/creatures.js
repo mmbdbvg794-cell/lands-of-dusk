@@ -43,6 +43,8 @@ const CREATURES = [
   ['kobold', /\b(kobolds?)\b/],
   ['bug', /\b(bugs?|beetles?|crawlers?|insects?|grubs?)\b/],
   ['mole', /\b(moles?)\b/],
+  ['cat', /\b(cats?|kittens?|kitty|kitties|wildcats?|alley cats?|tabby|tabbies|housecats?|bobcats?|lynx|lynxes)\b/],
+  ['gargoyle', /\b(gargoyles?)\b/],
   // lizards and their big cousins, the specific kinds first (lizardfolk people are excluded below)
   ['lizard_gator', /\b(alligators?|crocodiles?|crocs?|gators?)\b/],
   ['lizard_mire', /\b(mire|swamp|bog|marsh) lizards?\b/],
