@@ -3195,3 +3195,5 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   - With `where`, unknown names get a job wardrobe (old/widow → cloak+hood; smith/armourer → apron; scout/ranger → hunter; captain/sergeant/...; robe jobs; traders; waterside), a guard/prisoner prop look decides when the name doesn't, else townsfolk.
   - Not people: couch, dummy, barrel, Unknown, barrel/newsboard looks, and merchants with a possessive name (shop signs: "Dagna's Kitchen").
   - Prisoners: human, shirt and trousers only.
+- Lizards (2026-11-19): `lizard_gator` (alligator/crocodile/croc/gator), `lizard_mire`, `lizard_stone`, `lizard`; fallback lizard_* → lizard. `LIZARD_PEOPLE` (lizardfolk/lizardman, lizard + axe/warrior/guard/soldier/shaman) is never a creature.
+- Children (child/kid/boy/girl/urchin/orphan, whole words): `outfit.scale` 0.75 via `npcScale`, drawn with `scaledBox` in `drawNpc`. Liriel is in `FEMALE_NAMES`.

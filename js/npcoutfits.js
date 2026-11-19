@@ -65,8 +65,15 @@ function layerRank(layer) {
   return 2;
 }
 
+// Children are drawn smaller, about their feet (as js/creatures.js DRAW_SCALE).
+const CHILD = /\b(child|children|kids?|boys?|girls?|urchins?|orphans?)\b/;
+export function npcScale(name) {
+  return CHILD.test(String(name ?? '').toLowerCase()) ? 0.75 : 1;
+}
+
 export function npcOutfit(name, where = null) {
   const outfit = dressNpc(name, where);
+  if (outfit) outfit.scale = npcScale(name);
   if (outfit) outfit.layers = outfit.layers.map((l, i) => [l, i]).sort((a, b) => layerRank(a[0][0]) - layerRank(b[0][0]) || a[1] - b[1]).map(([l]) => l);
   return outfit;
 }
@@ -85,7 +92,7 @@ export function raceAt(x, y) {
   return RACE_AREAS.find(([, x0, y0, x1, y1]) => x >= x0 && x <= x1 && y >= y0 && y <= y1)?.[0] ?? 'human';
 }
 // Female first names that occur in the world, for people whose name and look don't say.
-export const FEMALE_NAMES = new Set(['agna', 'bertha', 'corra', 'elowen', 'flora', 'hessa', 'hilda', 'ilse', 'ingrid', 'kit', 'linnet', 'mabel', 'miriel', 'mossa', 'nan', 'nimue', 'orla', 'petra', 'prue', 'rhea', 'sylwen', 'tamsin', 'tess', 'thalia', 'wenna', 'ysolde', 'jenova']);
+export const FEMALE_NAMES = new Set(['agna', 'bertha', 'corra', 'elowen', 'flora', 'hessa', 'hilda', 'ilse', 'ingrid', 'kit', 'linnet', 'liriel', 'mabel', 'miriel', 'mossa', 'nan', 'nimue', 'orla', 'petra', 'prue', 'rhea', 'sylwen', 'tamsin', 'tess', 'thalia', 'wenna', 'ysolde', 'jenova']);
 // Not people, whatever their name or dialogue: furniture, dummies, barrels, notices.
 const NOT_PEOPLE = /\b(couch|training dummy|dummy|water barrel|barrel|unknown)\b/;
 

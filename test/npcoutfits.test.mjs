@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { npcOutfit, npcLayersFor, npcFacing, shade, trimColour, npcRace, npcFemale, raceAt } from '../js/npcoutfits.js';
+import { npcOutfit, npcLayersFor, npcFacing, shade, trimColour, npcRace, npcFemale, raceAt, npcScale } from '../js/npcoutfits.js';
 import { creatureSheetFor } from '../js/creatures.js';
 
 const names = (o) => o.layers.map(([l]) => l);
@@ -127,7 +127,7 @@ for (const who of ['Lizard Axeman', 'lizard axewarrior']) {
   assert.equal(creatureSheetFor(who), null, `${who}: not a creature`);
 }
 assert.ok(names(npcOutfit('lizard guard')).includes('weapon-spear'), 'lizard guard: spear');
-for (const n of ['Lizard', 'mire lizard', 'Stone lizard', 'Bug', 'couch']) assert.equal(npcOutfit(n), null, `${n}: no outfit`);
+for (const n of ['Lizard', 'mire lizard', 'Stone lizard', 'alligator', 'Bug', 'couch']) assert.equal(npcOutfit(n), null, `${n}: no outfit`);
 assert.equal(npcOutfit('Mole Hill Farmer').look, 0, 'Mole Hill Farmer: still a farmer');
 assert.equal(creatureSheetFor('Mole Hill Farmer'), null, 'Mole Hill Farmer: not a mole');
 
@@ -176,4 +176,12 @@ assert.deepEqual(names(npcOutfit('Elowen', at(0, 0, 'prisoner'))).sort(), ['npc-
 assert.equal(npcOutfit('Elowen', at(0, 0, 'prisoner')).look, 8, 'Elowen: a woman');
 assert.ok(names(npcOutfit('Ilzt', at(1366, 937, 'dark elf guard'))).includes('torso-chain'), 'looks like a guard: guard');
 assert.ok(names(npcOutfit('Blademistress Zeerith', at(1307, 955, 'dark elf guard'))).includes('helm'), 'blademistress: armed');
+// Children drawn at three quarters, everyone else full size; Captain Liriel is an elf woman.
+assert.equal(npcOutfit('Child', at(1440, 352)).scale, 0.75, 'Child: 0.75');
+assert.equal(npcScale('street urchin'), 0.75);
+assert.equal(npcOutfit('Captain Hale', at(1440, 352)).scale, 1, 'Captain Hale: 1');
+assert.equal(npcScale('Boyd'), 1, 'whole words only');
+const liriel = npcOutfit('Captain Liriel', at(444, 1180, 'elf'));
+assert.equal(liriel.look, 9, 'Captain Liriel: elf woman');
+assert.ok(names(liriel).includes('torso-chain'), 'Captain Liriel: captain outfit');
 console.log('npc outfit tests passed');

@@ -101,5 +101,8 @@ for (const [sheet, ns] of Object.entries({
   slime_red: ['red slimer'],
   skeleton: ['stalfos', "risen king's-man", 'Risen'],
 })) for (const n of ns) assert.equal(creatureSheetFor(n), sheet, n);
-for (const n of ['Lizard Axeman', 'lizard axewarrior', 'Mole Hill Farmer', 'Lizard', 'slimeball']) assert.equal(creatureSheetFor(n), null, n);
+for (const [n, sheet] of [['Lizard', 'lizard'], ['lizards', 'lizard'], ['newt', 'lizard'], ['mire lizard', 'lizard_mire'], ['swamp lizard', 'lizard_mire'], ['Stone lizard', 'lizard_stone'], ['cave lizard', 'lizard_stone'], ['alligator', 'lizard_gator'], ['Crocodile', 'lizard_gator'], ['gator', 'lizard_gator']]) assert.equal(creatureSheetFor(n), sheet, n);
+assert.equal(creatureFallback('lizard_mire'), 'lizard');
+for (const n of ['lizardman', 'lizardfolk', 'lizard-folk', 'Lizardton', 'lizard shaman', 'lizard soldier', 'lizard guard', 'navigator']) assert.equal(creatureSheetFor(n), null, n);
+for (const n of ['Lizard Axeman', 'lizard axewarrior', 'Mole Hill Farmer', 'slimeball']) assert.equal(creatureSheetFor(n), null, n);
 console.log('creature tests passed');

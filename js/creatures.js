@@ -43,7 +43,14 @@ const CREATURES = [
   ['kobold', /\b(kobolds?)\b/],
   ['bug', /\b(bugs?|beetles?|crawlers?|insects?|grubs?)\b/],
   ['mole', /\b(moles?)\b/],
+  // lizards and their big cousins, the specific kinds first (lizardfolk people are excluded below)
+  ['lizard_gator', /\b(alligators?|crocodiles?|crocs?|gators?)\b/],
+  ['lizard_mire', /\b(mire|swamp|bog|marsh) lizards?\b/],
+  ['lizard_stone', /\b(stone|rock|cave) lizards?\b/],
+  ['lizard', /\b(lizards?|newts?|salamanders?|geckos?)\b/],
 ];
+// Lizardfolk are people (js/npcoutfits.js), never the lizard animal.
+const LIZARD_PEOPLE = /\blizard[- ]?(folk|man|men|woman|women)\b|\blizard.*(axe|warrior|guard|soldier|shaman)/;
 
 // People named after a creature ("Mole Hill Farmer", a rat catcher) stay people (js/npcoutfits.js).
 const PERSON = /\b(farmers?|hunters?|catchers?|keepers?|tenders?|traders?|merchants?|sellers?|herders?|tamers?)\b/;
@@ -62,7 +69,7 @@ const SLIME_COLOURS = [
 
 export function creatureSheetFor(name) {
   const n = String(name ?? '').toLowerCase();
-  if (PERSON.test(n)) return null;
+  if (PERSON.test(n) || LIZARD_PEOPLE.test(n)) return null;
   for (const [creature, re] of CREATURES) {
     if (!re.test(n)) continue;
     if (creature === 'slime') return SLIME_COLOURS.find(([, c]) => c.test(n))?.[0] ?? 'slime';
@@ -76,6 +83,7 @@ export function creatureFallback(sheet) {
   if (sheet?.startsWith('slime_')) return 'slime';
   if (sheet?.startsWith('wolf_')) return 'wolf';
   if (sheet?.startsWith('ghost_')) return 'ghost';
+  if (sheet?.startsWith('lizard_')) return 'lizard';
   return null;
 }
 

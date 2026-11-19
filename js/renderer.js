@@ -356,10 +356,11 @@ export class Renderer {
     const step = dir * 2 + (this.world.walking(e, now) ? 1 : 0);
     const sheet = this.rendered.get(outfit.look);
     const n = renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
-    sheet.draw(this.ctx, n, px, py, c);
+    const [x, y, side] = scaledBox(px, py, c, outfit.scale ?? 1); // children smaller, feet in place
+    sheet.draw(this.ctx, n, x, y, side);
     for (const [name, colour] of npcLayersFor(outfit, dir)) {
       const layer = this.renderedLayers.get(`${outfit.look}-${name}`);
-      if (layer) this.tinted(layer, colour).draw(this.ctx, n, px, py, c);
+      if (layer) this.tinted(layer, colour).draw(this.ctx, n, x, y, side);
     }
   }
 
