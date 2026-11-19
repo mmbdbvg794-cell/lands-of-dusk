@@ -3183,5 +3183,5 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - `npcOutfit` dresses duergar/Thrumgar on **look 20** (rendered-only grey dwarf body; `DUERGAR_LOOK` in `js/npcoutfits.js`). Its gear layers are `look20-*.png`, copies of look 7's, listed under "20" in `art/rendered/layers.json` (same scheme as look 2 copying look 0).
 - `main.js` loads `look20.png` besides the 12 players.gif looks.
 - Dark iron `IRON #3a4250`; Thrumgar `WARLORD_IRON #262a32` with `DULL_GOLD` trim and a hammer. Soldier: mail + leather trim, plate legs, helm, axe. Guard: plate, helm, axe or spear per name. Delver: soot leather, dark legs, charcoal hood, pick.
-- Look 7/20 have **no `helm` (or `torso`) layer**, so the helm in their outfits is skipped until one is rendered.
+- Look 7/20 `helm` and `torso` layers added to layers.json 2026-11-19 (backup layers.json.bak-* beside it); 7 and 20 now list the same 48 layers as look 0.
 - "Duergar Bounty" (a prop) stays painted: isPersonNpc rejects "bounty" and npcOutfit returns null for it too.
