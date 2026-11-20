@@ -125,7 +125,8 @@ for (const n of ['flaming skeleton', 'burning skeleton', 'fire skeleton', 'Blazi
   assert.equal(creatureFx(n), 'burning', n);
   assert.equal(creatureSheetFor(n), 'skeleton', `${n}: the skeleton strip`);
 }
-for (const n of ['skeleton', 'Skeleton knight', 'ice skeleton', 'wolf', 'fire slime', 'skeleton of fire', '']) assert.equal(creatureFx(n), null, `${n}: no effect`);
+for (const n of ['ice skeleton', 'Frozen Skeletons', 'frost bones']) { assert.equal(creatureFx(n), 'frost', n); assert.equal(creatureSheetFor(n), 'skeleton', `${n}: the skeleton strip`); }
+for (const n of ['skeleton', 'Skeleton knight', 'ice wolf', 'wolf', 'fire slime', 'skeleton of fire', '']) assert.equal(creatureFx(n), null, `${n}: no effect`);
 for (const name of ['burning', 'frost', 'ghostly']) {
   const fx = FX[name];
   assert.ok(fx.light.r > 0 && fx.light.creature && fx.motes.length && fx.tintAmount > 0 && fx.tintAmount < 1, `${name}: a full effect`);

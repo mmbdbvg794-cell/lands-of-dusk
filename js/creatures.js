@@ -125,6 +125,7 @@ export const DRAW_SCALE = { mishaven: 1.3, demon_blue: 1.15, demon_red: 1.15 };
 // particle pools in js/weather.js). Named mobs first, then the word rules.
 export const CREATURE_FX = { 'devilkin champion': 'burning' };
 const FX_WORDS = [
+  ['frost', /\b(ice|icy|frost|frosty|frozen|snow|winter|rime|glacial)\b.*\b(skeletons?|skeletal|bones|bonewalkers?)\b/],
   ['burning', /\b(fire|fires|fiery|flame|flames|flaming|burning|blazing|ember|embers|ash|ashen|infernal)\b.*\b(skeletons?|skeletal|bones|bonewalkers?)\b/],
 ];
 export function creatureFx(name) {
