@@ -3202,3 +3202,15 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - npcOutfit: executioner(s) (Champion adds plate legs), vampire, The Last Champion (server image 52 is empty: invisible in Pixel) on look 0.
 - Wildcats: 98 `cat` spawns renamed `wildcat` in `mobs` (defMobs/wildcat = copy of cat; backup backups/cat-to-wildcat-20261119-215950). Needs a server restart to take effect.
 - Creature effects (2026-11-20): `CREATURE_FX` (by mob name) + `FX_WORDS` (fire/flame/burning/blazing/ember/ash ... skeleton) → `creatureFx(name)`; `FX` = burning (tuned), frost, ghostly (generic). Drawn by: renderer `drawWithFx` (canvas light pool under the figure, frame tinted ~40% via one reused scratch canvas, flicker shared with lighting.js via `flicker()`), lighting.js (a light at the chest → lights the ground at night like the lantern; particle sources from `FX_POINTS` per facing), weather.js `motes` pool (same particlePool as embers; day or night; gated by the embers switch). Devilkin Champion burns (Champions' Gauntlet, 41,981); ice/frost/frozen... skeletons get frost (24 ice skeletons round the dragon's lair, frozen land 777-806, 312-330).
+
+## 2026-11-20 03:41: Northern Outpost fort (LIVE, restart 03:41:39)
+
+- tools/world/cities/northernoutpost.mjs: a stone fort 1494-1518 x 57-73
+  on the snowfield south of flan's "Northern Outpost" sign (1496,54).
+  Gate north at 1506,57 (torches), corner towers, barracks west (4 beds,
+  chest), storehouse/forge east (forge, anvil, barrels, chest), keep south
+  (door 1506,66; bed, chair, chest), yard campfire + well, earth road from
+  the sign. Structure only: no NPCs, shops or mobs. mayBuild 109/58/122.
+- Installed with install_city.py (backup backups/city-northern-outpost-
+  20261120-034116), restarted from the Proxmox host (nobody online); the
+  same restart made the cat -> wildcat rename live.
