@@ -408,7 +408,7 @@ export class Renderer {
     const step = dir * 2 + (walking ? 1 : 0);
     const n = !walking && hovers(creature) ? hoverFrame(sheet.count, dir, now, hoverMs(creature)) : renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
     if (!walking && hovers(creature)) this.hovering = true;
-    const [x, y, side] = scaledBox(px, py, c, drawScale(creature));
+    const [x, y, side] = scaledBox(px, py, c, drawScale(creature, bareName(e.name)));
     sheet.draw(this.ctx, n, x, y, side);
   }
 

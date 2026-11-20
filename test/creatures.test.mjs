@@ -108,4 +108,14 @@ for (const n of ['Lizard Axeman', 'lizard axewarrior', 'Mole Hill Farmer', 'slim
 for (const [n, sheet] of [['cat', 'cat'], ['Kitten', 'cat'], ['alley cat', 'cat'], ['lynx', 'cat'], ['shrine gargoyle', 'gargoyle'], ['gargoyle', 'gargoyle'], ['stone gargoyles', 'gargoyle']]) assert.equal(creatureSheetFor(n), sheet, n);
 assert.notEqual(creatureSheetFor('Catacomb Guard'), 'cat', 'Catacomb Guard');
 for (const n of ['Catherine', 'Cathedral', 'scatter']) assert.equal(creatureSheetFor(n), null, n);
+// One-off mobs.
+for (const [n, sheet] of [['minion', 'demon_blue'], ['minions', 'demon_blue'], ['DraN', 'demon_blue'], ['Fallen', 'demon_red'], ['Claw', 'demon_red'], ['Bastard', 'demon_red'], ['Ashen Gaoler', 'demon_red'],
+  ['dhouly', 'imp_dhouly'], ['Devilkin Champion', 'skeleton'], ['Wurm', 'lizard_gator'], ['Wurm Champion', 'lizard_gator'], ['sand worm', 'snake'], ['Freyrbrand', 'dragon'], ['Grey Herald', 'ghost'], ['Harpy', 'kobold']]) assert.equal(creatureSheetFor(n), sheet, n);
+for (const n of ['Fallen Knight', 'Claw Hammer', 'the fallen', 'Bastard Sword', 'executioner', 'Executioner Champion', 'vampire', 'The Last Champion', 'beholder', 'Ash-Sworn Breaker', 'BloodWurm']) assert.equal(creatureSheetFor(n), null, n);
+assert.equal(creatureFallback('imp_dhouly'), 'imp');
+assert.equal(drawScale('demon_red', 'Ashen Gaoler'), 1.35, 'the Gaoler: bigger than his soldiers');
+assert.equal(drawScale('demon_red', 'Fallen'), 1.15);
+assert.equal(drawScale('demon_blue', 'minion'), 1.15);
+assert.equal(drawScale('mishaven', 'mishaven'), 1.3);
+assert.equal(drawScale('wolf', 'wolf'), 1);
 console.log('creature tests passed');

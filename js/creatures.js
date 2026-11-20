@@ -3,10 +3,21 @@
 // walk cycle each), no gear layers. Which creature a mob is comes from its name, on whole
 // words, first match wins; anything else keeps its painted (or Pixel) picture.
 
+// One-off mobs whose names are plain words ("Claw", "Fallen"): only the whole name, so a "Fallen
+// Knight" or a "Claw Hammer" isn't caught. Checked before the word lists below.
+const NAMED = new Map([
+  ['dran', 'demon_blue'],
+  ['fallen', 'demon_red'], ['claw', 'demon_red'], ['bastard', 'demon_red'], ['ashen gaoler', 'demon_red'],
+  ['devilkin champion', 'skeleton'],
+  ['freyrbrand', 'dragon'],
+  ['grey herald', 'ghost'],
+  ['harpy', 'kobold'], ['harpies', 'kobold'],
+]);
+
 const CREATURES = [
   ['rat', /\b(rats?|ratlings?)\b/],
   ['spider', /\b(spiders?|arachnids?)\b/],
-  ['snake', /\b(snakes?|serpents?|vipers?|adders?|asps?)\b/],
+  ['snake', /\b(snakes?|serpents?|vipers?|adders?|asps?|sand worms?)\b/],
   ['frog', /\b(frogs?|toads?)\b/],
   ['wasp', /\b(wasps?|hornets?|bees?)\b/],
   ['cow', /\b(cows?|bulls?|cattle|ox|oxen)\b/],
@@ -39,6 +50,8 @@ const CREATURES = [
   ['ghost_gloom', /\b(glooms?|banshees?)\b/],
   ['ghost', /\b(ghosts?|specters?|spectres?|spirits?|phantoms?|wraiths?|apparitions?)\b/],
   ['mishaven', /\b(mishavens?)\b/],
+  ['demon_blue', /\b(minions?)\b/],
+  ['imp_dhouly', /\b(dhoul(y|ies))\b/],
   ['imp', /\b(imps?)\b/],
   ['kobold', /\b(kobolds?)\b/],
   ['bug', /\b(bugs?|beetles?|crawlers?|insects?|grubs?)\b/],
@@ -46,7 +59,7 @@ const CREATURES = [
   ['cat', /\b(cats?|kittens?|kitty|kitties|wildcats?|alley cats?|tabby|tabbies|housecats?|bobcats?|lynx|lynxes)\b/],
   ['gargoyle', /\b(gargoyles?)\b/],
   // lizards and their big cousins, the specific kinds first (lizardfolk people are excluded below)
-  ['lizard_gator', /\b(alligators?|crocodiles?|crocs?|gators?)\b/],
+  ['lizard_gator', /\b(alligators?|crocodiles?|crocs?|gators?|wurms?)\b/],
   ['lizard_mire', /\b(mire|swamp|bog|marsh) lizards?\b/],
   ['lizard_stone', /\b(stone|rock|cave) lizards?\b/],
   ['lizard', /\b(lizards?|newts?|salamanders?|geckos?)\b/],
@@ -70,7 +83,8 @@ const SLIME_COLOURS = [
 ];
 
 export function creatureSheetFor(name) {
-  const n = String(name ?? '').toLowerCase();
+  const n = String(name ?? '').toLowerCase().trim();
+  if (NAMED.has(n)) return NAMED.get(n);
   if (PERSON.test(n) || LIZARD_PEOPLE.test(n)) return null;
   for (const [creature, re] of CREATURES) {
     if (!re.test(n)) continue;
@@ -86,6 +100,7 @@ export function creatureFallback(sheet) {
   if (sheet?.startsWith('wolf_')) return 'wolf';
   if (sheet?.startsWith('ghost_')) return 'ghost';
   if (sheet?.startsWith('lizard_')) return 'lizard';
+  if (sheet === 'imp_dhouly') return 'imp';
   return null;
 }
 
@@ -104,9 +119,11 @@ export function hoverMs(creature) {
 export const SIDE_ONLY = new Set(['snake']);
 // Creatures drawn bigger than a person: their frame scaled about its bottom centre (feet
 // stay put; it grows upward and sideways). 1 for everyone else.
-export const DRAW_SCALE = { mishaven: 1.3 };
-export function drawScale(creature) {
-  return DRAW_SCALE[creature] ?? 1;
+export const DRAW_SCALE = { mishaven: 1.3, demon_blue: 1.15, demon_red: 1.15 };
+// Bosses that would otherwise look exactly like their own soldiers: by mob name, in place of the sheet's.
+export const NAME_SCALE = { 'ashen gaoler': 1.35 };
+export function drawScale(creature, name = '') {
+  return NAME_SCALE[String(name).toLowerCase().trim()] ?? DRAW_SCALE[creature] ?? 1;
 }
 // Where a frame of side `cell` drawn at (px, py) goes at that scale: [x, y, side].
 export function scaledBox(px, py, cell, scale) {

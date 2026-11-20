@@ -32,6 +32,7 @@ const STEEL = '#c8ccd4';
 const IRON = '#3a4250';
 const WARLORD_IRON = '#262a32';
 const DULL_GOLD = '#8a7438';
+const OLD_GOLD = '#a08a4a';
 export const DUERGAR_LOOK = 20;
 // [name pattern, armour colour, trim/cloak colour] as tools/paintart/bestiary.js.
 const ARMOURS = [
@@ -234,6 +235,33 @@ function dressNpc(name, where = null) {
     wear('npc-trousers', pick(['#5a5650', '#4a4038', '#6a6258'], 'legs'));
     wear('npc-shirt', pick(['#7a7468', '#6a5a48', '#8a8274'], 'shirt'));
     return { look: female ? 8 : 0, layers };
+  }
+  if (/\bexecutioners?\b/.test(n)) {
+    // the headsman: black hood, black leather jerkin over bare arms, an axe; the Champion in plate legs too
+    wear('legs-cloth', '#22201e');
+    if (/champion/.test(n)) wear('legs-plate', '#3a3a40', '#22201e');
+    wear('npc-boots', '#2a2018');
+    wear('torso-hide', '#1e1c1c', '#3a302a');
+    wear('npc-hood', '#141414');
+    wear('weapon-axe', STEEL);
+    return { look: 0, layers };
+  }
+  if (/\bvampires?\b/.test(n)) {
+    // black cloak lined blood-red, an off-white shirt, a dagger
+    wear('legs-cloth', '#18181c');
+    wear('npc-boots', '#2a2420');
+    wear('npc-shirt', '#e8e0d0');
+    wear('npc-cloak', '#141418', '#7a1018');
+    wear('weapon-dagger', STEEL);
+    return { look: 0, layers };
+  }
+  if (/\blast champion\b/.test(n)) {
+    // the last of the champions, in old gold-steel plate (its server picture is empty)
+    wear('legs-plate', OLD_GOLD, '#3a2e1e');
+    wear('torso-plate', OLD_GOLD, '#3a2e1e');
+    wear('helm', OLD_GOLD);
+    wear('weapon-sword', STEEL);
+    return { look: 0, layers };
   }
   if (/\bdry ones?\b/.test(n)) {
     // desert raiders by the lizard-folk swamps: lizardfolk bodies, sun-bleached hood and hides

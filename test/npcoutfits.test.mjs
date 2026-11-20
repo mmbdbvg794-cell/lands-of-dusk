@@ -184,4 +184,20 @@ assert.equal(npcScale('Boyd'), 1, 'whole words only');
 const liriel = npcOutfit('Captain Liriel', at(444, 1180, 'elf'));
 assert.equal(liriel.look, 9, 'Captain Liriel: elf woman');
 assert.ok(names(liriel).includes('torso-chain'), 'Captain Liriel: captain outfit');
+// Executioners, vampires and the Last Champion: human, dressed, armed.
+for (const [who, weapon, wears] of [
+  ['executioner', 'weapon-axe', ['npc-hood', 'torso-hide', 'legs-cloth', 'npc-boots']],
+  ['Executioner Champion', 'weapon-axe', ['npc-hood', 'torso-hide', 'legs-cloth', 'legs-plate', 'npc-boots']],
+  ['vampire', 'weapon-dagger', ['npc-cloak', 'npc-shirt', 'legs-cloth', 'npc-boots']],
+  ['The Last Champion', 'weapon-sword', ['torso-plate', 'legs-plate', 'helm']],
+]) {
+  const o = npcOutfit(who);
+  assert.equal(o.look, 0, `${who}: human`);
+  assert.ok(names(o).includes(weapon), `${who}: ${weapon}`);
+  for (const l of wears) assert.ok(names(o).includes(l), `${who} wears ${l}`);
+  assert.equal(creatureSheetFor(who), null, `${who}: not a creature`);
+}
+assert.ok(!names(npcOutfit('executioner')).includes('legs-plate'), 'plain executioner: no plate');
+assert.equal(npcOutfit('vampire').layers.find(([l]) => l === 'npc-cloak-trim')[1], '#7a1018', 'blood-red lining');
+for (const n of ['beholder', 'Ash-Sworn Breaker']) assert.equal(npcOutfit(n), null, `${n}: left as it is`);
 console.log('npc outfit tests passed');
