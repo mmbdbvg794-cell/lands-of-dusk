@@ -28,7 +28,7 @@ const g = gearFromEquipment(worn({
   wield: 'fire blade', torso: 'elven chain mail', skull: 'steel plate helm', arms: 'iron shield',
   legs: 'leather pants', hands: 'iron gloves', waist: 'leather belt', neck: 'crystal necklace', eyes: 'goggles',
 }));
-assert.deepEqual(g.weapon, { kind: 'sword', colour: material('fire'), glow: true });
+assert.deepEqual(g.weapon, { kind: 'sword', colour: material('fire'), glow: true, fx: 'flaming' });
 assert.equal(g.torso.kind, 'chain');
 assert.equal(g.helm.kind, 'great');
 assert.deepEqual(g.shield, { colour: material('iron') });

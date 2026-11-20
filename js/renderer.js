@@ -16,8 +16,9 @@ import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
-import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox, creatureFxList, FX, flicker, nameAbove, opaqueBox, WHOLE_FRAME, stripColour } from './creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox, creatureFxList, FX, WEAPON_FX, flicker, nameAbove, opaqueBox, WHOLE_FRAME, stripColour } from './creatures.js';
 import { layoutLabels } from './labels.js';
+import { fxq, fxNextIn } from './fxquality.js';
 import { loadSheet } from './sprites.js';
 
 const FLAG_COLORS = { 1: '#00ff00', 2: '#ff0000' }; // Color.green / Color.red
@@ -69,6 +70,9 @@ export class Renderer {
     this.tints = new Map(); // gear layer SpriteSheet -> Map(colour -> tinted SpriteSheet)
     this.cell = 0;
     this.pending = false;
+    this.fxTimer = null; // the next effect tick's redraw (js/fxquality.js)
+    this.redraws = 0; // maps drawn, for measuring
+    fxq.onChange(() => this.invalidate()); // a level chosen, the tab back in view
     new ResizeObserver(() => this.resize()).observe(box);
     this.resize();
   }
@@ -110,7 +114,10 @@ export class Renderer {
     if (this.canvas.width !== this.cell * n) return this.resize();
     const c = this.cell;
     const now = performance.now();
+    this.redraws++;
     this.hovering = false; // set by drawCreature when a flier is in view
+    this.fxAnimating = false; // set by drawWithFx: an effect is in view
+    this.fxNow = fxq.time(now); // effects move on their own capped clock
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     if (!this.sheets || !world.hasMap) return;
@@ -325,6 +332,16 @@ export class Renderer {
       this.onWeather?.(st);
     }
     if (world.animating(now) || weatherMoving || ships.length || treesFading || this.hovering) this.invalidate();
+    else if (this.fxAnimating) this.fxRedrawLater(now);
+  }
+
+  // Effects alone in motion: the map is drawn again on the effect clock's next tick (20 or 10
+  // a second, js/fxquality.js), not every display frame; never while the tab is hidden or the
+  // window not focused (they stand still till it's back).
+  fxRedrawLater(now) {
+    const { fps } = fxq.settings;
+    if (this.fxTimer || fxq.paused || !(fps > 0)) return;
+    this.fxTimer = setTimeout(() => { this.fxTimer = null; this.invalidate(); }, Math.max(1, fxNextIn(now, fps) + 1));
   }
 
   // The player's own figure wearing their gear, painted once per change of
@@ -416,15 +433,17 @@ export class Renderer {
     const n = !walking && hovers(creature) ? hoverFrame(sheet.count, dir, now, hoverMs(creature)) : renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
     if (!walking && hovers(creature)) this.hovering = true;
     const [x, y, side] = scaledBox(px, py, c, drawScale(creature, bareName(e.name)));
-    const fxs = creatureFxList(bareName(e.name), creature).map((f) => FX[f]).filter(Boolean);
-    const bob = fxs.reduce((m, f) => Math.max(m, f.bob ?? 0), 0) * side * Math.sin(now / 700 + e.id);
+    const q = fxq.settings;
+    const fxs = q.on ? creatureFxList(bareName(e.name), creature).map((f) => FX[f]).filter(Boolean) : [];
+    const fxNow = this.fxNow ?? now;
+    const bob = q.bob ? fxs.reduce((m, f) => Math.max(m, f.bob ?? 0), 0) * side * Math.sin(fxNow / 700 + e.id) : 0;
     const box = this.frameBox(sheet, n);
     if (fxs.length) {
       // where the picture is, for js/lighting.js's particles (by creature, this frame)
       const boxes = (this.fxBoxes ??= new Map());
       if (boxes.size > 400 && !boxes.has(e.id)) boxes.clear();
       boxes.set(e.id, box);
-      this.drawWithFx(fxs, e, sheet, n, x, y + bob, side, now, box);
+      this.drawWithFx(fxs, e, sheet, n, x, y + bob, side, fxNow, box);
     } else sheet.draw(this.ctx, n, x, y, side);
     return y + bob + side * box.top;
   }
@@ -480,14 +499,18 @@ export class Renderer {
   // canvas, reused; each glow made once per colour.
   drawWithFx(fxs, e, sheet, n, x, y, side, now, box = WHOLE_FRAME) {
     const { ctx } = this;
-    const secs = now / 1000;
-    this.hovering = true; // keep redrawing while it moves
+    const secs = now / 1000; // (the effect clock's now)
+    const q = fxq.settings;
+    const { ground } = q; // Low: no glow pools or ground patches
+    // redrawn on the effect clock only while something on the canvas moves (a black dog's tint
+    // and dark patch stand still; its smoke is the lighting layer's)
+    if (fxs.some((f) => fxMovesOnCanvas(f, q))) this.fxAnimating = true;
     if (typeof document === 'undefined') { sheet.draw(ctx, n, x, y, side); return; }
     const lit = fxs.find((f) => f.light?.flicker);
     const fl = lit ? flicker(secs, e.id, lit.light.flicker * 2.5) : 1;
     // on the ground at the feet (normal paint): a dark vignette, a stain
     for (const f of fxs) {
-      if (!f.ground) continue;
+      if (!f.ground || !ground) continue;
       const [r, g, b, a] = f.ground;
       const cx = x + side * (box.left + box.right) / 2, cy = y + side * (box.bottom - 0.04);
       const rx = side * Math.max(0.18, (box.right - box.left) * 0.6), ry = rx * 0.38;
@@ -509,7 +532,7 @@ export class Renderer {
     const gx = x + side * (box.left + bw / 2), gy = y + side * (box.top + bh / 2);
     const reach = side * Math.max(0.3, Math.max(bw, bh));
     for (const f of fxs) {
-      if (!f.glow) continue;
+      if (!f.glow || !ground) continue;
       const colour = f.glow === 'strip' ? this.sheetColour(sheet) ?? hexRgb(f.light?.color ?? 0xc0d0ff) : f.glow;
       const pulse = f.pulse ? 0.75 + 0.25 * Math.sin((secs / f.pulse) * Math.PI * 2 + e.id) : 1;
       const k = f === lit ? fl : pulse;
@@ -532,7 +555,7 @@ export class Renderer {
     g.globalCompositeOperation = 'source-atop';
     for (const f of [...fxs].reverse()) {
       if (f.tint) {
-        g.globalAlpha = f.tintAmount * (f === lit ? 0.9 + (fl - 1) : 1);
+        g.globalAlpha = f.tintAmount * (f === lit && f.flash ? 0.9 + (fl - 1) : 1);
         g.fillStyle = f.tint;
         g.fillRect(0, 0, size, size);
       }
@@ -599,6 +622,71 @@ export class Renderer {
     const gear = e === this.world.self() ? this.gear : this.others.get(e.id);
     for (const { sheet: layer, colour } of renderedGearLayers(this.renderedLayers, e.image, gear, step >> 1)) {
       this.tinted(layer, colour).draw(this.ctx, n, px, py, c);
+    }
+    const wfx = fxq.settings.on && gear?.weapon?.fx ? WEAPON_FX[gear.weapon.fx] : null;
+    const wlayer = wfx ? weaponLayer(this.renderedLayers, e.image, gear) : null;
+    if (wlayer) this.drawWeaponFx(wfx, e, sheet, wlayer, n, px, py, c, step >> 1);
+  }
+
+  // A wielded weapon's effect (js/creatures.js WEAPON_FX), on the weapon layer's own pixels in
+  // this frame (their box, worked out once per layer and frame), so it follows the swing and the
+  // walk: a glow pool round it and a glint travelling along it. Its light and particles are
+  // js/lighting.js's, from the box kept here for this redraw.
+  drawWeaponFx(f, e, body, layer, n, px, py, c, dir) {
+    const box = this.frameBox(layer, n);
+    if (box === WHOLE_FRAME) return; // no weapon pixels this frame (or unreadable)
+    (this.weaponBoxes ??= new Map()).set(e.id, { box, fx: f, at: this.redraws });
+    if (this.weaponBoxes.size > 200) for (const [id, w] of this.weaponBoxes) if (w.at !== this.redraws) this.weaponBoxes.delete(id);
+    if (typeof document === 'undefined') return;
+    const { ctx } = this;
+    const q = fxq.settings;
+    if (fxMovesOnCanvas(f, q)) this.fxAnimating = true;
+    const secs = (this.fxNow ?? performance.now()) / 1000;
+    const bw = box.right - box.left, bh = box.bottom - box.top;
+    const gx = px + c * (box.left + bw / 2), gy = py + c * (box.top + bh / 2);
+    if (f.glow && q.ground) {
+      const fl = f.light?.flicker ? flicker(secs, e.id, f.light.flicker * 2.5) : 1;
+      const k = f.pulse ? 0.7 + 0.3 * Math.sin((secs / f.pulse) * Math.PI * 2 + e.id) : fl;
+      const rx = c * Math.max(0.12, bw * 0.75) * (f.reach ?? 1) * k, ry = c * Math.max(0.12, bh * 0.75) * (f.reach ?? 1) * k;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = Math.min(1, f.glowAlpha * k);
+      ctx.drawImage(this.fxGlow(f.glow), gx - rx, gy - ry, rx * 2, ry * 2);
+      ctx.restore();
+    }
+    if (f.glint) {
+      // a bright band down the weapon's own pixels, now and then; where the weapon is behind
+      // the body (facing away, or west) the body hides it
+      const t = ((secs + e.id * 0.37) % f.glintEvery) / f.glintEvery * 1.8 - 0.4;
+      if (t > 1.2) return;
+      const size = Math.max(1, Math.ceil(c));
+      const cv = (this.fxCanvas ??= document.createElement('canvas'));
+      if (cv.width !== size || cv.height !== size) { cv.width = size; cv.height = size; }
+      const g = cv.getContext('2d');
+      g.globalCompositeOperation = 'source-over';
+      g.globalAlpha = 1;
+      g.clearRect(0, 0, size, size);
+      layer.draw(g, n, 0, 0, size);
+      g.globalCompositeOperation = 'source-in';
+      // along the weapon's long side: down a blade held up, across one held out
+      const along = bw > bh;
+      const [a0, len] = along ? [size * box.left, size * bw] : [size * box.top, size * bh];
+      const p0 = a0 + len * (t - 0.2), p1 = a0 + len * (t + 0.2);
+      const band = along ? g.createLinearGradient(p0, 0, p1, size * 0.15) : g.createLinearGradient(0, p0, size * 0.15, p1);
+      band.addColorStop(0, 'rgba(255,255,255,0)');
+      band.addColorStop(0.5, 'rgba(240,248,255,1)');
+      band.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = band;
+      g.fillRect(0, 0, size, size);
+      if (dir === 0 || dir === 2) {
+        g.globalCompositeOperation = 'destination-out';
+        body.draw(g, n, 0, 0, size);
+      }
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = f.glint;
+      ctx.drawImage(cv, 0, 0, size, size, px, py, c, c);
+      ctx.restore();
     }
   }
 
@@ -866,6 +954,12 @@ export function renderedFrame(count, step, e, progress) {
 // (gear.js) and the way it faces (0 n, 1 s, 2 w, 3 e). A layer is found as
 // "<look>-<slot>-<kind>" (e.g. 0-torso-robe), else "<look>-<slot>" for any kind.
 // The weapon is in the right hand: behind the body facing north or west.
+// The weapon layer a figure's wielded weapon is drawn with (as renderedGearLayers picks it), or null.
+export function weaponLayer(layers, look, gear) {
+  if (!layers || !gear?.weapon) return null;
+  return layers.get(`${look}-weapon-${gear.weapon.kind}`) ?? layers.get(`${look}-weapon`) ?? null;
+}
+
 export function renderedGearLayers(layers, look, gear, dir) {
   if (!gear || !layers) return [];
   // A piece's layer, then its trim layer ("<key>-trim": edges, hems, plate bands) if there is
@@ -891,6 +985,13 @@ export function renderedGearLayers(layers, look, gear, dir) {
   const weapon = pick('weapon', gear.weapon, gear.weapon?.colour, true);
   const order = dir === 0 || dir === 2 ? [weapon, legs, feet, torso, hood, helm] : [legs, feet, torso, hood, helm, weapon];
   return order.flat();
+}
+
+// Whether an effect changes the figure from one moment to the next on the map canvas: a bob, a
+// pulse, a sweeping shine, a flickering glow pool or flash. Particles and night lights don't
+// count (they're the lighting layer's, which runs anyway).
+export function fxMovesOnCanvas(f, q = { bob: true, ground: true }) {
+  return !!((f.bob && q.bob) || (f.pulse && (f.aura || q.ground)) || f.shine || f.glint || (f.light?.flicker && (f.flash || (f.glow && q.ground))));
 }
 
 // A name label's baseline: under the feet (the square's bottom edge), or for a big creature

@@ -220,6 +220,54 @@ export const FX = {
     parts: [{ pool: 'glow', colours: [0xfff0b0, 0xffffff, 0xffe080], per: 4, from: 'body', life: [0.35, 0.7], vx: 0, vy: [0, 0], size: [0.05, 0.1], grow: 1, twinkle: true, alpha: 1, wait: [0.2, 1.2] }],
   },
 };
+// Effects on a player's wielded weapon (yours and other players', Painted style; the name ->
+// effect is js/gear.js weaponFx). Only the weapon: drawn by js/renderer.js over the weapon
+// layer's own pixels in each frame (so it follows the swing and the walk), its light and
+// particles by js/lighting.js and js/weather.js from the same box. As FX, plus:
+//   glint   a bright band travelling along the weapon (alpha), every `glintEvery` seconds
+//   reach   the glow pool's size, times the weapon's
+export const WEAPON_FX = {
+  // small flames licking up the blade, a warm flicker that lights the ground a little at night
+  flaming: {
+    light: { r: 1.3, color: 0xff7a28, glow: 0.3, flicker: 1, creature: true },
+    glow: [255, 130, 40], glowAlpha: 0.45, reach: 1.1,
+    parts: [{ pool: 'glow', colours: [0xffb040, 0xff7a20, 0xffe070], per: 5, from: 'body', life: [0.25, 0.5], vx: 0.08, vy: [-0.55, -0.25], size: [0.035, 0.08], grow: 0.4, alpha: 1 }],
+  },
+  // a pale blue glow and a few drifting ice motes
+  frost: {
+    light: null,
+    glow: [160, 215, 255], glowAlpha: 0.35, reach: 1,
+    parts: [{ pool: 'glow', colours: [0xf0f8ff, 0xc8e8ff], per: 3, from: 'body', life: [1, 1.8], vx: 0.15, vy: [-0.05, 0.1], size: [0.025, 0.05], grow: 0.8, alpha: 0.85 }],
+  },
+  // mithril, elven, silver, holy: a slow glint along it and a faint white-blue shimmer
+  glint: {
+    light: null,
+    glow: [215, 232, 255], glowAlpha: 0.2, reach: 0.9, pulse: 2.6, glint: 1, glintEvery: 2.8,
+    parts: [],
+  },
+  // a thin dark smoke wisping off it
+  shadow: {
+    light: null,
+    glow: null,
+    parts: [{ pool: 'smoke', colours: [0x100818, 0x1c1028], per: 3, from: 'body', life: [0.8, 1.4], vx: 0.15, vy: [-0.35, -0.15], size: [0.04, 0.07], grow: 2.2, alpha: 0.32 }],
+  },
+  // sickly green drips
+  venom: {
+    light: null,
+    glow: null,
+    parts: [{ pool: 'smoke', colours: [0x9ac030, 0x7ab020, 0xb0d040], per: 2, from: 'body', life: [0.45, 0.6], vx: 0, vy: [0, 0.05], fall: 2.4, size: [0.03, 0.04], grow: 1, alpha: 0.95, wait: [0.5, 1.6] }],
+  },
+};
+// Where a weapon effect is in world squares, for its light and particles: the weapon layer's
+// box (opaqueBox, parts of the frame) on a figure standing on (x, y) at its normal size; its
+// anchor is the middle of that box, its points the tip end and the middle.
+export function weaponFxSource(x, y, box) {
+  const [x0, y0] = fxPoint(x, y, [box.left, box.top]);
+  const [x1, y1] = fxPoint(x, y, [box.right, box.bottom]);
+  const anchor = [(x0 + x1) / 2, (y0 + y1) / 2];
+  return { box: { x0, y0, x1, y1 }, anchor, pts: [[anchor[0], y0 + (y1 - y0) * 0.2], anchor], head: [anchor[0], y0] };
+}
+
 // Names drawn over the head rather than under the feet: creatures drawn bigger than a person,
 // by their draw scale or because their frames are filled by a big beast.
 const BIG_FRAMES = new Set(['dragon', 'wolf_great', 'lizard_gator', 'maneater', 'horse', 'cow']);

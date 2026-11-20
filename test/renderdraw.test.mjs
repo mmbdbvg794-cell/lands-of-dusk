@@ -43,5 +43,13 @@ r.tinted = (s) => s;
 
 assert.doesNotThrow(() => r.draw(), 'a frame draws without throwing');
 for (const want of ['mob-bug', 'mob-wolf', 'mob-skeleton', 'look6', 'look0']) assert.ok(drawn.includes(want), `drew ${want}`);
-assert.ok(r.hovering, 'a burning creature keeps the map redrawing');
+assert.ok(r.fxAnimating, 'a burning creature keeps the map redrawing');
+assert.ok(!r.hovering, '...on the effect clock, not every display frame');
+// Black dogs alone: their dark tint and patch stand still on the map, so no redraws for them.
+world.apply({ op: OP.REMOVE_ENTITY, id: 9 });
+r.creatures.set('wolf_black', sheet('mob-wolf_black'));
+world.apply({ op: OP.ENTITY, id: 20, name: 'black dog', type: 4, x: 100 - r0 + 2, y: 101, image: 0, step: 0 });
+r.draw();
+assert.ok(drawn.includes('mob-wolf_black'), 'drew the black dog');
+assert.ok(!r.fxAnimating && !r.hovering, 'black dogs standing still: no redraws');
 console.log('render draw test passed');

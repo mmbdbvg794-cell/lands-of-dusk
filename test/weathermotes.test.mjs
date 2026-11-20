@@ -15,7 +15,7 @@ const motes = w.above.children[2]; // flies, embers, motes, flash, overlay
 assert.ok(motes, 'a pool for the motes');
 
 const world = { tileAt: () => 0 };
-const frame = (flames, now) => w.update({ dt: 0.05, now, world, renderer: {}, st: { weather: 'clear', intensity: 0, wind: 0 }, cam: { x: 100, y: 100 }, r: 5, c: 64, w: 704, h: 704, night: 0, fires: [], flames });
+const frame = (flames, now, fxShare = 1) => w.update({ dt: 0.05, now, world, renderer: {}, st: { weather: 'clear', intensity: 0, wind: 0 }, cam: { x: 100, y: 100 }, r: 5, c: 64, w: 704, h: 704, night: 0, fires: [], flames, fxShare });
 const source = (fx, x = 100, y = 100, id = 1) => ({ id, fx, dir: 1, pts: [[x, y - 0.3], [x - 0.2, y - 0.1]], head: [x, y - 0.3], box: { x0: x - 0.3, y0: y - 0.5, x1: x + 0.3, y1: y + 0.5 }, colour: 0x40ff60 });
 const src = [source(FX.burning), source(FX.burning, 99, 100, 2)];
 for (let i = 0; i < 20; i++) frame(src, 1000 + i * 50);
@@ -41,4 +41,10 @@ assert.ok(w.shown <= w.cap.motes + w.cap.smoke, `capped (${w.shown})`);
 for (let i = 0; i < 80; i++) frame([source(FX.ghostly)], 40000 + i * 50);
 const tints = motes.children.filter((p) => p.live && p.alpha > 0).map((p) => p.tint);
 assert.ok(tints.length && tints.every((t) => t === 0x40ff60), "wisps in the picture's colour");
+// Low effects: half each creature's particles.
+for (let i = 0; i < 80; i++) frame([], 50000 + i * 50);
+const most = (share, t0) => { let m = 0; for (let i = 0; i < 60; i++) { frame([source(FX.burning)], t0 + i * 50, share); m = Math.max(m, w.shown); } for (let i = 0; i < 80; i++) frame([], t0 + 5000 + i * 50); return m; };
+const fullN = most(1, 60000), lowN = most(0.5, 70000);
+assert.equal(fullN, FX.burning.parts[0].per, `full: every particle (${fullN})`);
+assert.equal(lowN, FX.burning.parts[0].per / 2, `low: half (${lowN})`);
 console.log('weather motes test passed');

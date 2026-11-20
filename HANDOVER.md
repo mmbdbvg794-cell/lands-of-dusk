@@ -3245,3 +3245,31 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   pools (motes 90, smoke 60; half on low-end); on-screen creatures only.
 - Checked in headless Chrome with the real strips (scratch harness), not in
   the live game.
+
+## 2026-11-20: effects made cheap, weapon effects (deployed)
+
+- js/fxquality.js: Settings > Display > Effects: Full / Low / Off (localStorage
+  dusk.effects; default Full, Low on a small touch screen or with reduced motion,
+  which also stops the bob). Full 20 fps, Low 10 fps + half the particles + no glow
+  pools/ground patches, Off = plain figures, no effect lights or particles.
+- The map canvas is one layer (no figure layer to redraw alone), so effects no longer
+  call for a redraw every display frame: renderer.fxAnimating -> fxRedrawLater()
+  schedules one redraw at the next effect-clock tick (setTimeout), and only for
+  effects that move ON THE CANVAS (fxMovesOnCanvas: bob, pulse, shine, glint, a
+  flickering glow/flash). Shadow/blight/sparkle stand still on the canvas (their
+  particles are the Pixi layer's, which ticks at 30 anyway) -> 0 redraws.
+  Measured (headless, 62 Hz display): 3 black dogs 60 -> 0/s at Full and Low;
+  Water Shade + frost wolf + marsh wisp 60 -> 20 (Full) / 10 (Low) / 0 (Off).
+  Window blurred or tab hidden: 0 (clock frozen; particles stop being emitted).
+- Weapon effects: js/gear.js weaponFx(name) (whole words) -> gear.weapon.fx;
+  js/creatures.js WEAPON_FX flaming/frost/glint/shadow/venom; renderer
+  drawWeaponFx works on the weapon layer's opaque box per frame (frameBox cache),
+  keeps renderer.weaponBoxes {box, fx, at: redraws} for lighting.js (light +
+  particles via weaponFxSource). Players with rendered figures only.
+- Weapons in the world that trigger one: fire blade (flaming), ice blade (frost),
+  mithril sword (glint; anvil recipe level 74, 3 mithril bars), elven bow (glint;
+  merchant at 449,1252), silver tipped dagger (glint), bow of doom, dark rod
+  (shadow). fire/ice/silver tipped only in CoL storage lists; bow of doom nowhere;
+  dark rod is the Dark Wizard's (not spawned). No venom/poison weapon exists.
+- Tests: test/fxquality.test.mjs, test/weaponfx.test.mjs, plus renderdraw (black
+  dogs don't redraw) and weathermotes (Low halves particles).

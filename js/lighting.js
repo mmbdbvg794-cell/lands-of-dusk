@@ -21,8 +21,9 @@
 
 import { daylight, timeOfDay, isUnderground, DAY_MS, CLIMATES } from './atmosphere.js';
 import { bareName } from './world.js';
+import { fxq } from './fxquality.js';
 import { createWeather, setWeather } from './weather.js';
-import { creatureSheetFor, creatureFxList, FX, fxPoints, fxPoint, flicker, drawScale } from './creatures.js';
+import { creatureSheetFor, creatureFxList, FX, fxPoints, fxPoint, flicker, drawScale, weaponFxSource } from './creatures.js';
 
 let PIXI = null, AdvancedBloomFilter = null;
 
@@ -236,6 +237,8 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
       const add = (x, y, L, seed, strength = 1) => {
         if (found.length < MAX_LIGHTS) found.push({ x, y, L, seed, strength });
       };
+      // effects: Off draws none; paused (tab hidden, window not focused) their particles die away
+      const fxOn = fxq.settings.on;
       const me = world.self();
       if (me && darkness > 0.01) { const p = world.visualPos(me, nowPerf); add(p.x, p.y, LANTERN, 0); }
       const x0 = Math.floor(cam.x) - r - 2, y0 = Math.floor(cam.y) - r - 2;
@@ -249,7 +252,18 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
         // Creatures with effects (js/creatures.js FX; Painted style, rendered creatures only, in
         // view): a light at the chest, and where their particles come from: skull, shoulders
         // and hands (a beast's head and back), the head, the body, the feet.
-        if (e.type !== 4 || !renderer.creatures) continue;
+        // A player's weapon effect (js/creatures.js WEAPON_FX): its light and particles from the
+        // weapon layer's box as the map last drew it (js/renderer.js drawWeaponFx).
+        const wb = e.type === 0 && fxOn ? renderer.weaponBoxes?.get(e.id) : null;
+        if (wb && wb.at === renderer.redraws) {
+          const p = world.visualPos(e, nowPerf);
+          if (Math.abs(p.x - cam.x) <= r + 1 && Math.abs(p.y - cam.y) <= r + 1) {
+            const src = weaponFxSource(p.x, p.y, wb.box);
+            if (wb.fx.light) add(src.anchor[0], src.anchor[1], wb.fx.light, e.id);
+            if (wb.fx.parts?.length && !fxq.paused) flames.push({ id: e.id, fx: wb.fx, dir: renderer.npcFacings?.get(e.id) ?? 1, pts: src.pts, head: src.head, box: src.box, colour: null });
+          }
+        }
+        if (e.type !== 4 || !renderer.creatures || !fxOn) continue;
         const name = bareName(e.name);
         const sheet = creatureSheetFor(name);
         const list = sheet ? creatureFxList(name, sheet) : [];
@@ -275,7 +289,7 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
             const pulse = fx.pulse ? 0.8 + 0.2 * Math.sin((secs / fx.pulse) * Math.PI * 2 + e.id) : 1;
             add((bx0 + bx1) / 2, (by0 + by1) / 2, L, e.id, pulse);
           }
-          if (fx.parts?.length) flames.push({ id: e.id, fx, dir, pts, head: pts[0], box, colour });
+          if (fx.parts?.length && !fxq.paused) flames.push({ id: e.id, fx, dir, pts, head: pts[0], box, colour });
         }
       }
       if (darkness > 0.01) for (const fx of world.effects) {
@@ -314,7 +328,7 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
     // (Creatures' own particles are `flames`, not embers.)
     const fires = found.filter((f) => f.L.flicker >= 0.4 && !f.L.creature).map((f) => [f.x, f.y]);
     const tw = performance.now();
-    if (ready) weather.update({ dt, now: nowPerf, world, renderer, st: renderer.weatherState, cam, r, c, w, h, night: night / MAX_DARK, fires, flames });
+    if (ready) weather.update({ dt, now: nowPerf, world, renderer, st: renderer.weatherState, cam, r, c, w, h, night: night / MAX_DARK, fires, flames, fxShare: fxq.settings.share });
     cost.weather = cost.weather * 0.95 + (performance.now() - tw) * 0.05;
 
     // ---- spell sparks ----

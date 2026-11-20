@@ -100,13 +100,33 @@ export const isHood = (n) => /\b(hood|cowl)s?\b/.test(n);
 // Magic weapons glow; the colour is the blade's own.
 const GLOWS = /fire|flame|burn|hell|ice|crystal|lightning|energy|light|solar|holy|god|chaos|dark|soul|excalibur|masamune|emerald|nova|orb/;
 
+// A wielded weapon's effect (js/creatures.js WEAPON_FX), from whole words in its name:
+// "Flaming Longsword" flaming, "Mithril Dagger" glint; "Darkwood Staff" none ("dark" isn't a
+// word of it), "Iron Sword" none. The first that matches, in this order.
+const WEAPON_WORDS = [
+  ['flaming', /\b(flaming|fire|flame|flames|burning|ember|embers|inferno)\b/],
+  ['frost', /\b(frost|ice|frozen|glacial|winter)\b/],
+  ['glint', /\b(mithril|elven|silver|holy|blessed)\b/],
+  ['shadow', /\b(shadow|dark|void|cursed|doom)\b/],
+  ['venom', /\b(venom|poison|poisoned|toxic|plague)\b/],
+];
+export function weaponFx(name) {
+  const n = String(name ?? '').toLowerCase().replace(/_/g, ' ');
+  for (const [fx, re] of WEAPON_WORDS) if (re.test(n)) return fx;
+  return null;
+}
+
 // equipment: { slot: { name, id } | null } as Player keeps it. Returns
 // only what's worn; figure.js draws the race's own clothes for the rest.
 export function gearFromEquipment(equipment = {}) {
   const gear = {};
   const name = (slot) => equipment[slot]?.name?.toLowerCase().replace(/_/g, ' ') ?? null;
   const w = name('wield');
-  if (w) gear.weapon = { kind: weaponKind(w), colour: material(w), glow: GLOWS.test(w) };
+  if (w) {
+    gear.weapon = { kind: weaponKind(w), colour: material(w), glow: GLOWS.test(w) };
+    const fx = weaponFx(w);
+    if (fx) gear.weapon.fx = fx;
+  }
   const t = name('torso');
   if (t) gear.torso = { kind: torsoKind(t), colour: material(t) };
   const h = name('skull');

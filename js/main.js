@@ -10,6 +10,7 @@ import { parseStats } from './stats.js';
 import { bareName } from './world.js';
 import { EntityMenu } from './entitymenu.js';
 import { Explored } from './explored.js';
+import { fxq } from './fxquality.js';
 import { gearFromEquipment, parseWorn, wornCommand, weaponKind } from './gear.js';
 import { chatKind, alsoGeneral, CombatTally } from './chatlog.js';
 import { MapSync, decodeChunk } from './mapsync.js';
@@ -701,6 +702,9 @@ serverUrl.value =
 // rather than being remembered (it floods the chat with raw messages).
 traceBox.checked = false;
 storage('set', 'dusk.trace', '0');
+// Effects on creatures and weapons: Full, Low or Off (js/fxquality.js keeps and saves it).
+$('fx-level').value = fxq.level;
+$('fx-level').addEventListener('change', (e) => fxq.set(e.target.value));
 namesBox.checked = storage('get', 'dusk.names') !== '0';
 renderer.showNames = namesBox.checked;
 const npcNamesBox = $('npc-names');

@@ -192,11 +192,13 @@ function particlePool(PIXI, texture, n, blendMode) {
 // One frame of a pool's creature particles (see createWeather): emitters are every source's parts
 // of this pool kind, `per` times each; a particle that dies picks a new emitter, waiting first if
 // its part comes now and then. Returns how many are showing.
-function creatureParticles(pool, kind, sources, dt, wind, c, toScreen) {
+function creatureParticles(pool, kind, sources, dt, wind, c, toScreen, share = 1) {
   const emitters = [];
   for (const src of sources) for (const part of src.fx.parts ?? []) {
     if (part.pool !== kind) continue;
-    for (let i = 0; i < part.per; i++) emitters.push([src, part]);
+    // Low effects: half each part's share (at least one)
+    const per = share >= 1 ? part.per : Math.max(1, Math.round(part.per * share));
+    for (let i = 0; i < per; i++) emitters.push([src, part]);
   }
   const want = Math.min(pool.all.length, emitters.length);
   let live = 0;
@@ -483,7 +485,7 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
       // squares. Each part keeps `per` particles a creature, the pool's cap over all of them.
       motesLive = 0;
       if (on.embers) {
-        for (const [pool, kind] of [[motes, 'glow'], [smoke, 'smoke']]) motesLive += creatureParticles(pool, kind, f.flames ?? [], dt, wind, c, toScreen);
+        for (const [pool, kind] of [[motes, 'glow'], [smoke, 'smoke']]) motesLive += creatureParticles(pool, kind, f.flames ?? [], dt, wind, c, toScreen, f.fxShare ?? 1);
       } else for (const pool of [motes, smoke]) keep(pool, 0, () => {});
       shown += motesLive;
 
