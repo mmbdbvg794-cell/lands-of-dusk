@@ -3269,7 +3269,7 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - Weapons in the world that trigger one: fire blade (flaming), ice blade (frost),
   mithril sword (glint; anvil recipe level 74, 3 mithril bars), elven bow (glint;
   merchant at 449,1252), silver tipped dagger (glint), bow of doom, dark rod
-  (shadow). fire/ice/silver tipped only in CoL storage lists; bow of doom nowhere;
-  dark rod is the Dark Wizard's (not spawned). No venom/poison weapon exists.
+  (shadow), venom dagger (venom; defItems only, 2026-11-20, sold nowhere). fire/ice/silver tipped only in CoL storage lists; bow of doom nowhere;
+  dark rod is the Dark Wizard's (not spawned).
 - Tests: test/fxquality.test.mjs, test/weaponfx.test.mjs, plus renderdraw (black
   dogs don't redraw) and weathermotes (Low halves particles).
