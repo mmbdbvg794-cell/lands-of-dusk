@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox } from '../js/creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox, creatureFx, FX, FX_POINTS, fxPoint, flicker } from '../js/creatures.js';
 import { renderedFrame } from '../js/renderer.js';
 
 const want = {
@@ -118,4 +118,22 @@ assert.equal(drawScale('demon_red', 'Fallen'), 1.15);
 assert.equal(drawScale('demon_blue', 'minion'), 1.15);
 assert.equal(drawScale('mishaven', 'mishaven'), 1.3);
 assert.equal(drawScale('wolf', 'wolf'), 1);
+// Effects by mob name: burning skeletons.
+assert.equal(creatureSheetFor('Devilkin Champion'), 'skeleton');
+assert.equal(creatureFx('Devilkin Champion'), 'burning', 'Devilkin Champion burns');
+for (const n of ['flaming skeleton', 'burning skeleton', 'fire skeleton', 'Blazing Skeletons', 'ash skeleton', 'ember bones']) {
+  assert.equal(creatureFx(n), 'burning', n);
+  assert.equal(creatureSheetFor(n), 'skeleton', `${n}: the skeleton strip`);
+}
+for (const n of ['skeleton', 'Skeleton knight', 'ice skeleton', 'wolf', 'fire slime', 'skeleton of fire', '']) assert.equal(creatureFx(n), null, `${n}: no effect`);
+for (const name of ['burning', 'frost', 'ghostly']) {
+  const fx = FX[name];
+  assert.ok(fx.light.r > 0 && fx.light.creature && fx.motes.length && fx.tintAmount > 0 && fx.tintAmount < 1, `${name}: a full effect`);
+}
+assert.ok(FX.burning.tintAmount >= 0.35 && FX.burning.tintAmount <= 0.45, 'burning: bones still read');
+assert.equal(FX_POINTS.length, 4, 'points for each facing');
+assert.deepEqual(fxPoint(10, 20, [0.5, 1]), [10, 20.5], 'feet: the bottom centre of the square');
+assert.deepEqual(fxPoint(10, 20, [0.5, 0], 1.3), [10, 20.5 - 1.3], 'scaled up from the feet');
+for (let t = 0; t < 20; t += 0.37) { const f = flicker(t, 7, 1); assert.ok(f > 0.9 && f < 1.1, 'flicker stays near 1'); }
+assert.equal(flicker(5, 3, 0), 1, 'no flicker');
 console.log('creature tests passed');

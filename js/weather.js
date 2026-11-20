@@ -22,7 +22,7 @@ import { isUnderground, isOutdoorTile } from './atmosphere.js';
 
 const FADE = 3; // seconds to fade an effect in or out
 // The most of each there can be, at intensity 1 (halved on a low-end device).
-export const MAX = { rain: 600, snow: 400, fog: 8, fireflies: 40, embers: 80 };
+export const MAX = { rain: 600, snow: 400, fog: 8, fireflies: 40, embers: 80, motes: 60 };
 // Small screen or few cores: half the particles. localStorage dusk.lowend
 // '1' or '0' says so instead (for testing).
 const lowEndSaid = (() => { try { return localStorage.getItem('dusk.lowend'); } catch { return null; } })();
@@ -201,6 +201,9 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
   const snow = particlePool(PIXI, tex.flake, cap.snow);
   const flies = particlePool(PIXI, tex.glow, cap.fireflies, 'add');
   const embers = particlePool(PIXI, tex.glow, cap.embers, 'add');
+  // Flames and motes off creatures with an effect (js/creatures.js FX): f.flames.
+  const motes = particlePool(PIXI, tex.glow, cap.motes, 'add');
+  let motesLive = 0;
   const fogLayer = new PIXI.Container();
   const fogs = [];
   for (let i = 0; i < cap.fog; i++) {
@@ -214,7 +217,7 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
   const flash = new PIXI.Graphics();
   const overlay = new PIXI.Graphics(); // the indoor squares, while the panel shows them
   below.addChild(rain.box, snow.box, fogLayer);
-  above.addChild(flies.box, embers.box, flash, overlay);
+  above.addChild(flies.box, embers.box, motes.box, flash, overlay);
 
   // Each effect's strength now (fading) and where it's heading.
   const level = { rain: 0, snow: 0, fog: 0, fireflies: 0, embers: 0 };
@@ -248,7 +251,7 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
     // or null.
     get active() {
       if (level.rain > 0.001 || level.snow > 0.001 || bolt > 0) return 'fast';
-      return level.fog > 0.001 || level.fireflies > 0.001 || level.embers > 0.001 ? 'slow' : null;
+      return level.fog > 0.001 || level.fireflies > 0.001 || level.embers > 0.001 || motesLive ? 'slow' : null;
     },
     // How much darker the scene is for the weather, and how much a
     // lightning flash lifts the night (0 to 1).
@@ -402,6 +405,36 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
         p.alpha = level.embers * Math.min(1, p.life / p.max * 1.5);
         if (p.alpha) shown++;
       }
+
+      // Flames off burning creatures (and other effects' motes), day or night: small, quick,
+      // rising from the skull, shoulders and hands and fading. f.flames: { x, y, fx } (squares).
+      const sources = f.flames ?? [];
+      const wantMotes = on.embers ? Math.min(cap.motes, sources.reduce((n, s) => n + s.fx.perPoint, 0)) : 0;
+      keep(motes, wantMotes, (p) => { p.life = 0; p.anchorY = 0.5; });
+      motesLive = 0;
+      for (const p of motes.all) {
+        if (!p.live) continue;
+        p.life -= dt;
+        if (p.life <= 0) {
+          const src = sources[Math.floor(Math.random() * sources.length)];
+          if (!src) { p.alpha = 0; continue; }
+          const { fx } = src;
+          p.wx = src.x + (Math.random() - 0.5) * 0.08;
+          p.wy = src.y + (Math.random() - 0.5) * 0.05;
+          p.vx = (Math.random() - 0.5) * 0.15 + wind * 0.2;
+          p.vy = -(0.3 + Math.random() * 0.45) * fx.rise;
+          p.life = p.max = 0.3 + Math.random() * 0.45;
+          p.size = (c / 32) * (0.06 + Math.random() * 0.08);
+          p.tint = fx.motes[Math.floor(Math.random() * fx.motes.length)];
+        }
+        p.wx += p.vx * dt; p.wy += p.vy * dt;
+        [p.x, p.y] = toScreen(p.wx, p.wy);
+        const k = p.life / p.max; // shrinking as they burn out
+        p.scaleX = p.scaleY = p.size * (0.5 + 0.5 * k);
+        p.alpha = Math.min(1, k * 1.6);
+        motesLive++;
+      }
+      shown += motesLive;
 
       // Lightning, in storms outdoors: a flash, now and then.
       if (on.lightning && type === 'storm' && !under && st.storm) {

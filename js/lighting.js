@@ -22,6 +22,7 @@
 import { daylight, timeOfDay, isUnderground, DAY_MS, CLIMATES } from './atmosphere.js';
 import { bareName } from './world.js';
 import { createWeather, setWeather } from './weather.js';
+import { creatureSheetFor, creatureFx, FX, FX_POINTS, fxPoint, flicker, drawScale } from './creatures.js';
 
 let PIXI = null, AdvancedBloomFilter = null;
 
@@ -128,6 +129,7 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
   map.parentElement.insertBefore(view, map.nextSibling);
 
   const circle = softCircle();
+  const flames = []; // { x, y, fx } in squares, refilled each frame
   // The night: drawn into `dark` each frame, shown by `darkSprite`.
   let dark = PIXI.RenderTexture.create({ width: 16, height: 16 });
   const lightTexture = (w, h) => PIXI.RenderTexture.create({ width: Math.ceil(w * LIGHT_SCALE), height: Math.ceil(h * LIGHT_SCALE) });
@@ -229,6 +231,7 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
 
     // ---- lights ----
     const found = [];
+    flames.length = 0; // creatures with an effect: where their particles rise from
     if (ready) {
       const add = (x, y, L, seed, strength = 1) => {
         if (found.length < MAX_LIGHTS) found.push({ x, y, L, seed, strength });
@@ -243,6 +246,20 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
       for (const e of world.drawList(nowPerf)) {
         const L = NAME_LIGHTS[bareName(e.name).toLowerCase()];
         if (L) { const p = world.visualPos(e, nowPerf); add(p.x, p.y, L, e.id); }
+        // Creatures with an effect (js/creatures.js FX; Painted style, rendered creatures only):
+        // a light at the chest, and particle sources at the skull, shoulders and hands.
+        if (e.type !== 4 || !renderer.creatures) continue;
+        const name = bareName(e.name);
+        const fx = FX[creatureFx(name)];
+        const sheet = fx && creatureSheetFor(name);
+        if (!sheet) continue;
+        const p = world.visualPos(e, nowPerf);
+        const scale = drawScale(sheet, name);
+        add(p.x, p.y - 0.15 * scale, fx.light, e.id);
+        for (const pt of FX_POINTS[renderer.npcFacings?.get(e.id) ?? 1] ?? FX_POINTS[1]) {
+          const [fx0, fy0] = fxPoint(p.x, p.y, pt, scale);
+          flames.push({ x: fx0, y: fy0, fx });
+        }
       }
       if (darkness > 0.01) for (const fx of world.effects) {
         const at = effectAt(world, fx, nowPerf);
@@ -254,7 +271,7 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
     if (darkness > 0.01) nightFill.rect(0, 0, w, h).fill({ color: NIGHT, alpha: darkness });
     for (const f of found) {
       const [px, py] = centre(f.x, f.y);
-      const fl = f.L.flicker ? 1 + f.L.flicker * 0.06 * (Math.sin(secs * 3.2 + f.seed) + Math.sin(secs * 7.3 + f.seed * 3) * 0.5) : 1;
+      const fl = f.L.flicker ? flicker(secs, f.seed, f.L.flicker) : 1;
       const size = f.L.r * 2 * c * fl * (0.6 + 0.4 * f.strength);
       const hole = holes.take();
       hole.position.set(px, py);
@@ -277,9 +294,10 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
     // ---- weather ----
     // Fires (anything that flickers hard: torches, braziers, campfires,
     // lava) give off embers.
-    const fires = found.filter((f) => f.L.flicker >= 0.4).map((f) => [f.x, f.y]);
+    // (Creatures' own particles are `flames`, not embers.)
+    const fires = found.filter((f) => f.L.flicker >= 0.4 && !f.L.creature).map((f) => [f.x, f.y]);
     const tw = performance.now();
-    if (ready) weather.update({ dt, now: nowPerf, world, renderer, st: renderer.weatherState, cam, r, c, w, h, night: night / MAX_DARK, fires });
+    if (ready) weather.update({ dt, now: nowPerf, world, renderer, st: renderer.weatherState, cam, r, c, w, h, night: night / MAX_DARK, fires, flames });
     cost.weather = cost.weather * 0.95 + (performance.now() - tw) * 0.05;
 
     // ---- spell sparks ----

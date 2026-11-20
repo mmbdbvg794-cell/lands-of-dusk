@@ -16,7 +16,7 @@ import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
-import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox } from './creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox, creatureFx, FX, flicker } from './creatures.js';
 import { layoutLabels } from './labels.js';
 import { loadSheet } from './sprites.js';
 
@@ -409,7 +409,61 @@ export class Renderer {
     const n = !walking && hovers(creature) ? hoverFrame(sheet.count, dir, now, hoverMs(creature)) : renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
     if (!walking && hovers(creature)) this.hovering = true;
     const [x, y, side] = scaledBox(px, py, c, drawScale(creature, bareName(e.name)));
-    sheet.draw(this.ctx, n, x, y, side);
+    const fx = FX[creatureFx(bareName(e.name))];
+    if (fx) this.drawWithFx(fx, e, sheet, n, x, y, side, now);
+    else sheet.draw(this.ctx, n, x, y, side);
+  }
+
+  // A creature with an effect (js/creatures.js FX): a flickering light pool under it, then
+  // its frame washed toward the effect's colour, brightening with the flicker. Its light on
+  // the ground at night and its rising particles are js/lighting.js's. One scratch canvas,
+  // reused; the glow made once per effect.
+  drawWithFx(fx, e, sheet, n, x, y, side, now) {
+    const { ctx } = this;
+    const fl = flicker(now / 1000, e.id, fx.light.flicker * 2.5);
+    this.hovering = true; // keep redrawing while it flickers
+    if (typeof document === 'undefined') { sheet.draw(ctx, n, x, y, side); return; }
+    // the light pool: centred on the chest, radius about the figure's height
+    const glow = this.fxGlow(fx);
+    const r = side * 0.85 * fl;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = Math.min(1, fx.glowAlpha * fl);
+    ctx.drawImage(glow, x + side / 2 - r, y + side * 0.45 - r * 0.8, r * 2, r * 1.6);
+    ctx.restore();
+    // the figure, tinted
+    const size = Math.max(1, Math.ceil(side));
+    const cv = (this.fxCanvas ??= document.createElement('canvas'));
+    if (cv.width !== size || cv.height !== size) { cv.width = size; cv.height = size; }
+    const g = cv.getContext('2d');
+    g.globalCompositeOperation = 'source-over';
+    g.globalAlpha = 1;
+    g.clearRect(0, 0, size, size);
+    sheet.draw(g, n, 0, 0, size);
+    g.globalCompositeOperation = 'source-atop';
+    g.globalAlpha = fx.tintAmount * (0.9 + (fl - 1));
+    g.fillStyle = fx.tint;
+    g.fillRect(0, 0, size, size);
+    g.globalAlpha = Math.max(0, 0.18 * (fl - 0.85));
+    g.fillStyle = fx.flash;
+    g.fillRect(0, 0, size, size);
+    ctx.drawImage(cv, 0, 0, size, size, x, y, side, side);
+  }
+
+  // A soft round light in an effect's colour, made once.
+  fxGlow(fx) {
+    if (fx.glowCanvas) return fx.glowCanvas;
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = 128;
+    const g = cv.getContext('2d');
+    const [r, gr, b] = fx.glow;
+    const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grad.addColorStop(0, `rgba(${r},${gr},${b},0.9)`);
+    grad.addColorStop(0.4, `rgba(${r},${gr},${b},0.45)`);
+    grad.addColorStop(1, `rgba(${r},${gr},${b},0)`);
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 128, 128);
+    return (fx.glowCanvas = cv);
   }
 
   drawRendered(e, step, px, py, c, now) {

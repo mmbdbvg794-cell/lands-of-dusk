@@ -120,6 +120,57 @@ export const SIDE_ONLY = new Set(['snake']);
 // Creatures drawn bigger than a person: their frame scaled about its bottom centre (feet
 // stay put; it grows upward and sideways). 1 for everyone else.
 export const DRAW_SCALE = { mishaven: 1.3, demon_blue: 1.15, demon_red: 1.15 };
+// Effects on a creature, by mob NAME (not by sheet): a light and glow around it, its picture
+// tinted, and particles rising off it (drawn by js/renderer.js, js/lighting.js and the
+// particle pools in js/weather.js). Named mobs first, then the word rules.
+export const CREATURE_FX = { 'devilkin champion': 'burning' };
+const FX_WORDS = [
+  ['burning', /\b(fire|fires|fiery|flame|flames|flaming|burning|blazing|ember|embers|ash|ashen|infernal)\b.*\b(skeletons?|skeletal|bones|bonewalkers?)\b/],
+];
+export function creatureFx(name) {
+  const n = String(name ?? '').toLowerCase().trim();
+  return CREATURE_FX[n] ?? FX_WORDS.find(([, re]) => re.test(n))?.[0] ?? null;
+}
+// The effects. light: as js/lighting.js's lights (radius in squares, colour, glow, flicker),
+// lighting the ground at night; glow: a light pool drawn under the figure, day or night;
+// tint: the figure washed toward a colour (amount 0-1); motes: particle colours, and how
+// many a source keeps alive; points: where they rise from. Only 'burning' is tuned.
+export const FX = {
+  burning: {
+    light: { r: 2.8, color: 0xff6a20, glow: 0.4, flicker: 1, creature: true },
+    glow: [255, 120, 40], glowAlpha: 0.5, tint: '#ff6a1a', tintAmount: 0.4, flash: '#ffc060',
+    motes: [0xffb040, 0xff7a20, 0xffe070, 0xff5018], perPoint: 2, rise: 1,
+  },
+  frost: {
+    light: { r: 2.2, color: 0x80c8ff, glow: 0.25, flicker: 0.2, creature: true },
+    glow: [150, 210, 255], glowAlpha: 0.3, tint: '#9ad0ff', tintAmount: 0.3, flash: '#e0f4ff',
+    motes: [0xe0f4ff, 0xa0d8ff], perPoint: 1, rise: 0.4,
+  },
+  ghostly: {
+    light: { r: 2, color: 0x9ab8ff, glow: 0.2, flicker: 0.3, creature: true },
+    glow: [170, 190, 255], glowAlpha: 0.25, tint: '#c0d0ff', tintAmount: 0.3, flash: '#ffffff',
+    motes: [0xc8d8ff], perPoint: 1, rise: 0.6,
+  },
+};
+// Where an effect's particles rise from, by facing (0 n, 1 s, 2 w, 3 e): skull, shoulders and
+// hands, as [x, y] across a figure's frame (0-1 from the top left, before its draw scale).
+const SKULL = [0.5, 0.2];
+export const FX_POINTS = [
+  [SKULL, [0.4, 0.33], [0.6, 0.33], [0.32, 0.52], [0.68, 0.52]], // n
+  [SKULL, [0.38, 0.33], [0.62, 0.33], [0.3, 0.52], [0.7, 0.52]], // s
+  [[0.47, 0.2], [0.5, 0.33], [0.4, 0.5], [0.58, 0.54]], // w
+  [[0.53, 0.2], [0.5, 0.33], [0.6, 0.5], [0.42, 0.54]], // e
+];
+// A point of a figure drawn on the square (x, y) at a scale, in world squares (feet anchored
+// at the bottom centre, as scaledBox).
+export function fxPoint(x, y, [fx, fy], scale = 1) {
+  return [x + (fx - 0.5) * scale, y + 0.5 - (1 - fy) * scale];
+}
+// The flicker of a fire (and lighting.js's lights): about 1, by `amount`, never repeating exactly.
+export function flicker(secs, seed, amount = 1) {
+  return 1 + amount * 0.06 * (Math.sin(secs * 3.2 + seed) + Math.sin(secs * 7.3 + seed * 3) * 0.5);
+}
+
 // Bosses that would otherwise look exactly like their own soldiers: by mob name, in place of the sheet's.
 export const NAME_SCALE = { 'ashen gaoler': 1.35 };
 export function drawScale(creature, name = '') {

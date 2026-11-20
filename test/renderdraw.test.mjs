@@ -23,7 +23,7 @@ world.apply({ op: OP.MAP, x: 100, y: 100, tiles: Array.from({ length: n * n }, (
 const r0 = Math.floor(n / 2);
 const ents = [
   [1, 'Bug', 4], [2, 'Lizard Axeman', 4], [3, 'duergar soldier', 4], [4, 'wolf', 4],
-  [5, 'Merchant', 2], [6, 'Captain Hale', 3], [7, 'Child', 3], [8, 'flan', 0],
+  [5, 'Merchant', 2], [9, 'Devilkin Champion', 4], [6, 'Captain Hale', 3], [7, 'Child', 3], [8, 'flan', 0],
 ];
 ents.forEach(([id, name, type], i) => world.apply({ op: OP.ENTITY, id, name, type, x: 100 - r0 + i, y: 100, image: 0, step: 0 }));
 
@@ -37,10 +37,11 @@ const sheet = (label) => ({ count: 36, size: 144, cols: 36, img: {}, draw: () =>
 r.setSheets({ map: sheet('map'), players: sheet('players'), sprites: sheet('sprites') });
 r.rendered = new Map([0, 1, 2, 6, 8, 9, 10, 11, 20].map((l) => [l, sheet(`look${l}`)]));
 r.renderedLayers = new Map([['0-npc-shirt', sheet('layer')]]);
-r.creatures = new Map([['bug', sheet('mob-bug')], ['wolf', sheet('mob-wolf')]]);
+r.creatures = new Map([['bug', sheet('mob-bug')], ['wolf', sheet('mob-wolf')], ['skeleton', sheet('mob-skeleton')]]);
 r.talkers = new Set(['captain hale', 'child']);
 r.tinted = (s) => s;
 
 assert.doesNotThrow(() => r.draw(), 'a frame draws without throwing');
-for (const want of ['mob-bug', 'mob-wolf', 'look6', 'look0']) assert.ok(drawn.includes(want), `drew ${want}`);
+for (const want of ['mob-bug', 'mob-wolf', 'mob-skeleton', 'look6', 'look0']) assert.ok(drawn.includes(want), `drew ${want}`);
+assert.ok(r.hovering, 'a burning creature keeps the map redrawing');
 console.log('render draw test passed');
