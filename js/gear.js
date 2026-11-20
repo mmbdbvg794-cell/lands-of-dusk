@@ -110,8 +110,11 @@ const WEAPON_WORDS = [
   ['shadow', /\b(shadow|dark|void|cursed|doom)\b/],
   ['venom', /\b(venom|poison|poisoned|toxic|plague)\b/],
 ];
+// Named weapons whose effect isn't in their name (the gauntlet's prize).
+const NAMED_WEAPON_FX = { "champion's blade": 'flaming' };
 export function weaponFx(name) {
-  const n = String(name ?? '').toLowerCase().replace(/_/g, ' ');
+  const n = String(name ?? '').toLowerCase().replace(/_/g, ' ').trim();
+  if (NAMED_WEAPON_FX[n]) return NAMED_WEAPON_FX[n];
   for (const [fx, re] of WEAPON_WORDS) if (re.test(n)) return fx;
   return null;
 }

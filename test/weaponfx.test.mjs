@@ -15,6 +15,8 @@ const cases = {
 };
 for (const [fx, names] of Object.entries(cases)) for (const n of names) assert.equal(weaponFx(n), fx, n);
 for (const n of ['Iron Sword', 'Darkwood Staff', 'Firebrand', 'icepick', 'silverware', 'Steel Axe', '', null]) assert.equal(weaponFx(n), null, String(n));
+assert.equal(weaponFx("Champion's Blade"), 'flaming', 'the gauntlet prize, by name');
+assert.equal(weaponFx("champion's_blade"), 'flaming');
 for (const fx of Object.keys(cases)) assert.ok(WEAPON_FX[fx], `${fx} is defined`);
 
 // the gear carries it (yours, and another player's from "worn")
