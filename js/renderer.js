@@ -16,7 +16,7 @@ import { gearKey } from './gear.js';
 import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
-import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox, creatureFx, FX, flicker } from './creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox, creatureFxList, FX, flicker, nameAbove, opaqueBox, WHOLE_FRAME, stripColour } from './creatures.js';
 import { layoutLabels } from './labels.js';
 import { loadSheet } from './sprites.js';
 
@@ -263,7 +263,12 @@ export class Renderer {
       // wardrobe from the job in their name; mobs only the named wardrobes.
       const npcWhere = e.type === 4 ? null : { x: e.x, y: e.y, look: propLook(this.propLooks, e), merchant: e.type === 2 };
       const outfit = !creature && this.rendered && this.renderedLayers && this.isPersonNpc(e) ? npcOutfit(bareName(e.name), npcWhere) : null;
-      if (creature) this.drawCreature(e, creature, creatureSheetFor(bareName(e.name)), px, py, c, now);
+      // a big creature's name goes over its head: the top of what was drawn (px)
+      let nameTop = null;
+      if (creature) {
+        const top = this.drawCreature(e, creature, creatureSheetFor(bareName(e.name)), px, py, c, now);
+        if (nameAbove(creatureSheetFor(bareName(e.name)), bareName(e.name))) nameTop = top;
+      }
       else if (outfit && this.rendered.has(outfit.look)) this.drawNpc(e, outfit, px, py, c, now);
       else if (byName !== undefined) art.sheet.draw(ctx, byName, px, py, c);
       else if (step === -1) sprites?.draw(ctx, e.image, px, py, c);
@@ -280,7 +285,7 @@ export class Renderer {
       if (names && !e.hideName && (kind === 'object' ? this.showObjectNames : kind === 'npc' ? this.showNpcNames : this.showNames)) {
         // Java: black copy one pixel left, then white, baseline on the
         // tile's bottom edge.
-        labels.push([names.get(e.id) ?? e.name, px, py, e === me]);
+        labels.push([names.get(e.id) ?? e.name, px, py, e === me, nameTop]);
       }
     }
     // Names last, over everything (trees included).
@@ -296,11 +301,12 @@ export class Renderer {
         ctx.fillText(text, x, y);
       }
     } else {
-      for (const [label, px, py] of labels) {
+      for (const [label, px, py, , top] of labels) {
+        const y = labelBaseline(py, c, nudge, top);
         ctx.fillStyle = '#000';
-        ctx.fillText(label, px - nudge, py + c - nudge);
+        ctx.fillText(label, px - nudge, y);
         ctx.fillStyle = '#fff';
-        ctx.fillText(label, px, py + c - nudge);
+        ctx.fillText(label, px, y);
       }
     }
 
@@ -375,9 +381,9 @@ export class Renderer {
     };
     const W = this.canvas.width, H = this.canvas.height;
     const input = [];
-    for (const [text, px, py, self] of labels) {
+    for (const [text, px, py, self, top] of labels) {
       if (px + c < 0 || py + c < 0 || px > W || py > H + c) continue; // off screen
-      input.push({ text, x: px, y: py + c - nudge, cx: px + measure(text) / 2, self });
+      input.push({ text, x: px, y: labelBaseline(py, c, nudge, top), cx: px + measure(text) / 2, self });
     }
     return layoutLabels(input, measure, Math.round(fontPx * 1.15));
   }
@@ -398,6 +404,7 @@ export class Renderer {
   }
 
   // A rendered creature: facing the way it last stepped, walking in time with its slide.
+  // Returns the canvas y of the top of its picture (for a name over its head).
   drawCreature(e, sheet, creature, px, py, c, now) {
     const facing = npcFacing(e, this.npcFacings.get(e.id) ?? 1);
     this.npcFacings.set(e.id, facing);
@@ -409,29 +416,111 @@ export class Renderer {
     const n = !walking && hovers(creature) ? hoverFrame(sheet.count, dir, now, hoverMs(creature)) : renderedFrame(sheet.count, step, e, e.anim ? this.world.progress(e.anim.start, now, e.anim.ms) : 1);
     if (!walking && hovers(creature)) this.hovering = true;
     const [x, y, side] = scaledBox(px, py, c, drawScale(creature, bareName(e.name)));
-    const fx = FX[creatureFx(bareName(e.name))];
-    if (fx) this.drawWithFx(fx, e, sheet, n, x, y, side, now);
-    else sheet.draw(this.ctx, n, x, y, side);
+    const fxs = creatureFxList(bareName(e.name), creature).map((f) => FX[f]).filter(Boolean);
+    const bob = fxs.reduce((m, f) => Math.max(m, f.bob ?? 0), 0) * side * Math.sin(now / 700 + e.id);
+    const box = this.frameBox(sheet, n);
+    if (fxs.length) {
+      // where the picture is, for js/lighting.js's particles (by creature, this frame)
+      const boxes = (this.fxBoxes ??= new Map());
+      if (boxes.size > 400 && !boxes.has(e.id)) boxes.clear();
+      boxes.set(e.id, box);
+      this.drawWithFx(fxs, e, sheet, n, x, y + bob, side, now, box);
+    } else sheet.draw(this.ctx, n, x, y, side);
+    return y + bob + side * box.top;
   }
 
-  // A creature with an effect (js/creatures.js FX): a flickering light pool under it, then
-  // its frame washed toward the effect's colour, brightening with the flicker. Its light on
-  // the ground at night and its rising particles are js/lighting.js's. One scratch canvas,
-  // reused; the glow made once per effect.
-  drawWithFx(fx, e, sheet, n, x, y, side, now) {
+  // The part of a frame its picture fills (js/creatures.js opaqueBox), worked out once per
+  // sheet and frame from its pixels; the whole frame when they can't be read.
+  frameBox(sheet, n) {
+    const boxes = (this.frameBoxes ??= new WeakMap());
+    let m = boxes.get(sheet);
+    if (!m) boxes.set(sheet, (m = new Map()));
+    if (m.has(n)) return m.get(n);
+    let box = WHOLE_FRAME;
+    try {
+      const px = this.framePixels(sheet, n);
+      if (px) box = opaqueBox(px.data, px.side, px.side);
+    } catch {}
+    m.set(n, box);
+    return box;
+  }
+
+  // A frame's pixels at its own size, or null (no DOM, an unreadable image).
+  framePixels(sheet, n) {
+    if (typeof document === 'undefined' || !sheet.img || !sheet.size) return null;
+    const side = sheet.size;
+    const cv = (this.pixelCanvas ??= document.createElement('canvas'));
+    if (cv.width !== side || cv.height !== side) { cv.width = side; cv.height = side; }
+    const g = cv.getContext('2d', { willReadFrequently: true });
+    g.clearRect(0, 0, side, side);
+    const sx = (n % sheet.cols) * side, sy = Math.floor(n / sheet.cols) * side;
+    g.drawImage(sheet.img, sx, sy, side, side, 0, 0, side, side);
+    const data = g.getImageData(0, 0, side, side).data;
+    return data && data.length === side * side * 4 ? { data, side } : null;
+  }
+
+  // A creature's own colour as a glow ([r, g, b]), from its first frame, once per sheet; null
+  // until it can be read (the effect's own colour is used meanwhile).
+  sheetColour(sheet) {
+    const cols = (this.sheetColours ??= new WeakMap());
+    if (cols.has(sheet)) return cols.get(sheet);
+    let col = null;
+    try {
+      const px = this.framePixels(sheet, 2); // facing south, standing
+      if (px) col = stripColour(px.data);
+    } catch {}
+    cols.set(sheet, col);
+    return col;
+  }
+
+  // A creature with effects (js/creatures.js FX; a list, the first one's tint on top): marks on
+  // the ground at its feet, a light pool under it (flickering or pulsing), then its frame washed
+  // toward the effects' colours, with a glint sweeping over it, maybe see-through. Its light on
+  // the ground at night and its particles are js/lighting.js's and js/weather.js's. One scratch
+  // canvas, reused; each glow made once per colour.
+  drawWithFx(fxs, e, sheet, n, x, y, side, now, box = WHOLE_FRAME) {
     const { ctx } = this;
-    const fl = flicker(now / 1000, e.id, fx.light.flicker * 2.5);
-    this.hovering = true; // keep redrawing while it flickers
+    const secs = now / 1000;
+    this.hovering = true; // keep redrawing while it moves
     if (typeof document === 'undefined') { sheet.draw(ctx, n, x, y, side); return; }
-    // the light pool: centred on the chest, radius about the figure's height
-    const glow = this.fxGlow(fx);
-    const r = side * 0.85 * fl;
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = Math.min(1, fx.glowAlpha * fl);
-    ctx.drawImage(glow, x + side / 2 - r, y + side * 0.45 - r * 0.8, r * 2, r * 1.6);
-    ctx.restore();
-    // the figure, tinted
+    const lit = fxs.find((f) => f.light?.flicker);
+    const fl = lit ? flicker(secs, e.id, lit.light.flicker * 2.5) : 1;
+    // on the ground at the feet (normal paint): a dark vignette, a stain
+    for (const f of fxs) {
+      if (!f.ground) continue;
+      const [r, g, b, a] = f.ground;
+      const cx = x + side * (box.left + box.right) / 2, cy = y + side * (box.bottom - 0.04);
+      const rx = side * Math.max(0.18, (box.right - box.left) * 0.6), ry = rx * 0.38;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx);
+      grad.addColorStop(0, `rgba(${r},${g},${b},${a})`);
+      grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.save();
+      ctx.fillStyle = grad;
+      ctx.translate(cx, cy);
+      ctx.scale(1, ry / rx);
+      ctx.translate(-cx, -cy);
+      ctx.beginPath();
+      ctx.arc(cx, cy, rx, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    // the light pools: centred on the picture, about its size
+    const bw = box.right - box.left, bh = box.bottom - box.top;
+    const gx = x + side * (box.left + bw / 2), gy = y + side * (box.top + bh / 2);
+    const reach = side * Math.max(0.3, Math.max(bw, bh));
+    for (const f of fxs) {
+      if (!f.glow) continue;
+      const colour = f.glow === 'strip' ? this.sheetColour(sheet) ?? hexRgb(f.light?.color ?? 0xc0d0ff) : f.glow;
+      const pulse = f.pulse ? 0.75 + 0.25 * Math.sin((secs / f.pulse) * Math.PI * 2 + e.id) : 1;
+      const k = f === lit ? fl : pulse;
+      const r = reach * k;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = Math.min(1, f.glowAlpha * k);
+      ctx.drawImage(this.fxGlow(colour), gx - r, gy - r * 0.8, r * 2, r * 1.6);
+      ctx.restore();
+    }
+    // the figure: tinted, glinting, see-through
     const size = Math.max(1, Math.ceil(side));
     const cv = (this.fxCanvas ??= document.createElement('canvas'));
     if (cv.width !== size || cv.height !== size) { cv.width = size; cv.height = size; }
@@ -441,29 +530,63 @@ export class Renderer {
     g.clearRect(0, 0, size, size);
     sheet.draw(g, n, 0, 0, size);
     g.globalCompositeOperation = 'source-atop';
-    g.globalAlpha = fx.tintAmount * (0.9 + (fl - 1));
-    g.fillStyle = fx.tint;
-    g.fillRect(0, 0, size, size);
-    g.globalAlpha = Math.max(0, 0.18 * (fl - 0.85));
-    g.fillStyle = fx.flash;
-    g.fillRect(0, 0, size, size);
+    for (const f of [...fxs].reverse()) {
+      if (f.tint) {
+        g.globalAlpha = f.tintAmount * (f === lit ? 0.9 + (fl - 1) : 1);
+        g.fillStyle = f.tint;
+        g.fillRect(0, 0, size, size);
+      }
+      if (f.flash && f === lit) {
+        g.globalAlpha = Math.max(0, 0.18 * (fl - 0.85));
+        g.fillStyle = f.flash;
+        g.fillRect(0, 0, size, size);
+      }
+      if (f.shine) {
+        // a pale band sweeping down across the figure every few seconds
+        const t = ((secs * 0.35 + e.id * 0.13) % 1) * 2.4 - 0.7;
+        const band = g.createLinearGradient(0, size * (t - 0.25), size * 0.3, size * (t + 0.25));
+        band.addColorStop(0, 'rgba(255,255,255,0)');
+        band.addColorStop(0.5, 'rgba(235,248,255,1)');
+        band.addColorStop(1, 'rgba(255,255,255,0)');
+        g.globalAlpha = f.shine;
+        g.fillStyle = band;
+        g.fillRect(0, 0, size, size);
+      }
+    }
+    // an aura: the glow's colour washed over the figure itself, pulsing with it (a wide ghost
+    // hides most of the pool under it)
+    for (const f of fxs) {
+      if (!f.aura) continue;
+      const colour = f.glow === 'strip' ? this.sheetColour(sheet) ?? hexRgb(f.light?.color ?? 0xc0d0ff) : f.glow;
+      const pulse = f.pulse ? 0.75 + 0.25 * Math.sin((secs / f.pulse) * Math.PI * 2 + e.id) : 1;
+      g.globalAlpha = f.aura * pulse;
+      g.fillStyle = `rgb(${colour[0]},${colour[1]},${colour[2]})`;
+      g.globalCompositeOperation = 'source-atop';
+      g.fillRect(0, 0, size, size);
+    }
+    const alpha = fxs.reduce((m, f) => Math.min(m, f.alpha ?? 1), 1);
+    ctx.save();
+    ctx.globalAlpha = alpha;
     ctx.drawImage(cv, 0, 0, size, size, x, y, side, side);
+    ctx.restore();
   }
 
-  // A soft round light in an effect's colour, made once.
-  fxGlow(fx) {
-    if (fx.glowCanvas) return fx.glowCanvas;
+  // A soft round light in a colour ([r, g, b]), made once per colour.
+  fxGlow([r, gr, b]) {
+    const glows = (this.fxGlows ??= new Map());
+    const key = `${r},${gr},${b}`;
+    if (glows.has(key)) return glows.get(key);
     const cv = document.createElement('canvas');
     cv.width = cv.height = 128;
     const g = cv.getContext('2d');
-    const [r, gr, b] = fx.glow;
     const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
     grad.addColorStop(0, `rgba(${r},${gr},${b},0.9)`);
     grad.addColorStop(0.4, `rgba(${r},${gr},${b},0.45)`);
     grad.addColorStop(1, `rgba(${r},${gr},${b},0)`);
     g.fillStyle = grad;
     g.fillRect(0, 0, 128, 128);
-    return (fx.glowCanvas = cv);
+    glows.set(key, cv);
+    return cv;
   }
 
   drawRendered(e, step, px, py, c, now) {
@@ -768,4 +891,15 @@ export function renderedGearLayers(layers, look, gear, dir) {
   const weapon = pick('weapon', gear.weapon, gear.weapon?.colour, true);
   const order = dir === 0 || dir === 2 ? [weapon, legs, feet, torso, hood, helm] : [legs, feet, torso, hood, helm, weapon];
   return order.flat();
+}
+
+// A name label's baseline: under the feet (the square's bottom edge), or for a big creature
+// just above the top of its picture.
+export function labelBaseline(py, c, nudge, top = null) {
+  return top == null ? py + c - nudge : Math.round(top - nudge * 2);
+}
+
+// 0xrrggbb -> [r, g, b].
+function hexRgb(n) {
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }

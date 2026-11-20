@@ -120,39 +120,160 @@ export const SIDE_ONLY = new Set(['snake']);
 // Creatures drawn bigger than a person: their frame scaled about its bottom centre (feet
 // stay put; it grows upward and sideways). 1 for everyone else.
 export const DRAW_SCALE = { mishaven: 1.3, demon_blue: 1.15, demon_red: 1.15 };
-// Effects on a creature, by mob NAME (not by sheet): a light and glow around it, its picture
-// tinted, and particles rising off it (drawn by js/renderer.js, js/lighting.js and the
-// particle pools in js/weather.js). Named mobs first, then the word rules.
-export const CREATURE_FX = { 'devilkin champion': 'burning' };
+// Effects on a creature (drawn by js/renderer.js, js/lighting.js and the particle pools in
+// js/weather.js): by mob NAME first (named mobs, then whole-word rules), then by the SHEET it
+// draws with; a mob can have two (a Water Shade is ghostly and wet). Only rendered creatures
+// show them, so a name with no picture yet (frost bear) waits for its art.
+export const CREATURE_FX = { 'devilkin champion': ['burning'] };
 const FX_WORDS = [
-  ['frost', /\b(ice|icy|frost|frosty|frozen|snow|winter|rime|glacial)\b.*\b(skeletons?|skeletal|bones|bonewalkers?)\b/],
+  // "ice skeleton", "frost wolf", "Snow Bear": any cold word
+  ['frost', /\b(ice|icy|frost|frosty|frozen|snow|winter|rime|glacial)\b/],
+  // "fire skeleton", not "skeleton of fire" nor "fire slime"
   ['burning', /\b(fire|fires|fiery|flame|flames|flaming|burning|blazing|ember|embers|ash|ashen|infernal)\b.*\b(skeletons?|skeletal|bones|bonewalkers?)\b/],
+  ['shadow', /\b(shadow|shadows|dark|void)\b/],
+  ['blight', /\b(blight|blighted|plague|plagued|rotting|rotten|diseased|bog crawlers?)\b/],
+  ['wet', /\b(sea|lake|water|river|tide|drowned)\b/],
 ];
-export function creatureFx(name) {
+// By the picture: every ghost is ghostly (gloom, Water Shade, marsh wisp, swamp horror, Grey
+// Herald...); demons, black dogs and gloom hounds (the black wolf) smoky.
+const SHEET_FX = [
+  ['ghostly', /^ghost/],
+  ['shadow', /^(demon_red|demon_blue|wolf_black)$/],
+];
+// The order a pair is drawn in (the first one's tint is the figure's), and the most a mob has.
+const FX_ORDER = ['burning', 'frost', 'ghostly', 'shadow', 'blight', 'wet', 'sparkle'];
+const MAX_FX = 2;
+export function creatureFxList(name, sheet = creatureSheetFor(name)) {
   const n = String(name ?? '').toLowerCase().trim();
-  return CREATURE_FX[n] ?? FX_WORDS.find(([, re]) => re.test(n))?.[0] ?? null;
+  if (CREATURE_FX[n]) return CREATURE_FX[n];
+  const found = new Set();
+  for (const [fx, re] of FX_WORDS) if (re.test(n)) found.add(fx);
+  if (sheet) for (const [fx, re] of SHEET_FX) if (re.test(sheet)) found.add(fx);
+  return FX_ORDER.filter((f) => found.has(f)).slice(0, MAX_FX);
 }
-// The effects. light: as js/lighting.js's lights (radius in squares, colour, glow, flicker),
-// lighting the ground at night; glow: a light pool drawn under the figure, day or night;
-// tint: the figure washed toward a colour (amount 0-1); motes: particle colours, and how
-// many a source keeps alive; points: where they rise from. Only 'burning' is tuned.
+// The first of them, or null.
+export function creatureFx(name) {
+  return creatureFxList(name)[0] ?? null;
+}
+
+// The effects.
+//   light   as js/lighting.js's lights (radius in squares, colour, glow, flicker): the ground
+//           lit at night; null for none
+//   glow    a light pool drawn under the figure, day or night ([r, g, b], glowAlpha); 'strip'
+//           takes the colour from the creature's own picture
+//   pulse   the glow (and light) swelling slowly, seconds a cycle; aura: the glow's colour
+//           washed over the figure too (alpha), pulsing with it
+//   tint    the figure washed toward a colour (tintAmount 0-1); flash: its flicker highlight
+//   alpha, bob   the figure drawn see-through, and drifting up and down (part of a square)
+//   ground  a soft patch on the ground at the feet: [r, g, b, alpha]
+//   shine   a slow glint sweeping over the figure (alpha)
+//   parts   particles, each { pool: 'glow' (added light) or 'smoke' (painted over), colours
+//           ('strip' for the picture's), per: how many each creature keeps, from: 'points'
+//           (skull/shoulders/hands), 'head', 'body' or 'feet', life [min, max] s, vx spread,
+//           vy [min, max] squares/s (negative up), fall: gravity, size [min, max] squares,
+//           grow: size at the end of its life (1 steady, <1 shrinking), alpha, twinkle,
+//           wait [min, max] s between one and the next (now and then), breath: blown the way
+//           it faces }
 export const FX = {
   burning: {
     light: { r: 2.8, color: 0xff6a20, glow: 0.4, flicker: 1, creature: true },
     glow: [255, 120, 40], glowAlpha: 0.5, tint: '#ff6a1a', tintAmount: 0.4, flash: '#ffc060',
-    motes: [0xffb040, 0xff7a20, 0xffe070, 0xff5018], perPoint: 2, rise: 1,
+    parts: [{ pool: 'glow', colours: [0xffb040, 0xff7a20, 0xffe070, 0xff5018], per: 10, from: 'points', life: [0.3, 0.75], vx: 0.15, vy: [-0.75, -0.3], size: [0.06, 0.14], grow: 0.5, alpha: 1 }],
   },
   frost: {
     light: { r: 2.2, color: 0x80c8ff, glow: 0.25, flicker: 0.2, creature: true },
-    glow: [150, 210, 255], glowAlpha: 0.3, tint: '#9ad0ff', tintAmount: 0.3, flash: '#e0f4ff',
-    motes: [0xe0f4ff, 0xa0d8ff], perPoint: 1, rise: 0.4,
+    glow: [150, 210, 255], glowAlpha: 0.3, tint: '#9ad0ff', tintAmount: 0.25, flash: '#e0f4ff',
+    parts: [
+      // snowflakes drifting slowly down and about
+      { pool: 'glow', colours: [0xf0f8ff, 0xc8e8ff, 0xffffff], per: 5, from: 'body', life: [1.4, 2.4], vx: 0.25, vy: [-0.05, 0.12], size: [0.04, 0.08], grow: 0.8, alpha: 0.85 },
+      // a puff of frosty breath now and then
+      { pool: 'smoke', colours: [0xeef6ff], per: 1, from: 'head', life: [0.8, 1.2], vx: 0.05, vy: [-0.12, -0.05], size: [0.12, 0.16], grow: 2.6, alpha: 0.32, wait: [1.5, 4], breath: 0.35 },
+    ],
   },
   ghostly: {
-    light: { r: 2, color: 0x9ab8ff, glow: 0.2, flicker: 0.3, creature: true },
-    glow: [170, 190, 255], glowAlpha: 0.25, tint: '#c0d0ff', tintAmount: 0.3, flash: '#ffffff',
-    motes: [0xc8d8ff], perPoint: 1, rise: 0.6,
+    light: { r: 2, color: 0x9ab8ff, glow: 0.2, flicker: 0, creature: true },
+    glow: 'strip', glowAlpha: 0.4, pulse: 3.2, aura: 0.22, tint: null, alpha: 0.8, bob: 0.04,
+    parts: [{ pool: 'glow', colours: 'strip', per: 3, from: 'feet', life: [1.5, 2.6], vx: 0.18, vy: [-0.3, -0.12], size: [0.14, 0.22], grow: 1.6, alpha: 0.3 }],
+  },
+  shadow: {
+    light: null,
+    glow: null, tint: '#140a1c', tintAmount: 0.12, ground: [10, 0, 16, 0.4],
+    parts: [{ pool: 'smoke', colours: [0x100818, 0x1c1028, 0x08040c], per: 6, from: 'body', life: [1, 1.8], vx: 0.35, vy: [-0.45, -0.18], size: [0.1, 0.16], grow: 2.2, alpha: 0.3 }],
+  },
+  blight: {
+    light: { r: 1.6, color: 0xa8d040, glow: 0.15, flicker: 0.1, creature: true },
+    glow: null, tint: '#a8c040', tintAmount: 0.14, ground: [100, 140, 20, 0.25],
+    parts: [
+      { pool: 'glow', colours: [0xb8d040, 0xd8e060, 0x90c030], per: 4, from: 'body', life: [0.8, 1.4], vx: 0.12, vy: [-0.35, -0.12], size: [0.05, 0.09], grow: 0.6, alpha: 0.8 },
+      { pool: 'smoke', colours: [0x9ab030, 0x7a9020], per: 1, from: 'body', life: [0.5, 0.7], vx: 0, vy: [0, 0.05], fall: 2.4, size: [0.04, 0.05], grow: 1, alpha: 0.9, wait: [1.2, 3.5] },
+    ],
+  },
+  wet: {
+    light: null,
+    glow: null, tint: null, shine: 0.2,
+    parts: [{ pool: 'smoke', colours: [0xa8d8ff, 0xd0ecff], per: 2, from: 'body', life: [0.45, 0.6], vx: 0, vy: [0, 0.05], fall: 2.6, size: [0.035, 0.045], grow: 1, alpha: 0.85, wait: [0.8, 2.6] }],
+  },
+  // not on anything yet
+  sparkle: {
+    light: null,
+    glow: null, tint: null,
+    parts: [{ pool: 'glow', colours: [0xfff0b0, 0xffffff, 0xffe080], per: 4, from: 'body', life: [0.35, 0.7], vx: 0, vy: [0, 0], size: [0.05, 0.1], grow: 1, twinkle: true, alpha: 1, wait: [0.2, 1.2] }],
   },
 };
+// Names drawn over the head rather than under the feet: creatures drawn bigger than a person,
+// by their draw scale or because their frames are filled by a big beast.
+const BIG_FRAMES = new Set(['dragon', 'wolf_great', 'lizard_gator', 'maneater', 'horse', 'cow']);
+export function nameAbove(creature, name = '') {
+  return !!creature && (drawScale(creature, name) > 1.1 || BIG_FRAMES.has(creature));
+}
+// The box a frame's picture fills (pixels with alpha over minAlpha), as parts of the frame:
+// { top, left, right, bottom } from 0 to 1; the whole frame for an empty one.
+export function opaqueBox(data, w, h, minAlpha = 16) {
+  let top = h, left = w, right = -1, bottom = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (data[(y * w + x) * 4 + 3] <= minAlpha) continue;
+    if (y < top) top = y;
+    if (y > bottom) bottom = y;
+    if (x < left) left = x;
+    if (x > right) right = x;
+  }
+  if (right < 0) return { ...WHOLE_FRAME };
+  return { top: top / h, left: left / w, right: (right + 1) / w, bottom: (bottom + 1) / h };
+}
+export const WHOLE_FRAME = Object.freeze({ top: 0, left: 0, right: 1, bottom: 1 });
+// A picture's own colour: the average of its opaque pixels, brightened and deepened to a glow
+// ([r, g, b]).
+export function stripColour(data, minAlpha = 64) {
+  let r = 0, g = 0, b = 0, n = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] <= minAlpha) continue;
+    r += data[i]; g += data[i + 1]; b += data[i + 2]; n++;
+  }
+  if (!n) return null;
+  r /= n; g /= n; b /= n;
+  const k = 235 / Math.max(r, g, b, 1); // as bright as it goes, the hue kept
+  const rgb = [r * k, g * k, b * k];
+  const mean = (rgb[0] + rgb[1] + rgb[2]) / 3; // and more of it: a pale picture still glows a colour
+  return rgb.map((v) => Math.round(Math.max(0, Math.min(255, mean + (v - mean) * 1.8))));
+}
+// Beasts on four legs: where their effects come from, by facing (0 n, 1 s, 2 w, 3 e): head
+// first, then along the back; as parts of the box their picture fills (not the frame: a wolf
+// seen head-on is a small thing at the bottom of it).
+const BEASTS = /^(wolf|hound|coyote|cat|bug|mole|lizard|dinosaur|maneater|horse|cow|pig|sheep|dog|llama|rat)/;
+const BEAST_POINTS = [
+  [[0.5, 0.12], [0.5, 0.35], [0.5, 0.6]], // n
+  [[0.5, 0.2], [0.35, 0.3], [0.65, 0.3]], // s
+  [[0.12, 0.2], [0.45, 0.3], [0.75, 0.3]], // w
+  [[0.88, 0.2], [0.55, 0.3], [0.25, 0.3]], // e
+];
+// A creature's effect points by facing, as parts of its frame: people-shaped ones (skeletons,
+// ghosts, demons) on their frame; beasts fitted into `box`, the part of the frame their picture
+// fills (opaqueBox).
+export function fxPoints(creature, dir, box = WHOLE_FRAME) {
+  if (!BEASTS.test(creature ?? '')) return FX_POINTS[dir] ?? FX_POINTS[1];
+  const pts = BEAST_POINTS[dir] ?? BEAST_POINTS[1];
+  return pts.map(([x, y]) => [box.left + x * (box.right - box.left), box.top + y * (box.bottom - box.top)]);
+}
 // Where an effect's particles rise from, by facing (0 n, 1 s, 2 w, 3 e): skull, shoulders and
 // hands, as [x, y] across a figure's frame (0-1 from the top left, before its draw scale).
 const SKULL = [0.5, 0.2];

@@ -22,7 +22,7 @@
 import { daylight, timeOfDay, isUnderground, DAY_MS, CLIMATES } from './atmosphere.js';
 import { bareName } from './world.js';
 import { createWeather, setWeather } from './weather.js';
-import { creatureSheetFor, creatureFx, FX, FX_POINTS, fxPoint, flicker, drawScale } from './creatures.js';
+import { creatureSheetFor, creatureFxList, FX, fxPoints, fxPoint, flicker, drawScale } from './creatures.js';
 
 let PIXI = null, AdvancedBloomFilter = null;
 
@@ -129,7 +129,7 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
   map.parentElement.insertBefore(view, map.nextSibling);
 
   const circle = softCircle();
-  const flames = []; // { x, y, fx } in squares, refilled each frame
+  const flames = []; // creatures' effect sources (js/weather.js), in squares, refilled each frame
   // The night: drawn into `dark` each frame, shown by `darkSprite`.
   let dark = PIXI.RenderTexture.create({ width: 16, height: 16 });
   const lightTexture = (w, h) => PIXI.RenderTexture.create({ width: Math.ceil(w * LIGHT_SCALE), height: Math.ceil(h * LIGHT_SCALE) });
@@ -246,19 +246,36 @@ export async function startLighting({ map, dusk, nightOn, panel: withPanel = fal
       for (const e of world.drawList(nowPerf)) {
         const L = NAME_LIGHTS[bareName(e.name).toLowerCase()];
         if (L) { const p = world.visualPos(e, nowPerf); add(p.x, p.y, L, e.id); }
-        // Creatures with an effect (js/creatures.js FX; Painted style, rendered creatures only):
-        // a light at the chest, and particle sources at the skull, shoulders and hands.
+        // Creatures with effects (js/creatures.js FX; Painted style, rendered creatures only, in
+        // view): a light at the chest, and where their particles come from: skull, shoulders
+        // and hands (a beast's head and back), the head, the body, the feet.
         if (e.type !== 4 || !renderer.creatures) continue;
         const name = bareName(e.name);
-        const fx = FX[creatureFx(name)];
-        const sheet = fx && creatureSheetFor(name);
-        if (!sheet) continue;
+        const sheet = creatureSheetFor(name);
+        const list = sheet ? creatureFxList(name, sheet) : [];
+        if (!list.length) continue;
         const p = world.visualPos(e, nowPerf);
+        if (Math.abs(p.x - cam.x) > r + 1 || Math.abs(p.y - cam.y) > r + 1) continue;
         const scale = drawScale(sheet, name);
-        add(p.x, p.y - 0.15 * scale, fx.light, e.id);
-        for (const pt of FX_POINTS[renderer.npcFacings?.get(e.id) ?? 1] ?? FX_POINTS[1]) {
-          const [fx0, fy0] = fxPoint(p.x, p.y, pt, scale);
-          flames.push({ x: fx0, y: fy0, fx });
+        const dir = renderer.npcFacings?.get(e.id) ?? 1;
+        // the part of its frame the picture fills (js/renderer.js), in squares
+        const fb = renderer.fxBoxes?.get(e.id) ?? { top: 0, left: 0, right: 1, bottom: 1 };
+        const pts = fxPoints(sheet, dir, fb).map((pt) => fxPoint(p.x, p.y, pt, scale));
+        const [bx0, by0] = fxPoint(p.x, p.y, [fb.left, fb.top], scale);
+        const [bx1, by1] = fxPoint(p.x, p.y, [fb.right, fb.bottom], scale);
+        const box = { x0: bx0, y0: by0, x1: bx1, y1: by1 };
+        const loaded = renderer.creatures.get(sheet);
+        const own = loaded && renderer.sheetColour ? renderer.sheetColour(loaded) : null;
+        const colour = own ? (own[0] << 16) | (own[1] << 8) | own[2] : null;
+        for (const f of list) {
+          const fx = FX[f];
+          if (!fx) continue;
+          if (fx.light) {
+            const L = fx.glow === 'strip' && colour != null ? { ...fx.light, color: colour } : fx.light;
+            const pulse = fx.pulse ? 0.8 + 0.2 * Math.sin((secs / fx.pulse) * Math.PI * 2 + e.id) : 1;
+            add((bx0 + bx1) / 2, (by0 + by1) / 2, L, e.id, pulse);
+          }
+          if (fx.parts?.length) flames.push({ id: e.id, fx, dir, pts, head: pts[0], box, colour });
         }
       }
       if (darkness > 0.01) for (const fx of world.effects) {

@@ -22,7 +22,7 @@ import { isUnderground, isOutdoorTile } from './atmosphere.js';
 
 const FADE = 3; // seconds to fade an effect in or out
 // The most of each there can be, at intensity 1 (halved on a low-end device).
-export const MAX = { rain: 600, snow: 400, fog: 8, fireflies: 40, embers: 80, motes: 60 };
+export const MAX = { rain: 600, snow: 400, fog: 8, fireflies: 40, embers: 80, motes: 90, smoke: 60 };
 // Small screen or few cores: half the particles. localStorage dusk.lowend
 // '1' or '0' says so instead (for testing).
 const lowEndSaid = (() => { try { return localStorage.getItem('dusk.lowend'); } catch { return null; } })();
@@ -189,6 +189,76 @@ function particlePool(PIXI, texture, n, blendMode) {
   return { box, all };
 }
 
+// One frame of a pool's creature particles (see createWeather): emitters are every source's parts
+// of this pool kind, `per` times each; a particle that dies picks a new emitter, waiting first if
+// its part comes now and then. Returns how many are showing.
+function creatureParticles(pool, kind, sources, dt, wind, c, toScreen) {
+  const emitters = [];
+  for (const src of sources) for (const part of src.fx.parts ?? []) {
+    if (part.pool !== kind) continue;
+    for (let i = 0; i < part.per; i++) emitters.push([src, part]);
+  }
+  const want = Math.min(pool.all.length, emitters.length);
+  let live = 0;
+  for (const p of pool.all) {
+    if (live < want) {
+      if (!p.live) { p.live = true; p.life = 0; p.wait = 0; p.anchorY = 0.5; p.src = null; }
+      live++;
+    } else if (p.live) { p.live = false; p.alpha = 0; p.src = null; }
+  }
+  const range = ([a, b]) => a + Math.random() * (b - a);
+  let showing = 0;
+  for (const p of pool.all) {
+    if (!p.live) continue;
+    p.life -= dt;
+    if (p.life <= 0) {
+      if (p.wait > 0) { p.wait -= dt; p.alpha = 0; continue; }
+      const em = emitters[Math.floor(Math.random() * emitters.length)];
+      if (!em) { p.alpha = 0; continue; }
+      const [src, part] = em;
+      if (part.wait && !p.waited) { p.waited = true; p.wait = range(part.wait); p.alpha = 0; p.life = 0; continue; }
+      p.waited = false;
+      // src.box: the picture's box in squares (x0, y0 top left; x1, y1 bottom right)
+      const { x0, y0, x1, y1 } = src.box;
+      const across = (k) => x0 + (x1 - x0) * (0.5 + (Math.random() - 0.5) * k);
+      let at;
+      if (part.from === 'head') at = src.head;
+      else if (part.from === 'feet') at = [across(0.7), y1 - (y1 - y0) * 0.08];
+      else if (part.from === 'body') at = [across(0.75), y0 + (y1 - y0) * (0.15 + Math.random() * 0.6)];
+      else at = src.pts[Math.floor(Math.random() * src.pts.length)];
+      p.wx = at[0] + (Math.random() - 0.5) * 0.08;
+      p.wy = at[1] + (Math.random() - 0.5) * 0.05;
+      p.vx = (Math.random() - 0.5) * part.vx + wind * 0.2;
+      p.vy = range(part.vy) * (src.fx.rise ?? 1);
+      if (part.breath) {
+        // blown out the way it faces (0 n, 1 s, 2 w, 3 e)
+        const [bx, by] = [[0, -1], [0, 1], [-1, 0], [1, 0]][src.dir] ?? [0, 1];
+        p.vx += bx * part.breath; p.vy += by * part.breath * 0.5;
+      }
+      p.fall = part.fall ?? 0;
+      p.life = p.max = range(part.life);
+      p.size = (c / 32) * range(part.size);
+      p.grow = part.grow ?? 1;
+      p.peak = part.alpha ?? 1;
+      p.twinkle = !!part.twinkle;
+      p.seed = Math.random() * 10;
+      const cols = part.colours === 'strip' ? (src.colour != null ? [src.colour] : [0xc8d8ff]) : part.colours;
+      p.tint = cols[Math.floor(Math.random() * cols.length)];
+    }
+    p.vy += p.fall * dt;
+    p.wx += p.vx * dt; p.wy += p.vy * dt;
+    [p.x, p.y] = toScreen(p.wx, p.wy);
+    const k = p.life / p.max; // 1 new, 0 gone
+    const scale = p.twinkle ? Math.sin(k * Math.PI) : 1 + (p.grow - 1) * (1 - k);
+    p.scaleX = p.scaleY = p.size * scale;
+    // fading in quickly and out as it goes
+    p.alpha = p.peak * Math.min(1, k * 1.6, (1 - k) * 8 + (p.grow < 1 ? 1 : 0));
+    showing++;
+  }
+  return showing;
+}
+
+
 // The weather layer for lighting.js. below: under the night (rain, snow,
 // fog); above: over it (fireflies, embers, the lightning flash).
 export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
@@ -201,8 +271,10 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
   const snow = particlePool(PIXI, tex.flake, cap.snow);
   const flies = particlePool(PIXI, tex.glow, cap.fireflies, 'add');
   const embers = particlePool(PIXI, tex.glow, cap.embers, 'add');
-  // Flames and motes off creatures with an effect (js/creatures.js FX): f.flames.
+  // Particles off creatures with an effect (js/creatures.js FX parts; f.flames): 'glow' ones
+  // (flames, flakes, wisps) add light; 'smoke' ones (dark smoke, breath, drips) paint over.
   const motes = particlePool(PIXI, tex.glow, cap.motes, 'add');
+  const smoke = particlePool(PIXI, tex.glow, cap.smoke);
   let motesLive = 0;
   const fogLayer = new PIXI.Container();
   const fogs = [];
@@ -217,7 +289,7 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
   const flash = new PIXI.Graphics();
   const overlay = new PIXI.Graphics(); // the indoor squares, while the panel shows them
   below.addChild(rain.box, snow.box, fogLayer);
-  above.addChild(flies.box, embers.box, motes.box, flash, overlay);
+  above.addChild(flies.box, embers.box, motes.box, smoke.box, flash, overlay);
 
   // Each effect's strength now (fading) and where it's heading.
   const level = { rain: 0, snow: 0, fog: 0, fireflies: 0, embers: 0 };
@@ -406,34 +478,13 @@ export function createWeather(PIXI, { lowEnd = LOW_END } = {}) {
         if (p.alpha) shown++;
       }
 
-      // Flames off burning creatures (and other effects' motes), day or night: small, quick,
-      // rising from the skull, shoulders and hands and fading. f.flames: { x, y, fx } (squares).
-      const sources = f.flames ?? [];
-      const wantMotes = on.embers ? Math.min(cap.motes, sources.reduce((n, s) => n + s.fx.perPoint, 0)) : 0;
-      keep(motes, wantMotes, (p) => { p.life = 0; p.anchorY = 0.5; });
+      // Creatures' effect particles, day or night (js/creatures.js FX parts). f.flames: one
+      // source per creature and effect, { id, fx, dir, pts, head, box, colour } in
+      // squares. Each part keeps `per` particles a creature, the pool's cap over all of them.
       motesLive = 0;
-      for (const p of motes.all) {
-        if (!p.live) continue;
-        p.life -= dt;
-        if (p.life <= 0) {
-          const src = sources[Math.floor(Math.random() * sources.length)];
-          if (!src) { p.alpha = 0; continue; }
-          const { fx } = src;
-          p.wx = src.x + (Math.random() - 0.5) * 0.08;
-          p.wy = src.y + (Math.random() - 0.5) * 0.05;
-          p.vx = (Math.random() - 0.5) * 0.15 + wind * 0.2;
-          p.vy = -(0.3 + Math.random() * 0.45) * fx.rise;
-          p.life = p.max = 0.3 + Math.random() * 0.45;
-          p.size = (c / 32) * (0.06 + Math.random() * 0.08);
-          p.tint = fx.motes[Math.floor(Math.random() * fx.motes.length)];
-        }
-        p.wx += p.vx * dt; p.wy += p.vy * dt;
-        [p.x, p.y] = toScreen(p.wx, p.wy);
-        const k = p.life / p.max; // shrinking as they burn out
-        p.scaleX = p.scaleY = p.size * (0.5 + 0.5 * k);
-        p.alpha = Math.min(1, k * 1.6);
-        motesLive++;
-      }
+      if (on.embers) {
+        for (const [pool, kind] of [[motes, 'glow'], [smoke, 'smoke']]) motesLive += creatureParticles(pool, kind, f.flames ?? [], dt, wind, c, toScreen);
+      } else for (const pool of [motes, smoke]) keep(pool, 0, () => {});
       shown += motesLive;
 
       // Lightning, in storms outdoors: a flash, now and then.

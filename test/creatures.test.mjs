@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox, creatureFx, FX, FX_POINTS, fxPoint, flicker } from '../js/creatures.js';
+import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox, creatureFx, creatureFxList, FX, FX_POINTS, fxPoint, fxPoints, flicker, nameAbove, opaqueBox, stripColour } from '../js/creatures.js';
 import { renderedFrame } from '../js/renderer.js';
 
 const want = {
@@ -126,11 +126,52 @@ for (const n of ['flaming skeleton', 'burning skeleton', 'fire skeleton', 'Blazi
   assert.equal(creatureSheetFor(n), 'skeleton', `${n}: the skeleton strip`);
 }
 for (const n of ['ice skeleton', 'Frozen Skeletons', 'frost bones']) { assert.equal(creatureFx(n), 'frost', n); assert.equal(creatureSheetFor(n), 'skeleton', `${n}: the skeleton strip`); }
-for (const n of ['skeleton', 'Skeleton knight', 'ice wolf', 'wolf', 'fire slime', 'skeleton of fire', '']) assert.equal(creatureFx(n), null, `${n}: no effect`);
-for (const name of ['burning', 'frost', 'ghostly']) {
-  const fx = FX[name];
-  assert.ok(fx.light.r > 0 && fx.light.creature && fx.motes.length && fx.tintAmount > 0 && fx.tintAmount < 1, `${name}: a full effect`);
+for (const n of ['skeleton', 'Skeleton knight', 'wolf', 'fire slime', 'skeleton of fire', '']) assert.equal(creatureFx(n), null, `${n}: no effect`);
+// More effects: by name words, then by the picture.
+const fxOf = (n) => creatureFxList(n);
+for (const n of ['frost wolf', 'ice wolf', 'snow wolf', 'winter wolf', 'frost bear', 'Ice Spider', 'Snow Lizard']) assert.deepEqual(fxOf(n), ['frost'], n);
+for (const n of ['ghost', 'specter', 'gloom', 'banshee', 'marsh wisp', 'swamp horror', 'shade', 'Grey Herald']) assert.deepEqual(fxOf(n), ['ghostly'], n);
+assert.deepEqual(fxOf('Water Shade'), ['ghostly', 'wet'], 'Water Shade: ghostly and wet');
+for (const n of ['black dog', 'shadow wolf', 'gloom hound', 'Fallen', 'Claw', 'minion', 'DraN', 'Ashen Gaoler', 'dark spider', 'void slime']) assert.deepEqual(fxOf(n), ['shadow'], n);
+assert.ok(!fxOf('gloom hound').includes('ghostly'), 'a gloom hound is smoky, not ghostly');
+for (const n of ['blighted wolf', 'plague rat', 'rotting wolf', 'bog crawler']) assert.deepEqual(fxOf(n), ['blight'], n);
+for (const n of ['lake slimer', 'sea snake', 'river rat']) assert.deepEqual(fxOf(n), ['wet'], n);
+for (const n of ['wolf', 'skeleton', 'Bug', 'Lizard', 'Hound', 'slimer', 'man-eater', 'mishaven']) assert.deepEqual(fxOf(n), [], `${n}: no effect`);
+assert.deepEqual(fxOf('Devilkin Champion'), ['burning']);
+for (const n of ['ice skeleton', 'Fallen', 'Water Shade', 'a frost ghost of the dark lake']) assert.ok(fxOf(n).length <= 2, `${n}: two at most`);
+for (const [name, fx] of Object.entries(FX)) {
+  assert.ok(fx.parts?.length, `${name}: particles`);
+  for (const p of fx.parts) {
+    assert.ok(['glow', 'smoke'].includes(p.pool) && p.per > 0 && p.per <= 10 && p.life[0] > 0 && p.life[1] >= p.life[0], `${name}: a sound part`);
+    assert.ok(p.colours === 'strip' || p.colours.length, `${name}: colours`);
+  }
+  if (fx.tint) assert.ok(fx.tintAmount > 0 && fx.tintAmount < 1, `${name}: tint amount`);
+  if (fx.light) assert.ok(fx.light.r > 0 && fx.light.creature, `${name}: a creature light`);
 }
+assert.equal(FX.ghostly.alpha, 0.8, 'ghosts drawn see-through');
+assert.equal(FX.ghostly.glow, 'strip', "ghosts glow in their picture's colour");
+assert.ok(FX.shadow.parts.every((p) => p.pool === 'smoke'), 'shadow smoke is painted, not added light');
+assert.ok(FX.sparkle && !Object.values(FX).includes(undefined), 'sparkle kept for later');
+// Beasts' effects come from their head and back.
+assert.notDeepEqual(fxPoints('wolf_frost', 2), fxPoints('skeleton', 2), 'a wolf is not a skeleton');
+assert.ok(fxPoints('wolf_frost', 2)[0][0] < 0.4 && fxPoints('wolf_frost', 3)[0][0] > 0.6, "a wolf's head is at its front");
+// Names over big creatures' heads.
+for (const s of ['mishaven', 'demon_blue', 'demon_red', 'dragon', 'wolf_great', 'lizard_gator', 'maneater', 'horse', 'cow']) assert.ok(nameAbove(s), s);
+assert.ok(nameAbove('skeleton', 'Ashen Gaoler') || nameAbove('demon_red', 'Ashen Gaoler'), 'the Gaoler');
+for (const s of ['wolf', 'skeleton', 'rat', 'ghost', null]) assert.ok(!nameAbove(s), `${s}: under the feet`);
+const px = new Uint8ClampedArray(4 * 4 * 4);
+assert.deepEqual(opaqueBox(px, 4, 4), { top: 0, left: 0, right: 1, bottom: 1 }, 'an empty frame: the whole of it');
+px[(2 * 4 + 1) * 4 + 3] = 255;
+px[(3 * 4 + 2) * 4 + 3] = 255;
+assert.deepEqual(opaqueBox(px, 4, 4), { top: 0.5, left: 0.25, right: 0.75, bottom: 1 }, 'the box round the pixels');
+// a small wolf at the bottom of its frame: its head is in the box, not above it
+const wolfBox = { top: 0.55, left: 0.45, right: 0.55, bottom: 0.95 };
+for (const [x, y] of fxPoints('wolf_frost', 1, wolfBox)) assert.ok(y >= 0.55 && y <= 0.95 && x >= 0.45 && x <= 0.55, 'inside the picture');
+assert.deepEqual(fxPoints('skeleton', 1, wolfBox), FX_POINTS[1], 'people-shaped: on the frame');
+const green = new Uint8ClampedArray([40, 120, 30, 255, 0, 0, 255, 0]);
+const col = stripColour(green);
+assert.ok(col[1] > col[0] && col[1] > col[2] && col[1] >= 200, `a green picture glows green (${col})`);
+assert.equal(stripColour(new Uint8ClampedArray(8)), null, 'nothing to read');
 assert.ok(FX.burning.tintAmount >= 0.35 && FX.burning.tintAmount <= 0.45, 'burning: bones still read');
 assert.equal(FX_POINTS.length, 4, 'points for each facing');
 assert.deepEqual(fxPoint(10, 20, [0.5, 1]), [10, 20.5], 'feet: the bottom centre of the square');

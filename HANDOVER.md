@@ -3218,3 +3218,30 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - Installed with install_city.py (backup backups/city-northern-outpost-
   20261120-034116), restarted from the Proxmox host (nobody online); the
   same restart made the cat -> wildcat rename live.
+
+## 2026-11-20: names over big creatures, five more creature effects (deployed)
+
+- Names over the head (Painted): creatures.js nameAbove(sheet, name) = draw
+  scale > 1.1 (mishaven, demons, Ashen Gaoler) or BIG_FRAMES (dragon,
+  wolf_great, lizard_gator, maneater, horse, cow). drawCreature returns the
+  picture's top (renderer.frameBox: opaqueBox of the frame's pixels, cached
+  per sheet+frame); labelBaseline() puts the name just above it; labels.js
+  stacking unchanged. test/namelabels.test.mjs.
+- Effects: creatureFxList(name, sheet) -> up to 2, in FX_ORDER. Named
+  (CREATURE_FX, now arrays), then name words (frost: any cold word; burning:
+  fire word + skeleton/bones; shadow: shadow/dark/void; blight: blighted/
+  plague/rotting/bog crawler; wet: sea/lake/water/river), then by sheet
+  (ghost* -> ghostly; demon_red/blue, wolf_black -> shadow). Water Shade =
+  ghostly + wet; gloom hound = shadow only. sparkle defined, unassigned.
+- FX fields: light (null ok), glow ([rgb] or 'strip' = the picture's own
+  colour, stripColour from frame 2, deepened), pulse, aura, tint, alpha,
+  bob, ground (feet patch), shine (sweeping glint), parts (particles:
+  pool 'glow' additive or 'smoke' painted, per creature, from points/head/
+  body/feet, wait = now and then, breath = blown the way it faces).
+- Effects are fitted to the box the picture fills (wolves are small in
+  their frames): renderer.fxBoxes per entity -> lighting.js sources
+  { fx, dir, pts, head, box, colour }; fxPoints(sheet, dir, box) puts
+  beasts' head/back in the box. weather.js creatureParticles() runs both
+  pools (motes 90, smoke 60; half on low-end); on-screen creatures only.
+- Checked in headless Chrome with the real strips (scratch harness), not in
+  the live game.
