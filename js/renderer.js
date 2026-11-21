@@ -17,7 +17,8 @@ import { isStorage, storageKind } from './storage.js';
 import { usedUpLook } from './crafting.js';
 import { npcOutfit, npcLayersFor, npcFacing, trimColour } from './npcoutfits.js';
 import { creatureSheetFor, creatureFallback, hovers, hoverMs, sideDir, drawScale, scaledBox, creatureFxList, FX, WEAPON_FX, flicker, nameAbove, opaqueBox, WHOLE_FRAME, stripColour } from './creatures.js';
-import { layoutLabels } from './labels.js';
+import { layoutLabels, layoutUnder } from './labels.js';
+import { MAX_PILE, ITEM_LABEL_SCALE, itemTilt, itemOffset, itemFrameScale, pileLabel, showItemNames, isNear, groupPiles, pileKey } from './grounditems.js';
 import { fxq, fxNextIn } from './fxquality.js';
 import { loadSheet } from './sprites.js';
 
@@ -209,9 +210,30 @@ export class Renderer {
     // someone behind a tree is under its crown. A crown over the player's
     // own figure is see-through, so they're never lost.
     const me = world.self();
+    // Items on the ground (Painted style): grouped by square, drawn small and scattered, at most
+    // MAX_PILE a square, under anyone standing on the same row; their names only when wanted.
+    const groundItems = dressing && this.items ? (this.groundList ??= []) : null;
+    const itemLabels = [];
+    if (groundItems) {
+      groundItems.length = 0;
+      for (const e of list) if (e.type === 1) groundItems.push(e);
+      this.piles = groupPiles(groundItems, this.piles);
+      const ptr = this.pointerSquare;
+      const smallPx = Math.max(8, Math.round(fontPx * ITEM_LABEL_SCALE));
+      for (const pile of this.piles.values()) {
+        if (!pile.length) continue;
+        const { x, y } = pile[0];
+        const hover = !!ptr && ptr.x === x && ptr.y === y;
+        if (!showItemNames({ setting: this.showItemNames, held: this.itemNamesHeld, hover, near: isNear(me, x, y) })) continue;
+        const [px, py] = toPx(x, y);
+        if (px + c < 0 || py + c < 0 || px > this.canvas.width || py > this.canvas.height) continue;
+        const text = pileLabel(pile.map((e) => names?.get(e.id) ?? bareName(e.name)));
+        itemLabels.push({ text, cx: px + c / 2, y: py + c - Math.max(1, Math.round(smallPx / 12)) });
+      }
+    }
     const draws = list.map((e, i) => {
       const pos = world.visualPos(e, now);
-      return { e, pos, key: pos.y + 0.95, i };
+      return { e, pos, key: pos.y + (groundItems && e.type === 1 ? 0.9 : 0.95), i };
     });
     let mine = null;
     if (me && trees.length) {
@@ -230,6 +252,7 @@ export class Renderer {
       const { e, pos } = d;
       let [px, py] = toPx(pos.x, pos.y);
       where.set(e.id, [px, py]);
+      if (groundItems && e.type === 1) { this.drawGroundItem(e, px, py, c); continue; }
       // In a fight: a lunge toward the target and back (world.swingOf),
       // as far as the way they strike (swingStyle) goes.
       const sw = world.swingOf(e.id, now);
@@ -299,7 +322,9 @@ export class Renderer {
     const nudge = Math.max(1, Math.round(c / 36));
     // Painted style: labels that would overprint each other are stacked apart, and
     // same-named neighbours share one ("black dog x3") (js/labels.js). Pixel as Java.
-    const placed = dressing && labels.length > 1 ? this.layoutNameLabels(labels, c, nudge, fontPx) : null;
+    const placed = dressing && (labels.length > 1 || itemLabels.length) ? this.layoutNameLabels(labels, c, nudge, fontPx) : null;
+    // item names first and smaller, only where they don't cover a name
+    if (placed && itemLabels.length) this.drawItemLabels(itemLabels, placed, fontPx, nudge);
     if (placed) {
       for (const { text, x, y } of placed) {
         ctx.fillStyle = '#000';
@@ -385,6 +410,70 @@ export class Renderer {
       const layer = this.renderedLayers.get(`${outfit.look}-${name}`);
       if (layer) this.tinted(layer, colour).draw(this.ctx, n, x, y, side);
     }
+  }
+
+  // A dropped item (Painted style): its picture at about two thirds of a square, a little below
+  // the middle, tilted and (in a heap) nudged by its id, on a soft shadow; the 5th and later
+  // items of a square aren't drawn. Off-screen ones are skipped.
+  drawGroundItem(e, px, py, c) {
+    if (px + c < 0 || py + c < 0 || px > this.canvas.width || py > this.canvas.height) return;
+    const pile = this.piles?.get(pileKey(e.x, e.y));
+    const rank = pile ? pile.indexOf(e) : 0;
+    if (rank >= MAX_PILE) return;
+    const n = pile ? Math.min(pile.length, MAX_PILE) : 1;
+    const { ctx } = this;
+    const art = this.items;
+    const frame = art.index.get(bareName(e.name).toLowerCase());
+    const box = frame !== undefined ? this.frameBox(art.sheet, frame) : WHOLE_FRAME;
+    const k = frame !== undefined ? itemFrameScale(box) : 0.66; // the frame's size, in squares
+    const [ox, oy] = itemOffset(e.id, n);
+    const cx = px + c * (0.5 + ox), cy = py + c * (0.5 + oy);
+    const bw = (box.right - box.left) * k * c, bh = (box.bottom - box.top) * k * c;
+    // the shadow, under where it lies
+    ctx.save();
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + bh * 0.32, Math.max(bw, bh) * 0.42, Math.max(bw, bh) * 0.13, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.translate(cx, cy);
+    ctx.rotate(itemTilt(e.id));
+    const side = k * c;
+    if (frame !== undefined) {
+      // the picture's middle on the spot
+      ctx.imageSmoothingEnabled = true;
+      art.sheet.draw(ctx, frame, -side * (box.left + box.right) / 2, -side * (box.top + box.bottom) / 2, side);
+    } else this.sheets?.sprites?.draw(ctx, e.image, -side / 2, -side / 2, side);
+    ctx.restore();
+  }
+
+  // Item names under the people's (js/labels.js layoutUnder): smaller, centred under their
+  // square, dropped where they'd cover a name.
+  drawItemLabels(itemLabels, placed, fontPx, nudge) {
+    const { ctx } = this;
+    const font = ctx.font;
+    const lineH = Math.round(fontPx * 1.15);
+    const smallPx = Math.max(8, Math.round(fontPx * ITEM_LABEL_SCALE));
+    ctx.font = `${smallPx}px system-ui, sans-serif`;
+    const widths = (this.itemLabelWidths ??= new Map());
+    if (widths.size > 300) widths.clear();
+    const measure = (t) => {
+      const key = `${smallPx} ${t}`;
+      let w = widths.get(key);
+      if (w === undefined) { w = ctx.measureText(t).width; widths.set(key, w); }
+      return w;
+    };
+    for (const l of itemLabels) l.x = l.cx - measure(l.text) / 2;
+    const fixed = placed.map((p) => (p.w === undefined ? { ...p, w: this.labelWidths.get(p.text) ?? ctx.measureText(p.text).width } : p));
+    const small = Math.max(1, Math.round(nudge * 0.7));
+    for (const { text, x, y } of layoutUnder(fixed, itemLabels, measure, lineH, Math.round(smallPx * 1.15))) {
+      ctx.fillStyle = '#000';
+      ctx.fillText(text, x - small, y);
+      ctx.fillStyle = '#e8e0c8';
+      ctx.fillText(text, x, y);
+    }
+    ctx.font = font;
   }
 
   // The on-screen labels laid out apart (js/labels.js); widths measured once per text and font.

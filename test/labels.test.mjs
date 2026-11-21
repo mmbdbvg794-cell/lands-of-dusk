@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { layoutLabels, MAX_LINES } from '../js/labels.js';
+import { layoutLabels, layoutUnder, MAX_LINES } from '../js/labels.js';
 
 const measure = (t) => t.length * 7;
 const H = 12;
@@ -30,4 +30,15 @@ assert.equal(mine.at(-1).text, 'flan');
 assert.equal(mine.at(-1).y, 300, 'self not moved');
 assert.equal(mine.length, 3, 'self not merged with a same-named neighbour');
 assert.deepEqual(layoutLabels([], measure, H), []);
+// Item names go under the others: moved off a name, or dropped when there's no room.
+{
+  const m = (t) => t.length * 6;
+  const placed = [{ text: 'wolf', x: 100, y: 200, w: 24 }];
+  const out = layoutUnder(placed, [{ text: 'dagger', x: 98, y: 200 }, { text: 'apple', x: 400, y: 200 }], m, 20, 14);
+  const d = out.find((l) => l.text === 'dagger');
+  assert.ok(d && d.y !== 200, 'moved off the wolf');
+  assert.ok(out.find((l) => l.text === 'apple' && l.y === 200), 'a free one stays');
+  const boxed = [{ text: 'a', x: 90, y: 186, w: 60 }, { text: 'b', x: 90, y: 200, w: 60 }, { text: 'c', x: 90, y: 214, w: 60 }];
+  assert.equal(layoutUnder(boxed, [{ text: 'dagger', x: 100, y: 200 }], m, 14, 14).length, 0, 'no room: not shown');
+}
 console.log('label tests passed');

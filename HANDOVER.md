@@ -3273,3 +3273,19 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   dark rod is the Dark Wizard's (not spawned).
 - Tests: test/fxquality.test.mjs, test/weaponfx.test.mjs, plus renderdraw (black
   dogs don't redraw) and weathermotes (Low halves particles).
+
+## 2026-11-21: items on the ground (Painted style; deployed)
+
+- js/grounditems.js + renderer drawGroundItem: a dropped item (entity type 1) is drawn
+  from its painted picture's opaque box (frameBox cache), longer side 0.66 square (small
+  pictures enlarged at most 1.4x), 0.1 square below the middle, tilted -20..+20 deg and
+  (in a pile) nudged, both from a hash of its id; a soft shadow ellipse; at most 4 per
+  square (by id), the rest not drawn. Sorted just under figures on the same row.
+- Names: hidden unless the mouse is over the square (renderer.pointerSquare, main.js
+  pointermove, mouse only), you're on/next to it, Alt is held (renderer.itemNamesHeld),
+  or Settings "Always show names of items on the ground" (dusk.itemnames). 70% size,
+  "a, b +N" for a pile; labels.js layoutUnder places them after the people's labels,
+  up to 2 small lines away, and drops any that would cover a name. In Painted the old
+  "object names" setting no longer applies to ground items. Pixel unchanged.
+- Tests: test/grounditems.test.mjs (stable tilt/offset, names hidden/hover/adjacent/
+  Alt, 7-item square draws 4), labels.test.mjs (layoutUnder).

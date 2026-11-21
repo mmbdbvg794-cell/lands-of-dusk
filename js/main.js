@@ -723,6 +723,37 @@ objectNamesBox.addEventListener('change', () => {
   renderer.showObjectNames = objectNamesBox.checked;
   renderer.invalidate();
 });
+// Items on the ground (Painted style): their names only when hovered, next to you, with Alt
+// held, or always with this on (js/grounditems.js).
+const itemNamesBox = $('item-names');
+itemNamesBox.checked = storage('get', 'dusk.itemnames') === '1';
+renderer.showItemNames = itemNamesBox.checked;
+itemNamesBox.addEventListener('change', () => {
+  storage('set', 'dusk.itemnames', itemNamesBox.checked ? '1' : '0');
+  renderer.showItemNames = itemNamesBox.checked;
+  renderer.invalidate();
+});
+const holdItemNames = (on) => {
+  if (renderer.itemNamesHeld === on) return;
+  renderer.itemNamesHeld = on;
+  renderer.invalidate();
+};
+window.addEventListener('keydown', (e) => { if (e.key === 'Alt') { holdItemNames(true); e.preventDefault(); } });
+window.addEventListener('keyup', (e) => { if (e.key === 'Alt') { holdItemNames(false); e.preventDefault(); } });
+window.addEventListener('blur', () => holdItemNames(false));
+// The square under a mouse pointer (not touch), for item names on hover.
+const setPointerSquare = (sq) => {
+  const was = renderer.pointerSquare;
+  if (was?.x === sq?.x && was?.y === sq?.y) return;
+  renderer.pointerSquare = sq;
+  if (renderer.groundList?.length) renderer.invalidate();
+};
+$('map').addEventListener('pointermove', (e) => {
+  if (e.pointerType !== 'mouse') return;
+  const cell = renderer.cellAt(e);
+  setPointerSquare(cell && world.hasMap ? { x: cell[0] + world.locX - world.viewRange, y: cell[1] + world.locY - world.viewRange } : null);
+});
+$('map').addEventListener('pointerleave', () => setPointerSquare(null));
 namesBox.addEventListener('change', () => {
   storage('set', 'dusk.names', namesBox.checked ? '1' : '0');
   renderer.showNames = namesBox.checked;

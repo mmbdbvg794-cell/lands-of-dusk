@@ -67,5 +67,27 @@ export function layoutLabels(labels, measure, lineH) {
   // Self drawn last, on top.
   const out = placed.filter((p) => !p.self);
   for (const p of placed) if (p.self) out.push(p);
-  return out.map(({ text, x, y }) => ({ text, x, y }));
+  return out.map(({ text, x, y, w }) => ({ text, x, y, w }));
+}
+
+// Smaller labels (items on the ground) laid out under the others: each takes its own spot or
+// the nearest free one up to two (small) lines up or down, avoiding the placed labels ({ x, y, w }, their line
+// lineH) and each other; one with no free spot isn't shown, so they never cover a name.
+// labels: { text, x, y } (left, baseline); returns the ones to draw.
+export function layoutUnder(placed, labels, measure, lineH, smallH) {
+  const out = [];
+  const rects = [];
+  for (const p of placed) rects.push([p.x, p.y - lineH * 0.8, p.x + p.w, p.y + lineH * 0.25]);
+  for (const l of labels) {
+    const w = measure(l.text);
+    for (const k of [0, 1, -1, 2, -2]) {
+      const y = l.y + k * smallH;
+      const r = [l.x, y - smallH * 0.8, l.x + w, y + smallH * 0.25];
+      if (rects.some((q) => r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1])) continue;
+      rects.push(r);
+      out.push({ text: l.text, x: l.x, y });
+      break;
+    }
+  }
+  return out;
 }
