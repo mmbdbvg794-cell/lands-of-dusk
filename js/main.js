@@ -15,6 +15,7 @@ import { gearFromEquipment, parseWorn, wornCommand, weaponKind } from './gear.js
 import { chatKind, alsoGeneral, CombatTally } from './chatlog.js';
 import { MapSync, decodeChunk } from './mapsync.js';
 import { loadItemInfo } from './iteminfo.js';
+import { ItemIcons, iconMap } from './itemicons.js';
 import { JournalReader, JournalDefReader, NotesReader, TradeReader, parseFriends, parseMarkers, parseWhisper, MARKERS, MAP_NOTES, noteAdd, noteRemove } from './social.js';
 import { SocialUI } from './socialui.js';
 import { JournalEditor } from './journaleditor.js';
@@ -133,6 +134,26 @@ const finePointer = window.matchMedia?.('(pointer: fine)');
 let player = new Player();
 const panels = new Panels(document.body, player, (cmd) => runCommand(cmd));
 panels.itemArt = () => paintedItems || null; // item pictures, in either art style
+// Item icons (art/icons, js/itemicons.js): fetched like the other art (revalidated, so a new
+// upload shows at once); each picture only when it's first shown.
+let itemIcons = null;
+panels.itemIcons = () => itemIcons;
+fetch('art/icons/icons.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((json) => {
+  if (!json) return;
+  itemIcons = new ItemIcons(iconMap(json), {
+    load: (url, size) => loadSheet(url, size),
+    onLoad: () => { renderer.invalidate(); scheduleIconPanels(); },
+  });
+  renderer.itemIcons = itemIcons;
+  panels.renderItems();
+  for (const part of ['equipment', 'shop', 'store']) panels.update(part);
+});
+// Icons arriving one after another redraw the worn-gear cards once, not once each.
+let iconPanelsTimer = 0;
+function scheduleIconPanels() {
+  if (iconPanelsTimer) return;
+  iconPanelsTimer = setTimeout(() => { iconPanelsTimer = 0; panels.update('equipment'); }, 100);
+}
 loadItemInfo().then((info) => { panels.itemInfo = info; });
 const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
 let world = newWorld();
@@ -2100,7 +2121,7 @@ async function applyArt() {
   if (paintedItems === null) {
     paintedItems = await loadNamed('items', 128);
     panels.renderItems();
-    panels.update('equipment');
+    for (const part of ['equipment', 'shop', 'store']) panels.update(part); // lists drawn before the art arrived
   }
   renderer.paintedEffects = artStyle === 'painted';
   renderer.blendGround = artStyle === 'painted';

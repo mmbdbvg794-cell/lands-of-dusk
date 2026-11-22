@@ -422,9 +422,15 @@ export class Renderer {
     if (rank >= MAX_PILE) return;
     const n = pile ? Math.min(pile.length, MAX_PILE) : 1;
     const { ctx } = this;
-    const art = this.items;
-    const frame = art.index.get(bareName(e.name).toLowerCase());
-    const box = frame !== undefined ? this.frameBox(art.sheet, frame) : WHOLE_FRAME;
+    // its icon (js/itemicons.js) where it has one, else the old painted picture
+    const name = bareName(e.name);
+    let sheet = this.items.sheet, frame = this.items.index.get(name.toLowerCase());
+    if (this.itemIcons?.file(name)) {
+      const icon = this.itemIcons.sheet(name);
+      if (icon === undefined) return; // still loading: drawn when it arrives
+      if (icon) { sheet = icon; frame = 0; }
+    }
+    const box = frame !== undefined ? this.frameBox(sheet, frame) : WHOLE_FRAME;
     const k = frame !== undefined ? itemFrameScale(box) : 0.66; // the frame's size, in squares
     const [ox, oy] = itemOffset(e.id, n);
     const cx = px + c * (0.5 + ox), cy = py + c * (0.5 + oy);
@@ -443,7 +449,7 @@ export class Renderer {
     if (frame !== undefined) {
       // the picture's middle on the spot
       ctx.imageSmoothingEnabled = true;
-      art.sheet.draw(ctx, frame, -side * (box.left + box.right) / 2, -side * (box.top + box.bottom) / 2, side);
+      sheet.draw(ctx, frame, -side * (box.left + box.right) / 2, -side * (box.top + box.bottom) / 2, side);
     } else this.sheets?.sprites?.draw(ctx, e.image, -side / 2, -side / 2, side);
     ctx.restore();
   }

@@ -3289,3 +3289,24 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
   "object names" setting no longer applies to ground items. Pixel unchanged.
 - Tests: test/grounditems.test.mjs (stable tilt/offset, names hidden/hover/adjacent/
   Alt, 7-item square draws 4), labels.test.mjs (layoutUnder).
+
+## 2026-11-22: item icons (art/icons, LIVE)
+
+- 286 icons rendered on the Windows PC from handmade CC0 models (Quaternius,
+  drummyfish, Kenney) and our own gear: art/icons/<file>.png (128x128) and
+  icons.json ({ "item name": "file.png" }); contact_sheet.png is a preview.
+  art/ is gitignored: the copy here came from the server (scp), and
+  tools/deploy.sh now ships art/icons and checks icons.json.
+- js/itemicons.js: names match as the old pictures do (any case, underscore
+  twins). Where an item has an icon it is used in the Backpack, Storage
+  and Shop lists (both art styles), the worn-gear cards (cropped once
+  loaded) and items on the ground (Painted only). Each icon loads the first
+  time it's needed. The old painted pictures (art/painted/items.png, likely
+  AI-made) are kept for items without an icon. The Pixel ground sprites are
+  unchanged.
+- Fixed while checking: the shop and storage lists are now redrawn when the
+  item art arrives. Before, logging in on a merchant's square left the
+  shop with no pictures.
+- Checked on scratch as hgate (moved to 485,1256 near the merchant at
+  487,1252). The pile dropped at 485,1256 shows icons, tilted, in the
+  Painted style. Test: test/itemicons.test.mjs.

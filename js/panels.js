@@ -542,8 +542,11 @@ export class Panels {
     return li;
   }
 
-  // The painted picture for an item, drawn once and kept.
+  // The item's icon (js/itemicons.js) where it has one; otherwise the painted picture, drawn
+  // once and kept.
   itemIcon(name) {
+    const url = this.itemIcons?.()?.url(name);
+    if (url) return url;
     const art = this.itemArt?.();
     const frame = art?.index.get(name.toLowerCase());
     if (frame === undefined) return null;
@@ -561,18 +564,28 @@ export class Panels {
 
   // The same picture cropped to what's drawn in it (the frames have wide
   // empty margins), for the worn-gear cards; drawn once and kept.
+  // An icon is cropped once it has loaded (the whole icon until then).
   wornIcon(name) {
-    const art = this.itemArt?.();
-    const frame = art?.index.get(name.toLowerCase());
-    if (frame === undefined) return null;
+    const icons = this.itemIcons?.();
+    let sheet, frame, key;
+    if (icons?.file(name)) {
+      const icon = icons.sheet(name); // starts it loading; panels.update('equipment') when it's in
+      if (!icon) return icons.url(name);
+      [sheet, frame, key] = [icon, 0, `icon:${icons.file(name)}`];
+    } else {
+      const art = this.itemArt?.();
+      frame = art?.index.get(name.toLowerCase());
+      if (frame === undefined) return null;
+      [sheet, key] = [art.sheet, frame];
+    }
     this.wornIcons ??= new Map();
-    let src = this.wornIcons.get(frame);
+    let src = this.wornIcons.get(key);
     if (src) return src;
-    const n = art.sheet.size;
+    const n = sheet.size;
     const full = document.createElement('canvas');
     full.width = full.height = n;
     const fc = full.getContext('2d', { willReadFrequently: true });
-    art.sheet.draw(fc, frame, 0, 0, n);
+    sheet.draw(fc, frame, 0, 0, n);
     let box = null;
     try { box = opaqueBox(fc.getImageData(0, 0, n, n)); } catch { /* unreadable: keep the margins */ }
     const [x, y, w, h] = box ?? [0, 0, n, n];
@@ -584,7 +597,7 @@ export class Panels {
     const s = 96 / side;
     oc.drawImage(full, x, y, w, h, (96 - w * s) / 2, (96 - h * s) / 2, w * s, h * s);
     src = out.toDataURL();
-    this.wornIcons.set(frame, src);
+    this.wornIcons.set(key, src);
     return src;
   }
 
