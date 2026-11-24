@@ -3292,11 +3292,18 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 
 ## 2026-11-22: item icons (art/icons, LIVE)
 
-- 286 icons rendered on the Windows PC from handmade CC0 models (Quaternius,
+- Icons rendered on the Windows PC from handmade CC0 models (Quaternius,
   drummyfish, Kenney) and our own gear: art/icons/<file>.png (128x128) and
   icons.json ({ "item name": "file.png" }); contact_sheet.png is a preview.
-  art/ is gitignored: the copy here came from the server (scp), and
-  tools/deploy.sh now ships art/icons and checks icons.json.
+  First upload 286 (2026-11-22); re-uploaded 2026-11-23 with 335 (337
+  files; bronze_suit.png md5 6d6fbed7...).
+- The SERVER's art/icons is the master: new icons are uploaded straight to
+  ~/dusk-browser-client/art/icons on duskserver. tools/deploy.sh tars the
+  repo's art/icons over it (same-named files overwritten), so before any
+  deploy after an upload, mirror it back:
+  `rsync -a --delete flan@192.168.4.61:dusk-browser-client/art/icons/ art/icons/`
+  and compare md5s. art/ is gitignored, so git won't show it. Done
+  2026-11-23, then deployed (2026-11-23, all 337 matching).
 - js/itemicons.js: names match as the old pictures do (any case, underscore
   twins). Where an item has an icon it is used in the Backpack, Storage
   and Shop lists (both art styles), the worn-gear cards (cropped once
