@@ -48,6 +48,7 @@ rm -rf "$T"
 
 echo "Running tests..."
 for t in test/*.test.mjs; do node "$t"; done
+for t in test/*.test.py; do python3 "$t"; done
 
 echo "Copying to $HOST..."
 tar czf - index.html robots.txt tools/betakey who.html leaderboard.html profile.html forum.html forum.py apply.py manifest.json sw.js css js img music art/painted art/icons tools/spellinfo.py tools/music_credits.py tools/raceinfo.py tools/iteminfo.py tools/rebuild-data.sh serve.py README.md server |

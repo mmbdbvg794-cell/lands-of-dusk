@@ -3318,3 +3318,20 @@ future-ideas notes. `CHANGELOG.md` is the player-facing log (repo only, not serv
 - Checked on scratch as hgate (moved to 485,1256 near the merchant at
   487,1252). The pile dropped at 485,1256 shows icons, tilted, in the
   Painted style. Test: test/itemicons.test.mjs.
+
+## 2026-11-25: art credits on the website (LIVE)
+
+- https://duskserver.tailaee0f2.ts.net/web/credits.html loads
+  ~/DuskRPG/web/credits.json (list of {name, role, body}; body is HTML).
+  The page now also knows `kind`: "section" (heading + intro in body),
+  "group" (subheading), "note" (a closing line); plain entries as before.
+  site/credits.html is the page (copy to ~/DuskRPG/web by hand, as
+  apply.html); site/credits-art.json is the art section's entries.
+- New section "Art: rendered characters, creatures and items" (MakeHuman/
+  MPFB, CC-BY clothing authors, Quaternius, Mixamo, casadogames, drummyfish,
+  Kenney, Blender) after the music. Links open in a new tab.
+- tools/music_credits.py now puts the tracks back where the old ones stood
+  (so the art section stays after the music) and gives their links
+  target=_blank; test/musiccredits.test.py, and deploy.sh runs
+  test/*.test.py too. Backup of the old page/json:
+  ~/DuskRPG/backups/credits-20261125-205409.

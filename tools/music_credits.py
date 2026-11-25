@@ -6,8 +6,9 @@ that credits.html inserts as HTML).
     python3 music_credits.py MANIFEST CREDITS [--apply]
 
 Track entries carry "from": "music" (the page ignores it); they're
-replaced each run, so a track taken out of the manifest leaves the credits
-too. Everything else in the file is kept as it is. Without --apply it only
+replaced each run, where the old ones stood, so a track taken out of the
+manifest leaves the credits too and sections after the music stay after
+it. Everything else in the file is kept as it is. Without --apply it only
 says what would change. The file isn't touched when nothing changed, and
 a copy is kept as credits.json.bak when it is. tools/deploy.sh runs this
 on the server with --apply after copying the client.
@@ -24,13 +25,25 @@ def entry(t):
     src = t.get("source") or ""
     body = []
     if src.startswith(("http://", "https://")):
-        body.append('<a href="%s">%s</a>' % (html.escape(src, quote=True), html.escape(src)))
+        body.append('<a href="%s" target="_blank" rel="noopener">%s</a>' % (html.escape(src, quote=True), html.escape(src)))
     if lic:
         body.append(lic)
     e = {"name": "%s by %s" % (title, author), "role": "Music (%s)" % html.escape(t["mood"]), "from": "music"}
     if body:
         e["body"] = " &middot; ".join(body)
     return e
+
+
+def merged(credits, new):
+    """The credits with the music entries swapped for `new`, in the place the
+    first old one stood (so sections after the music stay after it); at the
+    end if there was no music before."""
+    at = next((i for i, c in enumerate(credits) if c.get("from") == "music"), None)
+    kept = [c for c in credits if c.get("from") != "music"]
+    if at is None:
+        return kept + new
+    before = sum(1 for c in credits[:at] if c.get("from") != "music")
+    return kept[:before] + new + kept[before:]
 
 
 def main():
@@ -43,7 +56,6 @@ def main():
         tracks = [t for t in json.load(f).get("tracks", []) if t.get("file") and t.get("mood")]
     with open(credits_path) as f:
         credits = json.load(f)
-    kept = [c for c in credits if c.get("from") != "music"]
     old = [c for c in credits if c.get("from") == "music"]
     new = [entry(t) for t in tracks]
     if old == new:
@@ -59,7 +71,7 @@ def main():
         json.dump(credits, f, indent=2)
         f.write("\n")
     with open(credits_path, "w") as f:
-        json.dump(kept + new, f, indent=2)
+        json.dump(merged(credits, new), f, indent=2)
         f.write("\n")
     print("Wrote %s." % credits_path)
 

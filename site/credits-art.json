@@ -1,0 +1,82 @@
+[
+  {
+    "kind": "section",
+    "name": "Art: rendered characters, creatures and items",
+    "body": "Our Painted-style characters, creatures and item icons are rendered in Blender from these handmade models and animations. Thank you to their creators."
+  },
+  {
+    "kind": "group",
+    "name": "Characters and clothing"
+  },
+  {
+    "name": "MPFB 2 by Joel Palmius and the MakeHuman community",
+    "role": "Character bodies, skins, hair, eyebrows",
+    "body": "MPFB: GPL software; base assets CC0 &middot; <a href=\"https://static.makehumancommunity.org/\" target=\"_blank\" rel=\"noopener\">https://static.makehumancommunity.org/</a>"
+  },
+  {
+    "name": "MakeHuman community asset packs",
+    "role": "Clothing, helmets, beards, shoes",
+    "body": "Suits 02 (monk robes, Viking tunic, trousers and boots), Hats 02 (Templar helmet by javherre), Bodyparts 05 (beards, including Rehmanpolanski's beard), Shoes 01, Dress 01 &middot; CC0 &middot; <a href=\"https://static.makehumancommunity.org/assets/assetpacks.html\" target=\"_blank\" rel=\"noopener\">https://static.makehumancommunity.org/assets/assetpacks.html</a>"
+  },
+  {
+    "name": "MaciekG, DredNicolson and punkduck",
+    "role": "Clothing from the MakeHuman community asset packs",
+    "body": "MaciekG: wizard robe, leather boots &middot; DredNicolson: tunic and sash &middot; punkduck: medieval boots &middot; CC-BY &middot; <a href=\"https://static.makehumancommunity.org/assets/assetpacks.html\" target=\"_blank\" rel=\"noopener\">https://static.makehumancommunity.org/assets/assetpacks.html</a>"
+  },
+  {
+    "name": "Quaternius",
+    "role": "Ranger and Peasant outfits",
+    "body": "Modular Character Outfits &ndash; Fantasy &middot; CC0 &middot; <a href=\"https://quaternius.com\" target=\"_blank\" rel=\"noopener\">https://quaternius.com</a>"
+  },
+  {
+    "name": "Mixamo (Adobe)",
+    "role": "Walk animations and the Mutant character",
+    "body": "Mixamo terms &middot; <a href=\"https://www.mixamo.com\" target=\"_blank\" rel=\"noopener\">https://www.mixamo.com</a>"
+  },
+  {
+    "kind": "group",
+    "name": "Creatures"
+  },
+  {
+    "name": "Quaternius",
+    "role": "Creature models and animations",
+    "body": "Easy Animated Enemy Pack, Farm Animals Animated, Monster Pack Animated, Ultimate Animated Animal Pack, dinosaurs (Velociraptor, T-Rex), Bestiary (Imp, Puglin), Universal Animation Library, Ultimate Monsters (Ghost), Blob pack (Mushnub) &middot; CC0 &middot; <a href=\"https://quaternius.com\" target=\"_blank\" rel=\"noopener\">https://quaternius.com</a>"
+  },
+  {
+    "name": "casadogames",
+    "role": "Lizard",
+    "body": "Lizard 3D &middot; free download, used with thanks &middot; <a href=\"https://casadogames.itch.io/lizard-3d\" target=\"_blank\" rel=\"noopener\">https://casadogames.itch.io/lizard-3d</a>"
+  },
+  {
+    "kind": "group",
+    "name": "Item icons"
+  },
+  {
+    "name": "Quaternius",
+    "role": "Props for item icons",
+    "body": "Fantasy Props MegaKit (Standard) &middot; CC0 &middot; <a href=\"https://quaternius.com\" target=\"_blank\" rel=\"noopener\">https://quaternius.com</a>"
+  },
+  {
+    "name": "drummyfish",
+    "role": "Items for item icons",
+    "body": "RPG Item Collection 1 and 2 &middot; CC0 &middot; <a href=\"https://opengameart.org/content/rpg-item-collection-1\" target=\"_blank\" rel=\"noopener\">https://opengameart.org/content/rpg-item-collection-1</a><br><a href=\"https://opengameart.org/content/rpg-item-collection-2\" target=\"_blank\" rel=\"noopener\">https://opengameart.org/content/rpg-item-collection-2</a>"
+  },
+  {
+    "name": "Kenney",
+    "role": "Food for item icons",
+    "body": "Food Kit &middot; CC0 &middot; <a href=\"https://kenney.nl/assets/food-kit\" target=\"_blank\" rel=\"noopener\">https://kenney.nl/assets/food-kit</a>"
+  },
+  {
+    "kind": "group",
+    "name": "Tools"
+  },
+  {
+    "name": "Blender",
+    "role": "Modelling and rendering",
+    "body": "<a href=\"https://www.blender.org\" target=\"_blank\" rel=\"noopener\">https://www.blender.org</a>"
+  },
+  {
+    "kind": "note",
+    "body": "Everything else in the rendered art (armour shapes, weapons, effects) was made for the game."
+  }
+]
