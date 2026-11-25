@@ -2790,8 +2790,9 @@ then a restart (signs and props are read at start-up; flan was online, so
   Old Sailor Wick's tale hints at it. No signposts.
 - Clans: maybe a "clan hall" sign or name plaque when claimed (the who
   page shows clans since 2026-10-20).
-- CHANGELOG.md is up to date to 2026-10-21 (play-tests 1-7, item
-  rebalance, Velkarath lived in and its grey walls).
+- CHANGELOG.md is up to date to 2026-11-23 (caught up 2026-11-25: the
+  Grey Beneath, Homecoming, potions, class trials, Last Water, the
+  rendered look, item icons).
 
 ## More notes
 

@@ -783,6 +783,129 @@ What they ran into is fixed:
   gates, the keep, the cathedral, the market, the harbour and Sergeant
   Wexley's post lie. The Royal Keep's sign names Lord Steward Halvard.
 
+## The old world, emptied out (21 October 2026)
+
+- The old world reads as a place people left: the City of Light's gate and
+  market say half the stalls stand empty, the gutter outside the north-west
+  village holds the last issue of *Dark Star News*, and Vortania has its
+  own paper, *The Vortanian Crier*.
+- Old players' houses have their names scraped off or the nameplates taken
+  east. A few odd squares from the original game were tidied away,
+  including Trank's crowded hall of thieves and a square that took all
+  your gold.
+- Main-story characters (Old Wenna, Shaman Ithrae, Archivist Zyrith,
+  Tombkeeper Aldous, Trader Kossk, Chieftain Hesska) have something new to
+  say once you've finished later chapters.
+
+## The Grey Beneath and Homecoming (26 October 2026)
+
+- **The Grey Beneath**: a new chapter for every race after The Withered
+  Grove, with Faelwen and Faelith in Aelindor, and a drow-only quest from
+  Priestess Ilvra for those who've done Velkarath's. Something is wrong
+  under the grove. New monsters, a new lore tale for Keeper of Tales, the
+  Thornward Cloak, and the achievement **The Door Held**.
+- **Homecoming**: once you've told Old Bram the word from Firetown,
+  Princess Elowen can come home to Kingshaven. Three quests, a fight among
+  the old graves above the beach, the gaol-chain belt and the achievement
+  **The Chair Stays Cold**.
+- Characters can now appear or disappear as your story moves on, and the
+  same person can stand in two places depending on how far you've got.
+
+## Potions, shops and blessings (26 October 2026)
+
+- **Potions are named by what they do**: minor, regular and strong healing
+  and mana potions, and the rejuvenation potion. No more colours to guess.
+  Each heals its amount or a share of your maximum, whichever is more.
+- Potions are sold in every town. Each race's home city sells the full
+  range.
+- **Priests' blessing**: Maren, Ilsevel, Ilvra and Ithrae restore all your
+  health and mana for a 10 gold donation.
+- **Middle-tier armour at every race's home**: leafsilver in Aelindor,
+  shadowsteel in Velkarath, swampscale in Ssarakh. The ash staff is sold in
+  four shops. Mystery boxes cost what their contents are worth.
+- Hunger and thirst just say you feel it, without telling you what to do.
+
+## From play-test 8 (26 October 2026)
+
+- A dirt path from the bottom of Velkarath's west stair to Aelindor
+  Landing's pier, so dark elves don't get lost in the forest.
+- The Lost Patrol names every step in its reminder and counts the camp
+  from a few squares away.
+- Every bow and ranged weapon's description says how far it reaches.
+- Archivist Zyrith greets dark elves as one of her own.
+
+## Choosing a class at the end of the tutorial (27–28 October 2026)
+
+- You no longer pick a class straight away. Each tutorial has a training
+  yard where you can **try every class** with its kit and spells, and you
+  choose at the tutorial's end stone.
+- A trial keeper stands beside each tutorial's trainer (Veteran Maddock,
+  Sentinel Aeris, Weapons-Keeper Zhaun, Old Ssiv) and offers the trials
+  when you hand in the dummy's stuffing.
+- Fixed: trials ending at once in the browser, and characters getting into
+  the world without a race when they left the race question too long.
+
+## Journal, quests and the minimap (28–30 October 2026)
+
+- The journal folds into **Quests, Bounties and Lore**. Finished quests are
+  one line each, and kill steps show a progress bar.
+- Kills made on a quest's earlier steps count towards a later kill step,
+  and the journal shows the kills already counted.
+- Some "bring" steps can be handed in early.
+- Creatures in view show as red dots on the minimap.
+- Class and male/female pickers have a Classic look too.
+
+## Places and supplies (29 October – 20 November 2026)
+
+- **Last Water**, a walled oasis outpost in the southern desert, with a
+  wellkeeper, a stall and bedrolls to rent.
+- **Water barrels** beside every bounty board and at Last Water. A drink
+  quenches thirst for three hours and fills your waterskins.
+- **Waterskins** hold three drinks, 25 gold in the shops that sell water.
+- **Signs show names only.** Prices, directions and how-tos are in what
+  people tell you now. Signposts are gone.
+- **Saelin's Armoury** in Aelindor: Caelum's sister sells the armour and
+  blades, and **Caelum's Bows** sells bows, including two new ones (the
+  elven bow and the moonwood longbow).
+- **Arrows and quivers are gone.** Bows never needed them. Arrows you
+  already have can still be sold.
+- **The Northern Outpost**: a stone fort on the northern snowfield.
+- Kingshaven's **Wayfarer's Rest** has a door you can actually reach.
+- **Bounty boards** stand in a neat grid (easy, middling, hard) and show
+  as "Bounty Board". Look at a notice to see which one it is.
+- The old quarry's rubble is now ore veins you can mine.
+- Bats and swamp serpents move about.
+
+## Chat
+
+- Slurs are blocked in chat, names and the forum. Repeating them gets you
+  muted for a while.
+
+## A new look (Painted style, 3–23 November 2026)
+
+- **3D-rendered figures**: players are drawn as rendered figures in their
+  worn gear, with two-tone trims, boots, shoes and hoods.
+- **Townsfolk and guards** are dressed by who they are: guards in mail,
+  wizards in robes, farmers in shirts and trousers, children smaller.
+  Elves, dark elves and lizardfolk look like their own race. Duergar are
+  grey dwarves in dark iron.
+- **Rendered creatures**: rats, spiders, snakes, wolves, skeletons,
+  slimes in their colours, bats, dragons, ghosts, demons, cats, lizards and
+  alligators, and many more. Big ones carry their names above their heads.
+- **Creature effects**: burning skeletons, frost, ghostly glows, shadow,
+  blight and wet. **Weapon effects** for flaming, frost, shining, shadow and
+  venom weapons.
+- Settings → Display → **Effects: Full / Low / Off** for slower devices.
+- **Items on the ground** lie small and tilted, heaped up to four on a
+  square. Names show on hover, when you're next to them, or while holding
+  Alt (or always, in Settings).
+- **Item icons**: over 300 new pictures in the backpack, storage, shops,
+  worn gear and on the ground.
+- Names over figures no longer overlap: same-named neighbours show as
+  "name x3".
+- Holding a movement key walks at a steady pace, and turning doesn't stall.
+- Pixel style keeps the original art.
+
 ## Closed alpha
 
 - **Alpha keys.** Playing in the browser needs an alpha key. Type it once in
